@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import JSZip from 'jszip';
-import { useWedding } from '../context/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
   updateProjectStatus, approveGuestbookEntry, deleteGuestbookEntry,
   deleteMusicWish, updateProjectContent,
-} from '../lib/supabase';
+} from '../../lib/supabase';
 
 // ============================================
 // STYLED COMPONENTS (Compact)

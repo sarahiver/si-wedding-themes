@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../context/WeddingContext';
-import { submitPhotoUpload } from '../lib/supabase';
+import { useWedding } from '../../context/WeddingContext';
+import { submitPhotoUpload } from '../../lib/supabase';
 
 const Section = styled.section`
   padding: 8rem 2rem;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../context/WeddingContext';
-import { getGuestbookEntries, getPhotoUploads } from '../lib/supabase';
+import { useWedding } from '../../context/WeddingContext';
+import { getGuestbookEntries, getPhotoUploads } from '../../lib/supabase';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(30px); }

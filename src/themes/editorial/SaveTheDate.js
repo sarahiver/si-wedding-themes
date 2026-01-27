@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../context/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 import Countdown from './Countdown';
 
 const fadeInUp = keyframes`
