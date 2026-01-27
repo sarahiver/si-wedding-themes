@@ -1,70 +1,242 @@
-# Getting Started with Create React App
+# S&I Wedding Themes - Multi-Theme Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ein React-Projekt, das alle 6 Wedding-Themes in einer Anwendung vereint. Das Theme wird dynamisch basierend auf dem `project.theme` Feld in der Supabase-Datenbank gewählt.
 
-## Available Scripts
+## 🎨 Verfügbare Themes
 
-In the project directory, you can run:
+| Theme | Stil | URL Pattern |
+|-------|------|-------------|
+| **Editorial** | Zeitlose Magazin-Ästhetik | `/demo?theme=editorial` |
+| **Botanical** | Organisch & Natürlich | `/demo?theme=botanical` |
+| **Contemporary** | Modern & Playful | `/demo?theme=contemporary` |
+| **Luxe** | Opulent & Glamourös | `/demo?theme=luxe` |
+| **Neon** | Bold & Digital | `/demo?theme=neon` |
+| **Video** | Cineastisch & Dramatisch | `/demo?theme=video` |
 
-### `npm start`
+## 🏗️ Architektur
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     si-wedding-themes                        │
+│                    (siwedding.de)                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  URL Request                                                │
+│      │                                                      │
+│      ▼                                                      │
+│  ┌─────────────────┐                                        │
+│  │   App.js        │ ← Routing                              │
+│  └────────┬────────┘                                        │
+│           │                                                 │
+│           ▼                                                 │
+│  ┌─────────────────┐     ┌─────────────────┐                │
+│  │ WeddingProvider │ ──▶ │    Supabase     │                │
+│  │ (Context)       │     │  projects table │                │
+│  └────────┬────────┘     └─────────────────┘                │
+│           │                                                 │
+│           │ project.theme = "luxe"                          │
+│           ▼                                                 │
+│  ┌─────────────────┐                                        │
+│  │ ThemeRenderer   │ ← Wählt Theme-Komponenten              │
+│  └────────┬────────┘                                        │
+│           │                                                 │
+│           ▼                                                 │
+│  ┌────────────────────────────────────────────┐             │
+│  │           themes/                          │             │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐         │             │
+│  │  │editorial│ │botanical│ │  luxe  │ ...    │             │
+│  │  │ Hero   │ │  Hero  │ │  Hero  │         │             │
+│  │  │ Footer │ │ Footer │ │ Footer │         │             │
+│  │  │  ...   │ │  ...   │ │  ...   │         │             │
+│  │  └────────┘ └────────┘ └────────┘         │             │
+│  └────────────────────────────────────────────┘             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📁 Projektstruktur
 
-### `npm test`
+```
+si-wedding-themes/
+├── public/
+│   └── index.html          # Alle Theme-Fonts geladen
+├── src/
+│   ├── App.js              # Haupt-Routing
+│   ├── index.js            # Entry Point
+│   ├── components/
+│   │   └── ThemeRenderer.js # Dynamischer Theme-Switcher
+│   ├── context/
+│   │   └── WeddingContext.js
+│   ├── hooks/
+│   │   ├── useWeddingData.js
+│   │   └── useCloudinaryUpload.js
+│   ├── lib/
+│   │   └── supabase.js
+│   └── themes/
+│       ├── editorial/      # 23 Komponenten
+│       ├── botanical/      # 22 Komponenten
+│       ├── contemporary/   # 22 Komponenten
+│       ├── luxe/          # 24 Komponenten
+│       ├── neon/          # 24 Komponenten
+│       └── video/         # 19 Komponenten
+├── package.json
+├── vercel.json
+└── README.md
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🔗 URL-Routing
 
-### `npm run build`
+### Standard-Routing (siwedding.de)
+```
+/                       → Landing Page (Demo)
+/demo?theme=luxe        → Theme Demo
+/:slug                  → Projekt laden (z.B. /pauli-mo)
+/:slug/admin            → Kunden-Admin Dashboard
+/:slug/std              → Save-the-Date Ansicht
+/:slug/archiv           → Archiv-Ansicht (nach Hochzeit)
+/:slug/preview          → Live-Vorschau
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Custom Domain Routing (z.B. pauliundmo.de)
+```
+/                       → Projekt mit custom_domain='pauliundmo.de'
+/admin                  → Kunden-Admin Dashboard
+/std                    → Save-the-Date
+/archiv                 → Archiv
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🗄️ Supabase Schema
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### projects Tabelle
+```sql
+CREATE TABLE projects (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  slug VARCHAR UNIQUE NOT NULL,
+  custom_domain VARCHAR,
+  couple_names VARCHAR NOT NULL,
+  wedding_date DATE,
+  theme VARCHAR DEFAULT 'editorial',  -- ← Theme-Auswahl
+  status VARCHAR DEFAULT 'live',       -- live, std, archiv
+  active_components TEXT[],            -- ['hero', 'countdown', 'rsvp', ...]
+  package VARCHAR,                     -- klassik, signature, couture
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### `npm run eject`
+### project_content Tabelle
+```sql
+CREATE TABLE project_content (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID REFERENCES projects(id),
+  component_name VARCHAR NOT NULL,     -- 'hero', 'countdown', etc.
+  content JSONB NOT NULL,              -- Komponentendaten
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🚀 Deployment
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Vercel
+```bash
+# Installieren
+npm install -g vercel
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Deployen
+vercel
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Production
+vercel --prod
+```
 
-## Learn More
+### Environment Variables
+```env
+REACT_APP_SUPABASE_URL=https://wikxhpvikelfgzdgndlf.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=eyJ...
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Custom Domain Setup
+1. In Vercel: Settings → Domains → Add Domain
+2. DNS bei Strato/Cloudflare: CNAME → cname.vercel-dns.com
+3. In Supabase: `UPDATE projects SET custom_domain = 'pauliundmo.de' WHERE slug = 'pauli-mo'`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🔄 Workflow
 
-### Code Splitting
+### 1. SuperAdmin erstellt Projekt
+```
+si-superadmin.vercel.app
+  ↓
+  Neues Projekt anlegen
+  - Slug: pauli-mo
+  - Theme: luxe
+  - Paket: Signature
+  - Komponenten auswählen
+  ↓
+  → Speichert in Supabase
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 2. Kunden-Admin befüllt Content
+```
+siwedding.de/pauli-mo/admin
+  ↓
+  - Hero-Bild hochladen (Cloudinary)
+  - Timeline befüllen
+  - RSVP konfigurieren
+  ↓
+  → Speichert in project_content
+```
 
-### Analyzing the Bundle Size
+### 3. Website geht live
+```
+siwedding.de/pauli-mo
+  oder
+pauliundmo.de
+  ↓
+  ThemeRenderer lädt "luxe" Theme
+  ↓
+  Zeigt personalisierte Hochzeitswebsite
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🛠️ Lokale Entwicklung
 
-### Making a Progressive Web App
+```bash
+# Dependencies installieren
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Development Server starten
+npm start
 
-### Advanced Configuration
+# Build erstellen
+npm run build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📝 Anpassungen an Themes
 
-### Deployment
+Die Theme-Komponenten wurden so angepasst, dass sie:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. **Daten aus Supabase** akzeptieren (via `config` oder `data` prop)
+2. **Fallback-Werte** haben für fehlende Daten
+3. **isComponentActive()** respektieren für bedingte Anzeige
 
-### `npm run build` fails to minify
+### Props für Komponenten
+```jsx
+// Jede Komponente erhält:
+<Hero 
+  config={config}        // Komplett-Objekt
+  data={config}          // Alias für Legacy-Kompatibilität
+  name1="Pauli"          // Einzelne Props (Editorial)
+  content={content.hero} // Content-Objekt (für einige Themes)
+/>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🎯 Nächste Schritte
+
+- [ ] Marketing Site iframes auf `/demo?theme=X` umstellen
+- [ ] Theme-Komponenten vollständig auf Supabase-Daten anpassen
+- [ ] AdminDashboard für alle Themes vereinheitlichen
+- [ ] Cloudinary Upload in alle Themes integrieren
+- [ ] Tests für Theme-Switching
+
+---
+
+© 2025 S&I Wedding by IverLasting
