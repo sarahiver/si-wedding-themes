@@ -478,66 +478,160 @@ export function ThemeRenderer({ pageType = 'wedding' }) {
         )}
         
         {isComponentActive('lovestory') && LoveStory && (
-          <LoveStory config={config} data={config} content={content.lovestory} />
+          <LoveStory 
+            config={config} 
+            data={config} 
+            content={content.lovestory}
+            // Spread content for themes that use direct props
+            title={content.lovestory?.title}
+            subtitle={content.lovestory?.subtitle}
+            milestones={content.lovestory?.events}
+            events={content.lovestory?.events}
+          />
         )}
         
         {isComponentActive('timeline') && Timeline && (
-          <Timeline config={config} data={config} content={content.timeline} />
+          <Timeline 
+            config={config} 
+            data={config} 
+            content={content.timeline}
+            title={content.timeline?.title}
+            events={content.timeline?.events}
+          />
         )}
         
         {isComponentActive('locations') && Locations && (
-          <Locations config={config} data={config} content={content.locations} />
+          <Locations 
+            config={config} 
+            data={config} 
+            content={content.locations}
+            title={content.locations?.title}
+            locations={content.locations?.locations}
+          />
         )}
         
         {isComponentActive('directions') && Directions && (
-          <Directions config={config} data={config} content={content.directions} />
+          <Directions 
+            config={config} 
+            data={config} 
+            content={content.directions}
+            title={content.directions?.title}
+            address={content.directions?.address}
+            options={content.directions?.options}
+          />
         )}
         
         {isComponentActive('accommodations') && Accommodations && (
-          <Accommodations config={config} data={config} content={content.accommodations} />
+          <Accommodations 
+            config={config} 
+            data={config} 
+            content={content.accommodations}
+            title={content.accommodations?.title}
+            description={content.accommodations?.description}
+            hotels={content.accommodations?.hotels}
+          />
         )}
         
         {isComponentActive('dresscode') && Dresscode && (
-          <Dresscode config={config} data={config} content={content.dresscode} />
+          <Dresscode 
+            config={config} 
+            data={config} 
+            content={content.dresscode}
+            title={content.dresscode?.title}
+            description={content.dresscode?.description}
+            code={content.dresscode?.code}
+            colors={content.dresscode?.colors}
+          />
         )}
         
         {isComponentActive('rsvp') && RSVP && (
-          <RSVP config={config} data={config} content={content.rsvp} />
+          <RSVP 
+            config={config} 
+            data={config} 
+            content={content.rsvp}
+            title={content.rsvp?.title}
+            description={content.rsvp?.description}
+            deadline={content.rsvp?.deadline}
+          />
         )}
         
         {isComponentActive('gallery') && Gallery && (
-          <Gallery config={config} data={config} content={content.gallery} />
+          <Gallery 
+            config={config} 
+            data={config} 
+            content={content.gallery}
+            title={content.gallery?.title}
+            images={content.gallery?.images}
+          />
         )}
         
         {isComponentActive('photoupload') && PhotoUpload && (
-          <PhotoUpload config={config} data={config} content={content.photoupload} />
+          <PhotoUpload 
+            config={config} 
+            data={config} 
+            content={content.photoupload}
+            title={content.photoupload?.title}
+            description={content.photoupload?.description}
+          />
         )}
         
         {isComponentActive('guestbook') && Guestbook && (
-          <Guestbook config={config} data={config} content={content.guestbook} />
+          <Guestbook 
+            config={config} 
+            data={config} 
+            content={content.guestbook}
+            title={content.guestbook?.title}
+            description={content.guestbook?.description}
+          />
         )}
         
         {isComponentActive('musicwishes') && MusicWishes && (
-          <MusicWishes config={config} data={config} content={content.musicwishes} />
+          <MusicWishes 
+            config={config} 
+            data={config} 
+            content={content.musicwishes}
+            title={content.musicwishes?.title}
+            description={content.musicwishes?.description}
+          />
         )}
         
         {isComponentActive('gifts') && Gifts && (
-          <Gifts config={config} data={config} content={content.gifts} />
+          <Gifts 
+            config={config} 
+            data={config} 
+            content={content.gifts}
+            title={content.gifts?.title}
+            description={content.gifts?.description}
+            items={content.gifts?.items}
+          />
         )}
         
         {/* Witnesses/Contact - some themes have ContactWitnesses, some have Contact */}
         {isComponentActive('witnesses') && (ContactWitnesses || Contact) && (
           ContactWitnesses 
-            ? <ContactWitnesses config={config} data={config} content={content.witnesses} />
+            ? <ContactWitnesses config={config} data={config} content={content.witnesses} witnesses={content.witnesses?.persons} />
             : <Contact config={config} data={config} content={content.witnesses} />
         )}
         
         {isComponentActive('faq') && FAQ && (
-          <FAQ config={config} data={config} content={content.faq} />
+          <FAQ 
+            config={config} 
+            data={config} 
+            content={content.faq}
+            title={content.faq?.title}
+            items={content.faq?.questions}
+            questions={content.faq?.questions}
+          />
         )}
         
         {isComponentActive('weddingabc') && WeddingABC && (
-          <WeddingABC config={config} data={config} content={content.weddingabc} />
+          <WeddingABC 
+            config={config} 
+            data={config} 
+            content={content.weddingabc}
+            title={content.weddingabc?.title}
+            entries={content.weddingabc?.entries}
+          />
         )}
         
         {isComponentActive('contact') && Contact && (
