@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 

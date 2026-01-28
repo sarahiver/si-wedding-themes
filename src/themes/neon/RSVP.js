@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/RSVP.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
@@ -360,7 +361,10 @@ const SuccessText = styled.p`
   color: rgba(255,255,255,0.6);
 `;
 
-function RSVP({ onSubmit }) {
+function RSVP() {
+  const { content, projectId, slug } = useWedding();
+  const rsvpData = content?.rsvp || {};
+
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);

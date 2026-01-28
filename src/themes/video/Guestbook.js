@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/Guestbook.js
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';

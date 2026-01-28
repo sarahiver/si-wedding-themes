@@ -183,7 +183,10 @@ const ContactButton = styled.a`
   }
 `;
 
-function FAQ({ faqs }) {
+function FAQ() {
+  const { content, projectId, slug } = useWedding();
+  const faqData = content?.faq || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
   

@@ -100,7 +100,10 @@ const EntryText = styled.p`
   line-height: 1.7;
 `;
 
-function WeddingABC({ entries }) {
+function WeddingABC() {
+  const { content, projectId, slug } = useWedding();
+  const weddingabcData = content?.weddingabc || {};
+
   const [activeLetter, setActiveLetter] = useState(null);
   
   const defaultEntries = [

@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/PhotoUpload.js
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';

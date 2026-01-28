@@ -211,7 +211,10 @@ const Counter = styled.p`
   color: var(--luxe-text-muted);
 `;
 
-function LoveStory({ stories }) {
+function LoveStory() {
+  const { content, projectId, slug } = useWedding();
+  const lovestoryData = content?.lovestory || {};
+
   const [activeIndex, setActiveIndex] = useState(0);
   
   const defaultStories = [

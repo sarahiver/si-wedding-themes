@@ -263,7 +263,10 @@ const LightboxNav = styled.button`
   }
 `;
 
-function Gallery({ images }) {
+function Gallery() {
+  const { content, projectId, slug } = useWedding();
+  const galleryData = content?.gallery || {};
+
   const [visible, setVisible] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const sectionRef = useRef(null);

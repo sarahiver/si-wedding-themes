@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/MusicWishes.js
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';

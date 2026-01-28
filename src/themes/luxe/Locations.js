@@ -105,7 +105,10 @@ const Address = styled.p`
   color: var(--luxe-text-muted);
 `;
 
-function Locations({ locations }) {
+function Locations() {
+  const { content, projectId, slug } = useWedding();
+  const locationsData = content?.locations || {};
+
   const defaultLocations = [
     {
       type: 'Trauung',

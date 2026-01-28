@@ -206,7 +206,10 @@ const ScrollHint = styled.p`
   }
 `;
 
-function Timeline({ events }) {
+function Timeline() {
+  const { content, projectId, slug } = useWedding();
+  const timelineData = content?.timeline || {};
+
   const [activeIndex, setActiveIndex] = useState(0);
   const trackRef = useRef(null);
   
