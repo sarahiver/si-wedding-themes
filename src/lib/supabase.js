@@ -2,11 +2,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://wikxhpvikelfgzdgndlf.supabase.co';
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_20ivv0vDLuEfx9sJzKiCxw_iYmFdZDa';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'YOUR_ANON_KEY_HERE';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Helper: Get project by slug or domain
+// ============================================
+// PROJECT
+// ============================================
+
 export async function getProjectBySlugOrDomain(slugOrDomain) {
   // First try by slug
   let { data, error } = await supabase
@@ -30,7 +33,6 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
   return { data, error };
 }
 
-// Helper: Get all content for a project
 export async function getProjectContent(projectId) {
   const { data, error } = await supabase
     .from('project_content')
@@ -48,9 +50,37 @@ export async function getProjectContent(projectId) {
   return { data: contentByComponent, error: null };
 }
 
+export async function updateProjectStatus(projectId, status) {
+  const { data, error } = await supabase
+    .from('projects')
+    .update({ status })
+    .eq('id', projectId)
+    .select()
+    .single();
+  
+  return { data, error };
+}
+
+export async function updateProjectContent(projectId, component, contentData) {
+  const { data, error } = await supabase
+    .from('project_content')
+    .upsert({
+      project_id: projectId,
+      component: component,
+      content: contentData,
+    }, {
+      onConflict: 'project_id,component',
+    })
+    .select()
+    .single();
+  
+  return { data, error };
+}
+
 // ============================================
 // RSVP
 // ============================================
+
 export async function submitRSVP(projectId, rsvpData) {
   const { data, error } = await supabase
     .from('rsvp_responses')
@@ -84,6 +114,7 @@ export async function getRSVPResponses(projectId) {
 // ============================================
 // GUESTBOOK
 // ============================================
+
 export async function submitGuestbookEntry(projectId, entryData) {
   const { data, error } = await supabase
     .from('guestbook_entries')
@@ -92,7 +123,7 @@ export async function submitGuestbookEntry(projectId, entryData) {
       name: entryData.name,
       message: entryData.message,
       image_url: entryData.imageUrl,
-      approved: false, // Requires moderation
+      approved: false,
     })
     .select()
     .single();
@@ -138,6 +169,7 @@ export async function deleteGuestbookEntry(entryId) {
 // ============================================
 // MUSIC WISHES
 // ============================================
+
 export async function submitMusicWish(projectId, wishData) {
   const { data, error } = await supabase
     .from('music_wishes')
@@ -146,6 +178,7 @@ export async function submitMusicWish(projectId, wishData) {
       name: wishData.name,
       artist: wishData.artist,
       song_title: wishData.songTitle,
+      message: wishData.message,
     })
     .select()
     .single();
@@ -175,16 +208,17 @@ export async function deleteMusicWish(wishId) {
 // ============================================
 // PHOTO UPLOADS
 // ============================================
+
 export async function submitPhotoUpload(projectId, photoData) {
   const { data, error } = await supabase
     .from('photo_uploads')
     .insert({
       project_id: projectId,
-      uploaded_by: photoData.uploadedBy,
+      uploaded_by: photoData.uploadedBy || 'Guest',
       cloudinary_url: photoData.cloudinaryUrl,
       cloudinary_public_id: photoData.cloudinaryPublicId,
       timeline_event_id: photoData.timelineEventId,
-      approved: false, // Requires moderation
+      approved: false,
     })
     .select()
     .single();
@@ -230,6 +264,7 @@ export async function deletePhotoUpload(photoId) {
 // ============================================
 // GIFT RESERVATIONS
 // ============================================
+
 export async function reserveGift(projectId, itemId, reservedBy) {
   const { data, error } = await supabase
     .from('gift_reservations')
@@ -253,43 +288,19 @@ export async function getGiftReservations(projectId) {
   return { data: data || [], error };
 }
 
-// ============================================
-// PROJECT STATUS (for Admin)
-// ============================================
-export async function updateProjectStatus(projectId, status) {
-  const { data, error } = await supabase
-    .from('projects')
-    .update({ status })
-    .eq('id', projectId)
-    .select()
-    .single();
+export async function deleteGiftReservation(reservationId) {
+  const { error } = await supabase
+    .from('gift_reservations')
+    .delete()
+    .eq('id', reservationId);
   
-  return { data, error };
-}
-
-// ============================================
-// PROJECT CONTENT UPDATE
-// ============================================
-export async function updateProjectContent(projectId, component, contentData) {
-  // Use upsert to insert or update
-  const { data, error } = await supabase
-    .from('project_content')
-    .upsert({
-      project_id: projectId,
-      component: component,
-      content: contentData,
-    }, {
-      onConflict: 'project_id,component',
-    })
-    .select()
-    .single();
-  
-  return { data, error };
+  return { error };
 }
 
 // ============================================
 // CONTACT REQUESTS (Marketing)
 // ============================================
+
 export async function submitContactRequest(requestData) {
   const { data, error } = await supabase
     .from('contact_requests')
