@@ -35,7 +35,7 @@ const lineGrow = keyframes`
 // ============================================
 
 const Section = styled.section`
-  padding: var(--section-padding) clamp(1.5rem, 5vw, 4rem);
+  padding: var(--section-padding) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem);
   background: var(--editorial-white);
   position: relative;
   overflow: hidden;
