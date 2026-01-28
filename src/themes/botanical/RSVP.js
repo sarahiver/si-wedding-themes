@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
-import { submitRSVP } from '../../lib/supabase';
+import { useRSVP } from '../../components/shared/RSVPCore';
+import FeedbackModal from '../../components/shared/FeedbackModal';
 
 const sway = keyframes`
   0%, 100% { transform: rotate(-3deg); }
@@ -63,6 +63,14 @@ const Description = styled.p`
   color: var(--text-light);
   margin-top: 1rem;
   line-height: 1.7;
+`;
+
+const Deadline = styled.p`
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--sage);
+  margin-top: 0.5rem;
 `;
 
 const Form = styled.form`
@@ -142,29 +150,33 @@ const RadioLabel = styled.label`
   font-size: 0.95rem;
   color: var(--text);
   cursor: pointer;
+  padding: 0.75rem 1rem;
+  background: ${p => p.$active ? 'var(--sage-muted)' : 'var(--cream)'};
+  border: 1px solid ${p => p.$active ? 'var(--sage)' : 'var(--sage-light)'};
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover { border-color: var(--sage); }
   
   input {
     appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--sage-light);
+    width: 18px;
+    height: 18px;
+    border: 2px solid ${p => p.$active ? 'var(--sage)' : 'var(--sage-light)'};
     border-radius: 50%;
     cursor: pointer;
     position: relative;
     
-    &:checked {
-      border-color: var(--sage);
-      &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 10px;
-        height: 10px;
-        background: var(--sage);
-        border-radius: 50%;
-      }
+    &:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--sage);
+      border-radius: 50%;
     }
   }
 `;
@@ -189,10 +201,17 @@ const Button = styled.button`
     transform: translateY(-2px);
   }
   
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+`;
+
+const ErrorMessage = styled.p`
+  color: var(--error);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(192, 57, 43, 0.1);
+  border-radius: 6px;
 `;
 
 const Success = styled.div`
@@ -206,10 +225,7 @@ const Success = styled.div`
     color: var(--forest);
     margin-bottom: 1rem;
   }
-  p {
-    font-family: 'Lato', sans-serif;
-    color: var(--text-light);
-  }
+  p { font-family: 'Lato', sans-serif; color: var(--text-light); }
 `;
 
 const LeafSVG = () => (
@@ -219,14 +235,11 @@ const LeafSVG = () => (
 );
 
 function RSVP({ content = {} }) {
-  const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '', email: '', persons: 1, attending: true, dietary: '', message: ''
-  });
+  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
+
+  const { submitting, submitted, error, formData, updateField, toggleAttending, submit } = useRSVP();
 
   const title = content.title || 'Zusagen';
   const description = content.description || 'Wir freuen uns auf eure Rückmeldung.';
@@ -243,14 +256,13 @@ function RSVP({ content = {} }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      await submitRSVP(projectId, formData);
-      setSubmitted(true);
-    } catch (err) {
-      console.error('RSVP error:', err);
-    } finally {
-      setLoading(false);
+    const result = await submit();
+    if (result.success) {
+      setModalState({
+        isOpen: true,
+        type: 'success',
+        message: formData.attending ? 'Wunderbar! Wir freuen uns auf euch! 🌿' : 'Schade! Danke für eure Rückmeldung.',
+      });
     }
   };
 
@@ -264,7 +276,7 @@ function RSVP({ content = {} }) {
           <Eyebrow>Seid ihr dabei?</Eyebrow>
           <Title>{title}</Title>
           <Description>{description}</Description>
-          {deadline && <Description style={{ fontStyle: 'italic' }}>Bitte antwortet bis {deadline}</Description>}
+          {deadline && <Deadline>Bitte antwortet bis {deadline}</Deadline>}
         </Header>
         
         <Form $visible={visible} onSubmit={handleSubmit}>
@@ -277,77 +289,50 @@ function RSVP({ content = {} }) {
           ) : (
             <>
               <FormGroup>
-                <Label>Name</Label>
-                <Input 
-                  type="text" 
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                  required 
-                />
+                <Label>Name *</Label>
+                <Input type="text" placeholder="Euer Name" value={formData.name} onChange={e => updateField('name', e.target.value)} required />
               </FormGroup>
               <FormGroup>
-                <Label>E-Mail</Label>
-                <Input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
-                  required 
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Anzahl Personen</Label>
-                <Input 
-                  type="number" 
-                  min="1" 
-                  max="10"
-                  value={formData.persons}
-                  onChange={e => setFormData({...formData, persons: parseInt(e.target.value)})}
-                />
+                <Label>E-Mail *</Label>
+                <Input type="email" placeholder="eure@email.de" value={formData.email} onChange={e => updateField('email', e.target.value)} required />
               </FormGroup>
               <FormGroup>
                 <Label>Teilnahme</Label>
                 <RadioGroup>
-                  <RadioLabel>
-                    <input 
-                      type="radio" 
-                      checked={formData.attending}
-                      onChange={() => setFormData({...formData, attending: true})}
-                    />
+                  <RadioLabel $active={formData.attending}>
+                    <input type="radio" checked={formData.attending} onChange={() => toggleAttending(true)} />
                     Ja, wir kommen!
                   </RadioLabel>
-                  <RadioLabel>
-                    <input 
-                      type="radio" 
-                      checked={!formData.attending}
-                      onChange={() => setFormData({...formData, attending: false})}
-                    />
+                  <RadioLabel $active={!formData.attending}>
+                    <input type="radio" checked={!formData.attending} onChange={() => toggleAttending(false)} />
                     Leider nicht
                   </RadioLabel>
                 </RadioGroup>
               </FormGroup>
-              <FormGroup>
-                <Label>Ernährungshinweise</Label>
-                <Input 
-                  type="text" 
-                  placeholder="z.B. vegetarisch, Allergien..."
-                  value={formData.dietary}
-                  onChange={e => setFormData({...formData, dietary: e.target.value})}
-                />
-              </FormGroup>
+              {formData.attending && (
+                <>
+                  <FormGroup>
+                    <Label>Anzahl Personen</Label>
+                    <Input type="number" min="1" max="10" value={formData.persons} onChange={e => updateField('persons', parseInt(e.target.value) || 1)} />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label>Ernährungshinweise</Label>
+                    <Input type="text" placeholder="z.B. vegetarisch, Allergien..." value={formData.dietary} onChange={e => updateField('dietary', e.target.value)} />
+                  </FormGroup>
+                </>
+              )}
               <FormGroup>
                 <Label>Nachricht (optional)</Label>
-                <Textarea 
-                  value={formData.message}
-                  onChange={e => setFormData({...formData, message: e.target.value})}
-                />
+                <Textarea placeholder="Möchtet ihr uns noch etwas mitteilen?" value={formData.message} onChange={e => updateField('message', e.target.value)} />
               </FormGroup>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Wird gesendet...' : 'Absenden'}
-              </Button>
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+              <Button type="submit" disabled={submitting}>{submitting ? 'Wird gesendet...' : 'Absenden'}</Button>
             </>
           )}
         </Form>
       </Container>
+      
+      <FeedbackModal isOpen={modalState.isOpen} onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))} type={modalState.type} message={modalState.message} autoClose={3000} />
     </Section>
   );
 }
