@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/Gifts.js
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';

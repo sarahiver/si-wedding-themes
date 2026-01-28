@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/Directions.js - Neon Theme
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';

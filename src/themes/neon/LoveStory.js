@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/LoveStory.js - Neon Theme
 import React, { useRef, useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';

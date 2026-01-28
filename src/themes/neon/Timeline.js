@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/Timeline.js - Neon Theme
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';

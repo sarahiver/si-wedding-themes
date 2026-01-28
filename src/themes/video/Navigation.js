@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/Navigation.js
 import React, { useState, useEffect } from 'react';
 import styled, { css, keyframes } from 'styled-components';

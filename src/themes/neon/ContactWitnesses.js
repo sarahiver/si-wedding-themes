@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 // src/components/ContactWitnesses.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
