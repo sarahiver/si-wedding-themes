@@ -54,7 +54,7 @@ const UploadArea = styled.div`
     font-size: 4rem; 
     margin-bottom: 1rem; 
     opacity: 0.5;
-    ${p => p.$uploading && `animation: ${pulse} 1s ease infinite;`}
+    animation: ${p => p.$uploading ? pulse : 'none'} 1s ease infinite;
   }
   
   p { 
