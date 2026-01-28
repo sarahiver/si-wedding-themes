@@ -118,16 +118,51 @@ const ArticlesGrid = styled.div`
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    gap: 1.5rem;
+    gap: 1rem;
     padding-bottom: 2rem;
     margin: 0 -1.5rem;
     padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    /* Kein padding-right damit letzte Card angeschnitten ist */
+    padding-right: 0;
     
     /* Hide scrollbar but keep functionality */
     scrollbar-width: none;
     -ms-overflow-style: none;
     &::-webkit-scrollbar { display: none; }
+  }
+`;
+
+const MobileScrollHint = styled.div`
+  display: none;
+  
+  @media (max-width: 900px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--editorial-gray);
+    opacity: 0;
+    
+    ${p => p.$visible && css`
+      animation: ${fadeInUp} 0.8s ease forwards;
+      animation-delay: 0.5s;
+    `}
+  }
+`;
+
+const ScrollArrow = styled.span`
+  display: inline-block;
+  animation: scrollBounce 1.5s ease-in-out infinite;
+  
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
   }
 `;
 
@@ -147,13 +182,18 @@ const Article = styled.article`
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    width: 85vw;
-    max-width: 400px;
+    width: 75vw;
+    max-width: 320px;
     scroll-snap-align: start;
-    gap: 1.5rem;
+    gap: 1rem;
     
     &:nth-child(even) {
       direction: ltr;
+    }
+    
+    /* Letztes Element braucht Abstand rechts */
+    &:last-child {
+      margin-right: 1.5rem;
     }
   }
 `;
@@ -166,6 +206,10 @@ const ArticleImage = styled.div`
     animation: ${fadeInUp} 1s ease forwards;
     animation-delay: ${p.$delay}s;
   `}
+  
+  @media (max-width: 900px) {
+    width: 100%;
+  }
 `;
 
 const ImageFrame = styled.div`
@@ -177,6 +221,12 @@ const ImageFrame = styled.div`
     content: '';
     display: block;
     padding-top: 130%; /* Tall magazine-style ratio */
+  }
+  
+  @media (max-width: 900px) {
+    &::before {
+      padding-top: 100%; /* Quadratisch auf Mobile */
+    }
   }
   
   img {
@@ -407,6 +457,11 @@ function LoveStory() {
           <AnimatedTitle text={title} visible={headerVisible} />
           <Subtitle $visible={headerVisible}>{subtitle}</Subtitle>
         </Header>
+        
+        <MobileScrollHint $visible={headerVisible}>
+          <span>Wischen zum Entdecken</span>
+          <ScrollArrow>→</ScrollArrow>
+        </MobileScrollHint>
         
         <ArticlesGrid>
           {items.map((item, i) => {

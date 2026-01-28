@@ -34,22 +34,9 @@ const float = keyframes`
   75% { transform: translateY(-5px) rotate(-2deg); }
 `;
 
-const lineGrow = keyframes`
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-`;
-
-const photoReveal = keyframes`
-  from { 
-    opacity: 0; 
-    transform: scale(0.8) rotate(-5deg);
-    filter: grayscale(100%) blur(10px);
-  }
-  to { 
-    opacity: 1; 
-    transform: scale(1) rotate(0);
-    filter: grayscale(30%) blur(0);
-  }
+const checkmark = keyframes`
+  0% { stroke-dashoffset: 50; }
+  100% { stroke-dashoffset: 0; }
 `;
 
 // ============================================
@@ -76,7 +63,7 @@ const BackgroundIcon = styled.div`
 const Container = styled.div`
   position: relative;
   z-index: 1;
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
@@ -236,131 +223,77 @@ const ProgressText = styled.p`
   margin-top: 1rem;
 `;
 
-const PhotosSection = styled.div`
-  margin-top: 4rem;
+// Success State
+const SuccessState = styled.div`
+  text-align: center;
+  padding: clamp(4rem, 10vw, 6rem) 2rem;
+  background: rgba(76, 175, 80, 0.1);
+  border: 2px solid rgba(76, 175, 80, 0.3);
   opacity: 0;
   
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.8s;
   `}
 `;
 
-const PhotosHeader = styled.div`
+const SuccessIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border: 3px solid #4CAF50;
+  border-radius: 50%;
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    width: 40px;
+    height: 40px;
+    stroke: #4CAF50;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 50;
+    animation: ${checkmark} 0.5s ease forwards;
+    animation-delay: 0.3s;
+  }
 `;
 
-const PhotosTitle = styled.h3`
+const SuccessTitle = styled.h3`
   font-family: var(--font-headline);
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--editorial-white);
+  margin-bottom: 1rem;
 `;
 
-const PhotosCount = styled.span`
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  padding: 0.3rem 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-`;
-
-const Divider = styled.div`
-  width: 60px;
-  height: 3px;
-  background: var(--editorial-red);
+const SuccessText = styled.p`
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 2rem;
-  transform: scaleX(0);
-  transform-origin: left;
-  
-  ${p => p.$visible && css`
-    animation: ${lineGrow} 0.6s ease forwards;
-    animation-delay: 1s;
-  `}
 `;
 
-const PhotoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 1rem;
-    padding-bottom: 2rem;
-    margin: 0 -1.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
-  }
-`;
-
-const PhotoCard = styled.div`
-  position: relative;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-  opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${photoReveal} 0.8s ease forwards;
-    animation-delay: ${0.1 + p.$index * 0.1}s;
-  `}
-  
-  &::before {
-    content: '';
-    display: block;
-    padding-top: 100%;
-  }
-  
-  img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(30%);
-    transition: all 0.5s ease;
-  }
-  
-  &:hover img {
-    filter: grayscale(0%);
-    transform: scale(1.05);
-  }
-  
-  @media (max-width: 768px) {
-    flex-shrink: 0;
-    width: 70vw;
-    max-width: 250px;
-    scroll-snap-align: start;
-  }
-`;
-
-const PhotoBadge = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem;
-  background: ${p => p.$approved ? 'rgba(76, 175, 80, 0.9)' : 'rgba(196, 30, 58, 0.9)'};
+const UploadMoreButton = styled.button`
+  padding: 1rem 2.5rem;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: var(--editorial-white);
   font-family: var(--font-headline);
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: var(--editorial-red);
+    border-color: var(--editorial-red);
+  }
 `;
 
 // ============================================
@@ -375,15 +308,14 @@ function PhotoUpload() {
   const subtitle = photouploadData.subtitle || 'Teilt eure schönsten Momente mit uns';
   
   const [visible, setVisible] = useState(false);
-  const [visiblePhotos, setVisiblePhotos] = useState([]);
   const [dragging, setDragging] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
-  const photoRefs = useRef([]);
 
   const {
-    uploading, progress, uploadedPhotos, error, success,
-    fileInputRef, handleFileSelect, openFilePicker, handleDrop, handleDragOver, loadPhotos,
+    uploading, progress, error, success,
+    fileInputRef, handleFileSelect, openFilePicker, handleDrop, handleDragOver,
   } = usePhotoUpload({ maxFiles: 10, maxSizeMB: 10 });
 
   useEffect(() => {
@@ -395,27 +327,9 @@ function PhotoUpload() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => { loadPhotos(); }, [loadPhotos]);
-
-  useEffect(() => {
-    const observers = photoRefs.current.map((ref, i) => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setVisiblePhotos(prev => [...new Set([...prev, i])]);
-          }
-        },
-        { threshold: 0.2 }
-      );
-      if (ref) observer.observe(ref);
-      return observer;
-    });
-    return () => observers.forEach(obs => obs.disconnect());
-  }, [uploadedPhotos.length]);
-
   useEffect(() => {
     if (success) {
-      setModalState({ isOpen: true, type: 'success', message: 'Fotos hochgeladen!' });
+      setShowSuccess(true);
     }
   }, [success]);
 
@@ -428,6 +342,11 @@ function PhotoUpload() {
   const onDrop = (e) => { setDragging(false); handleDrop(e); };
   const onDragOver = (e) => { handleDragOver(e); setDragging(true); };
   const onDragLeave = () => setDragging(false);
+
+  const handleUploadMore = () => {
+    setShowSuccess(false);
+    openFilePicker();
+  };
 
   const renderTitle = () => {
     return title.split('').map((letter, i) => (
@@ -448,35 +367,52 @@ function PhotoUpload() {
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
-        <UploadArea
-          $visible={visible}
-          $dragging={dragging}
-          $uploading={uploading}
-          onClick={openFilePicker}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-        >
-          <UploadIcon $uploading={uploading}>
-            {uploading ? '⏳' : '📷'}
-          </UploadIcon>
-          <UploadTitle>
-            {uploading ? 'Wird hochgeladen...' : 'Fotos hochladen'}
-          </UploadTitle>
-          <UploadText>
-            {dragging ? 'Jetzt loslassen!' : 'Klicken oder Dateien hierher ziehen'}
-          </UploadText>
-          <UploadHint>Max. 10 Bilder · Je max. 10MB</UploadHint>
-          
-          {uploading && (
-            <>
-              <ProgressBar>
-                <ProgressFill $progress={progress} />
-              </ProgressBar>
-              <ProgressText>{progress}%</ProgressText>
-            </>
-          )}
-        </UploadArea>
+        {showSuccess ? (
+          <SuccessState $visible={visible}>
+            <SuccessIcon>
+              <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </SuccessIcon>
+            <SuccessTitle>Danke!</SuccessTitle>
+            <SuccessText>
+              Eure Fotos wurden erfolgreich hochgeladen und werden vom Brautpaar gesichtet.
+            </SuccessText>
+            <UploadMoreButton onClick={handleUploadMore}>
+              Weitere Fotos hochladen
+            </UploadMoreButton>
+          </SuccessState>
+        ) : (
+          <UploadArea
+            $visible={visible}
+            $dragging={dragging}
+            $uploading={uploading}
+            onClick={openFilePicker}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+          >
+            <UploadIcon $uploading={uploading}>
+              {uploading ? '⏳' : '📷'}
+            </UploadIcon>
+            <UploadTitle>
+              {uploading ? 'Wird hochgeladen...' : 'Fotos hochladen'}
+            </UploadTitle>
+            <UploadText>
+              {dragging ? 'Jetzt loslassen!' : 'Klicken oder Dateien hierher ziehen'}
+            </UploadText>
+            <UploadHint>Max. 10 Bilder · Je max. 10MB</UploadHint>
+            
+            {uploading && (
+              <>
+                <ProgressBar>
+                  <ProgressFill $progress={progress} />
+                </ProgressBar>
+                <ProgressText>{progress}%</ProgressText>
+              </>
+            )}
+          </UploadArea>
+        )}
         
         <HiddenFileInput 
           fileInputRef={fileInputRef}
@@ -484,32 +420,6 @@ function PhotoUpload() {
           multiple={true}
           accept="image/*"
         />
-        
-        {uploadedPhotos.length > 0 && (
-          <PhotosSection $visible={visible}>
-            <PhotosHeader>
-              <PhotosTitle>Hochgeladen</PhotosTitle>
-              <PhotosCount>{uploadedPhotos.length} Fotos</PhotosCount>
-            </PhotosHeader>
-            <Divider $visible={visible} />
-            
-            <PhotoGrid>
-              {uploadedPhotos.map((photo, i) => (
-                <PhotoCard 
-                  key={photo.id}
-                  ref={el => photoRefs.current[i] = el}
-                  $visible={visiblePhotos.includes(i)}
-                  $index={i}
-                >
-                  <img src={photo.cloudinary_url} alt="Hochzeitsfoto" loading="lazy" />
-                  <PhotoBadge $approved={photo.approved}>
-                    {photo.approved ? '✓ Freigegeben' : 'Wartet auf Freigabe'}
-                  </PhotoBadge>
-                </PhotoCard>
-              ))}
-            </PhotoGrid>
-          </PhotosSection>
-        )}
       </Container>
       
       <FeedbackModal
