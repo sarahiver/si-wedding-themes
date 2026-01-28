@@ -98,6 +98,15 @@ const Title = styled.h2`
   letter-spacing: -0.03em;
   line-height: 0.85;
   overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.15em;
+  
+  .word {
+    display: inline-flex;
+    white-space: nowrap;
+  }
   
   .letter {
     display: inline-block;
@@ -349,9 +358,20 @@ function PhotoUpload() {
   };
 
   const renderTitle = () => {
-    return title.split('').map((letter, i) => (
-      <span key={i} className="letter" style={{ animationDelay: `${0.1 + i * 0.05}s` }}>
-        {letter === ' ' ? '\u00A0' : letter}
+    const words = title.split(' ');
+    let letterIndex = 0;
+    
+    return words.map((word, wi) => (
+      <span key={wi} className="word">
+        {word.split('').map((letter, li) => {
+          const delay = 0.1 + letterIndex * 0.05;
+          letterIndex++;
+          return (
+            <span key={li} className="letter" style={{ animationDelay: `${delay}s` }}>
+              {letter}
+            </span>
+          );
+        })}
       </span>
     ));
   };

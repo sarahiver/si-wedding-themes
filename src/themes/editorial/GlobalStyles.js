@@ -53,6 +53,9 @@ const EditorialGlobalStyles = createGlobalStyle`
     text-transform: uppercase;
     letter-spacing: -0.02em;
     line-height: 0.95;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    hyphens: none;
   }
 
   /* Serif for elegant text */
