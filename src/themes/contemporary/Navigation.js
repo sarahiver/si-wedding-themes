@@ -233,7 +233,12 @@ const MobileCTA = styled.a`
   }
 `;
 
-function Navigation({ coupleNames = 'Sophie & Max', links = [] }) {
+function Navigation({ 
+  coupleNames = 'Sophie & Max', 
+  weddingDate = '15.08.2025',
+  links = [],
+  showBadge = false,
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const defaultLinks = [

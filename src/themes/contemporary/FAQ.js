@@ -235,21 +235,30 @@ const ContactButton = styled.a`
   }
 `;
 
-function FAQ({ questions = [] }) {
+function FAQ({ content = {} }) {
   const [visible, setVisible] = useState(false);
   const [activeQ, setActiveQ] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const sectionRef = useRef(null);
 
+  const title = content.title || 'Got Questions?';
+  const questions = content.questions || [];
+
   const defaultQuestions = [
-    { q: 'Was ist der Dresscode?', a: 'Smart Casual bis Festlich. Hauptsache, ihr fühlt euch wohl und seid bereit zu tanzen!' },
-    { q: 'Kann ich +1 mitbringen?', a: 'Bitte nur, wenn auf eurer Einladung explizit erwähnt. Meldet euch bei uns, falls Fragen!' },
-    { q: 'Sind Kinder willkommen?', a: 'Wir feiern adults-only, damit alle richtig feiern können. Danke für euer Verständnis!' },
-    { q: 'Wo kann ich parken?', a: 'Kostenlose Parkplätze direkt vor der Location. Alternativ: Taxi-Service ab 23 Uhr.' },
-    { q: 'Bis wann muss ich zusagen?', a: 'Bitte bis spätestens 4 Wochen vor der Hochzeit. Hilft uns bei der Planung enorm!' },
+    { q: 'Was ist der Dresscode?', question: 'Was ist der Dresscode?', a: 'Smart Casual bis Festlich. Hauptsache, ihr fühlt euch wohl und seid bereit zu tanzen!', answer: 'Smart Casual bis Festlich. Hauptsache, ihr fühlt euch wohl und seid bereit zu tanzen!' },
+    { q: 'Kann ich +1 mitbringen?', question: 'Kann ich +1 mitbringen?', a: 'Bitte nur, wenn auf eurer Einladung explizit erwähnt. Meldet euch bei uns, falls Fragen!', answer: 'Bitte nur, wenn auf eurer Einladung explizit erwähnt. Meldet euch bei uns, falls Fragen!' },
+    { q: 'Sind Kinder willkommen?', question: 'Sind Kinder willkommen?', a: 'Wir feiern adults-only, damit alle richtig feiern können. Danke für euer Verständnis!', answer: 'Wir feiern adults-only, damit alle richtig feiern können. Danke für euer Verständnis!' },
+    { q: 'Wo kann ich parken?', question: 'Wo kann ich parken?', a: 'Kostenlose Parkplätze direkt vor der Location. Alternativ: Taxi-Service ab 23 Uhr.', answer: 'Kostenlose Parkplätze direkt vor der Location. Alternativ: Taxi-Service ab 23 Uhr.' },
+    { q: 'Bis wann muss ich zusagen?', question: 'Bis wann muss ich zusagen?', a: 'Bitte bis spätestens 4 Wochen vor der Hochzeit. Hilft uns bei der Planung enorm!', answer: 'Bitte bis spätestens 4 Wochen vor der Hochzeit. Hilft uns bei der Planung enorm!' },
   ];
 
-  const items = questions.length > 0 ? questions : defaultQuestions;
+  // Map content.questions to our format
+  const items = questions.length > 0 
+    ? questions.map(item => ({
+        q: item.question || item.q,
+        a: item.answer || item.a
+      }))
+    : defaultQuestions;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -271,7 +280,7 @@ function FAQ({ questions = [] }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>❓ FAQ</Eyebrow>
-          <Title $visible={visible}>Got Questions?</Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <ChatWindow>

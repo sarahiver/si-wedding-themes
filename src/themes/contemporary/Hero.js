@@ -330,7 +330,15 @@ const DateBadge = styled.div`
   letter-spacing: 0.05em;
 `;
 
-function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', location = 'Berlin' }) {
+function Hero({
+  name1 = 'Sophie',
+  name2 = 'Max',
+  date = '15. August 2025',
+  location = 'Berlin',
+  eyebrow = 'Wir heiraten',
+  backgroundImage = null,
+  showBadge = false,
+}) {
   const [scrollY, setScrollY] = useState(0);
   const sectionRef = useRef(null);
 
@@ -347,7 +355,7 @@ function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', locat
   }, []);
 
   return (
-    <Section ref={sectionRef} id="hero">
+    <Section ref={sectionRef} id="top">
       <LeftPanel>
         <FloatingCircle1 />
         <FloatingSquare />
@@ -355,7 +363,7 @@ function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', locat
         <SpinningDecor />
         
         <Eyebrow>
-          <span>We're getting married</span>
+          <span>{eyebrow}</span>
           <div className="line" />
         </Eyebrow>
         
@@ -377,8 +385,8 @@ function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', locat
         </ScrollPrompt>
       </LeftPanel>
       
-      <RightPanel>
-        <ParallaxImage $scroll={scrollY} />
+      <RightPanel $backgroundImage={backgroundImage}>
+        <ParallaxImage $scroll={scrollY} $backgroundImage={backgroundImage} />
         <ImageOverlay>
           <DateBadge>{date}</DateBadge>
         </ImageOverlay>

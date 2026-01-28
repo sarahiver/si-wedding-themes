@@ -145,10 +145,19 @@ const CTAButton = styled.a`
 
 const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
 
-function Countdown({ weddingDate = '2025-08-15T14:00:00' }) {
+function Countdown({ 
+  weddingDate = '2025-08-15T14:00:00',
+  title = 'Time is ticking',
+  showSeconds = true,
+  config = {},
+  data = {},
+}) {
   const [visible, setVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const sectionRef = useRef(null);
+
+  // Use config/data if provided (from ThemeRenderer)
+  const targetDate = config.countdownDate || weddingDate;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -161,7 +170,7 @@ function Countdown({ weddingDate = '2025-08-15T14:00:00' }) {
 
   useEffect(() => {
     const calculateTime = () => {
-      const difference = new Date(weddingDate) - new Date();
+      const difference = new Date(targetDate) - new Date();
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -174,23 +183,27 @@ function Countdown({ weddingDate = '2025-08-15T14:00:00' }) {
     calculateTime();
     const timer = setInterval(calculateTime, 1000);
     return () => clearInterval(timer);
-  }, [weddingDate]);
+  }, [targetDate]);
 
-  const bars = [
+  const bars = showSeconds ? [
     { label: 'Tage', value: timeLeft.days, max: 365, color: colors[0] },
     { label: 'Stunden', value: timeLeft.hours, max: 24, color: colors[1] },
     { label: 'Minuten', value: timeLeft.minutes, max: 60, color: colors[2] },
     { label: 'Sekunden', value: timeLeft.seconds, max: 60, color: colors[3] },
+  ] : [
+    { label: 'Tage', value: timeLeft.days, max: 365, color: colors[0] },
+    { label: 'Stunden', value: timeLeft.hours, max: 24, color: colors[1] },
+    { label: 'Minuten', value: timeLeft.minutes, max: 60, color: colors[2] },
   ];
 
   return (
-    <Section ref={sectionRef}>
+    <Section ref={sectionRef} id="countdown">
       <BigNumber>{timeLeft.days}</BigNumber>
       
       <Container>
         <Header>
           <Eyebrow $visible={visible}>⏰ Countdown</Eyebrow>
-          <Title $visible={visible}>Time is ticking</Title>
+          <Title $visible={visible}>{title || 'Time is ticking'}</Title>
         </Header>
         
         <BarsContainer>
