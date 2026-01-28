@@ -17,7 +17,6 @@ export function useMusicWishes() {
     name: '',
     artist: '',
     songTitle: '',
-    message: '',
   });
 
   const isDemo = !projectId || projectId === 'demo';
@@ -75,7 +74,7 @@ export function useMusicWishes() {
         setSuccess(true);
         const newWish = { id: Date.now(), name: formData.name, artist: formData.artist, song_title: formData.songTitle, created_at: new Date().toISOString() };
         setWishes(prev => [newWish, ...prev]);
-        setFormData({ name: '', artist: '', songTitle: '', message: '' });
+        setFormData({ name: '', artist: '', songTitle: '' });
         return { success: true, data: { demo: true } };
       }
       
@@ -83,13 +82,12 @@ export function useMusicWishes() {
         name: formData.name.trim(),
         artist: formData.artist.trim(),
         songTitle: formData.songTitle.trim(),
-        message: formData.message.trim(),
       });
       
       if (submitError) throw submitError;
       
       setSuccess(true);
-      setFormData({ name: '', artist: '', songTitle: '', message: '' });
+      setFormData({ name: '', artist: '', songTitle: '' });
       await loadWishes();
       return { success: true, data };
       
@@ -103,7 +101,7 @@ export function useMusicWishes() {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', artist: '', songTitle: '', message: '' });
+    setFormData({ name: '', artist: '', songTitle: '' });
     setError(null);
     setSuccess(false);
   };
