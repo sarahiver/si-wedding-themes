@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../context/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const FooterSection = styled.footer`
   background: #000;

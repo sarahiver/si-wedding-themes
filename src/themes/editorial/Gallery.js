@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../context/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
