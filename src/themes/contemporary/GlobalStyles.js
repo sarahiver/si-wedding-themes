@@ -1,30 +1,16 @@
-// Contemporary GlobalStyles - POPPIG mit vielen Animationen
 import { createGlobalStyle, keyframes } from 'styled-components';
 
-// ============================================
-// EXPORTIERTE KEYFRAMES für alle Komponenten
-// ============================================
-export const float1 = keyframes`
+// Exportierte Keyframes für alle Komponenten
+export const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(15px, -25px) rotate(10deg); }
-  50% { transform: translate(-10px, -40px) rotate(-5deg); }
-  75% { transform: translate(20px, -15px) rotate(15deg); }
-`;
-
-export const float2 = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(-25px, 20px) rotate(-15deg); }
-  66% { transform: translate(20px, 30px) rotate(10deg); }
-`;
-
-export const float3 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(15px, -20px) scale(1.1); }
+  25% { transform: translate(15px, -15px) rotate(5deg); }
+  50% { transform: translate(-10px, -25px) rotate(-3deg); }
+  75% { transform: translate(-15px, 10px) rotate(3deg); }
 `;
 
 export const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-12px); }
 `;
 
 export const spin = keyframes`
@@ -32,34 +18,29 @@ export const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
 
+export const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+export const slideIn = keyframes`
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+export const expand = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
 export const pulse = keyframes`
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
 `;
 
-export const pulseShadow = keyframes`
-  0%, 100% { box-shadow: 8px 8px 0 var(--black); }
-  50% { box-shadow: 12px 12px 0 var(--black); }
-`;
-
 export const wiggle = keyframes`
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
-`;
-
-export const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(60px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-export const slideIn = keyframes`
-  from { opacity: 0; transform: translateX(-40px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
-
-export const scaleIn = keyframes`
-  from { opacity: 0; transform: scale(0.8) rotate(-5deg); }
-  to { opacity: 1; transform: scale(1) rotate(0deg); }
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
 `;
 
 export const fadeIn = keyframes`
@@ -67,31 +48,6 @@ export const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
-export const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
-
-export const shake = keyframes`
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px) rotate(-1deg); }
-  75% { transform: translateX(5px) rotate(1deg); }
-`;
-
-export const expand = keyframes`
-  from { width: 0; }
-  to { width: 100%; }
-`;
-
-export const popIn = keyframes`
-  0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-  70% { transform: scale(1.1) rotate(3deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
-`;
-
-// ============================================
-// GLOBAL STYLES
-// ============================================
 const ContemporaryGlobalStyles = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
   
@@ -143,7 +99,6 @@ const ContemporaryGlobalStyles = createGlobalStyle`
   ::-webkit-scrollbar-thumb {
     background: var(--coral);
     border: 2px solid var(--black);
-    &:hover { background: var(--electric); }
   }
   
   ::selection {
@@ -151,7 +106,7 @@ const ContemporaryGlobalStyles = createGlobalStyle`
     color: var(--black);
   }
   
-  a { color: inherit; text-decoration: none; transition: all 0.2s ease; }
+  a { color: inherit; text-decoration: none; }
   button { font-family: var(--font-main); cursor: pointer; border: none; background: none; }
   img { max-width: 100%; height: auto; display: block; }
   
@@ -160,11 +115,6 @@ const ContemporaryGlobalStyles = createGlobalStyle`
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: -0.02em;
-  }
-  
-  *:focus-visible {
-    outline: 4px solid var(--coral);
-    outline-offset: 2px;
   }
 `;
 

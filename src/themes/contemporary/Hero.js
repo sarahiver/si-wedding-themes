@@ -1,19 +1,16 @@
-// Contemporary Hero - SUPER POPPIG
+// Contemporary Hero - Balanced animations
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const float1 = keyframes`
+const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(20px, -30px) rotate(15deg); }
-  50% { transform: translate(-15px, -50px) rotate(-10deg); }
-  75% { transform: translate(25px, -20px) rotate(20deg); }
+  50% { transform: translate(10px, -15px) rotate(5deg); }
 `;
 
-const float2 = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(-30px, 25px) rotate(-20deg); }
-  66% { transform: translate(25px, 40px) rotate(15deg); }
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 `;
 
 const spin = keyframes`
@@ -21,40 +18,14 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
 
-const bounce = keyframes`
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-20px) scale(1.1); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-`;
-
-const wiggle = keyframes`
-  0%, 100% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
-`;
-
 const expand = keyframes`
   from { width: 0; }
-  to { width: 100%; }
+  to { width: 60px; }
 `;
 
 const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(80px) rotate(-3deg); }
-  to { opacity: 1; transform: translateY(0) rotate(0deg); }
-`;
-
-const popIn = keyframes`
-  0% { opacity: 0; transform: scale(0) rotate(-20deg); }
-  70% { transform: scale(1.2) rotate(5deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const Section = styled.section`
@@ -70,7 +41,7 @@ const LeftPanel = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(2rem, 5vw, 6rem);
+  padding: clamp(2rem, 5vw, 5rem);
   position: relative;
   z-index: 2;
   
@@ -90,55 +61,49 @@ const RightPanel = styled.div`
   @media (max-width: 968px) {
     position: absolute;
     inset: 0;
-    opacity: 0.15;
+    opacity: 0.1;
   }
 `;
 
 const FloatingCircle = styled.div`
   position: absolute;
-  width: ${p => p.$size || '100px'};
-  height: ${p => p.$size || '100px'};
+  width: ${p => p.$size || '80px'};
+  height: ${p => p.$size || '80px'};
   background: ${p => p.$color || 'var(--coral)'};
-  border: 4px solid var(--black);
+  border: 3px solid var(--black);
   border-radius: 50%;
-  animation: ${float1} ${p => p.$duration || '12s'} ease-in-out infinite;
+  animation: ${float} ${p => p.$duration || '8s'} ease-in-out infinite;
   animation-delay: ${p => p.$delay || '0s'};
-  z-index: ${p => p.$z || 1};
+  z-index: 0;
   
   @media (max-width: 768px) {
-    width: calc(${p => p.$size || '100px'} * 0.6);
-    height: calc(${p => p.$size || '100px'} * 0.6);
+    width: calc(${p => p.$size || '80px'} * 0.6);
+    height: calc(${p => p.$size || '80px'} * 0.6);
   }
 `;
 
 const FloatingSquare = styled.div`
   position: absolute;
-  width: ${p => p.$size || '80px'};
-  height: ${p => p.$size || '80px'};
+  width: ${p => p.$size || '60px'};
+  height: ${p => p.$size || '60px'};
   background: ${p => p.$color || 'var(--yellow)'};
-  border: 4px solid var(--black);
-  animation: ${float2} ${p => p.$duration || '10s'} ease-in-out infinite, ${wiggle} 3s ease-in-out infinite;
+  border: 3px solid var(--black);
+  animation: ${float} ${p => p.$duration || '10s'} ease-in-out infinite;
   animation-delay: ${p => p.$delay || '0s'};
-  z-index: ${p => p.$z || 1};
-  
-  @media (max-width: 768px) {
-    width: calc(${p => p.$size || '80px'} * 0.5);
-    height: calc(${p => p.$size || '80px'} * 0.5);
-  }
+  z-index: 0;
 `;
 
 const SpinningRing = styled.div`
   position: absolute;
-  width: ${p => p.$size || '120px'};
-  height: ${p => p.$size || '120px'};
-  border: 6px solid ${p => p.$color || 'var(--purple)'};
+  width: ${p => p.$size || '100px'};
+  height: ${p => p.$size || '100px'};
+  border: 4px solid ${p => p.$color || 'var(--electric)'};
   border-radius: 50%;
   animation: ${spin} ${p => p.$duration || '20s'} linear infinite;
-  z-index: ${p => p.$z || 1};
+  z-index: 0;
   
   @media (max-width: 768px) {
-    width: calc(${p => p.$size || '120px'} * 0.5);
-    height: calc(${p => p.$size || '120px'} * 0.5);
+    display: none;
   }
 `;
 
@@ -146,23 +111,21 @@ const Eyebrow = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--coral);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.6s ease;
-  animation: ${p => p.$visible ? wiggle : 'none'} 3s ease-in-out infinite;
   
   &::after {
     content: '';
     height: 3px;
     background: var(--coral);
-    animation: ${p => p.$visible ? expand : 'none'} 1s ease forwards 0.5s;
-    width: ${p => p.$visible ? '60px' : '0'};
+    animation: ${p => p.$visible ? expand : 'none'} 0.8s ease forwards 0.3s;
   }
 `;
 
@@ -171,59 +134,52 @@ const NamesContainer = styled.div`
 `;
 
 const NameStyled = styled.h1`
-  font-size: clamp(4rem, 12vw, 9rem);
+  font-size: clamp(3.5rem, 10vw, 7rem);
   font-weight: 700;
-  line-height: 0.9;
+  line-height: 0.95;
   color: ${p => p.$first ? 'var(--coral)' : 'var(--black)'};
   text-transform: uppercase;
   letter-spacing: -0.03em;
   opacity: ${p => p.$visible ? 1 : 0};
-  animation: ${p => p.$visible ? slideUp : 'none'} 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: ${p => p.$visible ? slideUp : 'none'} 0.7s ease forwards;
   animation-delay: ${p => p.$delay || '0s'};
 `;
 
 const Ampersand = styled.span`
   display: inline-block;
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(2.5rem, 6vw, 5rem);
   color: var(--gray-400);
   margin: 0 0.5rem;
   opacity: ${p => p.$visible ? 1 : 0};
-  animation: ${p => p.$visible ? popIn : 'none'} 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-             ${p => p.$visible ? bounce : 'none'} 2s ease-in-out infinite 1s;
+  transition: opacity 0.5s ease 0.3s;
 `;
 
 const InfoContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 `;
 
 const InfoBadge = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  gap: 0.5rem;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
   font-weight: 700;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   background: ${p => p.$color || 'var(--yellow)'};
   color: var(--black);
-  border: 4px solid var(--black);
-  box-shadow: var(--shadow-lg);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.5s ease;
   transition-delay: ${p => p.$delay || '0s'};
-  animation: ${p => p.$visible ? pulse : 'none'} 3s ease-in-out infinite;
   
   &:hover {
-    transform: translate(-4px, -4px) rotate(2deg);
-    box-shadow: var(--shadow-xl);
-  }
-  
-  .emoji {
-    font-size: 1.3em;
-    animation: ${bounce} 2s ease-in-out infinite;
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-lg);
   }
 `;
 
@@ -236,60 +192,46 @@ const CTAContainer = styled.div`
 const PrimaryButton = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  gap: 0.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--white);
   background: var(--coral);
-  padding: 1.25rem 2.5rem;
-  border: 4px solid var(--black);
-  box-shadow: var(--shadow-lg);
+  padding: 1rem 2rem;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
   text-transform: uppercase;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.3s ease;
-  transition-delay: 0.8s;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: ${shimmer} 2s ease-in-out infinite;
-  }
+  transition-delay: 0.6s;
   
   &:hover {
-    transform: translate(-6px, -6px);
-    box-shadow: 14px 14px 0 var(--black);
-    background: var(--purple);
+    transform: translate(-4px, -4px);
+    box-shadow: var(--shadow-lg);
   }
 `;
 
 const SecondaryButton = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  gap: 0.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--black);
   background: var(--white);
-  padding: 1.25rem 2.5rem;
-  border: 4px solid var(--black);
-  box-shadow: var(--shadow-md);
+  padding: 1rem 2rem;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
   text-transform: uppercase;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.3s ease;
-  transition-delay: 0.9s;
+  transition-delay: 0.7s;
   
   &:hover {
-    transform: translate(-4px, -4px);
-    box-shadow: var(--shadow-lg);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-md);
     background: var(--electric);
   }
 `;
@@ -304,7 +246,7 @@ const ScrollIndicator = styled.div`
   align-items: center;
   gap: 0.5rem;
   color: var(--gray-500);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   animation: ${bounce} 2s ease-in-out infinite;
@@ -341,11 +283,11 @@ function Hero() {
   return (
     <Section id="hero">
       <LeftPanel>
-        <FloatingCircle $color="var(--coral)" $size="140px" style={{ top: '5%', left: '-5%' }} $duration="14s" $z={0} />
-        <FloatingCircle $color="var(--electric)" $size="80px" style={{ top: '60%', left: '5%' }} $duration="11s" $delay="2s" $z={0} />
-        <FloatingSquare $color="var(--yellow)" $size="100px" style={{ top: '15%', right: '10%' }} $duration="12s" $delay="1s" $z={0} />
-        <FloatingSquare $color="var(--purple)" $size="60px" style={{ bottom: '20%', left: '15%' }} $duration="9s" $delay="3s" $z={0} />
-        <SpinningRing $color="var(--coral)" $size="180px" style={{ bottom: '5%', right: '-5%' }} $duration="25s" $z={0} />
+        <FloatingCircle $color="var(--coral)" $size="100px" style={{ top: '10%', left: '5%' }} $duration="10s" />
+        <FloatingCircle $color="var(--electric)" $size="60px" style={{ top: '60%', left: '10%' }} $duration="8s" $delay="1s" />
+        <FloatingSquare $color="var(--yellow)" $size="70px" style={{ top: '20%', right: '15%' }} $duration="12s" $delay="0.5s" />
+        <FloatingSquare $color="var(--purple)" $size="50px" style={{ bottom: '25%', left: '20%' }} $duration="9s" $delay="2s" />
+        <SpinningRing $color="var(--coral)" $size="120px" style={{ bottom: '10%', right: '5%' }} $duration="25s" />
         
         <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
         
@@ -356,20 +298,19 @@ function Hero() {
         </NamesContainer>
         
         <InfoContainer>
-          <InfoBadge $visible={visible} $delay="0.5s" $color="var(--yellow)">
-            <span className="emoji">📅</span>
+          <InfoBadge $visible={visible} $delay="0.4s" $color="var(--yellow)">
+            <span>📅</span>
             {formattedDate}
           </InfoBadge>
-          <InfoBadge $visible={visible} $delay="0.6s" $color="var(--electric)">
-            <span className="emoji">📍</span>
+          <InfoBadge $visible={visible} $delay="0.5s" $color="var(--electric)">
+            <span>📍</span>
             {location}
           </InfoBadge>
         </InfoContainer>
         
         <CTAContainer>
           <PrimaryButton href="#rsvp" $visible={visible}>
-            Jetzt zusagen
-            <span>→</span>
+            Jetzt zusagen →
           </PrimaryButton>
           <SecondaryButton href="#story" $visible={visible}>
             Unsere Geschichte
@@ -378,14 +319,13 @@ function Hero() {
       </LeftPanel>
       
       <RightPanel $image={backgroundImage}>
-        <FloatingCircle $color="var(--white)" $size="120px" style={{ top: '10%', right: '10%' }} $duration="15s" $delay="1s" />
-        <FloatingSquare $color="var(--yellow)" $size="80px" style={{ bottom: '15%', left: '10%' }} $duration="11s" $delay="2s" />
-        <SpinningRing $color="var(--white)" $size="150px" style={{ top: '30%', left: '5%' }} $duration="30s" />
+        <FloatingCircle $color="rgba(255,255,255,0.3)" $size="100px" style={{ top: '15%', right: '15%' }} $duration="12s" $delay="1s" />
+        <FloatingSquare $color="rgba(255,255,255,0.2)" $size="60px" style={{ bottom: '20%', left: '15%' }} $duration="10s" $delay="2s" />
       </RightPanel>
       
       <ScrollIndicator>
         Scroll
-        <div style={{ fontSize: '1.5rem', color: 'var(--coral)' }}>↓</div>
+        <span style={{ fontSize: '1.2rem', color: 'var(--coral)' }}>↓</span>
       </ScrollIndicator>
     </Section>
   );
