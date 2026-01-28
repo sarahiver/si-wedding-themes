@@ -156,7 +156,10 @@ const TransportDesc = styled.p`
   margin: 0;
 `;
 
-function Directions({ address = 'Schloss Heidelberg, 69117 Heidelberg' }) {
+function Directions() {
+  const { content, projectId, slug } = useWedding();
+  const directionsData = content?.directions || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

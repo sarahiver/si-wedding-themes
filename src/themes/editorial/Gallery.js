@@ -143,9 +143,12 @@ const PlaceholderText = styled.p`
   color: #999;
 `;
 
-function Gallery({ content = {} }) {
-  const title = content.title || 'Galerie';
-  const images = content.images || [];
+function Gallery() {
+  const { content } = useWedding();
+  const galleryData = content?.gallery || {};
+
+  const title = galleryData.title || 'Galerie';
+  const images = galleryData.images || [];
   
   const [visible, setVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);

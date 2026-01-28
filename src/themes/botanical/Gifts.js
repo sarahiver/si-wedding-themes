@@ -329,7 +329,10 @@ const LeafSVG = () => (
   </svg>
 );
 
-function Gifts({ content = {} }) {
+function Gifts() {
+  const { content } = useWedding();
+  const giftsData = content?.gifts || {};
+
   const [visible, setVisible] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
@@ -352,8 +355,8 @@ function Gifts({ content = {} }) {
     closeReservationModal,
   } = useGifts();
 
-  const title = content.title || 'Geschenke';
-  const description = content.description || 'Das größte Geschenk ist eure Anwesenheit. Wer uns dennoch etwas schenken möchte, findet hier einige Ideen.';
+  const title = giftsData.title || 'Geschenke';
+  const description = giftsData.description || 'Das größte Geschenk ist eure Anwesenheit. Wer uns dennoch etwas schenken möchte, findet hier einige Ideen.';
 
   useEffect(() => {
     const observer = new IntersectionObserver(

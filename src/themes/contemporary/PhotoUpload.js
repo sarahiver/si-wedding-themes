@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -170,7 +171,10 @@ const UploadButton = styled.button`
   }
 `;
 
-function PhotoUpload({ onUpload }) {
+function PhotoUpload() {
+  const { content, projectId, slug } = useWedding();
+  const photouploadData = content?.photoupload || {};
+
   const [visible, setVisible] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState([]);

@@ -60,12 +60,15 @@ const Definition = styled.p`
   line-height: 1.6;
 `;
 
-function WeddingABC({ content = {} }) {
+function WeddingABC() {
+  const { content } = useWedding();
+  const weddingabcData = content?.weddingabc || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Das Hochzeits-ABC';
-  const entries = content.entries || [];
+  const title = weddingabcData.title || 'Das Hochzeits-ABC';
+  const entries = weddingabcData.entries || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

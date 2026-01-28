@@ -222,7 +222,10 @@ const LightboxCounter = styled.div`
   opacity: 0.7;
 `;
 
-function Gallery({ content = {} }) {
+function Gallery() {
+  const { content } = useWedding();
+  const galleryData = content?.gallery || {};
+
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [images, setImages] = useState([]);
@@ -232,9 +235,9 @@ function Gallery({ content = {} }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Galerie';
-  const subtitle = content.subtitle || '';
-  const staticImages = content.images || [];
+  const title = galleryData.title || 'Galerie';
+  const subtitle = galleryData.subtitle || '';
+  const staticImages = galleryData.images || [];
 
   // Load guest-uploaded photos
   const loadGuestPhotos = useCallback(async () => {

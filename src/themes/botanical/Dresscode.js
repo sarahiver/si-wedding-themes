@@ -93,13 +93,16 @@ const List = styled.div`
   }
 `;
 
-function Dresscode({ content = {} }) {
-  const title = content.title || 'Dresscode';
-  const code = content.code || 'Garden Party Elegance';
-  const description = content.description || '';
-  const colors = content.colors || [];
-  const dos = content.dos || [];
-  const donts = content.donts || [];
+function Dresscode() {
+  const { content } = useWedding();
+  const dresscodeData = content?.dresscode || {};
+
+  const title = dresscodeData.title || 'Dresscode';
+  const code = dresscodeData.code || 'Garden Party Elegance';
+  const description = dresscodeData.description || '';
+  const colors = dresscodeData.colors || [];
+  const dos = dresscodeData.dos || [];
+  const donts = dresscodeData.donts || [];
 
   return (
     <Section id="dresscode">

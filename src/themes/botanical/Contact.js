@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -60,9 +61,12 @@ const ContactLink = styled.a`
   &:hover { color: var(--sage); }
 `;
 
-function Contact({ content = {} }) {
-  const title = content.title || 'Eure Ansprechpartner';
-  const persons = content.persons || [];
+function Contact() {
+  const { content } = useWedding();
+  const contactData = content?.contact || {};
+
+  const title = contactData.title || 'Eure Ansprechpartner';
+  const persons = contactData.persons || [];
 
   return (
     <Section id="contact">

@@ -246,13 +246,16 @@ const SubmitButton = styled.button`
   &:hover { background: #333; }
 `;
 
-function Gifts({ content = {} }) {
+function Gifts() {
+  const { content } = useWedding();
+  const giftsData = content?.gifts || {};
+
   const { projectId } = useWedding();
-  const title = content.title || 'Geschenke';
-  const subtitle = content.subtitle || '';
-  const description = content.description || 'Das größte Geschenk ist eure Anwesenheit.';
-  const paymentInfo = content.payment_info || '';
-  const giftItems = content.items || [];
+  const title = giftsData.title || 'Geschenke';
+  const subtitle = giftsData.subtitle || '';
+  const description = giftsData.description || 'Das größte Geschenk ist eure Anwesenheit.';
+  const paymentInfo = giftsData.payment_info || '';
+  const giftItems = giftsData.items || [];
   
   const [visible, setVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);

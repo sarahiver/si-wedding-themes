@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -154,7 +155,10 @@ const InfoText = styled.p`
   margin: 0;
 `;
 
-function Contact({ witnesses = [] }) {
+function Contact() {
+  const { content, projectId, slug } = useWedding();
+  const contactData = content?.contact || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

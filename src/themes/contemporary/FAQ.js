@@ -236,7 +236,10 @@ const ContactButton = styled.a`
   }
 `;
 
-function FAQ({ questions = [] }) {
+function FAQ() {
+  const { content, projectId, slug } = useWedding();
+  const faqData = content?.faq || {};
+
   const [visible, setVisible] = useState(false);
   const [activeQ, setActiveQ] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);

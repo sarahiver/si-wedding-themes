@@ -113,13 +113,16 @@ const Answer = styled.div`
   }
 `;
 
-function FAQ({ content = {} }) {
+function FAQ() {
+  const { content } = useWedding();
+  const faqData = content?.faq || {};
+
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Häufige Fragen';
-  const questions = content.questions || [];
+  const title = faqData.title || 'Häufige Fragen';
+  const questions = faqData.questions || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

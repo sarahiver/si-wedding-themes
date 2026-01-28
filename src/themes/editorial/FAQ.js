@@ -146,9 +146,12 @@ const ContactLink = styled.a`
   }
 `;
 
-function FAQ({ content = {} }) {
-  const title = content.title || 'Häufige Fragen';
-  const questions = content.questions || [];
+function FAQ() {
+  const { content } = useWedding();
+  const faqData = content?.faq || {};
+
+  const title = faqData.title || 'Häufige Fragen';
+  const questions = faqData.questions || [];
   
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);

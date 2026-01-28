@@ -310,15 +310,18 @@ const SmallLeafSVG = () => (
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-function LoveStory({ content = {} }) {
+function LoveStory() {
+  const { content } = useWedding();
+  const lovestoryData = content?.lovestory || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Unsere Geschichte';
-  const subtitle = content.subtitle || 'Wie alles begann';
+  const title = lovestoryData.title || 'Unsere Geschichte';
+  const subtitle = lovestoryData.subtitle || 'Wie alles begann';
   
   // Support both 'events' and 'milestones' field names
-  const events = content.events || content.milestones || [
+  const events = lovestoryData.events || lovestoryData.milestones || [
     { year: '2020', title: 'Der erste Blick', text: 'Zwischen blühenden Pfingstrosen im Botanischen Garten kreuzten sich unsere Wege zum ersten Mal.', image: null },
     { year: '2021', title: 'Gemeinsam wachsen', text: 'Wie zwei Pflanzen, die ihre Wurzeln verschränken, wuchsen wir zusammen.', image: null },
     { year: '2023', title: 'Ein neues Zuhause', text: 'Mit einem kleinen Garten voller Wildblumen fanden wir unseren Ort.', image: null },

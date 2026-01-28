@@ -116,7 +116,10 @@ const ErrorMessage = styled.p`
   border-radius: 8px;
 `;
 
-function PhotoUpload({ content = {} }) {
+function PhotoUpload() {
+  const { content } = useWedding();
+  const photouploadData = content?.photoupload || {};
+
   const [isDragging, setIsDragging] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   
@@ -134,8 +137,8 @@ function PhotoUpload({ content = {} }) {
     loadPhotos,
   } = usePhotoUpload({ maxFiles: 10, maxSizeMB: 10 });
 
-  const title = content.title || 'Teilt eure Fotos';
-  const description = content.description || 'Ladet hier eure Schnappschüsse vom Tag hoch! Die schönsten Momente, festgehalten von euch.';
+  const title = photouploadData.title || 'Teilt eure Fotos';
+  const description = photouploadData.description || 'Ladet hier eure Schnappschüsse vom Tag hoch! Die schönsten Momente, festgehalten von euch.';
 
   // Load photos on mount
   useEffect(() => {

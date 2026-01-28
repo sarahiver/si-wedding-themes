@@ -176,15 +176,18 @@ const NoteText = styled.p`
   strong { color: #FFF; }
 `;
 
-function Dresscode({ content = {} }) {
-  const title = content.title || 'Dresscode';
-  const subtitle = content.subtitle || 'Elegant';
-  const description = content.description || 'Wir freuen uns auf elegante Abendgarderobe.';
-  const imageMale = content.image_male || null;
-  const imageFemale = content.image_female || null;
+function Dresscode() {
+  const { content } = useWedding();
+  const dresscodeData = content?.dresscode || {};
+
+  const title = dresscodeData.title || 'Dresscode';
+  const subtitle = dresscodeData.subtitle || 'Elegant';
+  const description = dresscodeData.description || 'Wir freuen uns auf elegante Abendgarderobe.';
+  const imageMale = dresscodeData.image_male || null;
+  const imageFemale = dresscodeData.image_female || null;
   
   // Support both old format (array of objects) and new format (array of hex strings)
-  const rawColors = content.colors || [];
+  const rawColors = dresscodeData.colors || [];
   const colors = rawColors.map(c => typeof c === 'string' ? { color: c, name: '' } : c);
 
   const [visible, setVisible] = useState(false);

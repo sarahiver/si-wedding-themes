@@ -172,7 +172,10 @@ const TipText = styled.p`
   strong { font-weight: 700; }
 `;
 
-function Accommodations({ hotels = [] }) {
+function Accommodations() {
+  const { content, projectId, slug } = useWedding();
+  const accommodationsData = content?.accommodations || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

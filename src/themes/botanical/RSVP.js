@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useRSVP } from '../../components/shared/RSVPCore';
@@ -234,16 +235,19 @@ const LeafSVG = () => (
   </svg>
 );
 
-function RSVP({ content = {} }) {
+function RSVP() {
+  const { content } = useWedding();
+  const rsvpData = content?.rsvp || {};
+
   const [visible, setVisible] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
 
   const { submitting, submitted, error, formData, updateField, toggleAttending, submit } = useRSVP();
 
-  const title = content.title || 'Zusagen';
-  const description = content.description || 'Wir freuen uns auf eure Rückmeldung.';
-  const deadline = content.deadline || '';
+  const title = rsvpData.title || 'Zusagen';
+  const description = rsvpData.description || 'Wir freuen uns auf eure Rückmeldung.';
+  const deadline = rsvpData.deadline || '';
 
   useEffect(() => {
     const observer = new IntersectionObserver(

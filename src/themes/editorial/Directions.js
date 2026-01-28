@@ -192,15 +192,18 @@ const NavigateButton = styled.a`
   }
 `;
 
-function Directions({ content = {} }) {
-  const title = content.title || 'Anfahrt';
-  const intro = content.intro || '';
-  const address = content.address || '';
-  const mapsEmbed = content.maps_embed || '';
-  const parking = content.parking || '';
+function Directions() {
+  const { content } = useWedding();
+  const directionsData = content?.directions || {};
+
+  const title = directionsData.title || 'Anfahrt';
+  const intro = directionsData.intro || '';
+  const address = directionsData.address || '';
+  const mapsEmbed = directionsData.maps_embed || '';
+  const parking = directionsData.parking || '';
   
   // Use options array from admin, or fallback to defaults
-  const options = content.options?.length > 0 ? content.options : [
+  const options = directionsData.options?.length > 0 ? directionsData.options : [
     { icon: '🚗', title: 'Mit dem Auto', description: 'Parkplätze sind vorhanden.' },
     { icon: '🚃', title: 'Öffentlich', description: 'Infos folgen.' },
     { icon: '✈️', title: 'Flugzeug', description: 'Nächster Flughafen: Hamburg' },

@@ -140,9 +140,12 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function WeddingABC({ content = {} }) {
-  const title = content.title || 'Hochzeits-ABC';
-  const entries = content.entries || [];
+function WeddingABC() {
+  const { content } = useWedding();
+  const weddingabcData = content?.weddingabc || {};
+
+  const title = weddingabcData.title || 'Hochzeits-ABC';
+  const entries = weddingabcData.entries || [];
   const [visible, setVisible] = useState(false);
   const [activeLetter, setActiveLetter] = useState(null);
   const sectionRef = useRef(null);

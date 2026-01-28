@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -197,7 +198,10 @@ const SuccessTitle = styled.h3`
   text-transform: uppercase;
 `;
 
-function MusicWishes({ wishes = [], onSubmit }) {
+function MusicWishes() {
+  const { content, projectId, slug } = useWedding();
+  const musicwishesData = content?.musicwishes || {};
+
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '', message: '' });

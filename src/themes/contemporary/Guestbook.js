@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
@@ -186,7 +187,10 @@ const EntryMessage = styled.p`
   margin: 0;
 `;
 
-function Guestbook({ entries = [], onSubmit }) {
+function Guestbook() {
+  const { content, projectId, slug } = useWedding();
+  const guestbookData = content?.guestbook || {};
+
   const [visible, setVisible] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });

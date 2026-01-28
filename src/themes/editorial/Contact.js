@@ -161,9 +161,12 @@ const InfoText = styled.p`
   margin: 0;
 `;
 
-function Contact({ content = {} }) {
-  const title = content.title || 'Eure Ansprechpartner';
-  const persons = content.persons || [];
+function Contact() {
+  const { content } = useWedding();
+  const contactData = content?.contact || {};
+
+  const title = contactData.title || 'Eure Ansprechpartner';
+  const persons = contactData.persons || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

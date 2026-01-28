@@ -163,7 +163,10 @@ const CardButton = styled.a`
   }
 `;
 
-function Locations({ locations = [] }) {
+function Locations() {
+  const { content, projectId, slug } = useWedding();
+  const locationsData = content?.locations || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

@@ -192,7 +192,10 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function Guestbook({ content = {} }) {
+function Guestbook() {
+  const { content } = useWedding();
+  const guestbookData = content?.guestbook || {};
+
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', message: '' });
@@ -202,9 +205,9 @@ function Guestbook({ content = {} }) {
   const [error, setError] = useState(null);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Gäste';
+  const title = guestbookData.title || 'Gäste';
   const titleAccent = 'buch';
-  const subtitle = content.description || 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.';
+  const subtitle = guestbookData.description || 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.';
 
   // Load entries from Supabase
   useEffect(() => {

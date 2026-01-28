@@ -172,10 +172,13 @@ const NoteText = styled.p`
   strong { color: #000; }
 `;
 
-function Accommodations({ content = {} }) {
-  const title = content.title || 'Übernachtung';
-  const description = content.description || 'Wir haben einige Hotels in der Nähe zusammengestellt.';
-  const hotels = content.hotels || [];
+function Accommodations() {
+  const { content } = useWedding();
+  const accommodationsData = content?.accommodations || {};
+
+  const title = accommodationsData.title || 'Übernachtung';
+  const description = accommodationsData.description || 'Wir haben einige Hotels in der Nähe zusammengestellt.';
+  const hotels = accommodationsData.hotels || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

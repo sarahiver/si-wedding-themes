@@ -123,7 +123,10 @@ const CardText = styled.p`
   margin: 0;
 `;
 
-function WeddingABC({ entries = [] }) {
+function WeddingABC() {
+  const { content, projectId, slug } = useWedding();
+  const weddingabcData = content?.weddingabc || {};
+
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const sectionRef = useRef(null);

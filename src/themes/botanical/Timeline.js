@@ -165,12 +165,15 @@ const LeafSVG = () => (
   </svg>
 );
 
-function Timeline({ content = {} }) {
+function Timeline() {
+  const { content } = useWedding();
+  const timelineData = content?.timeline || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Tagesablauf';
-  const events = content.events || [];
+  const title = timelineData.title || 'Tagesablauf';
+  const events = timelineData.events || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

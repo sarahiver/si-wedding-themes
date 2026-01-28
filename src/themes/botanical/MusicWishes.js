@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useMusicWishes } from '../../components/shared/MusicWishesCore';
@@ -188,7 +189,10 @@ const SectionTitle = styled.h3`
   text-align: center;
 `;
 
-function MusicWishes({ content = {} }) {
+function MusicWishes() {
+  const { content } = useWedding();
+  const musicwishesData = content?.musicwishes || {};
+
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   
   const {
@@ -202,8 +206,8 @@ function MusicWishes({ content = {} }) {
     submitWish,
   } = useMusicWishes();
 
-  const title = content.title || 'Musikwünsche';
-  const description = content.description || 'Welche Songs dürfen auf unserer Hochzeit nicht fehlen? Teilt uns eure Lieblingssongs mit!';
+  const title = musicwishesData.title || 'Musikwünsche';
+  const description = musicwishesData.description || 'Welche Songs dürfen auf unserer Hochzeit nicht fehlen? Teilt uns eure Lieblingssongs mit!';
 
   // Show modal on success
   useEffect(() => {

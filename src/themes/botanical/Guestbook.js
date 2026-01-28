@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useGuestbook } from '../../components/shared/GuestbookCore';
@@ -176,7 +177,10 @@ const EmptyState = styled.div`
   p { font-family: 'Lato', sans-serif; }
 `;
 
-function Guestbook({ content = {} }) {
+function Guestbook() {
+  const { content } = useWedding();
+  const guestbookData = content?.guestbook || {};
+
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   
   const {
@@ -190,8 +194,8 @@ function Guestbook({ content = {} }) {
     submitEntry,
   } = useGuestbook();
 
-  const title = content.title || 'Gästebuch';
-  const description = content.description || 'Hinterlasst uns eine liebe Nachricht, einen Wunsch oder einen guten Rat für unsere gemeinsame Zukunft.';
+  const title = guestbookData.title || 'Gästebuch';
+  const description = guestbookData.description || 'Hinterlasst uns eine liebe Nachricht, einen Wunsch oder einen guten Rat für unsere gemeinsame Zukunft.';
 
   // Show modal on success
   useEffect(() => {

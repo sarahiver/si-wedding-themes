@@ -204,7 +204,10 @@ const StatLabel = styled.div`
   color: #666;
 `;
 
-function MusicWishes({ content = {} }) {
+function MusicWishes() {
+  const { content } = useWedding();
+  const musicwishesData = content?.musicwishes || {};
+
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '' });
@@ -214,9 +217,9 @@ function MusicWishes({ content = {} }) {
   const [error, setError] = useState(null);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Musik';
+  const title = musicwishesData.title || 'Musik';
   const titleAccent = 'wünsche';
-  const subtitle = content.description || 'Welcher Song bringt euch garantiert auf die Tanzfläche? Verratet es uns!';
+  const subtitle = musicwishesData.description || 'Welcher Song bringt euch garantiert auf die Tanzfläche? Verratet es uns!';
 
   // Load wishes from Supabase
   useEffect(() => {

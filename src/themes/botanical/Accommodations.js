@@ -81,10 +81,13 @@ const HotelLink = styled.a`
   &:hover { color: var(--sage-dark); }
 `;
 
-function Accommodations({ content = {} }) {
-  const title = content.title || 'Übernachtung';
-  const description = content.description || '';
-  const hotels = content.hotels || [];
+function Accommodations() {
+  const { content } = useWedding();
+  const accommodationsData = content?.accommodations || {};
+
+  const title = accommodationsData.title || 'Übernachtung';
+  const description = accommodationsData.description || '';
+  const hotels = accommodationsData.hotels || [];
 
   return (
     <Section id="accommodations">

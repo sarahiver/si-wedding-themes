@@ -156,9 +156,12 @@ const Note = styled.div`
   transition-delay: 0.5s;
 `;
 
-function Timeline({ content = {} }) {
-  const title = content.title || 'Tagesablauf';
-  const events = content.events || [];
+function Timeline() {
+  const { content } = useWedding();
+  const timelineData = content?.timeline || {};
+
+  const title = timelineData.title || 'Tagesablauf';
+  const events = timelineData.events || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

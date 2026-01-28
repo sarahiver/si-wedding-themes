@@ -53,12 +53,15 @@ const CardText = styled.p`
   line-height: 1.7;
 `;
 
-function Directions({ content = {} }) {
-  const title = content.title || 'Anfahrt';
-  const address = content.address || '';
-  const parkingInfo = content.parking_info || '';
-  const publicTransport = content.public_transport || '';
-  const taxiInfo = content.taxi_info || '';
+function Directions() {
+  const { content } = useWedding();
+  const directionsData = content?.directions || {};
+
+  const title = directionsData.title || 'Anfahrt';
+  const address = directionsData.address || '';
+  const parkingInfo = directionsData.parking_info || '';
+  const publicTransport = directionsData.public_transport || '';
+  const taxiInfo = directionsData.taxi_info || '';
 
   return (
     <Section id="directions">

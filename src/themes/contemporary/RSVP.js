@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -262,7 +263,10 @@ const SuccessText = styled.p`
   color: var(--gray-600);
 `;
 
-function RSVP({ onSubmit }) {
+function RSVP() {
+  const { content, projectId, slug } = useWedding();
+  const rsvpData = content?.rsvp || {};
+
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);

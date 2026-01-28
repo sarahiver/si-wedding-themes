@@ -137,9 +137,12 @@ const MapLink = styled.a`
   &:hover { color: #666; border-color: #666; }
 `;
 
-function Locations({ content = {} }) {
-  const title = content.title || 'Die Locations';
-  const locations = content.locations || [];
+function Locations() {
+  const { content } = useWedding();
+  const locationsData = content?.locations || {};
+
+  const title = locationsData.title || 'Die Locations';
+  const locations = locationsData.locations || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

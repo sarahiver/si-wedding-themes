@@ -117,12 +117,15 @@ const CardLink = styled.a`
   &:hover { color: var(--sage-dark); }
 `;
 
-function Locations({ content = {} }) {
+function Locations() {
+  const { content } = useWedding();
+  const locationsData = content?.locations || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Locations';
-  const locations = content.locations || [];
+  const title = locationsData.title || 'Locations';
+  const locations = locationsData.locations || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -119,7 +119,10 @@ const CardEmoji = styled.div`
   font-size: 2rem;
 `;
 
-function LoveStory({ milestones = [] }) {
+function LoveStory() {
+  const { content, projectId, slug } = useWedding();
+  const lovestoryData = content?.lovestory || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

@@ -172,7 +172,10 @@ const EventDesc = styled.p`
 
 const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
 
-function Timeline({ events = [] }) {
+function Timeline() {
+  const { content, projectId, slug } = useWedding();
+  const timelineData = content?.timeline || {};
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
