@@ -7,13 +7,28 @@ import { useWedding } from '../../context/WeddingContext';
 // ============================================
 
 const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(50px); }
+  from { opacity: 0; transform: translateY(60px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+const letterReveal = keyframes`
+  0% { opacity: 0; transform: translateY(100%) rotateX(-80deg); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0); }
+`;
+
+const expandDown = keyframes`
+  from { max-height: 0; opacity: 0; }
+  to { max-height: 500px; opacity: 1; }
 `;
 
 const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
+`;
+
+const numberCount = keyframes`
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
 `;
 
 // ============================================
@@ -24,18 +39,50 @@ const Section = styled.section`
   padding: var(--section-padding) 0;
   background: var(--editorial-white);
   overflow: hidden;
+  position: relative;
+`;
+
+const BackgroundNumber = styled.div`
+  position: absolute;
+  top: 10%;
+  right: -10%;
+  font-family: var(--font-headline);
+  font-size: clamp(20rem, 50vw, 50rem);
+  font-weight: 700;
+  color: var(--editorial-light-gray);
+  opacity: 0.3;
+  line-height: 0.8;
+  pointer-events: none;
+  z-index: 0;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Container = styled.div`
-  max-width: 900px;
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: clamp(3rem, 6vw, 5rem);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3rem;
+  align-items: end;
+  margin-bottom: clamp(4rem, 8vw, 6rem);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
 `;
+
+const TitleBlock = styled.div``;
 
 const Eyebrow = styled.span`
   display: inline-block;
@@ -45,7 +92,7 @@ const Eyebrow = styled.span`
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--editorial-red);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   opacity: 0;
   
   ${p => p.$visible && css`
@@ -55,59 +102,69 @@ const Eyebrow = styled.span`
 
 const Title = styled.h2`
   font-family: var(--font-headline);
-  font-size: clamp(3rem, 12vw, 7rem);
+  font-size: clamp(4rem, 15vw, 10rem);
   font-weight: 700;
   color: var(--editorial-black);
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  opacity: 0;
+  letter-spacing: -0.03em;
+  line-height: 0.85;
+  overflow: hidden;
   
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.15s;
-  `}
+  .letter {
+    display: inline-block;
+    opacity: 0;
+    
+    ${p => p.$visible && css`
+      animation: ${letterReveal} 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+    `}
+  }
 `;
 
-const Description = styled.p`
-  font-family: var(--font-serif);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
-  font-style: italic;
-  color: var(--editorial-gray);
-  margin-top: 1.5rem;
-  line-height: 1.7;
-  opacity: 0;
+const HeaderLine = styled.div`
+  height: 3px;
+  background: var(--editorial-red);
+  transform: scaleX(0);
+  transform-origin: left;
+  align-self: center;
   
   ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.3s;
+    animation: ${lineGrow} 1s ease forwards;
+    animation-delay: 0.5s;
   `}
+  
+  @media (max-width: 768px) {
+    width: 60px;
+    margin: 0 auto;
+  }
 `;
 
 const FAQList = styled.div`
-  opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.4s;
-  `}
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 `;
 
 const FAQItem = styled.div`
-  border-bottom: 1px solid var(--editorial-light-gray);
+  border-bottom: 2px solid var(--editorial-light-gray);
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.6s ease forwards;
+    animation-delay: ${0.1 + p.$index * 0.08}s;
+  `}
   
   &:first-child {
-    border-top: 1px solid var(--editorial-light-gray);
+    border-top: 2px solid var(--editorial-light-gray);
   }
 `;
 
 const FAQQuestion = styled.button`
   width: 100%;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.5rem;
   align-items: center;
-  gap: 2rem;
-  padding: 1.5rem 0;
+  padding: 2rem 0;
   background: none;
   border: none;
   cursor: pointer;
@@ -119,52 +176,90 @@ const FAQQuestion = styled.button`
   }
 `;
 
+const QuestionNumber = styled.span`
+  font-family: var(--font-headline);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: ${p => p.$open ? 'var(--editorial-red)' : 'var(--editorial-light-gray)'};
+  transition: all 0.3s ease;
+  min-width: 60px;
+  
+  @media (max-width: 600px) {
+    display: none;
+  }
+`;
+
 const QuestionText = styled.span`
   font-family: var(--font-headline);
-  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--editorial-black);
   letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+  
+  ${FAQQuestion}:hover & {
+    color: var(--editorial-red);
+  }
 `;
 
 const QuestionIcon = styled.span`
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${p => p.$open ? 'var(--editorial-red)' : 'var(--editorial-light-gray)'};
-  color: ${p => p.$open ? 'var(--editorial-white)' : 'var(--editorial-black)'};
+  background: ${p => p.$open ? 'var(--editorial-red)' : 'var(--editorial-black)'};
+  color: var(--editorial-white);
   font-family: var(--font-headline);
   font-size: 1.5rem;
   font-weight: 700;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(${p => p.$open ? '45deg' : '0'});
+  
+  @media (max-width: 600px) {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
 `;
 
 const FAQAnswer = styled.div`
-  max-height: ${p => p.$open ? '500px' : '0'};
+  display: grid;
+  grid-template-rows: ${p => p.$open ? '1fr' : '0fr'};
+  transition: grid-template-rows 0.4s ease;
+`;
+
+const AnswerInner = styled.div`
   overflow: hidden;
-  transition: all 0.4s ease;
 `;
 
 const AnswerContent = styled.div`
-  padding: 0 0 2rem 0;
+  padding: 0 0 2.5rem 0;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 1.5rem;
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-const AnswerLine = styled.div`
-  width: 40px;
-  height: 2px;
+const AnswerAccent = styled.div`
+  width: 3px;
   background: var(--editorial-red);
-  margin-bottom: 1rem;
+  justify-self: center;
+  
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const AnswerText = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
   color: var(--editorial-gray);
-  line-height: 1.8;
+  line-height: 1.9;
   margin: 0;
 `;
 
@@ -177,82 +272,98 @@ function FAQ() {
   const faqData = content?.faq || {};
   
   const title = faqData.title || 'FAQ';
-  const description = faqData.description || 'Die häufigsten Fragen – und unsere Antworten.';
   const questions = faqData.questions || [];
   
   const [visible, setVisible] = useState(false);
+  const [visibleItems, setVisibleItems] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
+  const itemRefs = useRef([]);
 
   const defaultQuestions = [
-    { 
-      question: 'Darf ich eine Begleitung mitbringen?', 
-      answer: 'Bitte haltet euch an die Namen auf eurer Einladung. Bei Fragen meldet euch gerne bei uns.' 
-    },
-    { 
-      question: 'Sind Kinder eingeladen?', 
-      answer: 'Wir feiern diesen besonderen Tag gerne mit euren Kindern! Für Betreuung und Beschäftigung ist gesorgt.' 
-    },
-    { 
-      question: 'Gibt es einen Dresscode?', 
-      answer: 'Festlich elegant – das bedeutet Anzug oder schickes Kleid. Bitte vermeidet komplett weiße Outfits.' 
-    },
-    { 
-      question: 'Wie sieht es mit Fotos aus?', 
-      answer: 'Wir haben einen professionellen Fotografen. Genießt den Moment – aber teilt gerne eure Schnappschüsse in unserer Fotogalerie!' 
-    },
-    { 
-      question: 'Gibt es vegetarische/vegane Optionen?', 
-      answer: 'Ja! Bitte gebt bei eurer RSVP-Antwort eure Ernährungswünsche an, damit wir entsprechend planen können.' 
-    },
-    { 
-      question: 'Wo kann ich übernachten?', 
-      answer: 'Wir haben Zimmerkontingente in nahegelegenen Hotels reserviert. Die Details findet ihr unter "Unterkünfte".' 
-    },
+    { question: 'Darf ich eine Begleitung mitbringen?', answer: 'Bitte haltet euch an die Namen auf eurer Einladung. Bei Fragen meldet euch gerne bei uns.' },
+    { question: 'Sind Kinder eingeladen?', answer: 'Wir feiern diesen besonderen Tag gerne mit euren Kindern! Für Betreuung und Beschäftigung ist gesorgt.' },
+    { question: 'Gibt es einen Dresscode?', answer: 'Festlich elegant – das bedeutet Anzug oder schickes Kleid. Bitte vermeidet komplett weiße Outfits.' },
+    { question: 'Wie sieht es mit Fotos aus?', answer: 'Wir haben einen professionellen Fotografen. Genießt den Moment – aber teilt gerne eure Schnappschüsse in unserer Fotogalerie!' },
+    { question: 'Gibt es vegetarische Optionen?', answer: 'Ja! Bitte gebt bei eurer RSVP-Antwort eure Ernährungswünsche an, damit wir entsprechend planen können.' },
+    { question: 'Wo kann ich übernachten?', answer: 'Wir haben Zimmerkontingente in nahegelegenen Hotels reserviert. Die Details findet ihr unter "Unterkünfte".' },
   ];
 
   const items = questions.length > 0 ? questions : defaultQuestions;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.1 }
     );
-    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const toggleItem = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
+  useEffect(() => {
+    const observers = itemRefs.current.map((ref, i) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleItems(prev => [...new Set([...prev, i])]);
+          }
+        },
+        { threshold: 0.2 }
+      );
+      if (ref) observer.observe(ref);
+      return observer;
+    });
+    return () => observers.forEach(obs => obs.disconnect());
+  }, [items.length]);
+
+  const renderTitle = () => {
+    return title.split('').map((letter, i) => (
+      <span 
+        key={i} 
+        className="letter" 
+        style={{ animationDelay: `${0.1 + i * 0.08}s` }}
+      >
+        {letter}
+      </span>
+    ));
   };
 
   return (
     <Section id="faq" ref={sectionRef}>
+      <BackgroundNumber>?</BackgroundNumber>
+      
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Fragen & Antworten</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
-          <Description $visible={visible}>{description}</Description>
+          <TitleBlock>
+            <Eyebrow $visible={visible}>Fragen & Antworten</Eyebrow>
+            <Title $visible={visible}>{renderTitle()}</Title>
+          </TitleBlock>
+          <HeaderLine $visible={visible} />
         </Header>
         
-        <FAQList $visible={visible}>
+        <FAQList>
           {items.map((item, i) => (
-            <FAQItem key={i}>
-              <FAQQuestion onClick={() => toggleItem(i)}>
+            <FAQItem 
+              key={i} 
+              ref={el => itemRefs.current[i] = el}
+              $visible={visibleItems.includes(i)}
+              $index={i}
+            >
+              <FAQQuestion onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+                <QuestionNumber $open={openIndex === i}>
+                  {String(i + 1).padStart(2, '0')}
+                </QuestionNumber>
                 <QuestionText>{item.question}</QuestionText>
-                <QuestionIcon $open={openIndex === i}>
-                  {openIndex === i ? '−' : '+'}
-                </QuestionIcon>
+                <QuestionIcon $open={openIndex === i}>+</QuestionIcon>
               </FAQQuestion>
               
               <FAQAnswer $open={openIndex === i}>
-                <AnswerContent>
-                  <AnswerLine />
-                  <AnswerText>{item.answer}</AnswerText>
-                </AnswerContent>
+                <AnswerInner>
+                  <AnswerContent>
+                    <AnswerAccent />
+                    <AnswerText>{item.answer}</AnswerText>
+                  </AnswerContent>
+                </AnswerInner>
               </FAQAnswer>
             </FAQItem>
           ))}

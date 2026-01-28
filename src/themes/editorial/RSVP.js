@@ -43,13 +43,14 @@ const VideoBackground = styled.div`
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.6);
   }
   
   video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: grayscale(100%);
   }
 `;
 
@@ -145,32 +146,32 @@ const Form = styled.form`
 const AttendanceToggle = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 3rem;
 `;
 
 const ToggleButton = styled.button`
-  padding: 2rem;
-  background: ${p => p.$active ? (p.$yes ? '#4CAF50' : 'var(--editorial-red)') : 'var(--editorial-light-gray)'};
-  border: 2px solid ${p => p.$active ? (p.$yes ? '#4CAF50' : 'var(--editorial-red)') : 'transparent'};
-  color: ${p => p.$active ? 'var(--editorial-white)' : 'var(--editorial-gray)'};
+  padding: 1.5rem 2rem;
+  background: ${p => p.$active 
+    ? (p.$yes ? 'rgba(76, 175, 80, 0.9)' : 'rgba(196, 30, 58, 0.9)') 
+    : 'rgba(255, 255, 255, 0.1)'};
+  border: 2px solid ${p => p.$active 
+    ? (p.$yes ? 'rgba(76, 175, 80, 1)' : 'var(--editorial-red)') 
+    : 'rgba(255, 255, 255, 0.2)'};
+  color: var(--editorial-white);
   font-family: var(--font-headline);
-  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   
   &:hover {
-    background: ${p => p.$yes ? '#4CAF50' : 'var(--editorial-red)'};
-    color: var(--editorial-white);
-  }
-  
-  span {
-    display: block;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    background: ${p => p.$yes ? 'rgba(76, 175, 80, 0.8)' : 'rgba(196, 30, 58, 0.8)'};
+    border-color: ${p => p.$yes ? 'rgba(76, 175, 80, 1)' : 'var(--editorial-red)'};
+    transform: translateY(-2px);
   }
 `;
 
@@ -416,15 +417,13 @@ function RSVP() {
               $yes
               onClick={() => updateField('attending', true)}
             >
-              <span>🎉</span>
-              Ja, ich bin dabei!
+              Ja, ich bin dabei
             </ToggleButton>
             <ToggleButton
               type="button"
               $active={formData.attending === false}
               onClick={() => updateField('attending', false)}
             >
-              <span>😢</span>
               Leider nicht
             </ToggleButton>
           </AttendanceToggle>

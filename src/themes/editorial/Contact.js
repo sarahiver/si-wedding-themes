@@ -7,13 +7,33 @@ import { useWedding } from '../../context/WeddingContext';
 // ============================================
 
 const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(50px); }
+  from { opacity: 0; transform: translateY(60px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+const letterReveal = keyframes`
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const scaleIn = keyframes`
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 `;
 
 const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196, 30, 58, 0.4); }
+  50% { box-shadow: 0 0 0 20px rgba(196, 30, 58, 0); }
 `;
 
 // ============================================
@@ -22,19 +42,20 @@ const lineGrow = keyframes`
 
 const Section = styled.section`
   padding: var(--section-padding) 0;
-  background: var(--editorial-light-gray);
+  background: var(--editorial-black);
   overflow: hidden;
+  position: relative;
 `;
 
 const Container = styled.div`
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: clamp(3rem, 6vw, 5rem);
+  margin-bottom: clamp(4rem, 8vw, 6rem);
 `;
 
 const Eyebrow = styled.span`
@@ -42,7 +63,7 @@ const Eyebrow = styled.span`
   font-family: var(--font-body);
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--editorial-red);
   margin-bottom: 1.5rem;
@@ -55,80 +76,128 @@ const Eyebrow = styled.span`
 
 const Title = styled.h2`
   font-family: var(--font-headline);
-  font-size: clamp(3rem, 12vw, 7rem);
+  font-size: clamp(3rem, 15vw, 10rem);
   font-weight: 700;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  opacity: 0;
+  letter-spacing: -0.03em;
+  line-height: 0.85;
+  overflow: hidden;
   
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.15s;
-  `}
+  .word {
+    display: inline-block;
+    overflow: hidden;
+  }
+  
+  .letter {
+    display: inline-block;
+    opacity: 0;
+    
+    ${p => p.$visible && css`
+      animation: ${letterReveal} 0.5s ease forwards;
+    `}
+  }
 `;
 
-const Description = styled.p`
+const Subtitle = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   font-style: italic;
-  color: var(--editorial-gray);
-  margin-top: 1.5rem;
-  line-height: 1.7;
-  max-width: 600px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2rem;
+  max-width: 500px;
   margin-left: auto;
   margin-right: auto;
   opacity: 0;
   
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.3s;
+    animation-delay: 0.6s;
   `}
 `;
 
 const ContactGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  opacity: 0;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
   
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.4s;
-  `}
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 `;
 
 const ContactCard = styled.div`
-  background: var(--editorial-white);
-  padding: 2.5rem;
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: clamp(2rem, 5vw, 3.5rem);
   text-align: center;
-  transition: transform 0.3s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${scaleIn} 0.8s ease forwards;
+    animation-delay: ${0.3 + p.$index * 0.15}s;
+  `}
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background: var(--editorial-red);
+  }
   
   &:hover {
-    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const ContactImageWrapper = styled.div`
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 2rem;
+  
+  @media (max-width: 600px) {
+    width: 120px;
+    height: 120px;
   }
 `;
 
 const ContactImage = styled.div`
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 1.5rem;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--editorial-light-gray);
+  background: rgba(255, 255, 255, 0.1);
+  animation: ${float} 4s ease-in-out infinite;
+  animation-delay: ${p => p.$index * 0.5}s;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(30%);
-    transition: filter 0.3s ease;
+    filter: grayscale(100%);
+    transition: filter 0.4s ease;
   }
   
   ${ContactCard}:hover & img {
     filter: grayscale(0%);
   }
+`;
+
+const ContactRing = styled.div`
+  position: absolute;
+  inset: -10px;
+  border: 2px solid var(--editorial-red);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: ${pulse} 2s ease-in-out infinite;
+  animation-delay: ${p => p.$index * 0.5}s;
 `;
 
 const ContactPlaceholder = styled.div`
@@ -137,59 +206,70 @@ const ContactPlaceholder = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 4rem;
+  background: linear-gradient(135deg, rgba(196, 30, 58, 0.2), rgba(196, 30, 58, 0.1));
+  border-radius: 50%;
 `;
 
 const ContactRole = styled.span`
-  display: block;
-  font-family: var(--font-body);
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: var(--editorial-red);
+  color: var(--editorial-white);
+  font-family: var(--font-headline);
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--editorial-red);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `;
 
 const ContactName = styled.h3`
   font-family: var(--font-headline);
-  font-size: 1.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--editorial-black);
-  margin-bottom: 1rem;
+  color: var(--editorial-white);
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
 `;
 
 const Divider = styled.div`
   width: 40px;
   height: 2px;
-  background: var(--editorial-red);
-  margin: 0 auto 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 auto 1.5rem;
 `;
 
-const ContactInfo = styled.div`
+const ContactLinks = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const ContactLink = styled.a`
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: var(--editorial-gray);
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   
   &:hover {
-    color: var(--editorial-red);
+    background: var(--editorial-red);
+    border-color: var(--editorial-red);
+    color: var(--editorial-white);
+    transform: translateY(-3px);
   }
   
   span {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 `;
 
@@ -202,84 +282,89 @@ function Contact() {
   const contactData = content?.contact || {};
   
   const title = contactData.title || 'Kontakt';
-  const description = contactData.description || 'Bei Fragen könnt ihr uns jederzeit erreichen.';
+  const subtitle = contactData.subtitle || 'Bei Fragen sind wir für euch da';
   const contacts = contactData.contacts || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  // Parse couple names for default contacts
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
   
   const defaultContacts = [
-    { 
-      name: names[0] || 'Braut', 
-      role: 'Braut', 
-      email: 'braut@beispiel.de', 
-      phone: '+49 123 456789',
-      image: null 
-    },
-    { 
-      name: names[1] || 'Bräutigam', 
-      role: 'Bräutigam', 
-      email: 'braeutigam@beispiel.de', 
-      phone: '+49 123 456789',
-      image: null 
-    },
+    { name: names[0] || 'Braut', role: 'Braut', email: 'braut@beispiel.de', phone: '+49 123 456789', image: null },
+    { name: names[1] || 'Bräutigam', role: 'Bräutigam', email: 'braeutigam@beispiel.de', phone: '+49 123 456789', image: null },
   ];
 
   const displayContacts = contacts.length > 0 ? contacts : defaultContacts;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.1 }
     );
-    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const renderTitle = () => {
+    let letterIndex = 0;
+    return title.split(' ').map((word, wi) => (
+      <span key={wi} className="word">
+        {word.split('').map((letter, li) => {
+          const delay = letterIndex * 0.05 + 0.2;
+          letterIndex++;
+          return (
+            <span key={li} className="letter" style={{ animationDelay: `${delay}s` }}>
+              {letter}
+            </span>
+          );
+        })}
+        {wi < title.split(' ').length - 1 && '\u00A0'}
+      </span>
+    ));
+  };
 
   return (
     <Section id="contact" ref={sectionRef}>
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Meldet euch</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
-          <Description $visible={visible}>{description}</Description>
+          <Title $visible={visible}>{renderTitle()}</Title>
+          <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
-        <ContactGrid $visible={visible}>
+        <ContactGrid>
           {displayContacts.map((contact, i) => (
-            <ContactCard key={i}>
-              <ContactImage>
-                {contact.image ? (
-                  <img src={contact.image} alt={contact.name} />
-                ) : (
-                  <ContactPlaceholder>
-                    {contact.role === 'Braut' ? '👰' : '🤵'}
-                  </ContactPlaceholder>
-                )}
-              </ContactImage>
+            <ContactCard key={i} $visible={visible} $index={i}>
+              <ContactImageWrapper>
+                <ContactRing $index={i} />
+                <ContactImage $index={i}>
+                  {contact.image ? (
+                    <img src={contact.image} alt={contact.name} />
+                  ) : (
+                    <ContactPlaceholder>
+                      {contact.role === 'Braut' ? '👰' : '🤵'}
+                    </ContactPlaceholder>
+                  )}
+                </ContactImage>
+              </ContactImageWrapper>
               
               <ContactRole>{contact.role}</ContactRole>
               <ContactName>{contact.name}</ContactName>
               <Divider />
               
-              <ContactInfo>
+              <ContactLinks>
                 {contact.email && (
                   <ContactLink href={`mailto:${contact.email}`}>
-                    <span>✉️</span> {contact.email}
+                    <span>✉</span> {contact.email}
                   </ContactLink>
                 )}
                 {contact.phone && (
                   <ContactLink href={`tel:${contact.phone.replace(/\s/g, '')}`}>
-                    <span>📞</span> {contact.phone}
+                    <span>☎</span> {contact.phone}
                   </ContactLink>
                 )}
-              </ContactInfo>
+              </ContactLinks>
             </ContactCard>
           ))}
         </ContactGrid>
