@@ -1,7 +1,7 @@
 // Contemporary Navigation - Brutalist Floating Card
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const slideDown = keyframes`
   from { transform: translate(-50%, -100%); opacity: 0; }

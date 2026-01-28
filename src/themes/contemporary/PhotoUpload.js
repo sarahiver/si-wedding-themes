@@ -1,7 +1,7 @@
 // Contemporary PhotoUpload
 import React, { useState, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 import { uploadPhoto } from '../../lib/cloudinary';
 import { savePhotoEntry } from '../../lib/supabase';
 

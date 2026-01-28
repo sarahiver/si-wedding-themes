@@ -1,7 +1,7 @@
 // Contemporary Timeline - Colorful Brutalist Style
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const slideIn = keyframes`
   from { opacity: 0; transform: translateX(-30px); }

@@ -1,7 +1,7 @@
 // Contemporary Countdown - Colorful Brutalist Cards
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }

@@ -22,7 +22,7 @@ import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 function WeddingPage() {
   const { project, loading } = useWedding();

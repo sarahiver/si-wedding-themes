@@ -1,7 +1,7 @@
 // Contemporary Guestbook
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
 
 const Section = styled.section`

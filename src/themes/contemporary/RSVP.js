@@ -1,7 +1,7 @@
 // Contemporary RSVP - Multi-Step Wizard, Brutalist Design
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 import { submitRSVP } from '../../lib/supabase';
 
 const pulse = keyframes`

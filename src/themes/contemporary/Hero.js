@@ -1,7 +1,7 @@
 // Contemporary Hero - Split Screen, Floating Shapes, Optional Image
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 // ============================================
 // ANIMATIONS

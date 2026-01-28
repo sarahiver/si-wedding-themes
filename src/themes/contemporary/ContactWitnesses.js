@@ -1,7 +1,7 @@
 // Contemporary ContactWitnesses (Trauzeugen)
 import React from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const Section = styled.section`
   padding: clamp(4rem, 10vh, 8rem) 2rem;

@@ -1,7 +1,7 @@
 // Contemporary FAQ - Accordion with Brutalist Style
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../contexts/WeddingContext';
+import { useWedding } from '../../context/WeddingContext';
 
 const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
