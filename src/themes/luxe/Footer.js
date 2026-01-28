@@ -7,7 +7,7 @@ const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
 const FooterSection = styled.footer`padding: 4rem 2rem; background: var(--luxe-black); text-align: center;`;
 const Names = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 6vw, 4rem); font-weight: 300; font-style: italic; color: var(--luxe-white); margin-bottom: 1rem;`;
-const Date = styled.p`font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 2rem;`;
+const DateText = styled.p`font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 2rem;`;
 const Hashtag = styled.p`font-family: var(--font-serif); font-size: 1.25rem; font-style: italic; color: var(--luxe-gold); margin-bottom: 2rem;`;
 const AdminBtn = styled.button`font-family: var(--font-sans); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-taupe); margin-top: 2rem; &:hover { color: var(--luxe-gold); }`;
 const Copyright = styled.p`font-family: var(--font-sans); font-size: 0.7rem; color: var(--luxe-taupe); margin-top: 3rem;`;
@@ -42,7 +42,7 @@ function Footer({ onAdminLogin }) {
   return (
     <FooterSection>
       <Names>{name1} & {name2}</Names>
-      {formattedDate && <Date>{formattedDate}</Date>}
+      {formattedDate && <DateText>{formattedDate}</DateText>}
       {hashtag && <Hashtag>#{hashtag}</Hashtag>}
       <AdminBtn onClick={() => setShowLogin(true)}>Admin</AdminBtn>
       <Copyright>Mit Liebe gestaltet</Copyright>
