@@ -149,7 +149,6 @@ const ContactLink = styled.a`
 function FAQ() {
   const { content } = useWedding();
   const faqData = content?.faq || {};
-
   const title = faqData.title || 'Häufige Fragen';
   const questions = faqData.questions || [];
   

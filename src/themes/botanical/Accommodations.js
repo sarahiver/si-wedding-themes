@@ -84,7 +84,6 @@ const HotelLink = styled.a`
 function Accommodations() {
   const { content } = useWedding();
   const accommodationsData = content?.accommodations || {};
-
   const title = accommodationsData.title || 'Übernachtung';
   const description = accommodationsData.description || '';
   const hotels = accommodationsData.hotels || [];

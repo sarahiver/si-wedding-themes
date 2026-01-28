@@ -156,9 +156,9 @@ const InfoText = styled.p`
 `;
 
 function Contact() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const contactData = content?.contact || {};
-
+  const witnesses = [];
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

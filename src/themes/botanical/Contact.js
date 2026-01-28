@@ -64,7 +64,6 @@ const ContactLink = styled.a`
 function Contact() {
   const { content } = useWedding();
   const contactData = content?.contact || {};
-
   const title = contactData.title || 'Eure Ansprechpartner';
   const persons = contactData.persons || [];
 

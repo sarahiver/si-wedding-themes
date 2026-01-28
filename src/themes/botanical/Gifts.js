@@ -332,7 +332,6 @@ const LeafSVG = () => (
 function Gifts() {
   const { content } = useWedding();
   const giftsData = content?.gifts || {};
-
   const [visible, setVisible] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);

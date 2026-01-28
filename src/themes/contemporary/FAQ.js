@@ -237,9 +237,9 @@ const ContactButton = styled.a`
 `;
 
 function FAQ() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const faqData = content?.faq || {};
-
+  const questions = faqData.questions || [];
   const [visible, setVisible] = useState(false);
   const [activeQ, setActiveQ] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);

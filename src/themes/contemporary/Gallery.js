@@ -159,9 +159,9 @@ const ViewAllButton = styled.a`
 `;
 
 function Gallery() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const galleryData = content?.gallery || {};
-
+  const images = galleryData.images || [];
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

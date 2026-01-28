@@ -225,7 +225,6 @@ const LightboxCounter = styled.div`
 function Gallery() {
   const { content } = useWedding();
   const galleryData = content?.gallery || {};
-
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [images, setImages] = useState([]);

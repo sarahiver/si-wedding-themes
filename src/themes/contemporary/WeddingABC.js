@@ -124,9 +124,9 @@ const CardText = styled.p`
 `;
 
 function WeddingABC() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const weddingabcData = content?.weddingabc || {};
-
+  const entries = weddingabcData.entries || [];
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const sectionRef = useRef(null);

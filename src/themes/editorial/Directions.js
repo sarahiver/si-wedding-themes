@@ -195,7 +195,6 @@ const NavigateButton = styled.a`
 function Directions() {
   const { content } = useWedding();
   const directionsData = content?.directions || {};
-
   const title = directionsData.title || 'Anfahrt';
   const intro = directionsData.intro || '';
   const address = directionsData.address || '';

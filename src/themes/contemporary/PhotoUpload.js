@@ -172,9 +172,9 @@ const UploadButton = styled.button`
 `;
 
 function PhotoUpload() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const photouploadData = content?.photoupload || {};
-
+  const onUpload = (files) => console.log("Upload", files);
   const [visible, setVisible] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState([]);

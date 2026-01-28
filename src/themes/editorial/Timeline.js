@@ -159,7 +159,6 @@ const Note = styled.div`
 function Timeline() {
   const { content } = useWedding();
   const timelineData = content?.timeline || {};
-
   const title = timelineData.title || 'Tagesablauf';
   const events = timelineData.events || [];
   

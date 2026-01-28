@@ -175,7 +175,6 @@ const NoteText = styled.p`
 function Accommodations() {
   const { content } = useWedding();
   const accommodationsData = content?.accommodations || {};
-
   const title = accommodationsData.title || 'Übernachtung';
   const description = accommodationsData.description || 'Wir haben einige Hotels in der Nähe zusammengestellt.';
   const hotels = accommodationsData.hotels || [];

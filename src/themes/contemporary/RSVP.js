@@ -264,9 +264,9 @@ const SuccessText = styled.p`
 `;
 
 function RSVP() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const rsvpData = content?.rsvp || {};
-
+  const onSubmit = (data) => console.log("Submit", data);
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);

@@ -249,7 +249,6 @@ const SubmitButton = styled.button`
 function Gifts() {
   const { content } = useWedding();
   const giftsData = content?.gifts || {};
-
   const { projectId } = useWedding();
   const title = giftsData.title || 'Geschenke';
   const subtitle = giftsData.subtitle || '';

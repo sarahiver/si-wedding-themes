@@ -188,9 +188,10 @@ const EntryMessage = styled.p`
 `;
 
 function Guestbook() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const guestbookData = content?.guestbook || {};
-
+  const entries = [];
+  const onSubmit = (data) => console.log("Guestbook submit", data);
   const [visible, setVisible] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });

@@ -63,7 +63,6 @@ const Definition = styled.p`
 function WeddingABC() {
   const { content } = useWedding();
   const weddingabcData = content?.weddingabc || {};
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

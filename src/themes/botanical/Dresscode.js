@@ -96,7 +96,6 @@ const List = styled.div`
 function Dresscode() {
   const { content } = useWedding();
   const dresscodeData = content?.dresscode || {};
-
   const title = dresscodeData.title || 'Dresscode';
   const code = dresscodeData.code || 'Garden Party Elegance';
   const description = dresscodeData.description || '';

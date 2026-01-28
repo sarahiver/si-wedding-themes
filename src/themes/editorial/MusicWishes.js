@@ -207,7 +207,6 @@ const StatLabel = styled.div`
 function MusicWishes() {
   const { content } = useWedding();
   const musicwishesData = content?.musicwishes || {};
-
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '' });

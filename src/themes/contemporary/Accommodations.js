@@ -173,9 +173,9 @@ const TipText = styled.p`
 `;
 
 function Accommodations() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const accommodationsData = content?.accommodations || {};
-
+  const hotels = accommodationsData.hotels || [];
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

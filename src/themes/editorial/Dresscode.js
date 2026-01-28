@@ -179,7 +179,6 @@ const NoteText = styled.p`
 function Dresscode() {
   const { content } = useWedding();
   const dresscodeData = content?.dresscode || {};
-
   const title = dresscodeData.title || 'Dresscode';
   const subtitle = dresscodeData.subtitle || 'Elegant';
   const description = dresscodeData.description || 'Wir freuen uns auf elegante Abendgarderobe.';

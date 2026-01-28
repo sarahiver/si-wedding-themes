@@ -140,7 +140,6 @@ const MapLink = styled.a`
 function Locations() {
   const { content } = useWedding();
   const locationsData = content?.locations || {};
-
   const title = locationsData.title || 'Die Locations';
   const locations = locationsData.locations || [];
   

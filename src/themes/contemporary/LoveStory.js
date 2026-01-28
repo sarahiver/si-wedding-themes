@@ -120,9 +120,9 @@ const CardEmoji = styled.div`
 `;
 
 function LoveStory() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const lovestoryData = content?.lovestory || {};
-
+  const milestones = lovestoryData.events || [];
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

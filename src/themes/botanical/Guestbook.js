@@ -180,7 +180,6 @@ const EmptyState = styled.div`
 function Guestbook() {
   const { content } = useWedding();
   const guestbookData = content?.guestbook || {};
-
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   
   const {

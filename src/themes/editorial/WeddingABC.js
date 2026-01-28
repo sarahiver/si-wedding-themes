@@ -143,7 +143,6 @@ const EmptyText = styled.p`
 function WeddingABC() {
   const { content } = useWedding();
   const weddingabcData = content?.weddingabc || {};
-
   const title = weddingabcData.title || 'Hochzeits-ABC';
   const entries = weddingabcData.entries || [];
   const [visible, setVisible] = useState(false);

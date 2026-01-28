@@ -116,7 +116,6 @@ const Answer = styled.div`
 function FAQ() {
   const { content } = useWedding();
   const faqData = content?.faq || {};
-
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);

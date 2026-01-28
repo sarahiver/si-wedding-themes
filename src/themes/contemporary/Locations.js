@@ -164,9 +164,9 @@ const CardButton = styled.a`
 `;
 
 function Locations() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const locationsData = content?.locations || {};
-
+  const locations = locationsData.locations || [];
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

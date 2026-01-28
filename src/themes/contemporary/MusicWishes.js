@@ -199,9 +199,10 @@ const SuccessTitle = styled.h3`
 `;
 
 function MusicWishes() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const musicwishesData = content?.musicwishes || {};
-
+  const wishes = [];
+  const onSubmit = (data) => console.log("Music submit", data);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '', message: '' });

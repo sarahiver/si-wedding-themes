@@ -168,7 +168,6 @@ const LeafSVG = () => (
 function Timeline() {
   const { content } = useWedding();
   const timelineData = content?.timeline || {};
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

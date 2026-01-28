@@ -193,9 +193,9 @@ const ReserveButton = styled.button`
 `;
 
 function Gifts() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const giftsData = content?.gifts || {};
-
+  const gifts = giftsData.items || [];
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const sectionRef = useRef(null);

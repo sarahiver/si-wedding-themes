@@ -238,7 +238,6 @@ const LeafSVG = () => (
 function RSVP() {
   const { content } = useWedding();
   const rsvpData = content?.rsvp || {};
-
   const [visible, setVisible] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);

@@ -119,7 +119,6 @@ const ErrorMessage = styled.p`
 function PhotoUpload() {
   const { content } = useWedding();
   const photouploadData = content?.photoupload || {};
-
   const [isDragging, setIsDragging] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   

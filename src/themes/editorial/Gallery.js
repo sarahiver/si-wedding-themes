@@ -146,7 +146,6 @@ const PlaceholderText = styled.p`
 function Gallery() {
   const { content } = useWedding();
   const galleryData = content?.gallery || {};
-
   const title = galleryData.title || 'Galerie';
   const images = galleryData.images || [];
   

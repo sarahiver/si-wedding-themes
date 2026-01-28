@@ -313,7 +313,6 @@ const SmallLeafSVG = () => (
 function LoveStory() {
   const { content } = useWedding();
   const lovestoryData = content?.lovestory || {};
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

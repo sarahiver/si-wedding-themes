@@ -56,7 +56,6 @@ const CardText = styled.p`
 function Directions() {
   const { content } = useWedding();
   const directionsData = content?.directions || {};
-
   const title = directionsData.title || 'Anfahrt';
   const address = directionsData.address || '';
   const parkingInfo = directionsData.parking_info || '';

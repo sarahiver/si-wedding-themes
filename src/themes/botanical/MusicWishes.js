@@ -192,7 +192,6 @@ const SectionTitle = styled.h3`
 function MusicWishes() {
   const { content } = useWedding();
   const musicwishesData = content?.musicwishes || {};
-
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   
   const {

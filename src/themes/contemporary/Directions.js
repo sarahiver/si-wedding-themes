@@ -157,9 +157,9 @@ const TransportDesc = styled.p`
 `;
 
 function Directions() {
-  const { content, projectId, slug } = useWedding();
+  const { content } = useWedding();
   const directionsData = content?.directions || {};
-
+  const address = directionsData.address || "Musterstraße 1, 12345 Stadt";
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

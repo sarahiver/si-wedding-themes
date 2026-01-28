@@ -195,7 +195,6 @@ const EmptyText = styled.p`
 function Guestbook() {
   const { content } = useWedding();
   const guestbookData = content?.guestbook || {};
-
   const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', message: '' });

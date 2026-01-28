@@ -120,7 +120,6 @@ const CardLink = styled.a`
 function Locations() {
   const { content } = useWedding();
   const locationsData = content?.locations || {};
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
