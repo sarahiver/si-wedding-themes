@@ -6,10 +6,6 @@ const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
 
 /**
  * Upload a single file to Cloudinary
- * @param {File} file - The file to upload
- * @param {string} folder - The folder path in Cloudinary
- * @param {function} onProgress - Progress callback (0-100)
- * @returns {Promise<{url: string, publicId: string}>}
  */
 export async function uploadToCloudinary(file, folder = '', onProgress = null) {
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
@@ -57,10 +53,6 @@ export async function uploadToCloudinary(file, folder = '', onProgress = null) {
 
 /**
  * Upload multiple files to Cloudinary
- * @param {File[]} files - Array of files
- * @param {string} folder - Folder path
- * @param {function} onProgress - Progress callback ({current, total, percent})
- * @returns {Promise<Array<{url: string, publicId: string}>>}
  */
 export async function uploadMultiple(files, folder = '', onProgress = null) {
   const results = [];
@@ -81,10 +73,11 @@ export async function uploadMultiple(files, folder = '', onProgress = null) {
   return results;
 }
 
+// Alias for backwards compatibility
+export const uploadMultipleToCloudinary = uploadMultiple;
+
 /**
  * Generate optimized Cloudinary URL
- * @param {string} url - Original Cloudinary URL
- * @param {object} options - Transformation options
  */
 export function getOptimizedUrl(url, options = {}) {
   if (!url || !url.includes('cloudinary')) return url;
@@ -109,6 +102,7 @@ export function isCloudinaryConfigured() {
 export default {
   uploadToCloudinary,
   uploadMultiple,
+  uploadMultipleToCloudinary: uploadMultiple,
   getOptimizedUrl,
   isCloudinaryConfigured,
 };
