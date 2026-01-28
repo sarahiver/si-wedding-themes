@@ -3,7 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { uploadToCloudinary } from '../../lib/cloudinary';
-import { savePhotoEntry } from '../../lib/supabase';
+import { submitPhotoUpload } from '../../lib/supabase';
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
@@ -244,7 +244,7 @@ function PhotoUpload() {
         const result = await uploadToCloudinary(file);
         
         if (result.url) {
-          await savePhotoEntry(project.id, {
+          await submitPhotoUpload(project.id, {
             url: result.url,
             public_id: result.public_id,
             uploader_name: uploaderName || 'Anonym'
