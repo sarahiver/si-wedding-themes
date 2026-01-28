@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(40px); }
@@ -22,25 +23,13 @@ const float = keyframes`
 `;
 
 const gridReveal = keyframes`
-  from { 
-    opacity: 0;
-    background-size: 0px 0px;
-  }
-  to { 
-    opacity: 1;
-    background-size: 80px 80px;
-  }
+  from { opacity: 0; background-size: 0px 0px; }
+  to { opacity: 1; background-size: 80px 80px; }
 `;
 
 const circleGrow = keyframes`
-  from { 
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  to { 
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 `;
 
 const Section = styled.section`
@@ -61,29 +50,6 @@ const Section = styled.section`
       z-index: 1;
     }
   `}
-`;
-
-const IncludedBadge = styled.div`
-  position: absolute;
-  top: 100px;
-  right: 2rem;
-  background: #000;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.8rem;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  
-  &::before {
-    content: '✓';
-    font-size: 0.7rem;
-  }
 `;
 
 const BackgroundGrid = styled.div`
@@ -215,9 +181,7 @@ const ScrollHint = styled.div`
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #999;
-    text-align: center;
     writing-mode: vertical-rl;
-    text-orientation: mixed;
   }
 `;
 
@@ -240,23 +204,29 @@ const ScrollLine = styled.div`
   }
 `;
 
-function Hero({
-  name1 = 'Pauli',
-  name2 = 'Mo',
-  date = '15. August 2025',
-  location = 'Schloss Heidelberg',
-  eyebrow = 'Wir heiraten',
-  backgroundImage = null,
-  showBadge = false,
-}) {
+function Hero() {
+  const { content, coupleNames, weddingDate } = useWedding();
+  const hero = content?.hero || {};
+  
+  // Parse couple names
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
+  const name1 = names[0] || 'Name';
+  const name2 = names[1] || 'Name';
+  
+  // Format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
   return (
-    <Section id="top" $backgroundImage={backgroundImage}>
-      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
+    <Section id="top" $backgroundImage={hero.background_image}>
       <BackgroundGrid />
       <BackgroundCircle />
       
       <Content>
-        <Eyebrow>{eyebrow}</Eyebrow>
+        <Eyebrow>{hero.tagline || 'Wir heiraten'}</Eyebrow>
         <Names>
           <span className="line">
             <span className="word">{name1}</span>
@@ -265,8 +235,8 @@ function Hero({
           </span>
         </Names>
         <Divider />
-        <DateText><span>{date}</span></DateText>
-        <Location>{location}</Location>
+        <DateText><span>{formatDate(weddingDate)}</span></DateText>
+        <Location>{hero.location_short || ''}</Location>
       </Content>
       
       <ScrollHint>
