@@ -32,21 +32,14 @@ function CountdownEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Label>Startdatum (optional)</C.Label>
-          <C.Input 
-            type="date"
-            value={content.start_date || ''} 
-            onChange={(e) => update('start_date', e.target.value)}
-          />
-          <C.HelpText>Für Zeitleisten-Countdown (Standard: Jahresanfang)</C.HelpText>
-        </C.FormGroup>
-        
-        <C.FormGroup>
-          <C.Checkbox
-            checked={content.show_seconds || false}
-            onChange={(e) => update('show_seconds', e.target.checked)}
-          />
-          <C.CheckboxLabel>Sekunden anzeigen</C.CheckboxLabel>
+          <C.Checkbox>
+            <input
+              type="checkbox"
+              checked={content.show_seconds || false}
+              onChange={(e) => update('show_seconds', e.target.checked)}
+            />
+            Sekunden anzeigen
+          </C.Checkbox>
         </C.FormGroup>
         
         <C.Divider />

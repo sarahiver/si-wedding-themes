@@ -20,17 +20,8 @@ function HeroEditor({ components: C }) {
           onUpload={(url) => update('background_image', url)}
           folder={`${baseFolder}/hero`}
           label="Hintergrundbild"
+          ratio="16/9"
         />
-        
-        <C.FormGroup>
-          <C.Label>Hintergrundvideo (optional)</C.Label>
-          <C.Input 
-            value={content.background_video || ''} 
-            onChange={(e) => update('background_video', e.target.value)}
-            placeholder="Cloudinary Video URL"
-          />
-          <C.HelpText>Nur für Video-Theme relevant</C.HelpText>
-        </C.FormGroup>
         
         <C.FormGroup>
           <C.Label>Tagline</C.Label>

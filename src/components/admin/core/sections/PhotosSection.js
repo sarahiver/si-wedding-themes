@@ -27,7 +27,8 @@ function PhotosSection({ components: C }) {
     
     try {
       // Dynamically import JSZip
-      const JSZip = (await import('jszip')).default;
+      const JSZipModule = await import('jszip');
+      const JSZip = JSZipModule.default || JSZipModule;
       const zip = new JSZip();
       const folder = zip.folder('hochzeitsfotos');
       
@@ -74,7 +75,7 @@ function PhotosSection({ components: C }) {
       showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen!`);
     } catch (err) {
       console.error('ZIP creation failed:', err);
-      showFeedback('error', 'Fehler beim Erstellen des ZIPs');
+      showFeedback('error', 'JSZip nicht verfügbar - bitte "npm install jszip" ausführen');
     } finally {
       setDownloading(false);
     }

@@ -246,13 +246,17 @@ export function AdminProvider({ children }) {
         showFeedback('error', 'Fehler beim Speichern: ' + error.message);
       } else {
         showFeedback('success', 'Gespeichert!');
+        // Trigger refetch so main page sees updated content
+        if (refetch) {
+          refetch();
+        }
       }
     } catch (e) {
       console.error('Save error:', e);
       showFeedback('error', 'Fehler beim Speichern');
     }
     setIsSaving(false);
-  }, [projectId, contentStates, showFeedback]);
+  }, [projectId, contentStates, showFeedback, refetch]);
 
   // EXPORT CSV
   const exportCSV = useCallback((data, filename) => {

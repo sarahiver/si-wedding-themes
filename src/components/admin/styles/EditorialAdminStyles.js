@@ -341,6 +341,9 @@ export const FeedbackModal = styled.div`
   z-index: 1000;
 `;
 
+// Form Row for side-by-side inputs
+export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
+
 // No logo icon for Editorial (minimal)
 export const LogoIcon = null;
 
@@ -353,7 +356,7 @@ export const EditorialAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup,
   ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
