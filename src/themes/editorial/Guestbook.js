@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/Guestbook.js
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
-import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #FFFFFF;
+  padding: 150px 5%;
+  background: #1A1A1A;
+  position: relative;
 `;
 
 const Container = styled.div`
@@ -15,300 +15,302 @@ const Container = styled.div`
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 60px;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.8s ease;
 `;
 
-const Eyebrow = styled.div`
+const Eyebrow = styled.span`
+  display: inline-block;
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  color: #B8976A;
+  margin-bottom: 25px;
+
+  &::before, &::after {
+    content: '—';
+    margin: 0 15px;
+    color: rgba(184, 151, 106, 0.3);
+  }
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
+  color: #FFFFFF;
+
+  span {
+    font-style: italic;
+  }
 `;
 
 const Subtitle = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: #666;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 15px;
 `;
 
 const Form = styled.form`
-  background: #FAFAFA;
-  padding: 2.5rem;
-  border: 1px solid #E0E0E0;
-  margin-bottom: 3rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 50px;
+  margin-bottom: 60px;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.3s;
+  transform: translateY(${p => p.$visible ? 0 : '40px'});
+  transition: all 0.8s ease 0.2s;
+
+  @media (max-width: 600px) {
+    padding: 30px 20px;
+  }
 `;
 
 const FormRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: ${p => p.$full ? '1.5rem' : '0'};
+  margin-bottom: 25px;
 `;
 
 const Label = styled.label`
   display: block;
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #000;
-  margin-bottom: 0.75rem;
+  color: #B8976A;
+  margin-bottom: 12px;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #000;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
   transition: all 0.3s ease;
-  
-  &:focus { outline: none; border-color: #000; }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #B8976A;
+  }
 `;
 
-const TextArea = styled.textarea`
+const Textarea = styled.textarea`
   width: 100%;
-  padding: 1rem;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #000;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
-  min-height: 120px;
+  min-height: 150px;
   resize: vertical;
   transition: all 0.3s ease;
-  
-  &:focus { outline: none; border-color: #000; }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #B8976A;
+  }
 `;
 
 const SubmitButton = styled.button`
-  padding: 1rem 2.5rem;
+  width: 100%;
+  padding: 20px;
+  background: #B8976A;
+  color: #1A1A1A;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #FFF;
-  background: #000;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover { background: #333; }
+  transition: all 0.4s ease;
+  margin-top: 10px;
+
+  &:hover {
+    background: #D4AF37;
+  }
 `;
 
 const EntriesList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 25px;
 `;
 
-const Entry = styled.div`
-  background: #FAFAFA;
-  padding: 2rem;
-  border-left: 3px solid #000;
+const EntryCard = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 35px;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.4 + p.$index * 0.1}s;
+  transform: translateX(${p => p.$visible ? 0 : '-30px'});
+  transition: all 0.6s ease ${p => 0.3 + p.$index * 0.1}s;
+
+  @media (max-width: 600px) {
+    padding: 25px 20px;
+  }
 `;
 
-const EntryText = styled.p`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.1rem;
-  font-style: italic;
-  color: #333;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-`;
-
-const EntryMeta = styled.div`
+const EntryHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 20px;
 `;
 
-const EntryAuthor = styled.span`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #000;
+const EntryAuthor = styled.h4`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.4rem;
+  color: #FFFFFF;
 `;
 
 const EntryDate = styled.span`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: #999;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  background: #FAFAFA;
-  border: 1px dashed #E0E0E0;
-`;
-
-const EmptyText = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #999;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
 `;
 
-function Guestbook({ content = {} }) {
-  const { projectId } = useWedding();
-  const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({ name: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [entries, setEntries] = useState([]);
-  const [error, setError] = useState(null);
+const EntryMessage = styled.p`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.7);
+
+  &::before {
+    content: '„';
+    color: #B8976A;
+    font-size: 1.5rem;
+  }
+
+  &::after {
+    content: '"';
+    color: #B8976A;
+    font-size: 1.5rem;
+  }
+`;
+
+function Guestbook() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [formData, setFormData] = useState({ name: '', relation: '', message: '' });
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Gäste';
-  const titleAccent = 'buch';
-  const subtitle = content.description || 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.';
-
-  // Load entries from Supabase
-  useEffect(() => {
-    async function loadEntries() {
-      if (!projectId) return;
-      const { data } = await getGuestbookEntries(projectId, true);
-      if (data) {
-        const formattedEntries = data.map(entry => ({
-          name: entry.name,
-          message: entry.message,
-          date: new Date(entry.created_at).toLocaleDateString('de-DE', { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
-          }),
-        }));
-        setEntries(formattedEntries);
-      }
-    }
-    loadEntries();
-  }, [projectId, submitted]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.15 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const { error: submitError } = await submitGuestbookEntry(projectId, {
-        name: formData.name,
-        message: formData.message,
-      });
-
-      if (submitError) {
-        throw new Error(submitError.message);
-      }
-
-      setFormData({ name: '', message: '' });
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-    } catch (err) {
-      console.error('Guestbook submission error:', err);
-      setError('Es gab einen Fehler. Bitte versuche es erneut.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    console.log('Guestbook entry:', formData);
+    setFormData({ name: '', relation: '', message: '' });
   };
 
-  const items = entries;
+  const entries = [
+    {
+      name: 'Oma Gertrud',
+      date: '15. Januar 2025',
+      message: 'Meine liebsten Enkel, ich wünsche euch von ganzem Herzen eine wundervolle gemeinsame Zukunft voller Liebe, Lachen und Abenteuer. Ihr seid füreinander bestimmt!'
+    },
+    {
+      name: 'Familie Schmidt',
+      date: '12. Januar 2025',
+      message: 'Wir freuen uns so sehr für euch beide! Möge eure Liebe jeden Tag wachsen und euer gemeinsamer Weg voller glücklicher Momente sein.'
+    },
+    {
+      name: 'Lisa & Tom',
+      date: '10. Januar 2025',
+      message: 'Von den ersten Dates bis zur Hochzeit – wir waren dabei und sind so stolz auf euch! Auf viele weitere gemeinsame Abenteuer!'
+    }
+  ];
 
   return (
     <Section ref={sectionRef} id="guestbook">
       <Container>
-        <Header>
-          <Eyebrow $visible={visible}>Eure Wünsche</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+        <Header $visible={isVisible}>
+          <Eyebrow>Gästebuch</Eyebrow>
+          <Title>Eure <span>Wünsche</span></Title>
+          <Subtitle>Hinterlasst uns eine persönliche Nachricht</Subtitle>
         </Header>
-        
-        <Form $visible={visible} onSubmit={handleSubmit}>
+
+        <Form $visible={isVisible} onSubmit={handleSubmit}>
           <FormRow>
             <FormGroup>
-              <Label>Euer Name *</Label>
-              <Input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Vor- und Nachname" required />
+              <Label>Euer Name</Label>
+              <Input
+                type="text"
+                placeholder="Max Mustermann"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Beziehung zum Paar</Label>
+              <Input
+                type="text"
+                placeholder="z.B. Freunde der Braut"
+                value={formData.relation}
+                onChange={(e) => setFormData({ ...formData, relation: e.target.value })}
+              />
             </FormGroup>
           </FormRow>
-          <FormGroup $full>
-            <Label>Eure Nachricht *</Label>
-            <TextArea value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} placeholder="Schreibt uns eure Glückwünsche..." required />
+
+          <FormGroup>
+            <Label>Eure Nachricht</Label>
+            <Textarea
+              placeholder="Schreibt uns eure Glückwünsche..."
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              required
+            />
           </FormGroup>
-          {error && (
-            <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
-              {error}
-            </div>
-          )}
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Wird gesendet...' : submitted ? '✓ Gesendet!' : 'Eintragen'}
+
+          <SubmitButton type="submit">
+            Nachricht hinterlassen ✨
           </SubmitButton>
         </Form>
-        
-        {items.length > 0 ? (
-          <EntriesList>
-            {items.map((entry, i) => (
-              <Entry key={i} $index={i} $visible={visible}>
-                <EntryText>"{entry.message}"</EntryText>
-                <EntryMeta>
-                  <EntryAuthor>— {entry.name}</EntryAuthor>
-                  <EntryDate>{entry.date}</EntryDate>
-                </EntryMeta>
-              </Entry>
-            ))}
-          </EntriesList>
-        ) : (
-          <EmptyState><EmptyText>Noch keine Einträge vorhanden. Seid die Ersten!</EmptyText></EmptyState>
-        )}
+
+        <EntriesList>
+          {entries.map((entry, index) => (
+            <EntryCard key={index} $visible={isVisible} $index={index}>
+              <EntryHeader>
+                <EntryAuthor>{entry.name}</EntryAuthor>
+                <EntryDate>{entry.date}</EntryDate>
+              </EntryHeader>
+              <EntryMessage>{entry.message}</EntryMessage>
+            </EntryCard>
+          ))}
+        </EntriesList>
       </Container>
     </Section>
   );

@@ -1,331 +1,193 @@
+// src/components/Footer.js
 import React from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
 
-const FooterSection = styled.footer`
-  background: #000;
-  color: #FFF;
-  padding: 5rem 2rem 2rem;
+const FooterWrapper = styled.footer`
+  background: #0D0D0D;
+  padding: 80px 5% 40px;
   position: relative;
 `;
 
-const IncludedBadge = styled.div`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  background: #FFF;
-  color: #000;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  
-  &::before {
-    content: '✓';
-    font-size: 0.7rem;
-  }
-`;
-
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 4rem;
-  margin-bottom: 4rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    text-align: center;
-  }
+const TopSection = styled.div`
+  text-align: center;
+  margin-bottom: 60px;
 `;
 
-const Brand = styled.div``;
-
-const Logo = styled.div`
-  font-family: 'Instrument Serif', serif;
+const CoupleNames = styled.h3`
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 2rem;
-  margin-bottom: 1rem;
-  
-  span {
-    font-style: italic;
-  }
+  font-style: italic;
+  color: #FFFFFF;
+  margin-bottom: 10px;
 `;
 
-const Tagline = styled.p`
+const WeddingDate = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #999;
-  line-height: 1.7;
-  max-width: 300px;
-  
-  @media (max-width: 768px) {
-    max-width: none;
-    margin: 0 auto;
-  }
-`;
-
-const NavColumn = styled.div``;
-
-const NavTitle = styled.h4`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: #B8976A;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 1.5rem;
 `;
 
-const NavList = styled.ul`
+const NavLinks = styled.nav`
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  
-  @media (max-width: 768px) {
-    align-items: center;
-  }
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const NavLink = styled.a`
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #CCC;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
   transition: color 0.3s ease;
-  
+
   &:hover {
-    color: #FFF;
+    color: #B8976A;
   }
 `;
 
-const Divider = styled.div`
-  height: 1px;
-  background: #333;
-  margin-bottom: 2rem;
-`;
-
-const Bottom = styled.div`
+const SocialLinks = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+`;
+
+const SocialLink = styled.a`
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #B8976A;
   }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+`;
+
+const BottomSection = styled.div`
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
 `;
 
 const Copyright = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 15px;
 `;
 
-const AdminLink = styled.button`
+const LegalLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+`;
+
+const LegalLink = styled.a`
   font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #666;
-  background: none;
-  border: none;
-  cursor: pointer;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
   transition: color 0.3s ease;
-  
+
   &:hover {
-    color: #999;
+    color: #B8976A;
   }
 `;
 
-const Modal = styled.div`
+const BackToTop = styled.button`
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: #B8976A;
+  color: #1A1A1A;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-  opacity: ${p => p.$open ? 1 : 0};
-  visibility: ${p => p.$open ? 'visible' : 'hidden'};
+  font-size: 1.2rem;
+  box-shadow: 0 4px 20px rgba(184, 151, 106, 0.3);
   transition: all 0.3s ease;
-`;
+  z-index: 100;
 
-const ModalContent = styled.div`
-  background: #FFF;
-  padding: 3rem;
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-`;
-
-const ModalClose = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #999;
-  cursor: pointer;
-  
   &:hover {
-    color: #000;
+    background: #D4AF37;
+    transform: translateY(-3px);
   }
 `;
 
-const ModalTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.75rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 2rem;
-  text-align: center;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #000;
-  margin-bottom: 0.5rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 1rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  color: #000;
-  background: #FAFAFA;
-  border: 1px solid #E0E0E0;
-  transition: all 0.3s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #000;
-    background: #FFF;
-  }
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 1rem 2rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #FFF;
-  background: #000;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #333;
-  }
-`;
-
-const ErrorMessage = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #C62828;
-  text-align: center;
-  margin-top: 1rem;
-`;
-
-function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false, slug = '' }) {
-  const hashtag = content.hashtag || '';
-  const tagline = content.tagline || 'Wir freuen uns auf euch!';
-  
-  const defaultLinks = [
-    { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Location', href: '#location' },
-    { label: 'Ablauf', href: '#timeline' },
-  ];
-
-  const defaultQuickLinks = [
-    { label: 'RSVP', href: '#rsvp' },
-    { label: 'FAQ', href: '#faq' },
-  ];
-
-  const navLinks = defaultLinks;
-  const quickNavLinks = defaultQuickLinks;
-
-  const handleAdminClick = () => {
-    // Use slug for admin link if available
-    const adminPath = slug ? `/${slug}/admin` : '/admin';
-    window.location.href = adminPath;
+function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const year = new Date().getFullYear();
-  const name1 = coupleNames.split('&')[0]?.trim() || '';
-  const name2 = coupleNames.split('&')[1]?.trim() || '';
-
   return (
-    <FooterSection>
-      {showBadge && <IncludedBadge>Included</IncludedBadge>}
-      
-      <Container>
-        <Grid>
-          <Brand>
-            <Logo>
-              {name1} <span>&</span> {name2}
-            </Logo>
-            <Tagline>{tagline}</Tagline>
-          </Brand>
-          
-          <NavColumn>
-            <NavTitle>Navigation</NavTitle>
-            <NavList>
-              {navLinks.map((link, i) => (
-                <li key={i}>
-                  <NavLink href={link.href}>{link.label}</NavLink>
-                </li>
-              ))}
-            </NavList>
-          </NavColumn>
-          
-          <NavColumn>
-            <NavTitle>Quick Links</NavTitle>
-            <NavList>
-              {quickNavLinks.map((link, i) => (
-                <li key={i}>
-                  <NavLink href={link.href}>{link.label}</NavLink>
-                </li>
-              ))}
-            </NavList>
-          </NavColumn>
-        </Grid>
-        
-        <Divider />
-        
-        <Bottom>
-          <Copyright>© {year} {coupleNames}. Made with love.</Copyright>
-          <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
-        </Bottom>
-      </Container>
-    </FooterSection>
+    <>
+      <FooterWrapper>
+        <Container>
+          <TopSection>
+            <CoupleNames>Sarah & Max</CoupleNames>
+            <WeddingDate>21. Juni 2025</WeddingDate>
+
+            <NavLinks>
+              <NavLink href="#story">Unsere Geschichte</NavLink>
+              <NavLink href="#timeline">Tagesablauf</NavLink>
+              <NavLink href="#location">Location</NavLink>
+              <NavLink href="#rsvp">RSVP</NavLink>
+              <NavLink href="#gallery">Galerie</NavLink>
+              <NavLink href="#contact">Kontakt</NavLink>
+            </NavLinks>
+
+            <SocialLinks>
+              <SocialLink href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                Instagram
+              </SocialLink>
+              <span style={{ color: 'rgba(255,255,255,0.3)' }}>•</span>
+              <SocialLink href="https://pinterest.com" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.372-12 12 0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.554.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+                Pinterest
+              </SocialLink>
+            </SocialLinks>
+          </TopSection>
+
+          <BottomSection>
+            <Copyright>
+              © {new Date().getFullYear()} Sarah & Max — Mit Liebe erstellt
+            </Copyright>
+            <LegalLinks>
+              <LegalLink href="#">Impressum</LegalLink>
+              <LegalLink href="#">Datenschutz</LegalLink>
+            </LegalLinks>
+          </BottomSection>
+        </Container>
+      </FooterWrapper>
+
+      <BackToTop onClick={scrollToTop}>↑</BackToTop>
+    </>
   );
 }
 

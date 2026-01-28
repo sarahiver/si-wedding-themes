@@ -1,149 +1,203 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
-import { submitMusicWish, getMusicWishes } from '../../lib/supabase';
+// src/components/MusicWishes.js
+import React, { useEffect, useRef, useState } from 'react';
+import styled, { keyframes } from 'styled-components';
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+`;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #000;
-  color: #FFF;
+  padding: 150px 5%;
+  background: #FAF8F5;
+  position: relative;
+  overflow: hidden;
+`;
+
+const FloatingNotes = styled.div`
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+`;
+
+const Note = styled.span`
+  position: absolute;
+  font-size: ${p => p.$size || '2rem'};
+  opacity: 0.1;
+  animation: ${float} ${p => p.$duration || '6s'} ease-in-out infinite;
+  animation-delay: ${p => p.$delay || '0s'};
 `;
 
 const Container = styled.div`
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
-`;
-
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #666;
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-`;
-
-const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #FFF;
-  margin-bottom: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
-`;
-
-const Subtitle = styled.p`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.15rem;
-  font-style: italic;
-  color: #999;
-  max-width: 500px;
-  margin: 0 auto;
-  line-height: 1.7;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
-`;
-
-const Form = styled.form`
-  background: #1A1A1A;
-  padding: 2.5rem;
-  border: 1px solid #333;
-  margin-bottom: 3rem;
+  margin-bottom: 60px;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
-  transition-delay: 0.3s;
 `;
 
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #B8976A;
+  margin-bottom: 25px;
+
+  &::before, &::after {
+    content: '—';
+    margin: 0 15px;
+    color: rgba(184, 151, 106, 0.5);
+  }
 `;
 
-const FormGroup = styled.div``;
+const Title = styled.h2`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 400;
+  color: #1A1A1A;
+
+  span {
+    font-style: italic;
+  }
+`;
+
+const Subtitle = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #888;
+  margin-top: 15px;
+`;
+
+const Form = styled.form`
+  background: #FFFFFF;
+  padding: 50px;
+  box-shadow: 0 15px 60px rgba(0, 0, 0, 0.08);
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '40px'});
+  transition: all 0.8s ease 0.2s;
+
+  @media (max-width: 600px) {
+    padding: 30px 20px;
+  }
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 25px;
+
+  &:last-of-type {
+    margin-bottom: 30px;
+  }
+`;
 
 const Label = styled.label`
   display: block;
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 0.75rem;
+  color: #B8976A;
+  margin-bottom: 12px;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem;
+  padding: 18px 20px;
+  background: #FAF8F5;
+  border: 1px solid #E0E0E0;
+  color: #1A1A1A;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  color: #FFF;
-  background: #000;
-  border: 1px solid #333;
   transition: all 0.3s ease;
-  
-  &:focus { outline: none; border-color: #FFF; }
-  &::placeholder { color: #666; }
+
+  &::placeholder {
+    color: #AAA;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #B8976A;
+    background: #FFFFFF;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  padding: 18px 20px;
+  background: #FAF8F5;
+  border: 1px solid #E0E0E0;
+  color: #1A1A1A;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: #AAA;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #B8976A;
+    background: #FFFFFF;
+  }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: 1rem 2rem;
+  padding: 20px;
+  background: #B8976A;
+  color: #FFFFFF;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #000;
-  background: #FFF;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
-  
-  &:hover { background: #E0E0E0; }
+  transition: all 0.4s ease;
+
+  &:hover {
+    background: #1A1A1A;
+  }
 `;
 
-const WishList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+const WishesList = styled.div`
+  margin-top: 60px;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.8s ease 0.4s;
 `;
 
-const WishItem = styled.div`
+const WishesTitle = styled.h3`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+  color: #1A1A1A;
+  text-align: center;
+  margin-bottom: 30px;
+`;
+
+const WishCard = styled.div`
+  background: #FFFFFF;
+  padding: 25px 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: #1A1A1A;
-  border: 1px solid #333;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.4 + p.$index * 0.1}s;
+  gap: 20px;
 `;
 
-const WishIcon = styled.div`
+const WishIcon = styled.span`
   font-size: 1.5rem;
 `;
 
@@ -151,181 +205,138 @@ const WishContent = styled.div`
   flex: 1;
 `;
 
-const WishSong = styled.div`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.1rem;
-  color: #FFF;
-  margin-bottom: 0.25rem;
+const WishSong = styled.p`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  color: #1A1A1A;
 `;
 
-const WishArtist = styled.div`
+const WishFrom = styled.span`
   font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: #888;
 `;
 
-const WishBy = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: #666;
-`;
-
-const Stats = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid #333;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.6s;
-`;
-
-const Stat = styled.div`
-  text-align: center;
-`;
-
-const StatNumber = styled.div`
-  font-family: 'Instrument Serif', serif;
-  font-size: 2.5rem;
-  color: #FFF;
-  line-height: 1;
-  margin-bottom: 0.5rem;
-`;
-
-const StatLabel = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #666;
-`;
-
-function MusicWishes({ content = {} }) {
-  const { projectId } = useWedding();
-  const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({ name: '', song: '', artist: '' });
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [wishes, setWishes] = useState([]);
-  const [error, setError] = useState(null);
+function MusicWishes() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [formData, setFormData] = useState({ name: '', song: '', artist: '', message: '' });
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Musik';
-  const titleAccent = 'wünsche';
-  const subtitle = content.description || 'Welcher Song bringt euch garantiert auf die Tanzfläche? Verratet es uns!';
-
-  // Load wishes from Supabase
-  useEffect(() => {
-    async function loadWishes() {
-      if (!projectId) return;
-      const { data } = await getMusicWishes(projectId);
-      if (data) {
-        const formattedWishes = data.map(wish => ({
-          song: wish.song_title,
-          artist: wish.artist,
-          by: wish.name,
-        }));
-        setWishes(formattedWishes);
-      }
-    }
-    loadWishes();
-  }, [projectId, submitted]);
-
-  const items = wishes;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.15 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const { error: submitError } = await submitMusicWish(projectId, {
-        name: formData.name,
-        artist: formData.artist,
-        songTitle: formData.song,
-      });
-
-      if (submitError) {
-        throw new Error(submitError.message);
-      }
-
-      setFormData({ name: '', song: '', artist: '' });
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-    } catch (err) {
-      console.error('Music wish submission error:', err);
-      setError('Es gab einen Fehler. Bitte versuche es erneut.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Handle submission
+    console.log('Music wish:', formData);
+    setFormData({ name: '', song: '', artist: '', message: '' });
   };
+
+  // Example wishes
+  const existingWishes = [
+    { song: 'Perfect', artist: 'Ed Sheeran', from: 'Lisa & Tom' },
+    { song: 'Marry You', artist: 'Bruno Mars', from: 'Familie Schmidt' },
+    { song: 'Can\'t Help Falling in Love', artist: 'Elvis', from: 'Oma Gertrud' },
+  ];
+
+  const notes = [
+    { char: '♪', x: '10%', y: '20%', size: '3rem', duration: '8s', delay: '0s' },
+    { char: '♫', x: '85%', y: '15%', size: '2.5rem', duration: '7s', delay: '1s' },
+    { char: '♪', x: '90%', y: '60%', size: '2rem', duration: '9s', delay: '2s' },
+    { char: '♫', x: '5%', y: '70%', size: '3.5rem', duration: '6s', delay: '0.5s' },
+  ];
 
   return (
     <Section ref={sectionRef} id="music">
+      <FloatingNotes>
+        {notes.map((note, i) => (
+          <Note
+            key={i}
+            style={{ left: note.x, top: note.y }}
+            $size={note.size}
+            $duration={note.duration}
+            $delay={note.delay}
+          >
+            {note.char}
+          </Note>
+        ))}
+      </FloatingNotes>
+
       <Container>
-        <Header>
-          <Eyebrow $visible={visible}>Party Playlist</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+        <Header $visible={isVisible}>
+          <Eyebrow>Musikwünsche</Eyebrow>
+          <Title>Eure <span>Lieblingssongs</span></Title>
+          <Subtitle>Welche Musik bringt euch auf die Tanzfläche?</Subtitle>
         </Header>
-        
-        <Form $visible={visible} onSubmit={handleSubmit}>
-          <FormRow>
-            <FormGroup>
-              <Label>Songtitel *</Label>
-              <Input type="text" value={formData.song} onChange={e => setFormData({...formData, song: e.target.value})} placeholder="z.B. Dancing Queen" required />
-            </FormGroup>
-            <FormGroup>
-              <Label>Interpret *</Label>
-              <Input type="text" value={formData.artist} onChange={e => setFormData({...formData, artist: e.target.value})} placeholder="z.B. ABBA" required />
-            </FormGroup>
-          </FormRow>
+
+        <Form $visible={isVisible} onSubmit={handleSubmit}>
           <FormGroup>
-            <Label>Euer Name *</Label>
-            <Input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Vor- und Nachname" required />
+            <Label>Euer Name</Label>
+            <Input
+              type="text"
+              placeholder="Max Mustermann"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
           </FormGroup>
-          {error && (
-            <div style={{ color: '#ff6b6b', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
-              {error}
-            </div>
-          )}
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Wird gesendet...' : submitted ? '✓ Hinzugefügt!' : 'Song hinzufügen'}
+
+          <FormGroup>
+            <Label>Songtitel</Label>
+            <Input
+              type="text"
+              placeholder="z.B. Perfect"
+              value={formData.song}
+              onChange={(e) => setFormData({ ...formData, song: e.target.value })}
+              required
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Interpret</Label>
+            <Input
+              type="text"
+              placeholder="z.B. Ed Sheeran"
+              value={formData.artist}
+              onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
+              required
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Warum dieser Song? (optional)</Label>
+            <Textarea
+              placeholder="Erzählt uns, warum euch dieser Song wichtig ist..."
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            />
+          </FormGroup>
+
+          <SubmitButton type="submit">
+            Song vorschlagen 🎵
           </SubmitButton>
         </Form>
-        
-        <WishList>
-          {items.map((wish, i) => (
-            <WishItem key={i} $index={i} $visible={visible}>
+
+        <WishesList $visible={isVisible}>
+          <WishesTitle>Bisherige Wünsche</WishesTitle>
+          {existingWishes.map((wish, index) => (
+            <WishCard key={index}>
               <WishIcon>🎵</WishIcon>
               <WishContent>
-                <WishSong>{wish.song}</WishSong>
-                <WishArtist>{wish.artist}</WishArtist>
+                <WishSong>{wish.song} – {wish.artist}</WishSong>
+                <WishFrom>von {wish.from}</WishFrom>
               </WishContent>
-              <WishBy>von {wish.by}</WishBy>
-            </WishItem>
+            </WishCard>
           ))}
-        </WishList>
-        
-        <Stats $visible={visible}>
-          <Stat>
-            <StatNumber>{items.length}</StatNumber>
-            <StatLabel>Songs</StatLabel>
-          </Stat>
-        </Stats>
+        </WishesList>
       </Container>
     </Section>
   );
