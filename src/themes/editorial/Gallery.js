@@ -1,16 +1,10 @@
-// src/components/Gallery.js
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
-  padding: 150px 5%;
-  background: #FAF8F5;
-  position: relative;
+  padding: 8rem 2rem;
+  background: #FFFFFF;
 `;
 
 const Container = styled.div`
@@ -20,242 +14,158 @@ const Container = styled.div`
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 80px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
+  margin-bottom: 4rem;
 `;
 
-const Eyebrow = styled.span`
-  display: inline-block;
+const Eyebrow = styled.div`
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 25px;
-
-  &::before, &::after {
-    content: '—';
-    margin: 0 15px;
-    color: rgba(184, 151, 106, 0.5);
-  }
+  color: #666;
+  margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
 `;
 
 const Title = styled.h2`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
-  color: #1A1A1A;
-
-  span {
-    font-style: italic;
-  }
+  color: #000;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
+  span { font-style: italic; }
 `;
 
-const GalleryGrid = styled.div`
+const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 250px);
-  gap: 15px;
-
-  @media (max-width: 1000px) {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, 200px);
-  }
-
-  @media (max-width: 700px) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto;
-  }
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
 `;
 
-const GalleryItem = styled.div`
+const ImageWrapper = styled.div`
   position: relative;
   overflow: hidden;
   cursor: pointer;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: scale(${p => p.$visible ? 1 : 0.9});
-  transition: all 0.6s ease ${p => p.$delay}s;
-
-  &:nth-child(1) {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-
-  &:nth-child(5) {
-    grid-column: span 2;
-  }
-
-  @media (max-width: 700px) {
-    &:nth-child(1), &:nth-child(5) {
-      grid-column: span 1;
-      grid-row: span 1;
-    }
-  }
-
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.8s ease;
+  transition-delay: ${p => p.$index * 0.1}s;
+  
+  &:nth-child(3n+1) { grid-row: span 2; }
+  
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(26, 26, 26, 0);
+    background: rgba(0,0,0,0);
     transition: background 0.3s ease;
   }
-
-  &:hover::after {
-    background: rgba(26, 26, 26, 0.3);
-  }
-
-  &:hover img {
-    transform: scale(1.1);
-  }
+  
+  &:hover::after { background: rgba(0,0,0,0.2); }
 `;
 
-const Image = styled.img`
+const Image = styled.div`
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  padding-top: ${p => p.$tall ? '150%' : '100%'};
+  background: ${p => p.$src ? `url(${p.$src}) center/cover` : '#F0F0F0'};
   transition: transform 0.6s ease;
+  
+  ${ImageWrapper}:hover & { transform: scale(1.05); }
 `;
 
-const ViewIcon = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-  font-size: 1.5rem;
-
-  ${GalleryItem}:hover & {
-    opacity: 1;
-  }
-`;
-
-// Lightbox
 const Lightbox = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 9999;
+  background: rgba(0,0,0,0.95);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  animation: ${fadeIn} 0.3s ease;
+  opacity: ${p => p.$open ? 1 : 0};
+  visibility: ${p => p.$open ? 'visible' : 'hidden'};
+  transition: all 0.3s ease;
 `;
 
 const LightboxImage = styled.img`
   max-width: 90vw;
-  max-height: 85vh;
+  max-height: 90vh;
   object-fit: contain;
 `;
 
 const LightboxClose = styled.button`
   position: absolute;
-  top: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  color: #FFFFFF;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(90deg);
-  }
+  top: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  background: none;
+  border: none;
+  color: #FFF;
+  cursor: pointer;
+  font-size: 2rem;
+  &:hover { color: #999; }
 `;
 
 const LightboxNav = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  ${p => p.$direction === 'prev' ? 'left: 30px;' : 'right: 30px;'}
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  color: #FFFFFF;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+  ${p => p.$direction === 'prev' ? 'left: 2rem;' : 'right: 2rem;'}
+  width: 48px;
+  height: 48px;
+  background: none;
+  border: none;
+  color: #FFF;
+  cursor: pointer;
+  font-size: 2rem;
+  &:hover { color: #999; }
 `;
 
-const LightboxCounter = styled.div`
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+const Placeholder = styled.div`
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #FAFAFA;
+  border: 1px dashed #E0E0E0;
+`;
+
+const PlaceholderText = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  color: #999;
 `;
 
-function Gallery() {
-  const [isVisible, setIsVisible] = useState(false);
+function Gallery({ content = {} }) {
+  const title = content.title || 'Galerie';
+  const images = content.images || [];
+  
+  const [visible, setVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef(null);
+
+  const defaultImages = Array(6).fill(null).map((_, i) => ({ url: null, alt: `Bild ${i + 1}` }));
+  const galleryImages = images.length > 0 ? images : defaultImages;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!lightboxOpen) return;
-      if (e.key === 'Escape') setLightboxOpen(false);
-      if (e.key === 'ArrowRight') setCurrentImage(prev => (prev + 1) % images.length);
-      if (e.key === 'ArrowLeft') setCurrentImage(prev => (prev - 1 + images.length) % images.length);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxOpen]);
-
-  // Placeholder images - replace with actual wedding photos
-  const images = [
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769078167/si_comming_soon_about_pbqwny.jpg',
-  ];
-
   const openLightbox = (index) => {
-    setCurrentImage(index);
+    setCurrentIndex(index);
     setLightboxOpen(true);
     document.body.style.overflow = 'hidden';
   };
@@ -265,58 +175,58 @@ function Gallery() {
     document.body.style.overflow = '';
   };
 
+  const navigate = useCallback((direction) => {
+    if (direction === 'prev') {
+      setCurrentIndex(prev => prev === 0 ? galleryImages.length - 1 : prev - 1);
+    } else {
+      setCurrentIndex(prev => prev === galleryImages.length - 1 ? 0 : prev + 1);
+    }
+  }, [galleryImages.length]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!lightboxOpen) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigate('prev');
+      if (e.key === 'ArrowRight') navigate('next');
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, navigate]);
+
+  const hasImages = galleryImages.some(img => img.url);
+
   return (
     <Section ref={sectionRef} id="gallery">
       <Container>
-        <Header $visible={isVisible}>
-          <Eyebrow>Galerie</Eyebrow>
-          <Title>Unsere schönsten <span>Momente</span></Title>
+        <Header>
+          <Eyebrow $visible={visible}>Galerie</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
         </Header>
-
-        <GalleryGrid>
-          {images.map((image, index) => (
-            <GalleryItem 
-              key={index} 
-              $visible={isVisible}
-              $delay={0.1 + index * 0.05}
-              onClick={() => openLightbox(index)}
-            >
-              <Image src={image} alt={`Galerie Bild ${index + 1}`} />
-              <ViewIcon>+</ViewIcon>
-            </GalleryItem>
-          ))}
-        </GalleryGrid>
-      </Container>
-
-      {lightboxOpen && (
-        <Lightbox onClick={closeLightbox}>
+        
+        {hasImages ? (
+          <Grid>
+            {galleryImages.map((img, i) => (
+              <ImageWrapper key={i} $index={i} $visible={visible} onClick={() => img.url && openLightbox(i)}>
+                <Image $src={img.url} $tall={i % 3 === 0} />
+              </ImageWrapper>
+            ))}
+          </Grid>
+        ) : (
+          <Placeholder>
+            <PlaceholderText>Hier werden bald unsere gemeinsamen Fotos erscheinen.</PlaceholderText>
+          </Placeholder>
+        )}
+        
+        <Lightbox $open={lightboxOpen} onClick={closeLightbox}>
           <LightboxClose onClick={closeLightbox}>×</LightboxClose>
-          <LightboxNav 
-            $direction="prev" 
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentImage(prev => (prev - 1 + images.length) % images.length);
-            }}
-          >
-            ←
-          </LightboxNav>
-          <LightboxImage 
-            src={images[currentImage]} 
-            alt="Lightbox"
-            onClick={(e) => e.stopPropagation()}
-          />
-          <LightboxNav 
-            $direction="next"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentImage(prev => (prev + 1) % images.length);
-            }}
-          >
-            →
-          </LightboxNav>
-          <LightboxCounter>{currentImage + 1} / {images.length}</LightboxCounter>
+          <LightboxNav $direction="prev" onClick={(e) => { e.stopPropagation(); navigate('prev'); }}>‹</LightboxNav>
+          {galleryImages[currentIndex]?.url && (
+            <LightboxImage src={galleryImages[currentIndex].url} alt={galleryImages[currentIndex].alt || `Bild ${currentIndex + 1}`} onClick={(e) => e.stopPropagation()} />
+          )}
+          <LightboxNav $direction="next" onClick={(e) => { e.stopPropagation(); navigate('next'); }}>›</LightboxNav>
         </Lightbox>
-      )}
+      </Container>
     </Section>
   );
 }

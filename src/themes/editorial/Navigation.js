@@ -1,249 +1,222 @@
-// src/components/Navigation.js
-import React, { useState, useEffect } from 'react';
-import styled, { css, keyframes } from 'styled-components';
+import React, { useState, useEffect } from "react"
+import styled from "styled-components"
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const Nav = styled.nav`
+const Header = styled.header`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 25px 40px;
+  padding: 1.5rem 2rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  transition: all 0.4s ease;
-  animation: ${fadeIn} 1s ease;
+  background: ${(p) =>
+    p.$scrolled ? "rgba(255,255,255,0.95)" : "transparent"};
+  backdrop-filter: ${(p) => (p.$scrolled ? "blur(10px)" : "none")};
+  transition: all 0.3s ease;
 
-  ${p => p.$scrolled && css`
-    background: rgba(26, 26, 26, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 15px 40px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  `}
-
-  @media (max-width: 768px) {
-    padding: 20px;
-    ${p => p.$scrolled && css`padding: 15px 20px;`}
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 2rem;
+    right: 2rem;
+    height: 1px;
+    background: #000;
+    transform: scaleX(${(p) => (p.$scrolled ? 1 : 0)});
+    transition: transform 0.3s ease;
   }
-`;
+`
 
-const NavLinks = styled.div`
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 2vh;
+  left: 10rem;
+  margin-top: 0.5rem;
+  background: #000;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: ${(p) => (p.$visible ? "flex" : "none")};
+  align-items: center;
+  gap: 0.4rem;
+
+  &::before {
+    content: "✓";
+    font-size: 0.7rem;
+  }
+`
+
+const Logo = styled.a`
+  font-family: "Instrument Serif", serif;
+  font-size: 1.4rem;
+  color: #000;
+  letter-spacing: -0.02em;
+  span {
+    font-style: italic;
+  }
+`
+
+const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 2.5rem;
 
   @media (max-width: 968px) {
-    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    transform: translateX(${(p) => (p.$isOpen ? "0" : "100%")});
+    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    box-shadow: ${(p) => (p.$isOpen ? "-10px 0 30px rgba(0,0,0,0.1)" : "none")};
   }
-`;
+`
 
 const NavLink = styled.a`
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: ${p => p.$scrolled ? '#FFFFFF' : 'rgba(255,255,255,0.9)'};
+  color: #000;
   position: relative;
-  transition: color 0.3s ease;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: -5px;
+    bottom: -4px;
     left: 0;
-    width: 0;
+    width: 100%;
     height: 1px;
-    background: #B8976A;
-    transition: width 0.3s ease;
+    background: #000;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
   }
 
-  &:hover {
-    color: #B8976A;
-    &::after {
-      width: 100%;
-    }
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
-`;
 
-const CTAButton = styled.a`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
+  @media (max-width: 968px) {
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+  }
+`
+
+const DateBadge = styled.div`
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1A1A1A;
-  background: #B8976A;
-  padding: 14px 28px;
-  transition: all 0.3s ease;
+  color: #666;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
 
-  &:hover {
-    background: #D4AF37;
-    transform: translateY(-2px);
+  @media (max-width: 968px) {
+    display: none;
   }
-`;
+`
 
-const MobileMenuButton = styled.button`
+const MenuButton = styled.button`
   display: none;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px;
+  width: 30px;
+  height: 20px;
+  position: relative;
+  background: none;
+  border: none;
   z-index: 1001;
 
   @media (max-width: 968px) {
-    display: flex;
+    display: block;
   }
 
   span {
-    width: 28px;
-    height: 2px;
-    background: #FFFFFF;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
     transition: all 0.3s ease;
 
-    ${p => p.$open && css`
-      &:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
-      }
-      &:nth-child(2) {
-        opacity: 0;
-      }
-      &:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
-      }
-    `}
-  }
-`;
-
-const MobileMenu = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 100%;
-  max-width: 400px;
-  height: 100vh;
-  background: #1A1A1A;
-  padding: 100px 40px 40px;
-  transform: translateX(${p => p.$open ? '0' : '100%'});
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-`;
-
-const MobileNavLink = styled.a`
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem;
-  color: #FFFFFF;
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
-
-  &:hover {
-    color: #B8976A;
-    padding-left: 20px;
-  }
-`;
-
-const MobileCTA = styled.a`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1A1A1A;
-  background: #B8976A;
-  padding: 18px 30px;
-  text-align: center;
-  margin-top: auto;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #D4AF37;
-  }
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  opacity: ${p => p.$open ? 1 : 0};
-  visibility: ${p => p.$open ? 'visible' : 'hidden'};
-  transition: all 0.3s ease;
-  z-index: 998;
-`;
-
-function Navigation() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    &:nth-child(1) {
+      top: ${(p) => (p.$isOpen ? "50%" : "0")};
+      transform: ${(p) => (p.$isOpen ? "rotate(45deg)" : "none")};
     }
-  }, [mobileOpen]);
+    &:nth-child(2) {
+      top: 50%;
+      opacity: ${(p) => (p.$isOpen ? 0 : 1)};
+    }
+    &:nth-child(3) {
+      top: ${(p) => (p.$isOpen ? "50%" : "100%")};
+      transform: ${(p) => (p.$isOpen ? "rotate(-45deg)" : "none")};
+    }
+  }
+`
 
-  const navItems = [
-    { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Tagesablauf', href: '#timeline' },
-    { label: 'Location', href: '#location' },
-    { label: 'RSVP', href: '#rsvp' },
-    { label: 'Galerie', href: '#gallery' },
-  ];
+function Navigation({
+  coupleNames = "Pauli & Mo",
+  weddingDate = "15.08.2025",
+  links = [],
+  showBadge = false,
+}) {
+  const [scrolled, setScrolled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const defaultLinks = [
+    { label: "Unser Weg", href: "#story" },
+    { label: "Hochzeit", href: "#location" },
+    { label: "Ablauf", href: "#timeline" },
+    { label: "RSVP", href: "#rsvp" },
+    { label: "FAQ", href: "#faq" },
+  ]
+
+  const navLinks = links.length > 0 ? links : defaultLinks
 
   return (
-    <>
-      <Nav $scrolled={scrolled}>
-        <NavLinks>
-          {navItems.map(item => (
-            <NavLink key={item.href} href={item.href} $scrolled={scrolled}>
-              {item.label}
-            </NavLink>
-          ))}
-          <CTAButton href="#rsvp">Jetzt zusagen</CTAButton>
-        </NavLinks>
+    <Header $scrolled={scrolled}>
+      <Logo href='#top'>
+        {coupleNames.split("&")[0].trim()} <span>&</span>{" "}
+        {coupleNames.split("&")[1]?.trim() || ""}
+      </Logo>
 
-        <MobileMenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
-          <span />
-          <span />
-          <span />
-        </MobileMenuButton>
+      <Nav $isOpen={isOpen}>
+        {navLinks.map((link, i) => (
+          <NavLink key={i} href={link.href} onClick={() => setIsOpen(false)}>
+            {link.label}
+          </NavLink>
+        ))}
       </Nav>
 
-      <Overlay $open={mobileOpen} onClick={() => setMobileOpen(false)} />
-      
-      <MobileMenu $open={mobileOpen}>
-        {navItems.map(item => (
-          <MobileNavLink 
-            key={item.href} 
-            href={item.href}
-            onClick={() => setMobileOpen(false)}
-          >
-            {item.label}
-          </MobileNavLink>
-        ))}
-        <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
-          Jetzt zusagen
-        </MobileCTA>
-      </MobileMenu>
-    </>
-  );
+      <DateBadge>{weddingDate}</DateBadge>
+
+      <MenuButton $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
+        <span />
+        <span />
+        <span />
+      </MenuButton>
+
+      <IncludedBadge $visible={showBadge && scrolled}>Inklusive</IncludedBadge>
+    </Header>
+  )
 }
 
-export default Navigation;
+export default Navigation

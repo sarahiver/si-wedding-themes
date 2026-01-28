@@ -1,235 +1,213 @@
-// src/components/Countdown.js
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import { useEffect, useRef, useState } from "react"
+import styled, { keyframes } from "styled-components"
 
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+`
 
 const Section = styled.section`
-  padding: 150px 5%;
-  background: #FAF8F5;
+  padding: 8rem 2rem;
+  background: #fafafa;
   position: relative;
   overflow: hidden;
-`;
-
-const WatermarkDate = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(8rem, 20vw, 18rem);
-  font-weight: 300;
-  color: rgba(184, 151, 106, 0.08);
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-`;
+`
 
 const Container = styled.div`
   max-width: 1000px;
   margin: 0 auto;
   text-align: center;
-  position: relative;
-  z-index: 1;
-`;
+`
 
-const Eyebrow = styled.span`
-  display: inline-block;
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.div`
+  font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 25px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  color: #666;
+  margin-bottom: 1.5rem;
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: translateY(${(p) => (p.$visible ? 0 : "20px")});
   transition: all 0.8s ease;
-
-  &::before, &::after {
-    content: '—';
-    margin: 0 15px;
-    color: rgba(184, 151, 106, 0.5);
-  }
-`;
+`
 
 const Title = styled.h2`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 400;
-  color: #1A1A1A;
-  margin-bottom: 15px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease 0.1s;
-
+  color: #000;
+  margin-bottom: 3rem;
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: translateY(${(p) => (p.$visible ? 0 : "20px")});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
   span {
     font-style: italic;
   }
-`;
+`
 
-const DateText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 60px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease 0.2s;
-`;
-
-const CountdownBox = styled.div`
+const CountdownGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: #FFFFFF;
-  box-shadow: 0 10px 60px rgba(0, 0, 0, 0.08);
+  gap: 2rem;
   max-width: 700px;
-  margin: 0 auto 50px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '40px'});
-  transition: all 0.8s ease 0.3s;
+  margin: 0 auto;
 
-  @media (max-width: 500px) {
+  @media (max-width: 600px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
-`;
+`
 
 const CountdownItem = styled.div`
-  padding: 40px 20px;
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
-  
-  &:last-child {
-    border-right: none;
-  }
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: translateY(${(p) => (p.$visible ? 0 : "30px")});
+  transition: all 0.8s ease;
+  transition-delay: ${(p) => 0.2 + p.$index * 0.1}s;
+`
 
-  @media (max-width: 500px) {
-    &:nth-child(2) {
-      border-right: none;
-    }
-    &:nth-child(1), &:nth-child(2) {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    }
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  &::before {
+    content: "✓";
+    font-size: 0.7rem;
   }
-`;
+`
 
 const Number = styled.div`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(3rem, 6vw, 4.5rem);
-  font-weight: 300;
-  color: #1A1A1A;
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 400;
+  color: #000;
   line-height: 1;
-  margin-bottom: 10px;
-`;
+  margin-bottom: 0.5rem;
+  animation: ${pulse} 2s ease-in-out infinite;
+  animation-delay: ${(p) => p.$index * 0.3}s;
+`
 
 const Label = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #B8976A;
-`;
+  color: #666;
+`
 
-const CTAButton = styled.a`
-  display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #FFFFFF;
-  background: #B8976A;
-  padding: 20px 50px;
-  transition: all 0.4s ease;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease 0.4s, background 0.3s ease, transform 0.3s ease;
+const DividerLine = styled.div`
+  width: 60px;
+  height: 1px;
+  background: #000;
+  margin: 3rem auto;
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: scaleX(${(p) => (p.$visible ? 1 : 0)});
+  transition: all 0.8s ease;
+  transition-delay: 0.6s;
+`
 
-  &:hover {
-    background: #1A1A1A;
-    transform: translateY(-3px);
-  }
-`;
+const Message = styled.p`
+  font-family: "Instrument Serif", serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: #666;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: translateY(${(p) => (p.$visible ? 0 : "20px")});
+  transition: all 0.8s ease;
+  transition-delay: 0.7s;
+`
 
-function Countdown() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  // Wedding date - replace with actual
-  const weddingDate = new Date('2025-06-21T14:00:00');
-  const formattedDate = "Samstag, 21. Juni 2025";
+function Countdown({
+  weddingDate = "2026-08-15T14:00:00",
+  title = "Noch",
+  titleAccent = "so lange",
+  message = "Wir können es kaum erwarten, diesen besonderen Tag mit euch zu teilen.",
+  showBadge = false,
+}) {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+  const [visible, setVisible] = useState(false)
+  const sectionRef = useRef(null)
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date();
-      const difference = weddingDate - now;
-
+      const difference = new Date(weddingDate) - new Date()
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
-        });
+        })
       }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    }
+    calculateTimeLeft()
+    const timer = setInterval(calculateTimeLeft, 1000)
+    return () => clearInterval(timer)
+  }, [weddingDate])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
+        if (entry.isIntersecting) setVisible(true)
       },
-      { threshold: 0.2 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+      { threshold: 0.2 },
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
 
-  const padNumber = (num) => String(num).padStart(2, '0');
+  const items = [
+    { value: timeLeft.days, label: "Tage" },
+    { value: timeLeft.hours, label: "Stunden" },
+    { value: timeLeft.minutes, label: "Minuten" },
+    { value: timeLeft.seconds, label: "Sekunden" },
+  ]
 
   return (
-    <Section ref={sectionRef} id="countdown">
-      <WatermarkDate>21.06.25</WatermarkDate>
-      
+    <Section ref={sectionRef} id='countdown'>
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <Container>
-        <Eyebrow $visible={isVisible}>Countdown</Eyebrow>
-        <Title $visible={isVisible}>Der große <span>Moment</span></Title>
-        <DateText $visible={isVisible}>{formattedDate}</DateText>
+        <Eyebrow $visible={visible}>Countdown</Eyebrow>
+        <Title $visible={visible}>
+          {title} <span>{titleAccent}</span>
+        </Title>
 
-        <CountdownBox $visible={isVisible}>
-          <CountdownItem>
-            <Number>{timeLeft.days}</Number>
-            <Label>Tage</Label>
-          </CountdownItem>
-          <CountdownItem>
-            <Number>{padNumber(timeLeft.hours)}</Number>
-            <Label>Stunden</Label>
-          </CountdownItem>
-          <CountdownItem>
-            <Number>{padNumber(timeLeft.minutes)}</Number>
-            <Label>Minuten</Label>
-          </CountdownItem>
-          <CountdownItem>
-            <Number>{padNumber(timeLeft.seconds)}</Number>
-            <Label>Sekunden</Label>
-          </CountdownItem>
-        </CountdownBox>
+        <CountdownGrid>
+          {items.map((item, i) => (
+            <CountdownItem key={i} $index={i} $visible={visible}>
+              <Number $index={i}>{String(item.value).padStart(2, "0")}</Number>
+              <Label>{item.label}</Label>
+            </CountdownItem>
+          ))}
+        </CountdownGrid>
 
-        <CTAButton href="#rsvp" $visible={isVisible}>
-          Jetzt zusagen →
-        </CTAButton>
+        <DividerLine $visible={visible} />
+        <Message $visible={visible}>{message}</Message>
       </Container>
     </Section>
-  );
+  )
 }
 
-export default Countdown;
+export default Countdown

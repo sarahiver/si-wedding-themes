@@ -1,436 +1,456 @@
-// src/components/RSVP.js
-import React, { useEffect, useRef, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-`;
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
+import { submitRSVP } from '../lib/supabase';
 
 const Section = styled.section`
-  padding: 150px 5%;
-  background: #1A1A1A;
+  padding: 8rem 2rem;
+  background: #FAFAFA;
   position: relative;
-  overflow: hidden;
 `;
 
-const BackgroundVideo = styled.video`
+const IncludedBadge = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.15;
+  top: 2rem;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const Container = styled.div`
-  max-width: 700px;
+  max-width: 600px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 60px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
+  margin-bottom: 3rem;
 `;
 
-const Eyebrow = styled.span`
-  display: inline-block;
+const Eyebrow = styled.div`
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 25px;
-
-  &::before, &::after {
-    content: '—';
-    margin: 0 15px;
-    color: rgba(184, 151, 106, 0.3);
-  }
+  color: #666;
+  margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
 `;
 
 const Title = styled.h2`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
-  color: #FFFFFF;
-
-  span {
-    font-style: italic;
-  }
+  color: #000;
+  margin-bottom: 1rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
+  span { font-style: italic; }
 `;
 
 const Subtitle = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #666;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.2s;
 `;
 
 const Form = styled.form`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 50px;
+  background: #FFF;
+  padding: 3rem;
+  border: 1px solid #E0E0E0;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '40px'});
-  transition: all 0.8s ease 0.2s;
-
-  @media (max-width: 600px) {
-    padding: 30px 20px;
-  }
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.3s;
+  
+  @media (max-width: 600px) { padding: 2rem 1.5rem; }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 30px;
-
-  &:last-of-type {
-    margin-bottom: 40px;
-  }
+  margin-bottom: 2rem;
 `;
 
 const Label = styled.label`
   display: block;
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 12px;
+  color: #000;
+  margin-bottom: 0.75rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  padding: 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
+  color: #000;
+  background: #FAFAFA;
+  border: 1px solid #E0E0E0;
   transition: all 0.3s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
+  
   &:focus {
     outline: none;
-    border-color: #B8976A;
-    background: rgba(255, 255, 255, 0.08);
+    border-color: #000;
+    background: #FFF;
   }
 `;
 
-const Select = styled.select`
+const TextArea = styled.textarea`
   width: 100%;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  padding: 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23B8976A' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 20px center;
-
-  &:focus {
-    outline: none;
-    border-color: #B8976A;
-  }
-
-  option {
-    background: #1A1A1A;
-    color: #FFFFFF;
-  }
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  min-height: 120px;
+  color: #000;
+  background: #FAFAFA;
+  border: 1px solid #E0E0E0;
+  min-height: 100px;
   resize: vertical;
   transition: all 0.3s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
+  
   &:focus {
     outline: none;
-    border-color: #B8976A;
-    background: rgba(255, 255, 255, 0.08);
+    border-color: #000;
+    background: #FFF;
   }
 `;
 
 const RadioGroup = styled.div`
   display: flex;
-  gap: 20px;
+  gap: 2rem;
   flex-wrap: wrap;
 `;
 
 const RadioLabel = styled.label`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
   cursor: pointer;
-  padding: 15px 25px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+`;
 
-  &:has(input:checked) {
-    border-color: #B8976A;
-    background: rgba(184, 151, 106, 0.1);
-  }
-
-  input {
-    display: none;
-  }
-
-  span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: #FFFFFF;
-  }
-
-  &::before {
+const RadioInput = styled.input`
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  
+  &:checked::after {
     content: '';
-    width: 18px;
-    height: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #000;
     border-radius: 50%;
-    transition: all 0.3s ease;
   }
+`;
 
-  &:has(input:checked)::before {
-    border-color: #B8976A;
-    background: #B8976A;
-    box-shadow: inset 0 0 0 4px #1A1A1A;
+const Select = styled.select`
+  width: 100%;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #000;
+  background: #FAFAFA;
+  border: 1px solid #E0E0E0;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: #000;
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: 20px;
-  background: #B8976A;
-  color: #1A1A1A;
+  padding: 1.25rem 2rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  transition: all 0.4s ease;
-
-  &:hover {
-    background: #D4AF37;
-    transform: translateY(-2px);
-  }
-
-  &:disabled {
-    background: rgba(184, 151, 106, 0.5);
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const Deadline = styled.p`
-  text-align: center;
-  margin-top: 30px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
-
-  strong {
-    color: #B8976A;
-  }
+  color: #FFF;
+  background: #000;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover { background: #333; }
+  &:disabled { background: #CCC; cursor: not-allowed; }
 `;
 
 const SuccessMessage = styled.div`
   text-align: center;
-  padding: 60px 40px;
-  background: rgba(184, 151, 106, 0.1);
-  border: 1px solid rgba(184, 151, 106, 0.3);
-
-  h3 {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 2rem;
-    color: #FFFFFF;
-    margin-bottom: 15px;
-  }
-
-  p {
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
+  padding: 3rem;
+  background: #FFF;
+  border: 1px solid #E0E0E0;
 `;
 
-function RSVP() {
-  const [isVisible, setIsVisible] = useState(false);
+const SuccessIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 1rem;
+`;
+
+const SuccessText = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+`;
+
+function RSVP({
+  content = {},
+  showBadge = false,
+}) {
+  const { projectId } = useWedding();
+  const [visible, setVisible] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [attending, setAttending] = useState(null);
+  const [guestCount, setGuestCount] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    guests: '1',
-    attendance: 'yes',
-    dietary: '',
-    message: ''
+    allergies: '',
+    message: '',
+    custom: '',
   });
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [guestMenus, setGuestMenus] = useState(['']);
   const sectionRef = useRef(null);
+
+  // Get settings from content - using new admin field names
+  const title = content.title || 'Seid ihr dabei?';
+  const subtitle = content.subtitle || 'Bitte lasst uns wissen, ob ihr kommen könnt.';
+  const showMenu = content.show_menu !== false;
+  const showAllergies = content.show_allergies !== false;
+  const showMessage = content.show_message !== false;
+  const showCustom = content.show_custom || false;
+  const customLabel = content.custom_label || 'Sonstiges';
+  const maxPersons = content.max_persons || 5;
+  const menuOptions = content.menu_options || ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
-      { threshold: 0.15 }
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setSubmitted(true);
-    setLoading(false);
+  // Update guest menus array when count changes
+  const handleGuestCountChange = (newCount) => {
+    setGuestCount(newCount);
+    const newMenus = [...guestMenus];
+    while (newMenus.length < newCount) newMenus.push('');
+    while (newMenus.length > newCount) newMenus.pop();
+    setGuestMenus(newMenus);
+  };
+
+  const handleMenuChange = (index, value) => {
+    const newMenus = [...guestMenus];
+    newMenus[index] = value;
+    setGuestMenus(newMenus);
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Store scroll position
+    const scrollY = window.scrollY;
+    
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Combine all menu choices into one string
+      const menuChoices = guestMenus.map((menu, i) => `Person ${i + 1}: ${menu || 'Keine Angabe'}`).join('; ');
+      
+      const rsvpData = {
+        name: formData.name,
+        email: formData.email,
+        persons: guestCount,
+        attending: attending === 'yes',
+        dietary: menuChoices,
+        allergies: formData.allergies,
+        message: formData.message,
+        custom_field: formData.custom,
+      };
+
+      const { error: submitError } = await submitRSVP(projectId, rsvpData);
+      
+      if (submitError) {
+        throw new Error(submitError.message);
+      }
+
+      setSubmitted(true);
+      
+      // Restore scroll position after state update
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+      });
+    } catch (err) {
+      console.error('RSVP submission error:', err);
+      setError('Es gab einen Fehler beim Absenden. Bitte versuche es erneut.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <Section ref={sectionRef} id="rsvp">
+        {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
+        <Container>
+          <SuccessMessage>
+            <SuccessIcon>{attending === 'yes' ? '🎉' : '💝'}</SuccessIcon>
+            <SuccessTitle>{attending === 'yes' ? 'Wunderbar!' : 'Vielen Dank!'}</SuccessTitle>
+            <SuccessText>
+              {attending === 'yes' 
+                ? 'Wir freuen uns sehr, dass ihr dabei seid!' 
+                : 'Schade, dass ihr nicht kommen könnt. Wir denken an euch!'}
+            </SuccessText>
+          </SuccessMessage>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Section ref={sectionRef} id="rsvp">
-      <BackgroundVideo autoPlay muted loop playsInline>
-        <source 
-          src="https://res.cloudinary.com/si-weddings/video/upload/v1769070616/si_comming_soon_video_hero_xga2ia.mp4" 
-          type="video/mp4" 
-        />
-      </BackgroundVideo>
-
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <Container>
-        <Header $visible={isVisible}>
-          <Eyebrow>RSVP</Eyebrow>
-          <Title>Seid ihr <span>dabei?</span></Title>
-          <Subtitle>Wir freuen uns auf eure Zusage!</Subtitle>
+        <Header>
+          <Eyebrow $visible={visible}>RSVP</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
-
-        {submitted ? (
-          <SuccessMessage>
-            <h3>Vielen Dank!</h3>
-            <p>Wir haben eure Antwort erhalten und freuen uns auf euch.</p>
-          </SuccessMessage>
-        ) : (
-          <Form $visible={isVisible} onSubmit={handleSubmit}>
+        
+        <Form $visible={visible} onSubmit={handleSubmit}>
+          <FormGroup>
+            <Label>Name *</Label>
+            <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Vor- und Nachname" required />
+          </FormGroup>
+          
+          <FormGroup>
+            <Label>E-Mail *</Label>
+            <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@beispiel.de" required />
+          </FormGroup>
+          
+          <FormGroup>
+            <Label>Kommst du? *</Label>
+            <RadioGroup>
+              <RadioLabel>
+                <RadioInput type="radio" name="attending" value="yes" checked={attending === 'yes'} onChange={() => setAttending('yes')} required />
+                Ja, ich komme
+              </RadioLabel>
+              <RadioLabel>
+                <RadioInput type="radio" name="attending" value="no" checked={attending === 'no'} onChange={() => setAttending('no')} />
+                Leider nicht
+              </RadioLabel>
+            </RadioGroup>
+          </FormGroup>
+          
+          {attending === 'yes' && (
+            <>
+              <FormGroup>
+                <Label>Anzahl Gäste</Label>
+                <Select value={guestCount} onChange={(e) => handleGuestCountChange(parseInt(e.target.value, 10))}>
+                  {Array.from({ length: maxPersons }, (_, i) => i + 1).map(n => (
+                    <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
+                  ))}
+                </Select>
+              </FormGroup>
+              
+              {showMenu && guestMenus.map((menu, index) => (
+                <FormGroup key={index}>
+                  <Label>Menüwahl {guestCount > 1 ? `Person ${index + 1}` : ''}</Label>
+                  <Select value={menu} onChange={(e) => handleMenuChange(index, e.target.value)}>
+                    <option value="">Bitte auswählen</option>
+                    {menuOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+                  </Select>
+                </FormGroup>
+              ))}
+              
+              {showAllergies && (
+                <FormGroup>
+                  <Label>Allergien / Unverträglichkeiten</Label>
+                  <Input type="text" name="allergies" value={formData.allergies} onChange={handleChange} placeholder="z.B. Nüsse, Laktose..." />
+                </FormGroup>
+              )}
+            </>
+          )}
+          
+          {showMessage && (
             <FormGroup>
-              <Label>Euer Name</Label>
-              <Input 
-                type="text" 
-                name="name"
-                placeholder="Max & Maria Mustermann"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <Label>Nachricht (optional)</Label>
+              <TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Möchtest du uns noch etwas mitteilen?" />
             </FormGroup>
-
+          )}
+          
+          {showCustom && (
             <FormGroup>
-              <Label>E-Mail Adresse</Label>
-              <Input 
-                type="email" 
-                name="email"
-                placeholder="email@beispiel.de"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
+              <Label>{customLabel}</Label>
+              <TextArea name="custom" value={formData.custom} onChange={handleChange} />
             </FormGroup>
-
-            <FormGroup>
-              <Label>Seid ihr dabei?</Label>
-              <RadioGroup>
-                <RadioLabel>
-                  <input 
-                    type="radio" 
-                    name="attendance" 
-                    value="yes"
-                    checked={formData.attendance === 'yes'}
-                    onChange={handleChange}
-                  />
-                  <span>Ja, wir kommen!</span>
-                </RadioLabel>
-                <RadioLabel>
-                  <input 
-                    type="radio" 
-                    name="attendance" 
-                    value="no"
-                    checked={formData.attendance === 'no'}
-                    onChange={handleChange}
-                  />
-                  <span>Leider nicht</span>
-                </RadioLabel>
-              </RadioGroup>
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Anzahl Gäste</Label>
-              <Select name="guests" value={formData.guests} onChange={handleChange}>
-                <option value="1">1 Person</option>
-                <option value="2">2 Personen</option>
-                <option value="3">3 Personen</option>
-                <option value="4">4 Personen</option>
-                <option value="5">5+ Personen</option>
-              </Select>
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Unverträglichkeiten / Allergien</Label>
-              <Input 
-                type="text" 
-                name="dietary"
-                placeholder="z.B. Laktoseintoleranz, Nussallergie"
-                value={formData.dietary}
-                onChange={handleChange}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Nachricht an uns (optional)</Label>
-              <Textarea 
-                name="message"
-                placeholder="Eure persönliche Nachricht..."
-                value={formData.message}
-                onChange={handleChange}
-              />
-            </FormGroup>
-
-            <SubmitButton type="submit" disabled={loading}>
-              {loading ? 'Wird gesendet...' : 'Antwort absenden →'}
-            </SubmitButton>
-          </Form>
-        )}
-
-        <Deadline>
-          Bitte antwortet bis <strong>1. Mai 2025</strong>
-        </Deadline>
+          )}
+          
+          {error && (
+            <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          
+          <SubmitButton type="submit" disabled={attending === null || isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : 'Absenden'}
+          </SubmitButton>
+        </Form>
       </Container>
     </Section>
   );
