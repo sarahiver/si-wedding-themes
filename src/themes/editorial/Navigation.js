@@ -1,192 +1,318 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const Header = styled.header`
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+`;
+
+const staggerIn = keyframes`
+  from { 
+    opacity: 0; 
+    transform: translateX(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
+const Nav = styled.nav`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem clamp(1.5rem, 5vw, 4rem);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: ${p => p.$scrolled ? 'rgba(255,255,255,0.95)' : 'transparent'};
-  backdrop-filter: ${p => p.$scrolled ? 'blur(10px)' : 'none'};
   transition: all 0.3s ease;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 2rem;
-    right: 2rem;
-    height: 1px;
-    background: #000;
-    transform: scaleX(${p => p.$scrolled ? 1 : 0});
-    transition: transform 0.3s ease;
-  }
+  
+  ${p => p.$scrolled && css`
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem clamp(1.5rem, 5vw, 4rem);
+  `}
 `;
 
 const Logo = styled.a`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.4rem;
-  color: #000;
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  span { font-style: italic; }
-`;
-
-const Nav = styled.nav`
-  display: flex;
-  gap: 2.5rem;
-  @media (max-width: 768px) { display: none; }
-`;
-
-const NavLink = styled.a`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--font-headline);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #333;
-  text-decoration: none;
-  position: relative;
+  color: var(--editorial-white);
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 0.3s;
   
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: #000;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
+  &:hover {
+    color: var(--editorial-red);
+  }
+`;
+
+const MenuButton = styled.button`
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 0.5s;
+  
+  &:hover span {
+    background: var(--editorial-red);
+  }
+`;
+
+const MenuLine = styled.span`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--editorial-white);
+  transition: all 0.3s ease;
+  
+  &:nth-child(1) {
+    top: 12px;
+    ${p => p.$open && css`
+      top: 19px;
+      transform: translateX(-50%) rotate(45deg);
+    `}
   }
   
-  &:hover::after { transform: scaleX(1); }
+  &:nth-child(2) {
+    top: 19px;
+    ${p => p.$open && css`
+      opacity: 0;
+      transform: translateX(-50%) scaleX(0);
+    `}
+  }
+  
+  &:nth-child(3) {
+    top: 26px;
+    ${p => p.$open && css`
+      top: 19px;
+      transform: translateX(-50%) rotate(-45deg);
+    `}
+  }
 `;
 
-const DateBadge = styled.div`
-  font-family: 'Inter', sans-serif;
+const MenuLabel = styled.span`
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-body);
   font-size: 0.65rem;
+  font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #666;
-  padding: 0.5rem 1rem;
-  border: 1px solid #e5e5e5;
-  @media (max-width: 768px) { display: none; }
+  color: var(--editorial-white);
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  
+  ${p => p.$open && css`
+    opacity: 0;
+  `}
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
-const MobileMenuBtn = styled.button`
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  @media (max-width: 768px) { display: block; }
-`;
-
-const MobileMenu = styled.div`
+const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: #fff;
+  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  
+  ${p => p.$open && css`
+    opacity: 1;
+    visibility: visible;
+  `}
+`;
+
+const MenuPanel = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(400px, 85vw);
+  height: 100vh;
+  background: var(--editorial-black);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  
+  ${p => p.$open && css`
+    transform: translateX(0);
+  `}
+`;
+
+const MenuContent = styled.div`
+  padding: 6rem 2.5rem 3rem;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  transform: ${p => p.$open ? 'translateY(0)' : 'translateY(-100%)'};
-  transition: transform 0.4s ease;
 `;
 
-const MobileNavLink = styled.a`
-  font-family: 'Instrument Serif', serif;
-  font-size: 2rem;
-  color: #000;
-  text-decoration: none;
+const MenuItems = styled.ul`
+  flex: 1;
 `;
 
-const CloseBtn = styled.button`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
+const MenuItem = styled.li`
+  opacity: 0;
+  transform: translateX(30px);
+  
+  ${p => p.$open && css`
+    animation: ${staggerIn} 0.5s ease forwards;
+    animation-delay: ${p.$delay}s;
+  `}
 `;
+
+const MenuLink = styled.a`
+  display: block;
+  font-family: var(--font-headline);
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-white);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: var(--editorial-red);
+    padding-left: 1rem;
+  }
+`;
+
+const MenuFooter = styled.div`
+  margin-top: auto;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const MenuFooterText = styled.p`
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function Navigation() {
-  const { coupleNames, weddingDate, isComponentActive } = useWedding();
+  const { coupleNames, isComponentActive } = useWedding();
+  const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
+  
+  // Get first names for logo
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
+  const logoText = `${names[0]?.charAt(0) || 'B'} & ${names[1]?.charAt(0) || 'B'}`;
+  
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Parse names for logo
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
-  const logoText = `${names[0]} & ${names[1]}`;
-
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+  
+  const handleLinkClick = () => {
+    setIsOpen(false);
   };
-
-  // Build nav links based on active components
-  const navLinks = [
-    isComponentActive('lovestory') && { href: '#story', label: 'Story' },
-    isComponentActive('timeline') && { href: '#timeline', label: 'Ablauf' },
-    isComponentActive('locations') && { href: '#location', label: 'Location' },
-    isComponentActive('rsvp') && { href: '#rsvp', label: 'RSVP' },
-    isComponentActive('faq') && { href: '#faq', label: 'FAQ' },
-  ].filter(Boolean);
+  
+  // Build menu items based on active components
+  const menuItems = [
+    { id: 'top', label: 'Start', always: true },
+    { id: 'countdown', label: 'Countdown' },
+    { id: 'lovestory', label: 'Unsere Geschichte' },
+    { id: 'timeline', label: 'Ablauf' },
+    { id: 'locations', label: 'Locations' },
+    { id: 'directions', label: 'Anfahrt' },
+    { id: 'accommodations', label: 'Hotels' },
+    { id: 'dresscode', label: 'Dresscode' },
+    { id: 'rsvp', label: 'RSVP' },
+    { id: 'gallery', label: 'Galerie' },
+    { id: 'gifts', label: 'Geschenke' },
+    { id: 'faq', label: 'FAQ' },
+    { id: 'contact', label: 'Kontakt' },
+  ].filter(item => item.always || isComponentActive(item.id));
 
   return (
     <>
-      <Header $scrolled={scrolled}>
-        <Logo href="#top">
-          {names[0]} <span>&</span> {names[1]}
-        </Logo>
+      <Nav $scrolled={scrolled}>
+        <Logo href="#top">{logoText}</Logo>
         
-        <Nav>
-          {navLinks.map(link => (
-            <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
-          ))}
-        </Nav>
-        
-        <DateBadge>{formatDate(weddingDate)}</DateBadge>
-        
-        <MobileMenuBtn onClick={() => setMobileOpen(true)}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </MobileMenuBtn>
-      </Header>
-
-      <MobileMenu $open={mobileOpen}>
-        <CloseBtn onClick={() => setMobileOpen(false)}>×</CloseBtn>
-        {navLinks.map(link => (
-          <MobileNavLink 
-            key={link.href} 
-            href={link.href}
-            onClick={() => setMobileOpen(false)}
-          >
-            {link.label}
-          </MobileNavLink>
-        ))}
-      </MobileMenu>
+        <MenuButton 
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Menü schließen' : 'Menü öffnen'}
+        >
+          <MenuLabel $open={isOpen}>Menü</MenuLabel>
+          <MenuLine $open={isOpen} />
+          <MenuLine $open={isOpen} />
+          <MenuLine $open={isOpen} />
+        </MenuButton>
+      </Nav>
+      
+      <Overlay $open={isOpen} onClick={() => setIsOpen(false)} />
+      
+      <MenuPanel $open={isOpen}>
+        <MenuContent>
+          <MenuItems>
+            {menuItems.map((item, index) => (
+              <MenuItem key={item.id} $open={isOpen} $delay={0.1 + index * 0.05}>
+                <MenuLink 
+                  href={`#${item.id}`}
+                  onClick={handleLinkClick}
+                >
+                  {item.label}
+                </MenuLink>
+              </MenuItem>
+            ))}
+          </MenuItems>
+          
+          <MenuFooter>
+            <MenuFooterText>
+              Wir freuen uns auf euch.
+            </MenuFooterText>
+          </MenuFooter>
+        </MenuContent>
+      </MenuPanel>
     </>
   );
 }
