@@ -28,12 +28,34 @@ const pulse = keyframes`
 // ============================================
 
 const Section = styled.section`
+  position: relative;
   padding: var(--section-padding) 0;
-  background: var(--editorial-white);
+  min-height: 100vh;
   overflow: hidden;
 `;
 
+const VideoBackground = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+  }
+  
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
 const Container = styled.div`
+  position: relative;
+  z-index: 10;
   max-width: 900px;
   margin: 0 auto;
   padding: 0 clamp(1.5rem, 5vw, 4rem);
@@ -64,7 +86,7 @@ const Title = styled.h2`
   font-family: var(--font-headline);
   font-size: clamp(3rem, 12vw, 8rem);
   font-weight: 700;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   text-transform: uppercase;
   letter-spacing: -0.02em;
   line-height: 0.9;
@@ -80,7 +102,7 @@ const Description = styled.p`
   font-family: var(--font-serif);
   font-size: clamp(1rem, 1.8vw, 1.2rem);
   font-style: italic;
-  color: var(--editorial-gray);
+  color: rgba(255, 255, 255, 0.7);
   margin-top: 1.5rem;
   line-height: 1.7;
   opacity: 0;
@@ -95,7 +117,8 @@ const Deadline = styled.div`
   display: inline-block;
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--editorial-light-gray);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 600;
@@ -175,7 +198,7 @@ const Label = styled.label`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   margin-bottom: 0.75rem;
 `;
 
@@ -361,8 +384,18 @@ function RSVP() {
     return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
+  // Video URL
+  const videoUrl = rsvpData.video_background || 
+    'https://res.cloudinary.com/si-weddings/video/upload/v1769608965/212698_small_yvnkfr.mp4';
+
   return (
     <Section id="rsvp" ref={sectionRef}>
+      <VideoBackground>
+        <video autoPlay muted loop playsInline>
+          <source src={videoUrl} type="video/mp4" />
+        </video>
+      </VideoBackground>
+      
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Seid ihr dabei?</Eyebrow>

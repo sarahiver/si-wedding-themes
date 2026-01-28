@@ -274,9 +274,9 @@ function Hero() {
     });
   };
 
-  // Default background image (Cloudinary placeholder)
+  // Default background image (Cloudinary)
   const backgroundImage = hero.background_image || 
-    'https://res.cloudinary.com/demo/image/upload/v1/samples/people/kitchen-bar';
+    'https://res.cloudinary.com/si-weddings/image/upload/v1769537648/iverlasting/demo/hero/t4rsv6gjmwtow3k761d2.jpg';
 
   return (
     <Section id="top">

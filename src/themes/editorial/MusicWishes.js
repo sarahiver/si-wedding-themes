@@ -234,6 +234,21 @@ const WishesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const WishCard = styled.div`
@@ -245,6 +260,13 @@ const WishCard = styled.div`
   &:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateX(5px);
+  }
+  
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+    width: 75vw;
+    max-width: 280px;
+    scroll-snap-align: start;
   }
 `;
 

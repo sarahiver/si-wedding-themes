@@ -190,6 +190,21 @@ const GiftsGrid = styled.div`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.7s;
   `}
+  
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const GiftCard = styled.div`
@@ -203,6 +218,13 @@ const GiftCard = styled.div`
   
   &:hover {
     transform: translateY(-5px);
+  }
+  
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+    width: 80vw;
+    max-width: 320px;
+    scroll-snap-align: start;
   }
 `;
 

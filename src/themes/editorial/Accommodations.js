@@ -89,8 +89,19 @@ const HotelsGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
   }
 `;
 
@@ -104,6 +115,13 @@ const HotelCard = styled.article`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: ${0.3 + p.$index * 0.1}s;
   `}
+  
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+    width: 85vw;
+    max-width: 350px;
+    scroll-snap-align: start;
+  }
 `;
 
 const HotelImage = styled.div`

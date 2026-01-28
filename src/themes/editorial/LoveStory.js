@@ -113,6 +113,22 @@ const Subtitle = styled.p`
 const ArticlesGrid = styled.div`
   display: grid;
   gap: clamp(4rem, 8vw, 8rem);
+  
+  @media (max-width: 900px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const Article = styled.article`
@@ -128,8 +144,13 @@ const Article = styled.article`
   }
   
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 85vw;
+    max-width: 400px;
+    scroll-snap-align: start;
+    gap: 1.5rem;
     
     &:nth-child(even) {
       direction: ltr;

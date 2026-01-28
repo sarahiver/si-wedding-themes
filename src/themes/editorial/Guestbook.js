@@ -237,12 +237,34 @@ const Divider = styled.div`
 const EntriesGrid = styled.div`
   display: grid;
   gap: 2rem;
+  
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const EntryCard = styled.article`
   padding: 2rem;
   background: var(--editorial-light-gray);
   border-left: 4px solid var(--editorial-red);
+  
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+    width: 85vw;
+    max-width: 350px;
+    scroll-snap-align: start;
+  }
 `;
 
 const EntryHeader = styled.div`

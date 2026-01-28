@@ -89,6 +89,21 @@ const ABCGrid = styled.div`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.4s;
   `}
+  
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding-bottom: 2rem;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const ABCItem = styled.div`
@@ -98,6 +113,13 @@ const ABCItem = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border-left: 3px solid var(--editorial-red);
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    flex-shrink: 0;
+    width: 80vw;
+    max-width: 320px;
+    scroll-snap-align: start;
+  }
   
   &:hover {
     background: rgba(255, 255, 255, 0.06);
