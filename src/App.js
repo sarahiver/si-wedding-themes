@@ -178,30 +178,39 @@ const CustomDomainWrapper = ({ children }) => {
 // ============================================
 // DEMO PAGE (für iframe-Einbettung in Marketing-Site)
 // ============================================
-const DemoPage = ({ pageType = 'wedding' }) => {
+// URLs: /demo?theme=contemporary
+//       /demo?theme=contemporary&page=std
+//       /demo?theme=contemporary&page=archive
+//       /demo?theme=contemporary&page=admin
+const DemoPage = () => {
   const params = new URLSearchParams(window.location.search);
   const theme = params.get('theme') || 'editorial';
+  const page = params.get('page') || 'wedding';
   const GlobalStyles = getGlobalStylesByTheme(theme);
+  
+  // Admin page
+  if (page === 'admin') {
+    const AdminDashboardComponent = adminDashboards[theme] || adminDashboards.editorial;
+    return (
+      <DemoProvider theme={theme}>
+        <GlobalStyles />
+        <AdminDashboardComponent />
+      </DemoProvider>
+    );
+  }
+  
+  // Map page param to pageType
+  const pageTypeMap = {
+    'wedding': 'wedding',
+    'std': 'savethedate',
+    'archive': 'archive',
+  };
+  const pageType = pageTypeMap[page] || 'wedding';
   
   return (
     <DemoProvider theme={theme}>
       <GlobalStyles />
       <ThemeRenderer pageType={pageType} />
-    </DemoProvider>
-  );
-};
-
-// Demo Admin Page
-const DemoAdminPage = () => {
-  const params = new URLSearchParams(window.location.search);
-  const theme = params.get('theme') || 'editorial';
-  const GlobalStyles = getGlobalStylesByTheme(theme);
-  const AdminDashboardComponent = adminDashboards[theme] || adminDashboards.editorial;
-  
-  return (
-    <DemoProvider theme={theme}>
-      <GlobalStyles />
-      <AdminDashboardComponent />
     </DemoProvider>
   );
 };
@@ -237,11 +246,12 @@ function App() {
         {/* Root → Redirect zu Marketing-Site */}
         <Route path="/" element={<RedirectToMarketing />} />
         
-        {/* Demo Routes für iframe-Einbettung */}
-        <Route path="/demo" element={<DemoPage pageType="wedding" />} />
-        <Route path="/demo/std" element={<DemoPage pageType="savethedate" />} />
-        <Route path="/demo/archive" element={<DemoPage pageType="archive" />} />
-        <Route path="/demo/admin" element={<DemoAdminPage />} />
+        {/* Demo Route - alle Pages über Query-Parameter */}
+        {/* /demo?theme=contemporary */}
+        {/* /demo?theme=contemporary&page=std */}
+        {/* /demo?theme=contemporary&page=archive */}
+        {/* /demo?theme=contemporary&page=admin */}
+        <Route path="/demo" element={<DemoPage />} />
         
         {/* Slug-based Routes */}
         <Route path="/:slug" element={<SlugWrapper><StatusRouter /></SlugWrapper>} />
