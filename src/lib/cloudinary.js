@@ -1,98 +1,80 @@
 // src/lib/cloudinary.js
+// Direct Cloudinary upload without widget
 
-const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || 'dqpgnarqr';
-const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || 'wedding_uploads';
+const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
+const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
 
 /**
- * Upload a file to Cloudinary
+ * Upload a single file to Cloudinary
  * @param {File} file - The file to upload
- * @param {Object} options - Upload options
- * @param {string} options.folder - Cloudinary folder path
- * @param {function} options.onProgress - Progress callback (0-100)
- * @returns {Promise<{url: string, publicId: string, error: string|null}>}
+ * @param {string} folder - The folder path in Cloudinary
+ * @param {function} onProgress - Progress callback (0-100)
+ * @returns {Promise<{url: string, publicId: string}>}
  */
-export async function uploadToCloudinary(file, options = {}) {
-  const { folder = 'wedding_photos', onProgress } = options;
-  
+export async function uploadToCloudinary(file, folder = '', onProgress = null) {
+  if (!CLOUD_NAME || !UPLOAD_PRESET) {
+    throw new Error('Cloudinary nicht konfiguriert');
+  }
+
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  formData.append('folder', folder);
-  
-  try {
+  formData.append('upload_preset', UPLOAD_PRESET);
+  if (folder) {
+    formData.append('folder', folder);
+  }
+
+  return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     
-    const uploadPromise = new Promise((resolve, reject) => {
-      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
-      
-      // Progress tracking
-      if (onProgress) {
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            onProgress(progress);
-          }
-        };
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable && onProgress) {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        onProgress(percent);
       }
-      
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          resolve({
-            url: response.secure_url,
-            publicId: response.public_id,
-            width: response.width,
-            height: response.height,
-            error: null,
-          });
-        } else {
-          reject(new Error(`Upload failed: ${xhr.statusText}`));
-        }
-      };
-      
-      xhr.onerror = () => reject(new Error('Network error during upload'));
-      xhr.send(formData);
     });
-    
-    return await uploadPromise;
-  } catch (error) {
-    console.error('Cloudinary upload error:', error);
-    return {
-      url: null,
-      publicId: null,
-      error: error.message || 'Upload fehlgeschlagen',
-    };
-  }
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const response = JSON.parse(xhr.responseText);
+        resolve({
+          url: response.secure_url,
+          publicId: response.public_id,
+          width: response.width,
+          height: response.height,
+        });
+      } else {
+        reject(new Error('Upload fehlgeschlagen'));
+      }
+    });
+
+    xhr.addEventListener('error', () => reject(new Error('Netzwerkfehler')));
+    xhr.addEventListener('abort', () => reject(new Error('Upload abgebrochen')));
+
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+    xhr.send(formData);
+  });
 }
 
 /**
  * Upload multiple files to Cloudinary
- * @param {FileList|File[]} files - Files to upload
- * @param {Object} options - Upload options
- * @param {string} options.folder - Cloudinary folder path
- * @param {function} options.onFileProgress - Per-file progress callback (fileIndex, progress)
- * @param {function} options.onTotalProgress - Total progress callback (0-100)
- * @returns {Promise<Array<{url: string, publicId: string, error: string|null}>>}
+ * @param {File[]} files - Array of files
+ * @param {string} folder - Folder path
+ * @param {function} onProgress - Progress callback ({current, total, percent})
+ * @returns {Promise<Array<{url: string, publicId: string}>>}
  */
-export async function uploadMultipleToCloudinary(files, options = {}) {
-  const { folder = 'wedding_photos', onFileProgress, onTotalProgress } = options;
+export async function uploadMultiple(files, folder = '', onProgress = null) {
   const results = [];
-  const totalFiles = files.length;
   
-  for (let i = 0; i < totalFiles; i++) {
-    const file = files[i];
-    
-    const result = await uploadToCloudinary(file, {
-      folder,
-      onProgress: (progress) => {
-        if (onFileProgress) onFileProgress(i, progress);
-        if (onTotalProgress) {
-          const totalProgress = Math.round(((i * 100) + progress) / totalFiles);
-          onTotalProgress(totalProgress);
-        }
-      },
+  for (let i = 0; i < files.length; i++) {
+    const result = await uploadToCloudinary(files[i], folder, (percent) => {
+      if (onProgress) {
+        onProgress({
+          current: i + 1,
+          total: files.length,
+          percent: Math.round(((i + percent / 100) / files.length) * 100),
+        });
+      }
     });
-    
     results.push(result);
   }
   
@@ -101,47 +83,32 @@ export async function uploadMultipleToCloudinary(files, options = {}) {
 
 /**
  * Generate optimized Cloudinary URL
- * @param {string} publicId - Cloudinary public ID
- * @param {Object} transformations - Transformation options
- * @returns {string} Optimized URL
+ * @param {string} url - Original Cloudinary URL
+ * @param {object} options - Transformation options
  */
-export function getOptimizedUrl(publicId, transformations = {}) {
-  const {
-    width = 800,
-    height,
-    crop = 'fill',
-    quality = 'auto',
-    format = 'auto',
-  } = transformations;
+export function getOptimizedUrl(url, options = {}) {
+  if (!url || !url.includes('cloudinary')) return url;
   
-  let transform = `q_${quality},f_${format}`;
+  const { width, height, quality = 'auto', format = 'auto' } = options;
   
-  if (width) transform += `,w_${width}`;
-  if (height) transform += `,h_${height}`;
-  if (crop) transform += `,c_${crop}`;
+  let transforms = `f_${format},q_${quality}`;
+  if (width) transforms += `,w_${width}`;
+  if (height) transforms += `,h_${height}`;
+  if (width || height) transforms += ',c_fill';
   
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${transform}/${publicId}`;
+  return url.replace('/upload/', `/upload/${transforms}/`);
 }
 
 /**
- * Generate thumbnail URL
- * @param {string} publicId - Cloudinary public ID
- * @param {number} size - Thumbnail size (default 200)
- * @returns {string} Thumbnail URL
+ * Check if Cloudinary is configured
  */
-export function getThumbnailUrl(publicId, size = 200) {
-  return getOptimizedUrl(publicId, {
-    width: size,
-    height: size,
-    crop: 'thumb',
-    quality: 'auto',
-    format: 'auto',
-  });
+export function isCloudinaryConfigured() {
+  return !!(CLOUD_NAME && UPLOAD_PRESET);
 }
 
 export default {
   uploadToCloudinary,
-  uploadMultipleToCloudinary,
+  uploadMultiple,
   getOptimizedUrl,
-  getThumbnailUrl,
+  isCloudinaryConfigured,
 };
