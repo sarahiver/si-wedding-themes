@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { uploadPhoto } from '../../lib/cloudinary';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 import { savePhotoEntry } from '../../lib/supabase';
 
 const pulse = keyframes`
@@ -241,7 +241,7 @@ function PhotoUpload() {
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const result = await uploadPhoto(file);
+        const result = await uploadToCloudinary(file);
         
         if (result.url) {
           await savePhotoEntry(project.id, {
