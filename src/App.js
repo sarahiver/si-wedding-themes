@@ -7,8 +7,20 @@ import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'rea
 import { WeddingProvider, DemoProvider, useWedding } from './context/WeddingContext';
 import { ThemeRenderer, getGlobalStylesByTheme } from './components/ThemeRenderer';
 
-// Admin Dashboard (we'll use the one from editorial for now)
+// Admin Dashboard imports for all themes
 import AdminDashboard from './themes/editorial/AdminDashboard';
+import ContemporaryAdminDashboard from './themes/contemporary/AdminDashboard';
+import BotanicalAdminDashboard from './themes/botanical/AdminDashboard';
+import LuxeAdminDashboard from './themes/luxe/AdminDashboard';
+import NeonAdminDashboard from './themes/neon/AdminDashboard';
+
+const adminDashboards = {
+  editorial: AdminDashboard,
+  contemporary: ContemporaryAdminDashboard,
+  botanical: BotanicalAdminDashboard,
+  luxe: LuxeAdminDashboard,
+  neon: NeonAdminDashboard,
+};
 
 // ============================================
 // REDIRECT TO MARKETING SITE
@@ -166,7 +178,7 @@ const CustomDomainWrapper = ({ children }) => {
 // ============================================
 // DEMO PAGE (für iframe-Einbettung in Marketing-Site)
 // ============================================
-const DemoPage = () => {
+const DemoPage = ({ pageType = 'wedding' }) => {
   const params = new URLSearchParams(window.location.search);
   const theme = params.get('theme') || 'editorial';
   const GlobalStyles = getGlobalStylesByTheme(theme);
@@ -174,7 +186,22 @@ const DemoPage = () => {
   return (
     <DemoProvider theme={theme}>
       <GlobalStyles />
-      <ThemeRenderer pageType="wedding" />
+      <ThemeRenderer pageType={pageType} />
+    </DemoProvider>
+  );
+};
+
+// Demo Admin Page
+const DemoAdminPage = () => {
+  const params = new URLSearchParams(window.location.search);
+  const theme = params.get('theme') || 'editorial';
+  const GlobalStyles = getGlobalStylesByTheme(theme);
+  const AdminDashboardComponent = adminDashboards[theme] || adminDashboards.editorial;
+  
+  return (
+    <DemoProvider theme={theme}>
+      <GlobalStyles />
+      <AdminDashboardComponent />
     </DemoProvider>
   );
 };
@@ -211,7 +238,10 @@ function App() {
         <Route path="/" element={<RedirectToMarketing />} />
         
         {/* Demo Routes für iframe-Einbettung */}
-        <Route path="/demo" element={<DemoPage />} />
+        <Route path="/demo" element={<DemoPage pageType="wedding" />} />
+        <Route path="/demo/std" element={<DemoPage pageType="savethedate" />} />
+        <Route path="/demo/archive" element={<DemoPage pageType="archive" />} />
+        <Route path="/demo/admin" element={<DemoAdminPage />} />
         
         {/* Slug-based Routes */}
         <Route path="/:slug" element={<SlugWrapper><StatusRouter /></SlugWrapper>} />
