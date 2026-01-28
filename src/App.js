@@ -1,8 +1,8 @@
 // App.js - SI Wedding Themes
-// Dynamic theme loading based on project settings from Supabase
+// All data comes from Supabase based on URL slug
 
-import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 
 // Lazy load themes for code splitting
@@ -76,14 +76,13 @@ const Loading = () => (
   </div>
 );
 
-// Theme Router - renders the correct theme based on settings
-function ThemeRouter({ themeName, page }) {
-  const { project, loading, error, status } = useWedding();
-  const [isArchived, setIsArchived] = useState(false);
+// Theme Router - theme comes from Supabase project settings
+function ThemeRouter() {
+  const { project, isLoading, error, status, theme } = useWedding();
   
-  // Get theme from prop, project settings, or default to botanical
-  const finalThemeName = themeName || project?.settings?.theme || 'botanical';
-  const theme = themes[finalThemeName] || themes.botanical;
+  // Get theme from project (loaded from Supabase)
+  const themeName = theme || 'botanical';
+  const themeComponents = themes[themeName] || themes.botanical;
   
   const { 
     WeddingPage, 
@@ -91,16 +90,9 @@ function ThemeRouter({ themeName, page }) {
     GlobalStyles, 
     ArchivePage, 
     SaveTheDate 
-  } = theme;
+  } = themeComponents;
 
-  // Check if archived
-  useEffect(() => {
-    if (status === 'archiv') {
-      setIsArchived(true);
-    }
-  }, [status]);
-
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
   
   if (error) {
     return (
@@ -111,30 +103,29 @@ function ThemeRouter({ themeName, page }) {
     );
   }
 
-  // Direct page rendering based on 'page' prop (for query param support)
-  if (page) {
-    return (
-      <Suspense fallback={<Loading />}>
-        <GlobalStyles />
-        {page === 'admin' && <AdminDashboard onArchiveToggle={setIsArchived} />}
-        {page === 'archive' && <ArchivePage />}
-        {page === 'save-the-date' && <SaveTheDate />}
-        {!['admin', 'archive', 'save-the-date'].includes(page) && <WeddingPage />}
-      </Suspense>
-    );
-  }
+  // Render based on project status
+  const renderMain = () => {
+    switch (status) {
+      case 'std':
+      case 'save-the-date':
+        return <SaveTheDate />;
+      case 'archiv':
+      case 'archive':
+        return <ArchivePage />;
+      case 'live':
+      default:
+        return <WeddingPage />;
+    }
+  };
 
   return (
     <Suspense fallback={<Loading />}>
       <GlobalStyles />
       <Routes>
-        <Route 
-          path="/" 
-          element={isArchived ? <Navigate to="/archive" replace /> : <WeddingPage />} 
-        />
+        <Route path="/" element={renderMain()} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/save-the-date" element={<SaveTheDate />} />
         <Route path="/archive" element={<ArchivePage />} />
-        <Route path="/admin" element={<AdminDashboard onArchiveToggle={setIsArchived} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
@@ -146,29 +137,29 @@ function ProjectWrapper() {
   const { slug } = useParams();
   
   return (
-    <WeddingProvider projectSlug={slug}>
+    <WeddingProvider slug={slug}>
       <ThemeRouter />
     </WeddingProvider>
   );
 }
 
-// Demo wrapper with query parameter support
-// Supports: /demo?theme=botanical&page=admin
-function DemoWrapper() {
-  const [searchParams] = useSearchParams();
-  const themeName = searchParams.get('theme') || 'botanical';
-  const page = searchParams.get('page');
-  
-  const demoConfig = {
-    coupleName: "Olivia & Benjamin",
-    weddingDate: "2025-06-21",
-    theme: themeName
-  };
-  
+// Landing page for root (no slug)
+function LandingPage() {
   return (
-    <WeddingProvider initialConfig={demoConfig}>
-      <ThemeRouter themeName={themeName} page={page} />
-    </WeddingProvider>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      fontFamily: 'system-ui, sans-serif',
+      textAlign: 'center',
+      padding: '2rem'
+    }}>
+      <div>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>IverLasting</h1>
+        <p style={{ color: '#666' }}>Wedding Websites</p>
+      </div>
+    </div>
   );
 }
 
@@ -177,15 +168,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Demo route with query param support */}
-        <Route path="/demo/*" element={<DemoWrapper />} />
-        <Route path="/demo" element={<DemoWrapper />} />
-        
         {/* Project routes - /:slug loads from Supabase */}
         <Route path="/:slug/*" element={<ProjectWrapper />} />
         
-        {/* Root redirects to demo */}
-        <Route path="/" element={<Navigate to="/demo" replace />} />
+        {/* Root shows landing page */}
+        <Route path="/" element={<LandingPage />} />
       </Routes>
     </Router>
   );
