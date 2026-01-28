@@ -11,66 +11,128 @@ const sway = keyframes`
 `;
 
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+// Sanftes Wabern - organisch wie eine Seifenblase
+const gentleWobble = keyframes`
+  0%, 100% { 
+    transform: translateX(-50%) translateY(0); 
+    border-radius: 50px;
+  }
+  20% { 
+    transform: translateX(-50%) translateY(-2px); 
+    border-radius: 48px 52px 50px 48px;
+  }
+  40% { 
+    transform: translateX(-50%) translateY(0px); 
+    border-radius: 52px 48px 52px 50px;
+  }
+  60% { 
+    transform: translateX(-50%) translateY(-1px); 
+    border-radius: 50px 50px 48px 52px;
+  }
+  80% { 
+    transform: translateX(-50%) translateY(-2px); 
+    border-radius: 48px 52px 50px 50px;
+  }
+`;
+
+const gentleWobbleCompact = keyframes`
+  0%, 100% { 
+    transform: translateX(-50%) translateY(0); 
+    border-radius: 30px;
+  }
+  20% { 
+    transform: translateX(-50%) translateY(-1px); 
+    border-radius: 28px 32px 30px 28px;
+  }
+  40% { 
+    transform: translateX(-50%) translateY(0px); 
+    border-radius: 32px 28px 32px 30px;
+  }
+  60% { 
+    transform: translateX(-50%) translateY(-1px); 
+    border-radius: 30px 30px 28px 32px;
+  }
+  80% { 
+    transform: translateX(-50%) translateY(-1px); 
+    border-radius: 28px 32px 30px 30px;
+  }
 `;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STYLED COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
 
-const Nav = styled.header`
+const NavWrapper = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: ${p => p.$scrolled ? '1rem' : '1.5rem'};
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
-  padding: 1rem 2rem;
-  background: ${p => p.$scrolled 
-    ? 'rgba(245, 241, 235, 0.95)' 
-    : 'transparent'
-  };
-  backdrop-filter: ${p => p.$scrolled ? 'blur(20px)' : 'none'};
-  border-bottom: ${p => p.$scrolled ? '1px solid rgba(139, 157, 131, 0.2)' : 'none'};
-  transition: all 0.4s ease;
+  width: auto;
+  animation: ${fadeIn} 0.8s ease;
+  transition: top 0.4s ease;
 `;
 
-const Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
+const Nav = styled.header`
+  padding: ${p => p.$scrolled ? '0.6rem 1.5rem' : '0.9rem 2rem'};
+  background: ${p => p.$scrolled 
+    ? 'rgba(245, 241, 235, 0.95)' 
+    : 'rgba(245, 241, 235, 0.88)'
+  };
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid ${p => p.$scrolled 
+    ? 'rgba(139, 157, 131, 0.35)' 
+    : 'rgba(139, 157, 131, 0.25)'
+  };
+  box-shadow: ${p => p.$scrolled 
+    ? '0 8px 32px rgba(45, 59, 45, 0.15), 0 2px 8px rgba(139, 157, 131, 0.12), inset 0 1px 0 rgba(255,255,255,0.5)' 
+    : '0 4px 24px rgba(45, 59, 45, 0.1), inset 0 1px 0 rgba(255,255,255,0.4)'
+  };
+  animation: ${p => p.$scrolled ? gentleWobbleCompact : gentleWobble} 8s ease-in-out infinite;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: ${p => p.$scrolled ? '2rem' : '2.5rem'};
+  transition: padding 0.4s ease, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, gap 0.4s ease;
 `;
 
 const Logo = styled.a`
   font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
+  font-size: ${p => p.$scrolled ? '1rem' : '1.15rem'};
   font-weight: 400;
   color: var(--forest);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  animation: ${fadeIn} 0.6s ease;
+  gap: 0.5rem;
+  transition: font-size 0.4s ease;
+  white-space: nowrap;
   
   .leaf {
-    width: 24px;
-    height: 24px;
+    width: ${p => p.$scrolled ? '18px' : '20px'};
+    height: ${p => p.$scrolled ? '18px' : '20px'};
     fill: var(--sage);
     animation: ${sway} 4s ease-in-out infinite;
+    transition: width 0.4s ease, height 0.4s ease;
   }
   
   span {
     font-style: italic;
     color: var(--sage);
+    margin: 0 0.15em;
   }
 `;
 
 const NavLinks = styled.nav`
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: ${p => p.$scrolled ? '1.25rem' : '1.75rem'};
+  transition: gap 0.4s ease;
   
   @media (max-width: 900px) {
     display: none;
@@ -79,18 +141,15 @@ const NavLinks = styled.nav`
 
 const NavLink = styled.a`
   font-family: 'Lato', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.15em;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-light);
   text-decoration: none;
   position: relative;
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   transition: color 0.3s ease;
-  animation: ${fadeIn} 0.6s ease;
-  animation-delay: ${p => p.$delay}s;
-  animation-fill-mode: both;
   
   &::after {
     content: '';
@@ -115,18 +174,15 @@ const NavLink = styled.a`
 
 const DateBadge = styled.div`
   font-family: 'Playfair Display', serif;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-style: italic;
-  color: var(--forest);
-  padding: 0.6rem 1.25rem;
-  border: 1px solid var(--sage-light);
-  border-radius: 30px;
-  background: rgba(255,255,255,0.5);
-  animation: ${fadeIn} 0.6s ease;
-  animation-delay: 0.4s;
-  animation-fill-mode: both;
+  color: var(--sage-dark);
+  padding: 0.4rem 0.9rem;
+  border-left: 1px solid rgba(139, 157, 131, 0.3);
+  margin-left: 0.5rem;
+  white-space: nowrap;
   
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     display: none;
   }
 `;
@@ -138,11 +194,12 @@ const MobileMenuButton = styled.button`
   padding: 0.5rem;
   cursor: pointer;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  margin-left: 0.5rem;
   
   span {
     display: block;
-    width: 24px;
+    width: 20px;
     height: 2px;
     background: var(--forest);
     transition: all 0.3s ease;
@@ -155,13 +212,13 @@ const MobileMenuButton = styled.button`
   
   ${p => p.$open && `
     span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
+      transform: rotate(45deg) translate(4px, 4px);
     }
     span:nth-child(2) {
       opacity: 0;
     }
     span:nth-child(3) {
-      transform: rotate(-45deg) translate(5px, -5px);
+      transform: rotate(-45deg) translate(4px, -4px);
     }
   `}
 `;
@@ -225,13 +282,12 @@ function Navigation({
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 80);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = 'hidden';
@@ -242,7 +298,7 @@ function Navigation({
   }, [mobileOpen]);
 
   const defaultLinks = [
-    { label: 'Unsere Geschichte', href: '#story' },
+    { label: 'Story', href: '#story' },
     { label: 'Ablauf', href: '#timeline' },
     { label: 'Location', href: '#location' },
     { label: 'RSVP', href: '#rsvp' },
@@ -255,30 +311,26 @@ function Navigation({
     setMobileOpen(false);
   };
 
+  const names = coupleNames.split(/\s*[&+]\s*/);
+
   return (
     <>
-      <Nav $scrolled={scrolled}>
-        <Container>
-          <Logo href="#top">
+      <NavWrapper $scrolled={scrolled}>
+        <Nav $scrolled={scrolled}>
+          <Logo href="#top" $scrolled={scrolled}>
             <LeafSVG />
-            {coupleNames.split(' & ')[0]} <span>&</span> {coupleNames.split(' & ')[1] || coupleNames.split('&')[1]}
+            {names[0]} <span>&</span> {names[1]}
           </Logo>
           
-          <NavLinks>
+          <NavLinks $scrolled={scrolled}>
             {navItems.map((link, i) => (
-              <NavLink 
-                key={i} 
-                href={link.href} 
-                $delay={0.1 + i * 0.05}
-              >
+              <NavLink key={i} href={link.href}>
                 {link.label}
               </NavLink>
             ))}
           </NavLinks>
           
-          {showBadge && (
-            <DateBadge>{weddingDate}</DateBadge>
-          )}
+          {showBadge && <DateBadge>{weddingDate}</DateBadge>}
           
           <MobileMenuButton 
             $open={mobileOpen} 
@@ -289,8 +341,8 @@ function Navigation({
             <span />
             <span />
           </MobileMenuButton>
-        </Container>
-      </Nav>
+        </Nav>
+      </NavWrapper>
 
       <MobileMenu $open={mobileOpen}>
         {navItems.map((link, i) => (
