@@ -1,4 +1,4 @@
-// core/sections/PhotosSection.js - Photo Management with ZIP Download and Click Selection
+// core/sections/PhotosSection.js - Photo Management with ZIP Download
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
 
@@ -6,7 +6,7 @@ function PhotosSection({ components: C }) {
   const { 
     photoUploads, selectedPhotos, 
     togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
-    approvePhoto, deletePhoto, showFeedback
+    deletePhoto, showFeedback
   } = useAdmin();
   
   const [downloading, setDownloading] = useState(false);
@@ -26,25 +26,20 @@ function PhotosSection({ components: C }) {
     showFeedback('success', `Lade ${photosToDownload.length} Fotos...`);
     
     try {
-      // Dynamically import JSZip
       const JSZipModule = await import('jszip');
       const JSZip = JSZipModule.default || JSZipModule;
       const zip = new JSZip();
       const folder = zip.folder('hochzeitsfotos');
       
-      // Download each photo and add to ZIP
       const downloadPromises = photosToDownload.map(async (photo, index) => {
         try {
           const response = await fetch(photo.cloudinary_url);
           if (!response.ok) throw new Error('Download failed');
           const blob = await response.blob();
           
-          // Get file extension from URL or default to jpg
           const urlParts = photo.cloudinary_url.split('.');
           const ext = urlParts[urlParts.length - 1].split('?')[0] || 'jpg';
-          
-          // Create filename: guest_name_index.ext
-          const guestName = (photo.uploaded_by || photo.guest_name || 'gast').toLowerCase().replace(/\s+/g, '_');
+          const guestName = (photo.uploaded_by || 'gast').toLowerCase().replace(/\s+/g, '_');
           const filename = `${guestName}_${String(index + 1).padStart(3, '0')}.${ext}`;
           
           folder.file(filename, blob);
@@ -55,14 +50,12 @@ function PhotosSection({ components: C }) {
       
       await Promise.all(downloadPromises);
       
-      // Generate and download ZIP
       const zipBlob = await zip.generateAsync({ 
         type: 'blob',
         compression: 'DEFLATE',
         compressionOptions: { level: 6 }
       });
       
-      // Create download link
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
@@ -75,10 +68,25 @@ function PhotosSection({ components: C }) {
       showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen!`);
     } catch (err) {
       console.error('ZIP creation failed:', err);
-      showFeedback('error', 'JSZip nicht verfügbar - bitte "npm install jszip" ausführen');
+      showFeedback('error', 'Fehler beim Erstellen des ZIPs');
     } finally {
       setDownloading(false);
     }
+  };
+
+  // Bulk delete selected photos
+  const deleteSelectedPhotos = async () => {
+    if (selectedPhotos.size === 0) {
+      showFeedback('error', 'Keine Fotos ausgewählt');
+      return;
+    }
+    
+    if (!window.confirm(`${selectedPhotos.size} Foto(s) wirklich löschen?`)) return;
+    
+    for (const id of selectedPhotos) {
+      await deletePhoto(id, true); // true = skip confirm
+    }
+    deselectAllPhotos();
   };
   
   return (
@@ -94,33 +102,39 @@ function PhotosSection({ components: C }) {
           <C.PhotoCount>{selectedPhotos.size} ausgewählt</C.PhotoCount>
         </C.PhotoActions>
         
-        {/* Download Buttons */}
+        {/* Action Buttons */}
         <C.PhotoActions style={{ marginTop: '1rem' }}>
           <C.Button 
             onClick={() => downloadPhotosAsZip(false)} 
             disabled={downloading || selectedPhotos.size === 0}
-            style={{ background: selectedPhotos.size > 0 ? '#2e7d32' : undefined }}
           >
-            {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) als ZIP`}
+            {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) herunterladen`}
           </C.Button>
           <C.Button 
             onClick={() => downloadPhotosAsZip(true)} 
             disabled={downloading || photoUploads.length === 0}
-            style={{ marginLeft: '0.5rem' }}
+            $variant="secondary"
           >
-            {downloading ? '⏳ Erstelle ZIP...' : `📦 Alle (${photoUploads.length}) als ZIP`}
+            📦 Alle herunterladen
           </C.Button>
+          {selectedPhotos.size > 0 && (
+            <C.Button 
+              onClick={deleteSelectedPhotos}
+              $variant="danger"
+            >
+              🗑 Ausgewählte löschen
+            </C.Button>
+          )}
         </C.PhotoActions>
         
         {/* Photo Grid */}
-        <C.PhotoGrid>
+        <C.PhotoGrid style={{ marginTop: '1.5rem' }}>
           {photoUploads.map(photo => {
             const isSelected = selectedPhotos.has(photo.id);
             return (
               <C.PhotoCard 
                 key={photo.id} 
                 $selected={isSelected}
-                $approved={photo.approved}
                 onClick={() => togglePhotoSelection(photo.id)}
                 style={{ 
                   cursor: 'pointer',
@@ -155,18 +169,8 @@ function PhotosSection({ components: C }) {
                   </div>
                 )}
                 
-                {/* Action Buttons - stop propagation to not trigger selection */}
+                {/* Delete Button on Hover */}
                 <C.PhotoOverlay onClick={(e) => e.stopPropagation()}>
-                  <C.PhotoButton 
-                    $approve 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      approvePhoto(photo.id, !photo.approved);
-                    }}
-                    title={photo.approved ? 'Ausblenden' : 'Freigeben'}
-                  >
-                    {photo.approved ? '👁️' : '✓'}
-                  </C.PhotoButton>
                   <C.PhotoButton 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -178,9 +182,9 @@ function PhotosSection({ components: C }) {
                   </C.PhotoButton>
                 </C.PhotoOverlay>
                 
-                {!photo.approved && <C.PhotoPending>Ausstehend</C.PhotoPending>}
-                {(photo.uploaded_by || photo.guest_name) && (
-                  <C.PhotoCaption>{photo.uploaded_by || photo.guest_name}</C.PhotoCaption>
+                {/* Uploader Name */}
+                {photo.uploaded_by && (
+                  <C.PhotoCaption>{photo.uploaded_by}</C.PhotoCaption>
                 )}
               </C.PhotoCard>
             );
