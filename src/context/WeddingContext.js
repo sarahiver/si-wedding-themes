@@ -137,7 +137,7 @@ const demoContent = {
   },
 };
 
-export function DemoProvider({ children }) {
+export function DemoProvider({ children, theme = 'editorial' }) {
   const value = {
     project: { id: 'demo', slug: '', status: 'live', couple_names: 'Pauli & Mo', active_components: ['all'] },
     content: demoContent,
@@ -147,7 +147,7 @@ export function DemoProvider({ children }) {
     isComponentActive: () => true,
     getCustomStyles: () => ({}),
     status: 'live',
-    theme: 'editorial',
+    theme: theme,
     coupleNames: 'Pauli & Mo',
     weddingDate: '2026-08-15',
     slug: '',
