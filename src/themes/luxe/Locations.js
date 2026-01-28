@@ -106,9 +106,9 @@ const Address = styled.p`
 `;
 
 function Locations() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const locationsData = content?.locations || {};
-
+  const locations = locationsData.locations || [];
   const defaultLocations = [
     {
       type: 'Trauung',

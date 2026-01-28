@@ -184,9 +184,9 @@ const ContactButton = styled.a`
 `;
 
 function FAQ() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const faqData = content?.faq || {};
-
+  const faqs = (faqData.questions || []).map(q => ({ q: q.question, a: q.answer, icon: "❓", size: "normal" }));
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
   
@@ -241,7 +241,7 @@ function FAQ() {
     },
   ];
   
-  const faqData = faqs || defaultFaqs;
+  const displayFaqs = faqs.length > 0 ? faqs : defaultFaqs;
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -269,7 +269,7 @@ function FAQ() {
         </Header>
         
         <MasonryGrid>
-          {faqData.map((faq, index) => (
+          {displayFaqs.map((faq, index) => (
             <Card 
               key={index} 
               $visible={visible} 

@@ -100,9 +100,9 @@ const HotelPrice = styled.p`
 `;
 
 function Accommodations() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const accommodationsData = content?.accommodations || {};
-
+  const hotels = accommodationsData.hotels || [];
   const defaultHotels = [
     {
       name: 'Schlosshotel Benrath',

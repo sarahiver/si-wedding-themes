@@ -212,9 +212,9 @@ const Counter = styled.p`
 `;
 
 function LoveStory() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const lovestoryData = content?.lovestory || {};
-
+  const stories = lovestoryData.events || [];
   const [activeIndex, setActiveIndex] = useState(0);
   
   const defaultStories = [

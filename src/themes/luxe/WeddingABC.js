@@ -101,9 +101,9 @@ const EntryText = styled.p`
 `;
 
 function WeddingABC() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const weddingabcData = content?.weddingabc || {};
-
+  const entries = weddingabcData.entries || [];
   const [activeLetter, setActiveLetter] = useState(null);
   
   const defaultEntries = [

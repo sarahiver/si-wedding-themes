@@ -207,9 +207,9 @@ const ScrollHint = styled.p`
 `;
 
 function Timeline() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const timelineData = content?.timeline || {};
-
+  const events = timelineData.events || [];
   const [activeIndex, setActiveIndex] = useState(0);
   const trackRef = useRef(null);
   

@@ -264,9 +264,9 @@ const LightboxNav = styled.button`
 `;
 
 function Gallery() {
-  const { content, projectId, slug } = useWedding();
+  const { content, projectId } = useWedding();
   const galleryData = content?.gallery || {};
-
+  const images = galleryData.images || [];
   const [visible, setVisible] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const sectionRef = useRef(null);
