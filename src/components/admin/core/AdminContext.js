@@ -11,7 +11,7 @@ const AdminContext = createContext(null);
 
 export function AdminProvider({ children }) {
   const wedding = useWedding();
-  const { project, projectId, coupleNames, content, slug, isComponentActive } = wedding || {};
+  const { project, projectId, coupleNames, content, slug, isComponentActive, refetch } = wedding || {};
   
   // Auth
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,29 +40,13 @@ export function AdminProvider({ children }) {
   const [feedback, setFeedback] = useState({ show: false, type: 'success', message: '' });
   
   // Content States (all editors)
-  const [contentStates, setContentStates] = useState({
-    hero: {},
-    countdown: {},
-    lovestory: { events: [] },
-    timeline: { events: [] },
-    locations: { locations: [] },
-    directions: { options: [] },
-    rsvp: {},
-    dresscode: { colors: [] },
-    gifts: { items: [] },
-    accommodations: { hotels: [] },
-    witnesses: { witnesses: [] },
-    gallery: { images: [] },
-    faq: { items: [] },
-    weddingabc: { entries: [] },
-    footer: {},
-  });
+  const [contentStates, setContentStates] = useState({});
   
   // Config
-  const adminPassword = project?.admin_password || project?.settings?.admin_password || 'admin123';
-  const cloudName = project?.settings?.cloudinary_cloud_name || process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
-  const uploadPreset = project?.settings?.cloudinary_upload_preset || process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
-  const baseFolder = `iverlasting/${project?.slug || 'default'}`;
+  const adminPassword = project?.password || 'admin123';
+  const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
+  const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
+  const baseFolder = `iverlasting/${slug || 'default'}`;
 
   // Initialize content from wedding context
   useEffect(() => {
@@ -75,14 +59,16 @@ export function AdminProvider({ children }) {
         locations: content.locations || { locations: [] },
         directions: content.directions || { options: [] },
         rsvp: content.rsvp || {},
-        dresscode: content.dresscode || { colors: [] },
+        dresscode: content.dresscode || { colors: [], dos: [], donts: [] },
         gifts: content.gifts || { items: [] },
         accommodations: content.accommodations || { hotels: [] },
-        witnesses: content.witnesses || { witnesses: [] },
+        witnesses: content.witnesses || { persons: [] },
         gallery: content.gallery || { images: [] },
-        faq: content.faq || { items: [] },
+        faq: content.faq || { questions: [] },
         weddingabc: content.weddingabc || { entries: [] },
         footer: content.footer || {},
+        savethedate: content.savethedate || {},
+        archive: content.archive || {},
       });
     }
   }, [content]);
@@ -159,10 +145,12 @@ export function AdminProvider({ children }) {
       await updateProjectStatus(projectId, newStatus);
       setCurrentStatus(newStatus);
       showFeedback('success', `Status auf "${newStatus}" geändert`);
+      // Refetch to update the main page
+      if (refetch) refetch();
     } catch (e) {
       showFeedback('error', 'Status konnte nicht geändert werden');
     }
-  }, [projectId, showFeedback]);
+  }, [projectId, showFeedback, refetch]);
 
   const approveGuestbook = useCallback(async (id, approved) => {
     try {
@@ -241,16 +229,31 @@ export function AdminProvider({ children }) {
   }, []);
 
   const saveContent = useCallback(async (section) => {
+    if (!projectId) {
+      showFeedback('error', 'Projekt nicht gefunden');
+      return;
+    }
+    
     setIsSaving(true);
     try {
-      await updateProjectContent(projectId, section, contentStates[section]);
-      showFeedback('success', 'Gespeichert');
+      const { error } = await updateProjectContent(projectId, section, contentStates[section]);
+      
+      if (error) {
+        console.error('Save error:', error);
+        showFeedback('error', 'Fehler beim Speichern: ' + error.message);
+      } else {
+        showFeedback('success', 'Gespeichert!');
+        // Refetch to update the main wedding page
+        if (refetch) {
+          await refetch();
+        }
+      }
     } catch (e) {
       console.error('Save error:', e);
       showFeedback('error', 'Fehler beim Speichern');
     }
     setIsSaving(false);
-  }, [projectId, contentStates, showFeedback]);
+  }, [projectId, contentStates, showFeedback, refetch]);
 
   // ============================================
   // EXPORT CSV
@@ -311,7 +314,7 @@ export function AdminProvider({ children }) {
       checkActive('timeline') && { id: 'edit-timeline', label: 'Ablauf', icon: '📅' },
       checkActive('locations') && { id: 'edit-locations', label: 'Locations', icon: '📍' },
       checkActive('directions') && { id: 'edit-directions', label: 'Anfahrt', icon: '🚗' },
-      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP', icon: '✏️' },
+      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP Text', icon: '✏️' },
       checkActive('dresscode') && { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
       checkActive('gifts') && { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
       checkActive('accommodations') && { id: 'edit-hotels', label: 'Hotels', icon: '🏨' },
