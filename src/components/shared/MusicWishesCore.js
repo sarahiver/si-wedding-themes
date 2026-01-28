@@ -1,15 +1,11 @@
 // src/components/shared/MusicWishesCore.js
-// Core music wishes logic - used by all themes
-
 import { useState, useCallback, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { submitMusicWish, getMusicWishes } from '../../lib/supabase';
 
-/**
- * useMusicWishes - Hook for music wishes functionality
- */
 export function useMusicWishes() {
-  const { projectId } = useWedding();
+  const weddingContext = useWedding();
+  const projectId = weddingContext?.projectId || weddingContext?.project?.id;
   
   const [wishes, setWishes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,8 +20,17 @@ export function useMusicWishes() {
     message: '',
   });
 
-  // Load existing wishes
+  const isDemo = !projectId || projectId === 'demo';
+
   const loadWishes = useCallback(async () => {
+    if (isDemo) {
+      setWishes([
+        { id: 1, name: 'Lisa', artist: 'ABBA', song_title: 'Dancing Queen', created_at: new Date().toISOString() },
+        { id: 2, name: 'Max', artist: 'Ed Sheeran', song_title: 'Perfect', created_at: new Date().toISOString() },
+      ]);
+      return;
+    }
+    
     if (!projectId) return;
     
     setLoading(true);
@@ -38,27 +43,19 @@ export function useMusicWishes() {
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, isDemo]);
 
-  // Load on mount
   useEffect(() => {
     loadWishes();
   }, [loadWishes]);
 
-  // Update form field
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
     setSuccess(false);
   };
 
-  // Submit new wish
   const submitWish = async () => {
-    if (!projectId) {
-      setError('Projekt nicht gefunden');
-      return { success: false };
-    }
-    
     if (!formData.name.trim()) {
       setError('Bitte gib deinen Namen ein');
       return { success: false };
@@ -73,6 +70,15 @@ export function useMusicWishes() {
     setError(null);
     
     try {
+      if (isDemo) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSuccess(true);
+        const newWish = { id: Date.now(), name: formData.name, artist: formData.artist, song_title: formData.songTitle, created_at: new Date().toISOString() };
+        setWishes(prev => [newWish, ...prev]);
+        setFormData({ name: '', artist: '', songTitle: '', message: '' });
+        return { success: true, data: { demo: true } };
+      }
+      
       const { data, error: submitError } = await submitMusicWish(projectId, {
         name: formData.name.trim(),
         artist: formData.artist.trim(),
@@ -84,10 +90,7 @@ export function useMusicWishes() {
       
       setSuccess(true);
       setFormData({ name: '', artist: '', songTitle: '', message: '' });
-      
-      // Reload wishes to show the new one
       await loadWishes();
-      
       return { success: true, data };
       
     } catch (err) {
@@ -99,7 +102,6 @@ export function useMusicWishes() {
     }
   };
 
-  // Reset form
   const resetForm = () => {
     setFormData({ name: '', artist: '', songTitle: '', message: '' });
     setError(null);
@@ -107,19 +109,8 @@ export function useMusicWishes() {
   };
 
   return {
-    // State
-    wishes,
-    loading,
-    submitting,
-    error,
-    success,
-    formData,
-    
-    // Actions
-    updateField,
-    submitWish,
-    loadWishes,
-    resetForm,
+    wishes, loading, submitting, error, success, formData, isDemo,
+    updateField, submitWish, loadWishes, resetForm,
   };
 }
 

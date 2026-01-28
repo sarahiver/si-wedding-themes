@@ -1,15 +1,11 @@
 // src/components/shared/GuestbookCore.js
-// Core guestbook logic - used by all themes
-
 import { useState, useCallback, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
 
-/**
- * useGuestbook - Hook for guestbook functionality
- */
 export function useGuestbook() {
-  const { projectId } = useWedding();
+  const weddingContext = useWedding();
+  const projectId = weddingContext?.projectId || weddingContext?.project?.id;
   
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,8 +19,18 @@ export function useGuestbook() {
     imageUrl: null,
   });
 
-  // Load approved entries
+  const isDemo = !projectId || projectId === 'demo';
+
   const loadEntries = useCallback(async () => {
+    if (isDemo) {
+      // Demo entries
+      setEntries([
+        { id: 1, name: 'Maria & Thomas', message: 'Wir freuen uns so sehr für euch! Alles Liebe!', created_at: new Date().toISOString() },
+        { id: 2, name: 'Familie Schmidt', message: 'Herzlichen Glückwunsch zur Verlobung!', created_at: new Date().toISOString() },
+      ]);
+      return;
+    }
+    
     if (!projectId) return;
     
     setLoading(true);
@@ -38,27 +44,19 @@ export function useGuestbook() {
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, isDemo]);
 
-  // Load on mount
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
 
-  // Update form field
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
     setSuccess(false);
   };
 
-  // Submit new entry
   const submitEntry = async () => {
-    if (!projectId) {
-      setError('Projekt nicht gefunden');
-      return { success: false };
-    }
-    
     if (!formData.name.trim()) {
       setError('Bitte gib deinen Namen ein');
       return { success: false };
@@ -73,6 +71,13 @@ export function useGuestbook() {
     setError(null);
     
     try {
+      if (isDemo) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setSuccess(true);
+        setFormData({ name: '', message: '', imageUrl: null });
+        return { success: true, data: { demo: true } };
+      }
+      
       const { data, error: submitError } = await submitGuestbookEntry(projectId, {
         name: formData.name.trim(),
         message: formData.message.trim(),
@@ -83,11 +88,6 @@ export function useGuestbook() {
       
       setSuccess(true);
       setFormData({ name: '', message: '', imageUrl: null });
-      
-      // Note: Entry won't show immediately (needs approval)
-      // Optionally reload to show it if auto-approved
-      // await loadEntries();
-      
       return { success: true, data };
       
     } catch (err) {
@@ -99,7 +99,6 @@ export function useGuestbook() {
     }
   };
 
-  // Reset form
   const resetForm = () => {
     setFormData({ name: '', message: '', imageUrl: null });
     setError(null);
@@ -107,19 +106,8 @@ export function useGuestbook() {
   };
 
   return {
-    // State
-    entries,
-    loading,
-    submitting,
-    error,
-    success,
-    formData,
-    
-    // Actions
-    updateField,
-    submitEntry,
-    loadEntries,
-    resetForm,
+    entries, loading, submitting, error, success, formData, isDemo,
+    updateField, submitEntry, loadEntries, resetForm,
   };
 }
 

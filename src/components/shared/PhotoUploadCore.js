@@ -1,21 +1,14 @@
 // src/components/shared/PhotoUploadCore.js
-// Core photo upload logic - used by all themes
-
 import React, { useState, useRef, useCallback } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { uploadToCloudinary, uploadMultipleToCloudinary } from '../../lib/cloudinary';
 import { submitPhotoUpload, getPhotoUploads } from '../../lib/supabase';
 
-/**
- * usePhotoUpload - Hook for photo upload functionality
- * @param {Object} options
- * @param {number} options.maxFiles - Maximum files allowed (default 10)
- * @param {number} options.maxSizeMB - Maximum file size in MB (default 10)
- * @param {boolean} options.autoApprove - Auto-approve uploads (default false)
- */
 export function usePhotoUpload(options = {}) {
-  const { maxFiles = 10, maxSizeMB = 10, autoApprove = false } = options;
-  const { projectId, slug } = useWedding();
+  const { maxFiles = 10, maxSizeMB = 10 } = options;
+  const weddingContext = useWedding();
+  const projectId = weddingContext?.projectId || weddingContext?.project?.id;
+  const slug = weddingContext?.slug;
   
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -24,9 +17,13 @@ export function usePhotoUpload(options = {}) {
   const [success, setSuccess] = useState(false);
   
   const fileInputRef = useRef(null);
+  const isDemo = !projectId || projectId === 'demo';
 
-  // Load existing photos
   const loadPhotos = useCallback(async () => {
+    if (isDemo) {
+      setUploadedPhotos([]);
+      return;
+    }
     if (!projectId) return;
     try {
       const { data } = await getPhotoUploads(projectId, true);
@@ -34,26 +31,21 @@ export function usePhotoUpload(options = {}) {
     } catch (err) {
       console.error('Error loading photos:', err);
     }
-  }, [projectId]);
+  }, [projectId, isDemo]);
 
-  // Validate files before upload
   const validateFiles = (files) => {
     const validFiles = [];
     const errors = [];
     
     for (const file of files) {
-      // Check file type
       if (!file.type.startsWith('image/')) {
         errors.push(`${file.name}: Nur Bilder erlaubt`);
         continue;
       }
-      
-      // Check file size
       if (file.size > maxSizeMB * 1024 * 1024) {
         errors.push(`${file.name}: Datei zu groß (max ${maxSizeMB}MB)`);
         continue;
       }
-      
       validFiles.push(file);
     }
     
@@ -65,7 +57,6 @@ export function usePhotoUpload(options = {}) {
     return { validFiles, errors };
   };
 
-  // Handle file selection
   const handleFileSelect = async (event) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -83,53 +74,44 @@ export function usePhotoUpload(options = {}) {
     await uploadFiles(validFiles);
   };
 
-  // Upload files to Cloudinary and save to Supabase
   const uploadFiles = async (files) => {
-    if (!projectId) {
-      setError('Projekt nicht gefunden');
-      return { success: false };
-    }
-    
     setUploading(true);
     setProgress(0);
     
     try {
-      const folder = `wedding_photos/${slug || projectId}`;
+      if (isDemo) {
+        // Simulate upload in demo mode
+        for (let i = 0; i <= 100; i += 10) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          setProgress(i);
+        }
+        setSuccess(true);
+        setProgress(100);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return { success: true };
+      }
       
-      // Upload to Cloudinary
+      const folder = `wedding_photos/${slug || projectId}`;
       const results = await uploadMultipleToCloudinary(files, {
         folder,
         onTotalProgress: setProgress,
       });
       
-      // Save to Supabase
-      const savedPhotos = [];
       for (const result of results) {
         if (result.url && !result.error) {
-          const { data, error: dbError } = await submitPhotoUpload(projectId, {
+          await submitPhotoUpload(projectId, {
             cloudinaryUrl: result.url,
             cloudinaryPublicId: result.publicId,
-            uploadedBy: 'Guest', // Could be from a name input
+            uploadedBy: 'Guest',
           });
-          
-          if (!dbError && data) {
-            savedPhotos.push(data);
-          }
         }
       }
       
       setSuccess(true);
       setProgress(100);
-      
-      // Reload photos
       await loadPhotos();
-      
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      
-      return { success: true, photos: savedPhotos };
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return { success: true };
       
     } catch (err) {
       console.error('Upload error:', err);
@@ -140,28 +122,20 @@ export function usePhotoUpload(options = {}) {
     }
   };
 
-  // Trigger file input click
   const openFilePicker = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    if (fileInputRef.current) fileInputRef.current.click();
   };
 
-  // Handle drag and drop
   const handleDrop = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    
     const files = event.dataTransfer?.files;
     if (!files || files.length === 0) return;
-    
     const { validFiles, errors } = validateFiles(Array.from(files));
-    
     if (errors.length > 0) {
       setError(errors.join('\n'));
       if (validFiles.length === 0) return;
     }
-    
     await uploadFiles(validFiles);
   };
 
@@ -171,46 +145,15 @@ export function usePhotoUpload(options = {}) {
   };
 
   return {
-    // State
-    uploading,
-    progress,
-    uploadedPhotos,
-    error,
-    success,
-    
-    // Refs
-    fileInputRef,
-    
-    // Actions
-    handleFileSelect,
-    openFilePicker,
-    handleDrop,
-    handleDragOver,
-    loadPhotos,
-    
-    // Reset
-    resetState: () => {
-      setError(null);
-      setSuccess(false);
-      setProgress(0);
-    },
+    uploading, progress, uploadedPhotos, error, success, fileInputRef, isDemo,
+    handleFileSelect, openFilePicker, handleDrop, handleDragOver, loadPhotos,
+    resetState: () => { setError(null); setSuccess(false); setProgress(0); },
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// REUSABLE FILE INPUT COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
 export function HiddenFileInput({ fileInputRef, handleFileSelect, multiple = true, accept = "image/*" }) {
   return (
-    <input
-      type="file"
-      ref={fileInputRef}
-      onChange={handleFileSelect}
-      multiple={multiple}
-      accept={accept}
-      style={{ display: 'none' }}
-    />
+    <input type="file" ref={fileInputRef} onChange={handleFileSelect} multiple={multiple} accept={accept} style={{ display: 'none' }} />
   );
 }
 

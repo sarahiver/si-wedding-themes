@@ -9,7 +9,9 @@ import { submitRSVP } from '../../lib/supabase';
  * useRSVP - Hook for RSVP functionality
  */
 export function useRSVP() {
-  const { projectId } = useWedding();
+  // Get projectId from WeddingContext - handle both real and demo mode
+  const weddingContext = useWedding();
+  const projectId = weddingContext?.projectId || weddingContext?.project?.id;
   
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -24,7 +26,6 @@ export function useRSVP() {
     allergies: '',
     songWish: '',
     message: '',
-    // Additional fields for companion info
     companionNames: '',
     childrenCount: 0,
     needsTransport: false,
@@ -66,9 +67,16 @@ export function useRSVP() {
 
   // Submit RSVP
   const submit = async () => {
-    if (!projectId) {
-      setError('Projekt nicht gefunden');
-      return { success: false };
+    // In demo mode, just simulate success
+    if (!projectId || projectId === 'demo') {
+      if (!validateForm()) return { success: false };
+      
+      // Simulate API delay
+      setSubmitting(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSubmitting(false);
+      setSubmitted(true);
+      return { success: true, data: { demo: true } };
     }
     
     if (!validateForm()) {
@@ -151,9 +159,11 @@ export function useRSVP() {
     submitted,
     error,
     formData,
+    projectId,
     
     // Computed
     isAttending: formData.attending,
+    isDemo: !projectId || projectId === 'demo',
     
     // Actions
     updateField,
