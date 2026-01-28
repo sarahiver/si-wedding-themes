@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ANIMATIONS
@@ -20,11 +20,6 @@ const fadeInUp = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const popIn = keyframes`
-  from { opacity: 0; transform: scale(0.5); }
-  to { opacity: 1; transform: scale(1); }
-`;
-
 // ═══════════════════════════════════════════════════════════════════════════
 // STYLED COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -36,17 +31,16 @@ const Section = styled.section`
   overflow: hidden;
 `;
 
-// Floating decorative elements
 const FloatingLeaf = styled.div`
   position: absolute;
-  width: ${p => p.size}px;
-  height: ${p => p.size}px;
-  opacity: ${p => p.opacity || 0.15};
-  top: ${p => p.top};
-  left: ${p => p.left};
-  right: ${p => p.right};
-  animation: ${float} ${p => p.duration}s ease-in-out infinite;
-  animation-delay: ${p => p.delay}s;
+  width: ${p => p.$size}px;
+  height: ${p => p.$size}px;
+  opacity: ${p => p.$opacity || 0.15};
+  top: ${p => p.$top};
+  left: ${p => p.$left};
+  right: ${p => p.$right};
+  animation: ${float} ${p => p.$duration}s ease-in-out infinite;
+  animation-delay: ${p => p.$delay}s;
   pointer-events: none;
   
   svg {
@@ -64,8 +58,8 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 5rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
 `;
 
@@ -86,11 +80,9 @@ const Title = styled.h2`
   color: var(--forest);
 `;
 
-// Organic curved timeline
 const Timeline = styled.div`
   position: relative;
   
-  /* Curved vine line */
   &::before {
     content: '';
     position: absolute;
@@ -106,7 +98,7 @@ const Timeline = styled.div`
     );
     transform: translateX(-50%);
     transform-origin: top;
-    animation: ${p => p.visible ? growIn : 'none'} 1.5s ease forwards;
+    animation: ${p => p.$visible ? growIn : 'none'} 1.5s ease forwards;
     animation-delay: 0.3s;
     border-radius: 10px;
     
@@ -125,7 +117,6 @@ const Milestone = styled.div`
   
   &:last-child { margin-bottom: 0; }
   
-  /* Alternate sides */
   &:nth-child(odd) {
     .content { grid-column: 1; text-align: right; }
     .marker { grid-column: 2; }
@@ -155,12 +146,10 @@ const MilestoneMarker = styled.div`
   justify-content: center;
   position: relative;
   z-index: 2;
-  
-  /* Reveal animation */
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: scale(${p => p.visible ? 1 : 0.5});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: scale(${p => p.$visible ? 1 : 0.5});
   transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: ${p => p.index * 0.15}s;
+  transition-delay: ${p => p.$index * 0.15}s;
 `;
 
 const MarkerCircle = styled.div`
@@ -175,7 +164,6 @@ const MarkerCircle = styled.div`
   position: relative;
   box-shadow: 0 4px 20px rgba(139, 157, 131, 0.2);
   
-  /* Inner decoration */
   &::before {
     content: '';
     position: absolute;
@@ -184,7 +172,6 @@ const MarkerCircle = styled.div`
     border-radius: 50%;
   }
   
-  /* Year text */
   span {
     font-family: 'Playfair Display', serif;
     font-size: 0.9rem;
@@ -210,12 +197,10 @@ const LeafOnMarker = styled.div`
 
 const MilestoneContent = styled.div`
   padding-top: 1rem;
-  
-  /* Slide in animation */
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateX(${p => p.visible ? 0 : (p.fromRight ? '40px' : '-40px')});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateX(${p => p.$visible ? 0 : (p.$fromRight ? '40px' : '-40px')});
   transition: all 0.8s ease;
-  transition-delay: ${p => 0.1 + p.index * 0.15}s;
+  transition-delay: ${p => 0.1 + p.$index * 0.15}s;
 `;
 
 const MilestoneTitle = styled.h3`
@@ -235,10 +220,10 @@ const MilestoneText = styled.p`
 `;
 
 const MilestoneImage = styled.div`
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
-  transition-delay: ${p => 0.2 + p.index * 0.15}s;
+  transition-delay: ${p => 0.2 + p.$index * 0.15}s;
 `;
 
 const ImageFrame = styled.div`
@@ -251,7 +236,6 @@ const ImageFrame = styled.div`
   cursor: pointer;
   transition: all var(--transition-normal);
   
-  /* Decorative border */
   &::before {
     content: '';
     position: absolute;
@@ -272,9 +256,7 @@ const ImageFrame = styled.div`
       border-color: var(--sage);
     }
     
-    img {
-      transform: scale(1.08);
-    }
+    img { transform: scale(1.08); }
   }
   
   img {
@@ -287,7 +269,6 @@ const ImageFrame = styled.div`
   @media (max-width: 768px) {
     max-width: 100%;
     border-radius: 20px;
-    
     &::before { border-radius: 12px; }
   }
 `;
@@ -309,34 +290,9 @@ const Placeholder = styled.div`
     color: var(--sage-light);
   }
   
-  .icon {
-    font-size: 2rem;
-    opacity: 0.5;
-  }
+  .icon { font-size: 2rem; opacity: 0.5; }
 `;
 
-// Small decorative vine between milestones
-const VineDecor = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 40px;
-  opacity: 0.3;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: var(--sage);
-  }
-  
-  @media (max-width: 768px) {
-    left: 30px;
-    transform: none;
-  }
-`;
-
-// SVG
 const LeafSVG = () => (
   <svg viewBox="0 0 100 100">
     <path d="M50 5 C20 25 10 60 50 95 C90 60 80 25 50 5 Z" />
@@ -353,36 +309,20 @@ const SmallLeafSVG = () => (
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-function LoveStory({
-  milestones = [
-    { 
-      year: '2020', 
-      title: 'Der erste Blick', 
-      text: 'Zwischen blühenden Pfingstrosen im Botanischen Garten kreuzten sich unsere Wege zum ersten Mal. Ein zufälliges Gespräch über Orchideen wurde zum Beginn von allem.', 
-      image: null 
-    },
-    { 
-      year: '2021', 
-      title: 'Gemeinsam wachsen', 
-      text: 'Wie zwei Pflanzen, die ihre Wurzeln verschränken, wuchsen wir zusammen – durch sonnige Tage und stürmische Nächte, immer füreinander da.', 
-      image: null 
-    },
-    { 
-      year: '2023', 
-      title: 'Ein neues Zuhause', 
-      text: 'Mit einem kleinen Garten voller Wildblumen fanden wir unseren Ort, an dem Liebe gedeihen kann. Unser erstes gemeinsames Heim.', 
-      image: null 
-    },
-    { 
-      year: '2024', 
-      title: 'Die große Frage', 
-      text: 'Unter dem alten Apfelbaum, zwischen fallenden Blütenblättern, kniete Benjamin nieder – und Olivia sagte unter Freudentränen Ja.', 
-      image: null 
-    },
-  ],
-}) {
+function LoveStory({ content = {} }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
+
+  const title = content.title || 'Unsere Geschichte';
+  const subtitle = content.subtitle || 'Wie alles begann';
+  
+  // Support both 'events' and 'milestones' field names
+  const events = content.events || content.milestones || [
+    { year: '2020', title: 'Der erste Blick', text: 'Zwischen blühenden Pfingstrosen im Botanischen Garten kreuzten sich unsere Wege zum ersten Mal.', image: null },
+    { year: '2021', title: 'Gemeinsam wachsen', text: 'Wie zwei Pflanzen, die ihre Wurzeln verschränken, wuchsen wir zusammen.', image: null },
+    { year: '2023', title: 'Ein neues Zuhause', text: 'Mit einem kleinen Garten voller Wildblumen fanden wir unseren Ort.', image: null },
+    { year: '2024', title: 'Die große Frage', text: 'Unter dem alten Apfelbaum, zwischen fallenden Blütenblättern, kniete er nieder.', image: null },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -395,46 +335,44 @@ function LoveStory({
 
   return (
     <Section ref={sectionRef} id="story">
-      <FloatingLeaf size={80} top="5%" left="3%" duration={8} delay={0}><LeafSVG /></FloatingLeaf>
-      <FloatingLeaf size={60} top="40%" right="5%" duration={10} delay={2}><LeafSVG /></FloatingLeaf>
-      <FloatingLeaf size={50} top="70%" left="8%" duration={7} delay={1}><LeafSVG /></FloatingLeaf>
+      <FloatingLeaf $size={80} $top="5%" $left="3%" $duration={8} $delay={0}><LeafSVG /></FloatingLeaf>
+      <FloatingLeaf $size={60} $top="40%" $right="5%" $duration={10} $delay={2}><LeafSVG /></FloatingLeaf>
+      <FloatingLeaf $size={50} $top="70%" $left="8%" $duration={7} $delay={1}><LeafSVG /></FloatingLeaf>
       
       <Container>
-        <Header visible={visible}>
-          <Eyebrow>Unsere Reise</Eyebrow>
-          <Title>Wie alles begann</Title>
+        <Header $visible={visible}>
+          <Eyebrow>{subtitle}</Eyebrow>
+          <Title>{title}</Title>
         </Header>
         
-        <Timeline visible={visible}>
-          {milestones.map((m, i) => (
+        <Timeline $visible={visible}>
+          {events.map((m, i) => (
             <Milestone key={i}>
               <MilestoneContent 
                 className="content" 
-                index={i} 
-                visible={visible} 
-                fromRight={i % 2 === 1}
+                $index={i} 
+                $visible={visible} 
+                $fromRight={i % 2 === 1}
               >
                 <MilestoneTitle>{m.title}</MilestoneTitle>
-                <MilestoneText>{m.text}</MilestoneText>
+                <MilestoneText>{m.text || m.description || m.desc}</MilestoneText>
               </MilestoneContent>
               
-              <MilestoneMarker className="marker" index={i} visible={visible}>
+              <MilestoneMarker className="marker" $index={i} $visible={visible}>
                 <MarkerCircle>
-                  <span>{m.year}</span>
-                  <LeafOnMarker>
-                    <SmallLeafSVG />
-                  </LeafOnMarker>
+                  <span>{m.year || m.date}</span>
+                  <LeafOnMarker><SmallLeafSVG /></LeafOnMarker>
                 </MarkerCircle>
               </MilestoneMarker>
               
-              <MilestoneImage className="image" index={i} visible={visible}>
+              <MilestoneImage className="image" $index={i} $visible={visible}>
                 <ImageFrame>
                   {m.image ? (
                     <img src={m.image} alt={m.title} />
                   ) : (
                     <Placeholder>
                       <span className="icon">🌸</span>
-                      <span className="year">{m.year}</span>
+                      <span className="year">{m.year || m.date}</span>
                     </Placeholder>
                   )}
                 </ImageFrame>

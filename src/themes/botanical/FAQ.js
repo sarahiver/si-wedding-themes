@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ANIMATIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 `;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// STYLED COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════════
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -27,8 +19,8 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 4rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
 `;
 
@@ -56,13 +48,13 @@ const FAQList = styled.div`
 
 const FAQItem = styled.div`
   background: var(--cream);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid ${p => p.isOpen ? 'var(--sage)' : 'transparent'};
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '20px'});
+  border: 1px solid ${p => p.$isOpen ? 'var(--sage)' : 'transparent'};
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.6s ease;
-  transition-delay: ${p => p.index * 0.08}s;
+  transition-delay: ${p => p.$index * 0.08}s;
 `;
 
 const Question = styled.button`
@@ -83,97 +75,50 @@ const Question = styled.button`
     color: var(--forest);
     flex: 1;
     padding-right: 1rem;
-    transition: color 0.3s ease;
   }
-  
-  &:hover h4 { color: var(--sage-dark); }
 `;
 
-const ToggleIcon = styled.span`
+const Icon = styled.span`
   width: 32px;
   height: 32px;
+  border-radius: 50%;
+  background: var(--sage-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${p => p.isOpen ? 'var(--sage)' : 'var(--cream-dark)'};
-  color: ${p => p.isOpen ? 'var(--cream)' : 'var(--sage-dark)'};
-  border-radius: 50%;
-  font-size: 1.2rem;
   transition: all 0.3s ease;
-  transform: rotate(${p => p.isOpen ? '45deg' : '0'});
-  flex-shrink: 0;
+  transform: rotate(${p => p.$isOpen ? '45deg' : '0'});
+  
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    background: var(--sage);
+  }
+  &::before { width: 12px; height: 2px; }
+  &::after { width: 2px; height: 12px; }
 `;
 
 const Answer = styled.div`
-  max-height: ${p => p.isOpen ? '500px' : '0'};
+  max-height: ${p => p.$isOpen ? '500px' : '0'};
   overflow: hidden;
   transition: max-height 0.4s ease;
-`;
-
-const AnswerContent = styled.div`
-  padding: 0 1.5rem 1.5rem;
   
   p {
     font-family: 'Lato', sans-serif;
     font-size: 0.95rem;
     color: var(--text-light);
     line-height: 1.8;
+    padding: 0 1.5rem 1.5rem;
   }
 `;
 
-const ContactBox = styled.div`
-  margin-top: 3rem;
-  padding: 2rem;
-  background: var(--cream);
-  border-radius: var(--radius-lg);
-  text-align: center;
-  border: 1px dashed var(--sage-light);
-  opacity: ${p => p.visible ? 1 : 0};
-  transition: opacity 0.8s ease;
-  transition-delay: 0.5s;
-  
-  h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    color: var(--forest);
-    margin-bottom: 0.75rem;
-  }
-  
-  p {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.95rem;
-    color: var(--text-light);
-  }
-  
-  a {
-    color: var(--sage-dark);
-    text-decoration: underline;
-    transition: color 0.3s ease;
-    
-    &:hover { 
-      color: var(--sage);
-      text-decoration: none; 
-    }
-  }
-`;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-function FAQ({
-  faqs = [
-    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns über festliche Kleidung in natürlichen, gedeckten Farben – Salbeigrün, Dusty Rose, Creme, Terrakotta. Bitte kein reines Weiß oder Schwarz.' },
-    { question: 'Kann ich eine Begleitung mitbringen?', answer: 'Aufgrund der begrenzten Plätze können leider nur die auf der Einladung genannten Personen teilnehmen. Wir hoffen auf euer Verständnis.' },
-    { question: 'Sind Kinder willkommen?', answer: 'Ja! Wir feiern gerne mit euren Kleinen. Es gibt einen betreuten Spielbereich im Garten und kindgerechtes Essen.' },
-    { question: 'Was ist mit dem Wetter?', answer: 'Die Trauung findet bei jedem Wetter statt – bei Regen weichen wir in das Gewächshaus aus. Bringt sicherheitshalber einen Schirm mit.' },
-    { question: 'Darf ich Fotos machen?', answer: 'Bei der Trauung bitten wir um eine "Unplugged Ceremony" – genießt den Moment ohne Handy. Bei der Feier sind Fotos herzlich willkommen!' },
-  ],
-  contactEmail = 'hochzeit@olivia-benjamin.de',
-}) {
+function FAQ({ content = {} }) {
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
+
+  const title = content.title || 'Häufige Fragen';
+  const questions = content.questions || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -184,45 +129,27 @@ function FAQ({
     return () => observer.disconnect();
   }, []);
 
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
     <Section ref={sectionRef} id="faq">
       <Container>
-        <Header visible={visible}>
-          <Eyebrow>FAQ</Eyebrow>
-          <Title>Häufige Fragen</Title>
+        <Header $visible={visible}>
+          <Eyebrow>Gut zu wissen</Eyebrow>
+          <Title>{title}</Title>
         </Header>
         
         <FAQList>
-          {faqs.map((faq, i) => (
-            <FAQItem 
-              key={i} 
-              index={i} 
-              visible={visible}
-              isOpen={openIndex === i}
-            >
-              <Question onClick={() => toggleFAQ(i)}>
-                <h4>{faq.question}</h4>
-                <ToggleIcon isOpen={openIndex === i}>+</ToggleIcon>
+          {questions.map((faq, i) => (
+            <FAQItem key={i} $visible={visible} $index={i} $isOpen={openIndex === i}>
+              <Question onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+                <h4>{faq.question || faq.q}</h4>
+                <Icon $isOpen={openIndex === i} />
               </Question>
-              <Answer isOpen={openIndex === i}>
-                <AnswerContent>
-                  <p>{faq.answer}</p>
-                </AnswerContent>
+              <Answer $isOpen={openIndex === i}>
+                <p>{faq.answer || faq.a}</p>
               </Answer>
             </FAQItem>
           ))}
         </FAQList>
-        
-        {contactEmail && (
-          <ContactBox visible={visible}>
-            <h4>🌿 Weitere Fragen?</h4>
-            <p>Schreibt uns gerne an <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
-          </ContactBox>
-        )}
       </Container>
     </Section>
   );

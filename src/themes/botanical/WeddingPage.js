@@ -1,183 +1,88 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-
-// Import all components
-import Navigation from './Navigation';
+import React from 'react';
+import { useWedding } from '../../context/WeddingContext';
 import Hero from './Hero';
+import Navigation from './Navigation';
 import Countdown from './Countdown';
 import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
 import Directions from './Directions';
-import Accommodations from './Accommodations';
+import RSVP from './RSVP';
 import Dresscode from './Dresscode';
+import Accommodations from './Accommodations';
+import Contact from './Contact';
 import Gallery from './Gallery';
 import Gifts from './Gifts';
-import RSVP from './RSVP';
+import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
-import Guestbook from './Guestbook';
-import WeddingABC from './WeddingABC';
 import FAQ from './FAQ';
-import Contact from './Contact';
+import WeddingABC from './WeddingABC';
 import Footer from './Footer';
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   WEDDING PAGE - BOTANICAL THEME
-   Hauptseite die alle Komponenten zusammenfasst
-   ═══════════════════════════════════════════════════════════════════════════ */
+function WeddingPage() {
+  const { 
+    coupleNames, 
+    weddingDate, 
+    isComponentActive, 
+    getContent,
+    slug
+  } = useWedding();
 
-const PageWrapper = styled.div`
-  min-height: 100vh;
-  background: var(--cream);
-  overflow-x: hidden;
-`;
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Olivia', 'Benjamin'];
+  
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
 
-const SmoothScrollAnchor = styled.div`
-  scroll-margin-top: 80px;
-`;
-
-const WeddingPage = () => {
-  // Smooth scroll behavior
-  useEffect(() => {
-    // Enable smooth scrolling
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    // Handle hash links for smooth scroll
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash) {
-        const element = document.querySelector(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }
-    };
-
-    // Initial check for hash in URL
-    handleHashChange();
-    
-    // Listen for hash changes
-    window.addEventListener('hashchange', handleHashChange);
-    
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      document.documentElement.style.scrollBehavior = '';
-    };
-  }, []);
-
-  // Navigation items for the menu
-  const navigationItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'story', label: 'Unsere Geschichte' },
-    { id: 'timeline', label: 'Tagesablauf' },
-    { id: 'locations', label: 'Locations' },
-    { id: 'directions', label: 'Anfahrt' },
-    { id: 'accommodations', label: 'Unterkünfte' },
-    { id: 'dresscode', label: 'Dresscode' },
-    { id: 'gallery', label: 'Galerie' },
-    { id: 'gifts', label: 'Geschenke' },
-    { id: 'rsvp', label: 'RSVP' },
-    { id: 'music', label: 'Musikwünsche' },
-    { id: 'photos', label: 'Fotos hochladen' },
-    { id: 'guestbook', label: 'Gästebuch' },
-    { id: 'abc', label: 'Hochzeits-ABC' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'contact', label: 'Kontakt' }
-  ];
+  const heroContent = getContent('hero');
+  const countdownContent = getContent('countdown');
 
   return (
-    <PageWrapper>
-      {/* Navigation */}
-      <Navigation items={navigationItems} />
-
-      {/* Hero Section */}
-      <SmoothScrollAnchor id="home">
-        <Hero />
-      </SmoothScrollAnchor>
-
-      {/* Countdown */}
-      <Countdown />
-
-      {/* Love Story */}
-      <SmoothScrollAnchor id="story">
-        <LoveStory />
-      </SmoothScrollAnchor>
-
-      {/* Timeline / Tagesablauf */}
-      <SmoothScrollAnchor id="timeline">
-        <Timeline />
-      </SmoothScrollAnchor>
-
-      {/* Locations */}
-      <SmoothScrollAnchor id="locations">
-        <Locations />
-      </SmoothScrollAnchor>
-
-      {/* Directions / Anfahrt */}
-      <SmoothScrollAnchor id="directions">
-        <Directions />
-      </SmoothScrollAnchor>
-
-      {/* Accommodations / Unterkünfte */}
-      <SmoothScrollAnchor id="accommodations">
-        <Accommodations />
-      </SmoothScrollAnchor>
-
-      {/* Dresscode */}
-      <SmoothScrollAnchor id="dresscode">
-        <Dresscode />
-      </SmoothScrollAnchor>
-
-      {/* Gallery */}
-      <SmoothScrollAnchor id="gallery">
-        <Gallery />
-      </SmoothScrollAnchor>
-
-      {/* Gifts / Geschenke */}
-      <SmoothScrollAnchor id="gifts">
-        <Gifts />
-      </SmoothScrollAnchor>
-
-      {/* RSVP */}
-      <SmoothScrollAnchor id="rsvp">
-        <RSVP />
-      </SmoothScrollAnchor>
-
-      {/* Music Wishes */}
-      <SmoothScrollAnchor id="music">
-        <MusicWishes />
-      </SmoothScrollAnchor>
-
-      {/* Photo Upload */}
-      <SmoothScrollAnchor id="photos">
-        <PhotoUpload />
-      </SmoothScrollAnchor>
-
-      {/* Guestbook */}
-      <SmoothScrollAnchor id="guestbook">
-        <Guestbook />
-      </SmoothScrollAnchor>
-
-      {/* Wedding ABC */}
-      <SmoothScrollAnchor id="abc">
-        <WeddingABC />
-      </SmoothScrollAnchor>
-
-      {/* FAQ */}
-      <SmoothScrollAnchor id="faq">
-        <FAQ />
-      </SmoothScrollAnchor>
-
-      {/* Contact */}
-      <SmoothScrollAnchor id="contact">
-        <Contact />
-      </SmoothScrollAnchor>
-
-      {/* Footer */}
-      <Footer />
-    </PageWrapper>
+    <>
+      <Navigation 
+        coupleNames={coupleNames} 
+        weddingDate={formatDate(weddingDate)}
+      />
+      
+      <Hero 
+        name1={names[0]}
+        name2={names[1]}
+        date={formatDate(weddingDate)}
+        location={heroContent.location_short || ''}
+        eyebrow={heroContent.tagline || 'Wir heiraten'}
+        backgroundImage={heroContent.background_image}
+      />
+      
+      {isComponentActive('countdown') && (
+        <Countdown 
+          weddingDate={weddingDate}
+          title={countdownContent.title}
+          showSeconds={countdownContent.show_seconds}
+        />
+      )}
+      
+      {isComponentActive('lovestory') && <LoveStory content={getContent('lovestory')} />}
+      {isComponentActive('timeline') && <Timeline content={getContent('timeline')} />}
+      {isComponentActive('locations') && <Locations content={getContent('locations')} />}
+      {isComponentActive('directions') && <Directions content={getContent('directions')} />}
+      {isComponentActive('dresscode') && <Dresscode content={getContent('dresscode')} />}
+      {isComponentActive('accommodations') && <Accommodations content={getContent('accommodations')} />}
+      {isComponentActive('rsvp') && <RSVP content={getContent('rsvp')} />}
+      {isComponentActive('gallery') && <Gallery content={getContent('gallery')} />}
+      {isComponentActive('gifts') && <Gifts content={getContent('gifts')} />}
+      {isComponentActive('guestbook') && <Guestbook content={getContent('guestbook')} />}
+      {isComponentActive('musicwishes') && <MusicWishes content={getContent('musicwishes')} />}
+      {isComponentActive('photoupload') && <PhotoUpload content={getContent('photoupload')} />}
+      {isComponentActive('faq') && <FAQ content={getContent('faq')} />}
+      {isComponentActive('weddingabc') && <WeddingABC content={getContent('weddingabc')} />}
+      {isComponentActive('contact') && <Contact content={getContent('contact')} />}
+      
+      <Footer coupleNames={coupleNames} content={getContent('footer')} slug={slug} />
+    </>
   );
-};
+}
 
 export default WeddingPage;

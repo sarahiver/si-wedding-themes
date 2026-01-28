@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ANIMATIONS
+// ANIMATIONS - Organic, flowing movements
 // ═══════════════════════════════════════════════════════════════════════════
 
 const floatSlow = keyframes`
@@ -54,30 +54,27 @@ const Section = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(
-    180deg, 
-    var(--cream) 0%, 
-    var(--cream-dark) 50%,
-    var(--cream) 100%
-  );
+  background: ${p => p.$backgroundImage 
+    ? `linear-gradient(rgba(245,241,235,0.85), rgba(245,241,235,0.85)), url(${p.$backgroundImage}) center/cover`
+    : `linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 50%, var(--cream) 100%)`
+  };
 `;
 
-// Floating Botanical Elements
 const Leaf = styled.div`
   position: absolute;
-  width: ${p => p.size || 60}px;
-  height: ${p => p.size || 60}px;
-  opacity: ${p => p.opacity || 0.6};
-  top: ${p => p.top};
-  left: ${p => p.left};
-  right: ${p => p.right};
-  bottom: ${p => p.bottom};
+  width: ${p => p.$size || 60}px;
+  height: ${p => p.$size || 60}px;
+  opacity: ${p => p.$opacity || 0.6};
+  top: ${p => p.$top};
+  left: ${p => p.$left};
+  right: ${p => p.$right};
+  bottom: ${p => p.$bottom};
   animation: ${p => 
-    p.animation === 'slow' ? floatSlow : 
-    p.animation === 'fast' ? floatFast : 
+    p.$animation === 'slow' ? floatSlow : 
+    p.$animation === 'fast' ? floatFast : 
     floatMedium
-  } ${p => p.duration || 8}s ease-in-out infinite;
-  animation-delay: ${p => p.delay || 0}s;
+  } ${p => p.$duration || 8}s ease-in-out infinite;
+  animation-delay: ${p => p.$delay || 0}s;
   pointer-events: none;
   z-index: 1;
   will-change: transform;
@@ -85,44 +82,42 @@ const Leaf = styled.div`
   svg {
     width: 100%;
     height: 100%;
-    fill: ${p => p.color || 'var(--sage)'};
+    fill: ${p => p.$color || 'var(--sage)'};
     filter: drop-shadow(0 4px 8px rgba(139, 157, 131, 0.2));
   }
 `;
 
 const Flower = styled.div`
   position: absolute;
-  width: ${p => p.size || 40}px;
-  height: ${p => p.size || 40}px;
-  opacity: ${p => p.opacity || 0.5};
-  top: ${p => p.top};
-  left: ${p => p.left};
-  right: ${p => p.right};
-  bottom: ${p => p.bottom};
-  animation: ${floatSlow} ${p => p.duration || 10}s ease-in-out infinite;
-  animation-delay: ${p => p.delay || 0}s;
+  width: ${p => p.$size || 40}px;
+  height: ${p => p.$size || 40}px;
+  opacity: ${p => p.$opacity || 0.5};
+  top: ${p => p.$top};
+  left: ${p => p.$left};
+  right: ${p => p.$right};
+  animation: ${floatSlow} ${p => p.$duration || 10}s ease-in-out infinite;
+  animation-delay: ${p => p.$delay || 0}s;
   pointer-events: none;
   z-index: 1;
-  will-change: transform;
   
   svg {
     width: 100%;
     height: 100%;
-    fill: ${p => p.color || 'var(--blush)'};
+    fill: ${p => p.$color || 'var(--blush)'};
     filter: drop-shadow(0 4px 8px rgba(232, 213, 213, 0.3));
   }
 `;
 
 const Branch = styled.div`
   position: absolute;
-  width: ${p => p.size || 200}px;
+  width: ${p => p.$size || 200}px;
   height: auto;
   opacity: 0.1;
-  top: ${p => p.top};
-  left: ${p => p.left};
-  right: ${p => p.right};
+  top: ${p => p.$top};
+  left: ${p => p.$left};
+  right: ${p => p.$right};
   transform-origin: bottom center;
-  animation: ${sway} ${p => p.duration || 6}s ease-in-out infinite;
+  animation: ${sway} ${p => p.$duration || 6}s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
   
@@ -268,11 +263,10 @@ const ScrollLine = styled.div`
   animation-delay: 2s;
 `;
 
-// Parallax Background Layer
 const ParallaxLayer = styled.div`
   position: absolute;
   inset: 0;
-  transform: translateY(${p => p.offset}px);
+  transform: translateY(${p => p.$offset}px);
   transition: transform 0.1s ease-out;
   pointer-events: none;
 `;
@@ -314,12 +308,13 @@ function Hero({
   date = '21. Juni 2025',
   location = 'Botanischer Garten, München',
   eyebrow = 'Wir heiraten',
+  backgroundImage = null,
+  showBadge = false,
 }) {
   const [leaves, setLeaves] = useState([]);
   const [flowers, setFlowers] = useState([]);
   const [parallaxOffset, setParallaxOffset] = useState(0);
 
-  // Generate random floating elements
   useEffect(() => {
     const newLeaves = Array.from({ length: 10 }, (_, i) => ({
       id: i,
@@ -346,7 +341,6 @@ function Hero({
     setFlowers(newFlowers);
   }, []);
 
-  // Parallax scroll effect
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -365,30 +359,45 @@ function Hero({
   };
 
   return (
-    <Section id="top">
-      <ParallaxLayer offset={parallaxOffset * 0.5}>
-        {/* Corner Branches */}
-        <Branch size={280} top="-8%" left="-8%" duration={8}>
+    <Section id="top" $backgroundImage={backgroundImage}>
+      <ParallaxLayer $offset={parallaxOffset * 0.5}>
+        <Branch $size={280} $top="-8%" $left="-8%" $duration={8}>
           <LeafSVG />
         </Branch>
-        <Branch size={220} top="-5%" right="-5%" duration={7} style={{ transform: 'scaleX(-1)' }}>
+        <Branch $size={220} $top="-5%" $right="-5%" $duration={7} style={{ transform: 'scaleX(-1)' }}>
           <LeafSVG />
         </Branch>
       </ParallaxLayer>
 
-      <ParallaxLayer offset={parallaxOffset * 0.2}>
-        {/* Floating Leaves */}
+      <ParallaxLayer $offset={parallaxOffset * 0.2}>
         {leaves.map(leaf => (
-          <Leaf key={`leaf-${leaf.id}`} {...leaf}>
+          <Leaf 
+            key={`leaf-${leaf.id}`} 
+            $size={leaf.size}
+            $top={leaf.top}
+            $left={leaf.left}
+            $duration={leaf.duration}
+            $delay={leaf.delay}
+            $opacity={leaf.opacity}
+            $animation={leaf.animation}
+          >
             <LeafSVG />
           </Leaf>
         ))}
       </ParallaxLayer>
       
-      <ParallaxLayer offset={parallaxOffset * 0.1}>
-        {/* Floating Flowers */}
+      <ParallaxLayer $offset={parallaxOffset * 0.1}>
         {flowers.map(flower => (
-          <Flower key={`flower-${flower.id}`} {...flower} color="var(--blush)">
+          <Flower 
+            key={`flower-${flower.id}`} 
+            $size={flower.size}
+            $top={flower.top}
+            $left={flower.left}
+            $duration={flower.duration}
+            $delay={flower.delay}
+            $opacity={flower.opacity}
+            $color="var(--blush)"
+          >
             <FlowerSVG />
           </Flower>
         ))}
