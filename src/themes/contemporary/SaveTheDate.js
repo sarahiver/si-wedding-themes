@@ -235,7 +235,7 @@ function SaveTheDate() {
           {showCountdown && (
             <CountdownWrapper>
               <Countdown 
-                targetDate={countdownContent.target_date || weddingDate}
+                weddingDate={countdownContent.target_date || weddingDate}
                 title=""
                 showSeconds={false}
               />
