@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { 
   getRSVPResponses, 
   getGuestbookEntries, 
-  getMusicWishes, 
+  getMusicWishes,
   getPhotoUploads,
+  getGiftReservations,
   approveGuestbookEntry,
   deleteGuestbookEntry,
   approvePhotoUpload,
   deletePhotoUpload,
   deleteMusicWish,
-  updateProjectStatus
+  updateProjectStatus,
+  updateProjectContent,
 } from '../../lib/supabase';
+import FeedbackModal from '../../components/shared/FeedbackModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ANIMATIONS
@@ -28,112 +31,80 @@ const sway = keyframes`
   50% { transform: rotate(3deg); }
 `;
 
-const shake = keyframes`
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-`;
-
 // ═══════════════════════════════════════════════════════════════════════════
-// LOGIN STYLES
+// STYLED COMPONENTS - LOGIN
 // ═══════════════════════════════════════════════════════════════════════════
 
-const LoginContainer = styled.div`
+const LoginPage = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
   padding: 2rem;
+  position: relative;
+  overflow: hidden;
 `;
 
-const LoginBox = styled.div`
-  background: var(--cream-light);
-  border: 1px solid var(--sage-light);
+const FloatingLeaf = styled.div`
+  position: absolute;
+  width: ${p => p.$size}px;
+  height: ${p => p.$size}px;
+  opacity: 0.1;
+  animation: ${sway} 6s ease-in-out infinite;
+  pointer-events: none;
+  svg { width: 100%; height: 100%; fill: var(--sage); }
+`;
+
+const LoginCard = styled.div`
+  background: white;
   border-radius: 20px;
-  box-shadow: var(--shadow-lg);
-  max-width: 420px;
-  width: 100%;
   padding: 3rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(45, 59, 45, 0.15);
   animation: ${fadeIn} 0.6s ease;
 `;
 
-const LoginLogo = styled.div`
+const LoginTitle = styled.h1`
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--forest);
   text-align: center;
-  margin-bottom: 2.5rem;
-  
-  .leaf {
-    width: 40px;
-    height: 40px;
-    fill: var(--sage);
-    margin-bottom: 1rem;
-    animation: ${sway} 4s ease-in-out infinite;
-  }
-  
-  h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 400;
-    color: var(--forest);
-    
-    span { font-style: italic; color: var(--sage); }
-  }
-  
-  p {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-top: 0.5rem;
-  }
+  margin-bottom: 0.5rem;
 `;
 
-const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const Label = styled.label`
+const LoginSubtitle = styled.p`
   font-family: 'Lato', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 0.9rem;
   color: var(--text-light);
+  text-align: center;
+  margin-bottom: 2rem;
 `;
 
-const Input = styled.input`
+const LoginInput = styled.input`
+  width: 100%;
   font-family: 'Lato', sans-serif;
   font-size: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--cream);
+  padding: 1rem;
   border: 1px solid var(--sage-light);
   border-radius: 10px;
-  color: var(--forest);
-  transition: all 0.3s ease;
+  margin-bottom: 1rem;
   
   &:focus {
     outline: none;
     border-color: var(--sage);
     box-shadow: 0 0 0 3px var(--sage-muted);
   }
-  
-  &::placeholder { color: var(--text-muted); }
 `;
 
 const LoginButton = styled.button`
+  width: 100%;
   font-family: 'Lato', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 1.25rem;
+  padding: 1rem;
   background: var(--sage);
   color: white;
   border: none;
@@ -141,302 +112,285 @@ const LoginButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   
-  &:hover {
-    background: var(--sage-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
+  &:hover { background: var(--sage-dark); }
 `;
 
 const LoginError = styled.p`
+  color: #c0392b;
   font-family: 'Lato', sans-serif;
   font-size: 0.85rem;
-  color: var(--error);
   text-align: center;
-  padding: 1rem;
-  background: rgba(192, 57, 43, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(192, 57, 43, 0.3);
-  animation: ${shake} 0.4s ease;
+  margin-bottom: 1rem;
 `;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// DASHBOARD STYLES
+// STYLED COMPONENTS - DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════
 
-const Section = styled.section`
+const DashboardContainer = styled.div`
   min-height: 100vh;
-  padding: 2rem;
   background: var(--cream);
 `;
 
-const Container = styled.div`
+const Header = styled.header`
+  background: white;
+  border-bottom: 1px solid var(--sage-light);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+`;
+
+const HeaderContent = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-`;
-
-const Header = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--sage-light);
+  justify-content: space-between;
 `;
 
-const Title = styled.h1`
+const Logo = styled.div`
   font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  font-weight: 400;
+  font-size: 1.3rem;
   color: var(--forest);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   
   .leaf {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     fill: var(--sage);
-    animation: ${sway} 4s ease-in-out infinite;
   }
-  
-  span { font-style: italic; color: var(--sage); }
 `;
 
 const HeaderActions = styled.div`
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
 `;
 
-const StatusSelect = styled.select`
+const StatusBadge = styled.span`
   font-family: 'Lato', sans-serif;
-  font-size: 0.85rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--cream-light);
-  color: var(--forest);
-  border: 1px solid var(--sage-light);
-  border-radius: 8px;
-  cursor: pointer;
-  
-  &:focus { outline: none; border-color: var(--sage); }
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  background: ${p => {
+    switch(p.$status) {
+      case 'live': return 'rgba(39, 174, 96, 0.1)';
+      case 'std': return 'rgba(52, 152, 219, 0.1)';
+      case 'archiv': return 'rgba(149, 165, 166, 0.1)';
+      default: return 'rgba(149, 165, 166, 0.1)';
+    }
+  }};
+  color: ${p => {
+    switch(p.$status) {
+      case 'live': return '#27ae60';
+      case 'std': return '#3498db';
+      case 'archiv': return '#95a5a6';
+      default: return '#95a5a6';
+    }
+  }};
 `;
 
 const LogoutButton = styled.button`
   font-family: 'Lato', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: white;
-  background: var(--sage);
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-light);
+  border: 1px solid var(--sage-light);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   
-  &:hover { background: var(--sage-dark); }
+  &:hover {
+    border-color: var(--sage);
+    color: var(--forest);
+  }
 `;
 
+const Main = styled.main`
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+`;
+
+// Stats
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
-  
-  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 500px) { grid-template-columns: 1fr; }
+  margin-bottom: 2rem;
 `;
 
 const StatCard = styled.div`
-  background: var(--cream-light);
-  padding: 2rem;
-  border-radius: 16px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
   border: 1px solid var(--sage-light);
-  position: relative;
-  overflow: hidden;
-  animation: ${fadeIn} 0.6s ease ${p => p.$delay}s both;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: ${p => p.$color || 'var(--sage)'};
-    border-radius: 4px 4px 0 0;
-  }
 `;
 
 const StatValue = styled.div`
   font-family: 'Playfair Display', serif;
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 400;
   color: ${p => p.$color || 'var(--forest)'};
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
   font-family: 'Lato', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 0.85rem;
   color: var(--text-light);
 `;
 
-const TabsBar = styled.div`
+// Tabs
+const TabsContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--sage-light);
-  padding-bottom: 0.5rem;
 `;
 
 const Tab = styled.button`
   font-family: 'Lato', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
-  color: ${p => p.$active ? 'var(--forest)' : 'var(--text-light)'};
-  background: ${p => p.$active ? 'var(--cream-light)' : 'transparent'};
-  padding: 1rem 1.5rem;
-  border: ${p => p.$active ? '1px solid var(--sage-light)' : '1px solid transparent'};
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  padding: 0.75rem 1.25rem;
+  background: ${p => p.$active ? 'var(--sage)' : 'white'};
+  color: ${p => p.$active ? 'white' : 'var(--text-light)'};
+  border: 1px solid ${p => p.$active ? 'var(--sage)' : 'var(--sage-light)'};
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  transition: all 0.2s ease;
   
-  ${p => p.$active && `
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--cream);
-    }
-  `}
-  
-  &:hover { color: var(--forest); }
+  &:hover {
+    border-color: var(--sage);
+    color: ${p => p.$active ? 'white' : 'var(--forest)'};
+  }
 `;
 
-const TableWrapper = styled.div`
-  background: var(--cream-light);
+// Content Panel
+const Panel = styled.div`
+  background: white;
   border-radius: 12px;
   border: 1px solid var(--sage-light);
   overflow: hidden;
 `;
 
+const PanelHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--sage-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+const PanelTitle = styled.h2`
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--forest);
+`;
+
+const PanelActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const ActionButton = styled.button`
+  font-family: 'Lato', sans-serif;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: ${p => p.$primary ? 'var(--sage)' : 'white'};
+  color: ${p => p.$primary ? 'white' : 'var(--forest)'};
+  border: 1px solid var(--sage);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: ${p => p.$primary ? 'var(--sage-dark)' : 'var(--sage-muted)'};
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// Table
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
 `;
 
 const Th = styled.th`
+  font-family: 'Lato', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
   text-align: left;
   padding: 1rem 1.5rem;
-  font-family: 'Lato', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  background: var(--cream-dark);
   border-bottom: 1px solid var(--sage-light);
 `;
 
 const Td = styled.td`
-  padding: 1rem 1.5rem;
   font-family: 'Lato', sans-serif;
   font-size: 0.9rem;
   color: var(--text);
-  border-bottom: 1px solid rgba(139, 157, 131, 0.1);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--cream-dark);
+  vertical-align: top;
 `;
 
-const StatusBadge = styled.span`
-  display: inline-block;
-  font-family: 'Lato', sans-serif;
-  font-size: 0.7rem;
+const Badge = styled.span`
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  background: ${p => {
-    if (p.$attending === true || p.$approved) return 'rgba(39, 174, 96, 0.15)';
-    if (p.$attending === false) return 'rgba(192, 57, 43, 0.15)';
-    return 'rgba(212, 160, 23, 0.15)';
-  }};
-  color: ${p => {
-    if (p.$attending === true || p.$approved) return 'var(--success)';
-    if (p.$attending === false) return 'var(--error)';
-    return 'var(--warning)';
-  }};
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  background: ${p => p.$type === 'success' ? 'rgba(39, 174, 96, 0.1)' : p.$type === 'warning' ? 'rgba(241, 196, 15, 0.1)' : 'rgba(192, 57, 43, 0.1)'};
+  color: ${p => p.$type === 'success' ? '#27ae60' : p.$type === 'warning' ? '#f39c12' : '#c0392b'};
 `;
 
-const ActionButton = styled.button`
+const SmallButton = styled.button`
   font-family: 'Lato', sans-serif;
   font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-right: 0.5rem;
-  transition: all 0.2s ease;
+  padding: 0.3rem 0.6rem;
+  background: ${p => p.$danger ? 'rgba(192, 57, 43, 0.1)' : 'var(--sage-muted)'};
+  color: ${p => p.$danger ? '#c0392b' : 'var(--forest)'};
   border: none;
-  
-  &.approve {
-    background: rgba(39, 174, 96, 0.15);
-    color: var(--success);
-    &:hover { background: rgba(39, 174, 96, 0.25); }
-  }
-  
-  &.delete {
-    background: rgba(192, 57, 43, 0.15);
-    color: var(--error);
-    &:hover { background: rgba(192, 57, 43, 0.25); }
-  }
-`;
-
-const ExportButton = styled.button`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--forest);
-  background: var(--cream-light);
-  padding: 0.75rem 1.5rem;
-  border: 1px solid var(--sage-light);
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
+  margin-right: 0.25rem;
   
   &:hover {
-    background: var(--sage-muted);
-    border-color: var(--sage);
+    background: ${p => p.$danger ? 'rgba(192, 57, 43, 0.2)' : 'var(--sage-light)'};
   }
 `;
 
+// Photo Grid
 const PhotoGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
+  padding: 1.5rem;
 `;
 
 const PhotoCard = styled.div`
-  aspect-ratio: 1;
-  background: var(--cream-dark);
-  border-radius: 12px;
-  border: 2px solid ${p => p.$approved ? 'var(--sage)' : 'var(--warning)'};
   position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
   overflow: hidden;
+  border: 2px solid ${p => p.$approved ? 'var(--sage)' : 'var(--sage-light)'};
   
   img {
     width: 100%;
@@ -447,50 +401,91 @@ const PhotoCard = styled.div`
 
 const PhotoOverlay = styled.div`
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem;
-  background: linear-gradient(transparent, rgba(45, 59, 45, 0.9));
+  inset: 0;
+  background: rgba(0,0,0,0.5);
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  ${PhotoCard}:hover & { opacity: 1; }
 `;
 
+const PhotoButton = styled.button`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: ${p => p.$approve ? '#27ae60' : '#c0392b'};
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  
+  &:hover { transform: scale(1.1); }
+`;
+
+// Empty State
 const EmptyState = styled.div`
-  text-align: center;
   padding: 4rem 2rem;
+  text-align: center;
   color: var(--text-muted);
   
-  .emoji { font-size: 4rem; margin-bottom: 1rem; }
-  p { font-family: 'Lato', sans-serif; font-size: 1rem; }
+  .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+  p { font-family: 'Lato', sans-serif; }
 `;
 
-const GuestbookCard = styled.div`
-  background: var(--cream-light);
-  border: 1px solid ${p => p.$approved ? 'var(--sage-light)' : 'var(--warning)'};
-  border-radius: 12px;
+// Settings
+const SettingsSection = styled.div`
   padding: 1.5rem;
-  margin-bottom: 1rem;
 `;
 
-const GuestbookHeader = styled.div`
+const SettingsGroup = styled.div`
+  margin-bottom: 2rem;
+  
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--forest);
+    margin-bottom: 1rem;
+  }
+`;
+
+const SettingsRow = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--cream);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
 `;
 
-const GuestbookName = styled.div`
-  font-family: 'Playfair Display', serif;
-  font-weight: 500;
-  color: var(--forest);
-`;
-
-const GuestbookMessage = styled.p`
+const SettingsLabel = styled.span`
   font-family: 'Lato', sans-serif;
-  color: var(--text-light);
-  line-height: 1.7;
+  font-size: 0.9rem;
+  color: var(--text);
 `;
+
+const StatusSelect = styled.select`
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--sage-light);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--sage);
+  }
+`;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
 
 const LeafSVG = () => (
   <svg viewBox="0 0 24 24" className="leaf">
@@ -498,197 +493,226 @@ const LeafSVG = () => (
   </svg>
 );
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
 function AdminDashboard() {
-  const { project, projectId, coupleNames, slug } = useWedding();
+  const { project, projectId, coupleNames } = useWedding();
   
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
   
+  // Dashboard state
   const [activeTab, setActiveTab] = useState('rsvp');
+  const [loading, setLoading] = useState(false);
+  
+  // Data state
   const [rsvps, setRsvps] = useState([]);
   const [guestbook, setGuestbook] = useState([]);
   const [musicWishes, setMusicWishes] = useState([]);
   const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentStatus, setCurrentStatus] = useState(project?.status || 'live');
+  const [giftReservations, setGiftReservations] = useState([]);
+  
+  // Status
+  const [status, setStatus] = useState(project?.status || 'std');
+  
+  // Modal
+  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
 
-  const ADMIN_PASSWORD = project?.admin_password || project?.settings?.admin_password || 'admin123';
+  // Password from project or fallback
+  const adminPassword = project?.admin_password || project?.settings?.admin_password || 'admin123';
 
-  useEffect(() => {
-    if (isLoggedIn && projectId) {
-      loadAllData();
+  // Check authentication
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === adminPassword) {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('Falsches Passwort');
     }
-  }, [isLoggedIn, projectId]);
+  };
 
-  const loadAllData = async () => {
+  // Load all data
+  const loadData = useCallback(async () => {
+    if (!projectId) return;
     setLoading(true);
+    
     try {
-      const [rsvpRes, guestbookRes, musicRes, photoRes] = await Promise.all([
+      const [rsvpRes, guestbookRes, musicRes, photoRes, giftRes] = await Promise.all([
         getRSVPResponses(projectId),
         getGuestbookEntries(projectId, false),
         getMusicWishes(projectId),
         getPhotoUploads(projectId, false),
+        getGiftReservations(projectId),
       ]);
       
       setRsvps(rsvpRes.data || []);
       setGuestbook(guestbookRes.data || []);
       setMusicWishes(musicRes.data || []);
       setPhotos(photoRes.data || []);
+      setGiftReservations(giftRes.data || []);
     } catch (err) {
       console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
+  }, [projectId]);
+
+  useEffect(() => {
+    if (isAuthenticated) loadData();
+  }, [isAuthenticated, loadData]);
+
+  // Stats
+  const stats = {
+    totalGuests: rsvps.filter(r => r.attending).reduce((sum, r) => sum + (r.persons || 1), 0),
+    attending: rsvps.filter(r => r.attending).length,
+    declined: rsvps.filter(r => !r.attending).length,
+    pendingGuestbook: guestbook.filter(g => !g.approved).length,
+    pendingPhotos: photos.filter(p => !p.approved).length,
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (loginPassword === ADMIN_PASSWORD) {
-      setIsLoggedIn(true);
-      setLoginError('');
-    } else {
-      setLoginError('Falsches Passwort');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setLoginPassword('');
-  };
-
-  const handleStatusChange = async (newStatus) => {
-    if (projectId) {
-      await updateProjectStatus(projectId, newStatus);
-      setCurrentStatus(newStatus);
-    }
-  };
-
-  const handleApproveGuestbook = async (id) => {
-    await approveGuestbookEntry(id, true);
-    loadAllData();
+  // Actions
+  const handleApproveGuestbook = async (id, approved) => {
+    await approveGuestbookEntry(id, approved);
+    setModalState({ isOpen: true, type: 'success', message: approved ? 'Eintrag freigegeben' : 'Eintrag ausgeblendet' });
+    loadData();
   };
 
   const handleDeleteGuestbook = async (id) => {
-    if (window.confirm('Eintrag wirklich löschen?')) {
-      await deleteGuestbookEntry(id);
-      loadAllData();
-    }
+    if (!window.confirm('Eintrag wirklich löschen?')) return;
+    await deleteGuestbookEntry(id);
+    setModalState({ isOpen: true, type: 'success', message: 'Eintrag gelöscht' });
+    loadData();
   };
 
-  const handleApprovePhoto = async (id) => {
-    await approvePhotoUpload(id, true);
-    loadAllData();
+  const handleApprovePhoto = async (id, approved) => {
+    await approvePhotoUpload(id, approved);
+    setModalState({ isOpen: true, type: 'success', message: approved ? 'Foto freigegeben' : 'Foto ausgeblendet' });
+    loadData();
   };
 
   const handleDeletePhoto = async (id) => {
-    if (window.confirm('Foto wirklich löschen?')) {
-      await deletePhotoUpload(id);
-      loadAllData();
+    if (!window.confirm('Foto wirklich löschen?')) return;
+    await deletePhotoUpload(id);
+    setModalState({ isOpen: true, type: 'success', message: 'Foto gelöscht' });
+    loadData();
+  };
+
+  const handleDeleteMusicWish = async (id) => {
+    if (!window.confirm('Musikwunsch wirklich löschen?')) return;
+    await deleteMusicWish(id);
+    setModalState({ isOpen: true, type: 'success', message: 'Musikwunsch gelöscht' });
+    loadData();
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    setStatus(newStatus);
+    const { error } = await updateProjectStatus(projectId, newStatus);
+    if (error) {
+      setModalState({ isOpen: true, type: 'error', message: 'Status konnte nicht geändert werden' });
+    } else {
+      setModalState({ isOpen: true, type: 'success', message: `Status auf "${newStatus}" geändert` });
     }
   };
 
-  const handleDeleteMusic = async (id) => {
-    if (window.confirm('Musikwunsch wirklich löschen?')) {
-      await deleteMusicWish(id);
-      loadAllData();
-    }
-  };
-
+  // CSV Export
   const exportCSV = () => {
-    const headers = ['Name', 'Email', 'Personen', 'Zusage', 'Ernährung', 'Allergien', 'Nachricht'];
+    const headers = ['Name', 'E-Mail', 'Personen', 'Teilnahme', 'Ernährung', 'Nachricht', 'Datum'];
     const rows = rsvps.map(r => [
-      r.name, r.email, r.persons || 1, r.attending ? 'Ja' : 'Nein',
-      r.dietary || '-', r.allergies || '-', r.message || '-'
+      r.name,
+      r.email,
+      r.persons,
+      r.attending ? 'Ja' : 'Nein',
+      r.dietary || '',
+      r.message || '',
+      new Date(r.created_at).toLocaleDateString('de-DE'),
     ]);
-    const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `rsvp-export-${slug || 'wedding'}.csv`;
+    a.download = `rsvp-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
-  const confirmedRsvps = rsvps.filter(r => r.attending === true);
-  const declinedRsvps = rsvps.filter(r => r.attending === false);
-  const totalGuests = confirmedRsvps.reduce((sum, r) => sum + (r.persons || 1), 0);
-  const pendingCount = guestbook.filter(g => !g.approved).length + photos.filter(p => !p.approved).length;
-
+  // ═══════════════════════════════════════════════════════════════════════════
   // LOGIN SCREEN
-  if (!isLoggedIn) {
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  if (!isAuthenticated) {
     return (
-      <LoginContainer>
-        <LoginBox>
-          <LoginLogo>
-            <LeafSVG />
-            <h1>Admin <span>Panel</span></h1>
-            <p>{coupleNames || 'Hochzeit'}</p>
-          </LoginLogo>
+      <LoginPage>
+        <FloatingLeaf $size={100} style={{ top: '10%', left: '5%' }}><LeafSVG /></FloatingLeaf>
+        <FloatingLeaf $size={70} style={{ bottom: '15%', right: '10%' }}><LeafSVG /></FloatingLeaf>
+        
+        <LoginCard>
+          <LoginTitle>Admin-Bereich</LoginTitle>
+          <LoginSubtitle>{coupleNames || 'Hochzeits-Dashboard'}</LoginSubtitle>
           
-          {loginError && <LoginError>{loginError}</LoginError>}
-          
-          <LoginForm onSubmit={handleLogin}>
-            <FormGroup>
-              <Label>Passwort</Label>
-              <Input
-                type="password"
-                value={loginPassword}
-                onChange={e => setLoginPassword(e.target.value)}
-                placeholder="Admin-Passwort eingeben"
-                required
-              />
-            </FormGroup>
+          <form onSubmit={handleLogin}>
+            {authError && <LoginError>{authError}</LoginError>}
+            <LoginInput
+              type="password"
+              placeholder="Passwort eingeben"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              autoFocus
+            />
             <LoginButton type="submit">Anmelden</LoginButton>
-          </LoginForm>
-        </LoginBox>
-      </LoginContainer>
+          </form>
+        </LoginCard>
+      </LoginPage>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
   // DASHBOARD
+  // ═══════════════════════════════════════════════════════════════════════════
+
   return (
-    <Section>
-      <Container>
-        <Header>
-          <Title>
+    <DashboardContainer>
+      <Header>
+        <HeaderContent>
+          <Logo>
             <LeafSVG />
-            Admin <span>Dashboard</span>
-          </Title>
+            {coupleNames || 'Admin'}
+          </Logo>
           <HeaderActions>
-            <StatusSelect value={currentStatus} onChange={e => handleStatusChange(e.target.value)}>
-              <option value="std">Save the Date</option>
-              <option value="live">Live</option>
-              <option value="archiv">Archiv</option>
-            </StatusSelect>
-            <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+            <StatusBadge $status={status}>
+              {status === 'std' ? 'Save the Date' : status === 'live' ? 'Live' : 'Archiv'}
+            </StatusBadge>
+            <LogoutButton onClick={() => setIsAuthenticated(false)}>
+              Abmelden
+            </LogoutButton>
           </HeaderActions>
-        </Header>
-        
+        </HeaderContent>
+      </Header>
+      
+      <Main>
+        {/* Stats */}
         <StatsGrid>
-          <StatCard $color="var(--sage)" $delay={0}>
-            <StatValue $color="var(--sage)">{confirmedRsvps.length}</StatValue>
+          <StatCard>
+            <StatValue $color="var(--sage)">{stats.totalGuests}</StatValue>
+            <StatLabel>Gäste gesamt</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatValue $color="#27ae60">{stats.attending}</StatValue>
             <StatLabel>Zusagen</StatLabel>
           </StatCard>
-          <StatCard $color="var(--forest)" $delay={0.1}>
-            <StatValue $color="var(--forest)">{totalGuests}</StatValue>
-            <StatLabel>Gäste total</StatLabel>
-          </StatCard>
-          <StatCard $color="var(--terracotta)" $delay={0.2}>
-            <StatValue $color="var(--terracotta)">{declinedRsvps.length}</StatValue>
+          <StatCard>
+            <StatValue $color="#c0392b">{stats.declined}</StatValue>
             <StatLabel>Absagen</StatLabel>
           </StatCard>
-          <StatCard $color="var(--blush)" $delay={0.3}>
-            <StatValue>{pendingCount}</StatValue>
+          <StatCard>
+            <StatValue $color="#f39c12">{stats.pendingGuestbook + stats.pendingPhotos}</StatValue>
             <StatLabel>Zu prüfen</StatLabel>
           </StatCard>
         </StatsGrid>
         
-        <TabsBar>
+        {/* Tabs */}
+        <TabsContainer>
           <Tab $active={activeTab === 'rsvp'} onClick={() => setActiveTab('rsvp')}>
             RSVP ({rsvps.length})
           </Tab>
@@ -701,148 +725,347 @@ function AdminDashboard() {
           <Tab $active={activeTab === 'photos'} onClick={() => setActiveTab('photos')}>
             Fotos ({photos.length})
           </Tab>
-        </TabsBar>
+          <Tab $active={activeTab === 'gifts'} onClick={() => setActiveTab('gifts')}>
+            Geschenke ({giftReservations.length})
+          </Tab>
+          <Tab $active={activeTab === 'settings'} onClick={() => setActiveTab('settings')}>
+            Einstellungen
+          </Tab>
+        </TabsContainer>
         
-        {activeTab === 'rsvp' && (
-          <>
-            <ExportButton onClick={exportCSV}>📥 CSV Export</ExportButton>
-            {rsvps.length === 0 ? (
-              <EmptyState>
-                <div className="emoji">🌿</div>
-                <p>Noch keine Rückmeldungen eingegangen</p>
-              </EmptyState>
-            ) : (
-              <TableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>Name</Th>
-                      <Th>Email</Th>
-                      <Th>Personen</Th>
-                      <Th>Status</Th>
-                      <Th>Ernährung</Th>
-                      <Th>Nachricht</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rsvps.map((r, i) => (
-                      <tr key={r.id || i}>
-                        <Td>{r.name}</Td>
-                        <Td>{r.email}</Td>
-                        <Td>{r.persons || 1}</Td>
-                        <Td>
-                          <StatusBadge $attending={r.attending}>
-                            {r.attending ? 'Zusage' : 'Absage'}
-                          </StatusBadge>
-                        </Td>
-                        <Td>{r.dietary || '-'}</Td>
-                        <Td>{r.message || '-'}</Td>
+        {/* Content Panels */}
+        <Panel>
+          {/* RSVP Tab */}
+          {activeTab === 'rsvp' && (
+            <>
+              <PanelHeader>
+                <PanelTitle>RSVP-Antworten</PanelTitle>
+                <PanelActions>
+                  <ActionButton onClick={loadData}>Aktualisieren</ActionButton>
+                  <ActionButton $primary onClick={exportCSV}>CSV Export</ActionButton>
+                </PanelActions>
+              </PanelHeader>
+              
+              {rsvps.length === 0 ? (
+                <EmptyState>
+                  <div className="icon">📋</div>
+                  <p>Noch keine Antworten eingegangen</p>
+                </EmptyState>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Name</Th>
+                        <Th>E-Mail</Th>
+                        <Th>Personen</Th>
+                        <Th>Status</Th>
+                        <Th>Ernährung</Th>
+                        <Th>Nachricht</Th>
+                        <Th>Datum</Th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </TableWrapper>
-            )}
-          </>
-        )}
-        
-        {activeTab === 'guestbook' && (
-          <>
-            {guestbook.length === 0 ? (
-              <EmptyState>
-                <div className="emoji">📖</div>
-                <p>Noch keine Gästebuch-Einträge</p>
-              </EmptyState>
-            ) : (
-              guestbook.map(entry => (
-                <GuestbookCard key={entry.id} $approved={entry.approved}>
-                  <GuestbookHeader>
-                    <GuestbookName>
-                      {entry.name}
-                      {!entry.approved && <StatusBadge style={{ marginLeft: '1rem' }}>Neu</StatusBadge>}
-                    </GuestbookName>
-                    <div>
-                      {!entry.approved && (
-                        <ActionButton className="approve" onClick={() => handleApproveGuestbook(entry.id)}>
-                          ✓ Freigeben
-                        </ActionButton>
-                      )}
-                      <ActionButton className="delete" onClick={() => handleDeleteGuestbook(entry.id)}>
-                        Löschen
-                      </ActionButton>
-                    </div>
-                  </GuestbookHeader>
-                  <GuestbookMessage>{entry.message}</GuestbookMessage>
-                </GuestbookCard>
-              ))
-            )}
-          </>
-        )}
-        
-        {activeTab === 'music' && (
-          <>
-            {musicWishes.length === 0 ? (
-              <EmptyState>
-                <div className="emoji">🎵</div>
-                <p>Noch keine Musikwünsche</p>
-              </EmptyState>
-            ) : (
-              <TableWrapper>
-                <Table>
-                  <thead>
-                    <tr>
-                      <Th>Von</Th>
-                      <Th>Künstler</Th>
-                      <Th>Song</Th>
-                      <Th>Aktionen</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {musicWishes.map(wish => (
-                      <tr key={wish.id}>
-                        <Td>{wish.name}</Td>
-                        <Td>{wish.artist}</Td>
-                        <Td>{wish.song_title}</Td>
-                        <Td>
-                          <ActionButton className="delete" onClick={() => handleDeleteMusic(wish.id)}>
-                            Löschen
-                          </ActionButton>
-                        </Td>
+                    </thead>
+                    <tbody>
+                      {rsvps.map(rsvp => (
+                        <tr key={rsvp.id}>
+                          <Td><strong>{rsvp.name}</strong></Td>
+                          <Td>{rsvp.email}</Td>
+                          <Td>{rsvp.persons}</Td>
+                          <Td>
+                            <Badge $type={rsvp.attending ? 'success' : 'error'}>
+                              {rsvp.attending ? 'Zusage' : 'Absage'}
+                            </Badge>
+                          </Td>
+                          <Td>{rsvp.dietary || '-'}</Td>
+                          <Td style={{ maxWidth: '200px' }}>{rsvp.message || '-'}</Td>
+                          <Td>{new Date(rsvp.created_at).toLocaleDateString('de-DE')}</Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </>
+          )}
+          
+          {/* Guestbook Tab */}
+          {activeTab === 'guestbook' && (
+            <>
+              <PanelHeader>
+                <PanelTitle>Gästebuch-Einträge</PanelTitle>
+                <ActionButton onClick={loadData}>Aktualisieren</ActionButton>
+              </PanelHeader>
+              
+              {guestbook.length === 0 ? (
+                <EmptyState>
+                  <div className="icon">📖</div>
+                  <p>Noch keine Einträge</p>
+                </EmptyState>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Name</Th>
+                        <Th>Nachricht</Th>
+                        <Th>Status</Th>
+                        <Th>Datum</Th>
+                        <Th>Aktionen</Th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </TableWrapper>
-            )}
-          </>
-        )}
+                    </thead>
+                    <tbody>
+                      {guestbook.map(entry => (
+                        <tr key={entry.id}>
+                          <Td><strong>{entry.name}</strong></Td>
+                          <Td style={{ maxWidth: '300px' }}>{entry.message}</Td>
+                          <Td>
+                            <Badge $type={entry.approved ? 'success' : 'warning'}>
+                              {entry.approved ? 'Sichtbar' : 'Ausstehend'}
+                            </Badge>
+                          </Td>
+                          <Td>{new Date(entry.created_at).toLocaleDateString('de-DE')}</Td>
+                          <Td>
+                            <SmallButton onClick={() => handleApproveGuestbook(entry.id, !entry.approved)}>
+                              {entry.approved ? 'Ausblenden' : 'Freigeben'}
+                            </SmallButton>
+                            <SmallButton $danger onClick={() => handleDeleteGuestbook(entry.id)}>
+                              Löschen
+                            </SmallButton>
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </>
+          )}
+          
+          {/* Music Tab */}
+          {activeTab === 'music' && (
+            <>
+              <PanelHeader>
+                <PanelTitle>Musikwünsche</PanelTitle>
+                <ActionButton onClick={loadData}>Aktualisieren</ActionButton>
+              </PanelHeader>
+              
+              {musicWishes.length === 0 ? (
+                <EmptyState>
+                  <div className="icon">🎵</div>
+                  <p>Noch keine Musikwünsche</p>
+                </EmptyState>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Von</Th>
+                        <Th>Künstler</Th>
+                        <Th>Song</Th>
+                        <Th>Datum</Th>
+                        <Th>Aktionen</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {musicWishes.map(wish => (
+                        <tr key={wish.id}>
+                          <Td>{wish.name}</Td>
+                          <Td><strong>{wish.artist}</strong></Td>
+                          <Td>{wish.song_title}</Td>
+                          <Td>{new Date(wish.created_at).toLocaleDateString('de-DE')}</Td>
+                          <Td>
+                            <SmallButton $danger onClick={() => handleDeleteMusicWish(wish.id)}>
+                              Löschen
+                            </SmallButton>
+                          </Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </>
+          )}
+          
+          {/* Photos Tab */}
+          {activeTab === 'photos' && (
+            <>
+              <PanelHeader>
+                <PanelTitle>Hochgeladene Fotos</PanelTitle>
+                <ActionButton onClick={loadData}>Aktualisieren</ActionButton>
+              </PanelHeader>
+              
+              {photos.length === 0 ? (
+                <EmptyState>
+                  <div className="icon">📸</div>
+                  <p>Noch keine Fotos hochgeladen</p>
+                </EmptyState>
+              ) : (
+                <PhotoGrid>
+                  {photos.map(photo => (
+                    <PhotoCard key={photo.id} $approved={photo.approved}>
+                      <img src={photo.cloudinary_url} alt="" />
+                      <PhotoOverlay>
+                        <PhotoButton 
+                          $approve 
+                          onClick={() => handleApprovePhoto(photo.id, !photo.approved)}
+                          title={photo.approved ? 'Ausblenden' : 'Freigeben'}
+                        >
+                          {photo.approved ? '👁️' : '✓'}
+                        </PhotoButton>
+                        <PhotoButton 
+                          onClick={() => handleDeletePhoto(photo.id)}
+                          title="Löschen"
+                        >
+                          ×
+                        </PhotoButton>
+                      </PhotoOverlay>
+                    </PhotoCard>
+                  ))}
+                </PhotoGrid>
+              )}
+            </>
+          )}
+          
+          {/* Gifts Tab */}
+          {activeTab === 'gifts' && (
+            <>
+              <PanelHeader>
+                <PanelTitle>Geschenk-Reservierungen</PanelTitle>
+                <ActionButton onClick={loadData}>Aktualisieren</ActionButton>
+              </PanelHeader>
+              
+              {giftReservations.length === 0 ? (
+                <EmptyState>
+                  <div className="icon">🎁</div>
+                  <p>Noch keine Reservierungen</p>
+                </EmptyState>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <Th>Geschenk-ID</Th>
+                        <Th>Reserviert von</Th>
+                        <Th>Datum</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {giftReservations.map(res => (
+                        <tr key={res.id}>
+                          <Td>{res.item_id}</Td>
+                          <Td><strong>{res.reserved_by}</strong></Td>
+                          <Td>{new Date(res.created_at).toLocaleDateString('de-DE')}</Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </>
+          )}
+          
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <SettingsSection>
+              <SettingsGroup>
+                <h3>Website-Status</h3>
+                <SettingsRow>
+                  <SettingsLabel>Aktueller Status</SettingsLabel>
+                  <StatusSelect value={status} onChange={e => handleStatusChange(e.target.value)}>
+                    <option value="std">Save the Date</option>
+                    <option value="live">Live (Vollständig)</option>
+                    <option value="archiv">Archiv (Nach der Hochzeit)</option>
+                  </StatusSelect>
+                </SettingsRow>
+              </SettingsGroup>
+              
+              <SettingsGroup>
+                <h3>Übersicht</h3>
+                <SettingsRow>
+                  <SettingsLabel>Projekt-ID</SettingsLabel>
+                  <code style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{projectId}</code>
+                </SettingsRow>
+                <SettingsRow>
+                  <SettingsLabel>Namen</SettingsLabel>
+                  <span>{coupleNames}</span>
+                </SettingsRow>
+              </SettingsGroup>
+            </SettingsSection>
+          )}
+        </Panel>
+      </Main>
+      
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        message={modalState.message}
+        autoClose={2000}
+      />
+    </DashboardContainer>
+  );
+}
+
+export default AdminDashboard;
+'edit-witnesses':'Trauzeugen',
+    'edit-gallery':'Galerie',
+    'edit-faq':'FAQ',
+    'edit-abc':'Hochzeits-ABC',
+    'edit-footer':'Footer',
+    'status':'Status'
+  };
+
+  return (
+    <DashboardContainer>
+      <MobileMenuToggle onClick={()=>setSidebarOpen(!sidebarOpen)}>☰</MobileMenuToggle>
+      
+      <Sidebar $open={sidebarOpen}>
+        <SidebarHeader>
+          <SidebarLogo>
+            <LeafSVG />
+            Admin <span>Panel</span>
+          </SidebarLogo>
+          <SidebarSub>{coupleNames}</SidebarSub>
+        </SidebarHeader>
         
-        {activeTab === 'photos' && (
-          <>
-            {photos.length === 0 ? (
-              <EmptyState>
-                <div className="emoji">📸</div>
-                <p>Noch keine Fotos hochgeladen</p>
-              </EmptyState>
-            ) : (
-              <PhotoGrid>
-                {photos.map(photo => (
-                  <PhotoCard key={photo.id} $approved={photo.approved}>
-                    <img src={photo.cloudinary_url} alt="Hochzeitsfoto" />
-                    <PhotoOverlay>
-                      {!photo.approved && (
-                        <ActionButton className="approve" onClick={() => handleApprovePhoto(photo.id)}>✓</ActionButton>
-                      )}
-                      <ActionButton className="delete" onClick={() => handleDeletePhoto(photo.id)}>✕</ActionButton>
-                    </PhotoOverlay>
-                  </PhotoCard>
-                ))}
-              </PhotoGrid>
-            )}
-          </>
-        )}
-      </Container>
-    </Section>
+        {navItems.map(s => (
+          <NavSection key={s.section}>
+            <NavSectionTitle>{s.section}</NavSectionTitle>
+            {s.items.map(i => (
+              <NavItem 
+                key={i.id} 
+                $active={activeTab === i.id} 
+                onClick={() => { setActiveTab(i.id); setSidebarOpen(false); }}
+              >
+                {i.icon} {i.label}
+                {i.badge > 0 && <NavBadge $warning={i.warning}>{i.badge}</NavBadge>}
+              </NavItem>
+            ))}
+          </NavSection>
+        ))}
+        
+        <NavDivider />
+        <NavItem onClick={() => window.location.href = slug ? `/${slug}` : '/'}>
+          ← Zurück zur Website
+        </NavItem>
+      </Sidebar>
+      
+      <Main>
+        <Header>
+          <PageTitle>{titles[activeTab] || 'Admin'}</PageTitle>
+        </Header>
+        {renderContent()}
+      </Main>
+      
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        message={modalState.message}
+        autoClose={2500}
+      />
+    </DashboardContainer>
   );
 }
 

@@ -18,46 +18,46 @@ const fadeIn = keyframes`
 // Sanftes Wabern - organisch wie eine Seifenblase
 const gentleWobble = keyframes`
   0%, 100% { 
-    transform: translateX(-50%) translateY(0); 
+    transform: translateY(0); 
     border-radius: 50px;
   }
   20% { 
-    transform: translateX(-50%) translateY(-2px); 
+    transform: translateY(-2px); 
     border-radius: 48px 52px 50px 48px;
   }
   40% { 
-    transform: translateX(-50%) translateY(0px); 
+    transform: translateY(0px); 
     border-radius: 52px 48px 52px 50px;
   }
   60% { 
-    transform: translateX(-50%) translateY(-1px); 
+    transform: translateY(-1px); 
     border-radius: 50px 50px 48px 52px;
   }
   80% { 
-    transform: translateX(-50%) translateY(-2px); 
+    transform: translateY(-2px); 
     border-radius: 48px 52px 50px 50px;
   }
 `;
 
 const gentleWobbleCompact = keyframes`
   0%, 100% { 
-    transform: translateX(-50%) translateY(0); 
+    transform: translateY(0); 
     border-radius: 30px;
   }
   20% { 
-    transform: translateX(-50%) translateY(-1px); 
+    transform: translateY(-1px); 
     border-radius: 28px 32px 30px 28px;
   }
   40% { 
-    transform: translateX(-50%) translateY(0px); 
+    transform: translateY(0px); 
     border-radius: 32px 28px 32px 30px;
   }
   60% { 
-    transform: translateX(-50%) translateY(-1px); 
+    transform: translateY(-1px); 
     border-radius: 30px 30px 28px 32px;
   }
   80% { 
-    transform: translateX(-50%) translateY(-1px); 
+    transform: translateY(-1px); 
     border-radius: 28px 32px 30px 30px;
   }
 `;
@@ -69,15 +69,21 @@ const gentleWobbleCompact = keyframes`
 const NavWrapper = styled.div`
   position: fixed;
   top: ${p => p.$scrolled ? '1rem' : '1.5rem'};
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 1000;
-  width: auto;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
   animation: ${fadeIn} 0.8s ease;
   transition: top 0.4s ease;
 `;
 
 const Nav = styled.header`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${p => p.$scrolled ? '1.5rem' : '2rem'};
   padding: ${p => p.$scrolled ? '0.6rem 1.5rem' : '0.9rem 2rem'};
   background: ${p => p.$scrolled 
     ? 'rgba(245, 241, 235, 0.95)' 
@@ -94,10 +100,6 @@ const Nav = styled.header`
     : '0 4px 24px rgba(45, 59, 45, 0.1), inset 0 1px 0 rgba(255,255,255,0.4)'
   };
   animation: ${p => p.$scrolled ? gentleWobbleCompact : gentleWobble} 8s ease-in-out infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${p => p.$scrolled ? '2rem' : '2.5rem'};
   transition: padding 0.4s ease, background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, gap 0.4s ease;
 `;
 
