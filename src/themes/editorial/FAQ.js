@@ -279,8 +279,8 @@ function FAQ() {
   const { content } = useWedding();
   const faqData = content?.faq || {};
   
-  const title = faqData.title || 'FAQ';
-  const questions = faqData.questions || [];
+  const title = faqData?.title || 'FAQ';
+  const questions = Array.isArray(faqData?.questions) ? faqData.questions : [];
   
   const [visible, setVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
@@ -325,6 +325,7 @@ function FAQ() {
   }, [items.length]);
 
   const renderTitle = () => {
+    if (!title) return null;
     const words = title.split(' ');
     let letterIndex = 0;
     
