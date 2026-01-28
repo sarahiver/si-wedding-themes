@@ -1,4 +1,4 @@
-// core/sections/PhotosSection.js - Photo Management with ZIP Download
+// core/sections/PhotosSection.js - Photo Management with ZIP Download and Click Selection
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
 
@@ -43,7 +43,7 @@ function PhotosSection({ components: C }) {
           const ext = urlParts[urlParts.length - 1].split('?')[0] || 'jpg';
           
           // Create filename: guest_name_index.ext
-          const guestName = (photo.guest_name || 'gast').toLowerCase().replace(/\s+/g, '_');
+          const guestName = (photo.uploaded_by || photo.guest_name || 'gast').toLowerCase().replace(/\s+/g, '_');
           const filename = `${guestName}_${String(index + 1).padStart(3, '0')}.${ext}`;
           
           folder.file(filename, blob);
@@ -86,16 +86,19 @@ function PhotosSection({ components: C }) {
         <C.PanelTitle>Gäste-Fotos ({photoUploads.length})</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
+        {/* Selection Controls */}
         <C.PhotoActions>
           <C.SmallButton onClick={selectAllPhotos}>Alle auswählen</C.SmallButton>
           <C.SmallButton onClick={deselectAllPhotos}>Auswahl aufheben</C.SmallButton>
           <C.PhotoCount>{selectedPhotos.size} ausgewählt</C.PhotoCount>
         </C.PhotoActions>
         
+        {/* Download Buttons */}
         <C.PhotoActions style={{ marginTop: '1rem' }}>
           <C.Button 
             onClick={() => downloadPhotosAsZip(false)} 
             disabled={downloading || selectedPhotos.size === 0}
+            style={{ background: selectedPhotos.size > 0 ? '#2e7d32' : undefined }}
           >
             {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) als ZIP`}
           </C.Button>
@@ -108,36 +111,79 @@ function PhotosSection({ components: C }) {
           </C.Button>
         </C.PhotoActions>
         
+        {/* Photo Grid */}
         <C.PhotoGrid>
-          {photoUploads.map(photo => (
-            <C.PhotoCard 
-              key={photo.id} 
-              $selected={selectedPhotos.has(photo.id)}
-              $approved={photo.approved}
-            >
-              <C.PhotoImage 
-                $url={photo.cloudinary_url} 
-                onClick={() => togglePhotoSelection(photo.id)} 
-              />
-              <C.PhotoOverlay>
-                <C.PhotoButton 
-                  $approve 
-                  onClick={() => approvePhoto(photo.id, !photo.approved)}
-                  title={photo.approved ? 'Ausblenden' : 'Freigeben'}
-                >
-                  {photo.approved ? '👁️' : '✓'}
-                </C.PhotoButton>
-                <C.PhotoButton 
-                  onClick={() => deletePhoto(photo.id)}
-                  title="Löschen"
-                >
-                  ×
-                </C.PhotoButton>
-              </C.PhotoOverlay>
-              {!photo.approved && <C.PhotoPending>Ausstehend</C.PhotoPending>}
-              {photo.guest_name && <C.PhotoCaption>{photo.guest_name}</C.PhotoCaption>}
-            </C.PhotoCard>
-          ))}
+          {photoUploads.map(photo => {
+            const isSelected = selectedPhotos.has(photo.id);
+            return (
+              <C.PhotoCard 
+                key={photo.id} 
+                $selected={isSelected}
+                $approved={photo.approved}
+                onClick={() => togglePhotoSelection(photo.id)}
+                style={{ 
+                  cursor: 'pointer',
+                  outline: isSelected ? '3px solid #4caf50' : 'none',
+                  outlineOffset: '-3px',
+                  transform: isSelected ? 'scale(0.97)' : 'scale(1)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <C.PhotoImage $url={photo.cloudinary_url} />
+                
+                {/* Selection Indicator */}
+                {isSelected && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '8px',
+                    left: '8px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: '#4caf50',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    zIndex: 10
+                  }}>
+                    ✓
+                  </div>
+                )}
+                
+                {/* Action Buttons - stop propagation to not trigger selection */}
+                <C.PhotoOverlay onClick={(e) => e.stopPropagation()}>
+                  <C.PhotoButton 
+                    $approve 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      approvePhoto(photo.id, !photo.approved);
+                    }}
+                    title={photo.approved ? 'Ausblenden' : 'Freigeben'}
+                  >
+                    {photo.approved ? '👁️' : '✓'}
+                  </C.PhotoButton>
+                  <C.PhotoButton 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deletePhoto(photo.id);
+                    }}
+                    title="Löschen"
+                  >
+                    ×
+                  </C.PhotoButton>
+                </C.PhotoOverlay>
+                
+                {!photo.approved && <C.PhotoPending>Ausstehend</C.PhotoPending>}
+                {(photo.uploaded_by || photo.guest_name) && (
+                  <C.PhotoCaption>{photo.uploaded_by || photo.guest_name}</C.PhotoCaption>
+                )}
+              </C.PhotoCard>
+            );
+          })}
         </C.PhotoGrid>
         
         {!photoUploads.length && <C.EmptyState>Noch keine Fotos hochgeladen</C.EmptyState>}
