@@ -1,0 +1,382 @@
+// core/AdminContext.js - Central State Management for Admin Dashboard
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useWedding } from '../../../context/WeddingContext';
+import {
+  getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
+  updateProjectStatus, approveGuestbookEntry, deleteGuestbookEntry,
+  deleteMusicWish, updateProjectContent, approvePhotoUpload, deletePhotoUpload,
+} from '../../../lib/supabase';
+
+const AdminContext = createContext(null);
+
+export function AdminProvider({ children }) {
+  const wedding = useWedding();
+  const { project, projectId, coupleNames, content, slug, isComponentActive } = wedding || {};
+  
+  // Auth
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  
+  // Navigation
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Loading States
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Data
+  const [rsvpData, setRsvpData] = useState([]);
+  const [guestbookEntries, setGuestbookEntries] = useState([]);
+  const [musicWishes, setMusicWishes] = useState([]);
+  const [photoUploads, setPhotoUploads] = useState([]);
+  const [selectedPhotos, setSelectedPhotos] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Status
+  const [currentStatus, setCurrentStatus] = useState(project?.status || 'live');
+  
+  // Feedback
+  const [feedback, setFeedback] = useState({ show: false, type: 'success', message: '' });
+  
+  // Content States (all editors)
+  const [contentStates, setContentStates] = useState({
+    hero: {},
+    countdown: {},
+    lovestory: { events: [] },
+    timeline: { events: [] },
+    locations: { locations: [] },
+    directions: { options: [] },
+    rsvp: {},
+    dresscode: { colors: [] },
+    gifts: { items: [] },
+    accommodations: { hotels: [] },
+    witnesses: { witnesses: [] },
+    gallery: { images: [] },
+    faq: { items: [] },
+    weddingabc: { entries: [] },
+    footer: {},
+  });
+  
+  // Config
+  const adminPassword = project?.admin_password || project?.settings?.admin_password || 'admin123';
+  const cloudName = project?.settings?.cloudinary_cloud_name || process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
+  const uploadPreset = project?.settings?.cloudinary_upload_preset || process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
+  const baseFolder = `iverlasting/${project?.slug || 'default'}`;
+
+  // Initialize content from wedding context
+  useEffect(() => {
+    if (content) {
+      setContentStates({
+        hero: content.hero || {},
+        countdown: content.countdown || {},
+        lovestory: content.lovestory || { events: [] },
+        timeline: content.timeline || { events: [] },
+        locations: content.locations || { locations: [] },
+        directions: content.directions || { options: [] },
+        rsvp: content.rsvp || {},
+        dresscode: content.dresscode || { colors: [] },
+        gifts: content.gifts || { items: [] },
+        accommodations: content.accommodations || { hotels: [] },
+        witnesses: content.witnesses || { witnesses: [] },
+        gallery: content.gallery || { images: [] },
+        faq: content.faq || { items: [] },
+        weddingabc: content.weddingabc || { entries: [] },
+        footer: content.footer || {},
+      });
+    }
+  }, [content]);
+
+  useEffect(() => {
+    if (project) setCurrentStatus(project.status);
+  }, [project]);
+
+  // Load data when logged in
+  useEffect(() => {
+    if (isLoggedIn && projectId) loadData();
+  }, [isLoggedIn, projectId]);
+
+  // ============================================
+  // DATA LOADING
+  // ============================================
+  const loadData = useCallback(async () => {
+    if (!projectId) return;
+    setIsLoading(true);
+    try {
+      const [r, g, m, p] = await Promise.all([
+        getRSVPResponses(projectId),
+        getGuestbookEntries(projectId, false),
+        getMusicWishes(projectId),
+        getPhotoUploads(projectId, false),
+      ]);
+      setRsvpData(r.data || []);
+      setGuestbookEntries(g.data || []);
+      setMusicWishes(m.data || []);
+      setPhotoUploads(p.data || []);
+    } catch (e) {
+      console.error('Error loading data:', e);
+      showFeedback('error', 'Fehler beim Laden der Daten');
+    }
+    setIsLoading(false);
+  }, [projectId]);
+
+  // ============================================
+  // FEEDBACK
+  // ============================================
+  const showFeedback = useCallback((type, message) => {
+    setFeedback({ show: true, type, message });
+    if (type === 'success') {
+      setTimeout(() => setFeedback(f => ({ ...f, show: false })), 2500);
+    }
+  }, []);
+
+  const closeFeedback = useCallback(() => {
+    setFeedback(f => ({ ...f, show: false }));
+  }, []);
+
+  // ============================================
+  // AUTH
+  // ============================================
+  const login = useCallback((password) => {
+    if (password === adminPassword) {
+      setIsLoggedIn(true);
+      setLoginError('');
+      return true;
+    }
+    setLoginError('Falsches Passwort');
+    return false;
+  }, [adminPassword]);
+
+  const logout = useCallback(() => {
+    setIsLoggedIn(false);
+  }, []);
+
+  // ============================================
+  // ACTIONS
+  // ============================================
+  const changeStatus = useCallback(async (newStatus) => {
+    try {
+      await updateProjectStatus(projectId, newStatus);
+      setCurrentStatus(newStatus);
+      showFeedback('success', `Status auf "${newStatus}" geändert`);
+    } catch (e) {
+      showFeedback('error', 'Status konnte nicht geändert werden');
+    }
+  }, [projectId, showFeedback]);
+
+  const approveGuestbook = useCallback(async (id, approved) => {
+    try {
+      await approveGuestbookEntry(id, approved);
+      await loadData();
+      showFeedback('success', approved ? 'Freigegeben' : 'Ausgeblendet');
+    } catch (e) {
+      showFeedback('error', 'Fehler');
+    }
+  }, [loadData, showFeedback]);
+
+  const deleteGuestbook = useCallback(async (id) => {
+    if (!window.confirm('Eintrag wirklich löschen?')) return;
+    try {
+      await deleteGuestbookEntry(id);
+      await loadData();
+      showFeedback('success', 'Gelöscht');
+    } catch (e) {
+      showFeedback('error', 'Fehler');
+    }
+  }, [loadData, showFeedback]);
+
+  const deleteMusic = useCallback(async (id) => {
+    if (!window.confirm('Wunsch wirklich löschen?')) return;
+    try {
+      await deleteMusicWish(id);
+      await loadData();
+      showFeedback('success', 'Gelöscht');
+    } catch (e) {
+      showFeedback('error', 'Fehler');
+    }
+  }, [loadData, showFeedback]);
+
+  const approvePhoto = useCallback(async (id, approved) => {
+    try {
+      await approvePhotoUpload(id, approved);
+      await loadData();
+      showFeedback('success', approved ? 'Freigegeben' : 'Ausgeblendet');
+    } catch (e) {
+      showFeedback('error', 'Fehler');
+    }
+  }, [loadData, showFeedback]);
+
+  const deletePhoto = useCallback(async (id) => {
+    if (!window.confirm('Foto wirklich löschen?')) return;
+    try {
+      await deletePhotoUpload(id);
+      await loadData();
+      showFeedback('success', 'Gelöscht');
+    } catch (e) {
+      showFeedback('error', 'Fehler');
+    }
+  }, [loadData, showFeedback]);
+
+  const togglePhotoSelection = useCallback((id) => {
+    setSelectedPhotos(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAllPhotos = useCallback(() => {
+    setSelectedPhotos(new Set(photoUploads.map(p => p.id)));
+  }, [photoUploads]);
+
+  const deselectAllPhotos = useCallback(() => {
+    setSelectedPhotos(new Set());
+  }, []);
+
+  // ============================================
+  // CONTENT EDITING
+  // ============================================
+  const updateContent = useCallback((section, data) => {
+    setContentStates(prev => ({ ...prev, [section]: data }));
+  }, []);
+
+  const saveContent = useCallback(async (section) => {
+    setIsSaving(true);
+    try {
+      await updateProjectContent(projectId, section, contentStates[section]);
+      showFeedback('success', 'Gespeichert');
+    } catch (e) {
+      console.error('Save error:', e);
+      showFeedback('error', 'Fehler beim Speichern');
+    }
+    setIsSaving(false);
+  }, [projectId, contentStates, showFeedback]);
+
+  // ============================================
+  // EXPORT CSV
+  // ============================================
+  const exportCSV = useCallback((data, filename) => {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]);
+    const csv = [
+      headers.join(','),
+      ...data.map(row => headers.map(h => `"${row[h] || ''}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // ============================================
+  // STATS
+  // ============================================
+  const stats = {
+    confirmed: rsvpData.filter(r => r.attending).length,
+    declined: rsvpData.filter(r => !r.attending).length,
+    totalGuests: rsvpData.filter(r => r.attending).reduce((sum, r) => sum + (r.persons || 1), 0),
+    pendingGuestbook: guestbookEntries.filter(e => !e.approved).length,
+    pendingPhotos: photoUploads.filter(p => !p.approved).length,
+    totalRsvp: rsvpData.length,
+    totalGuestbook: guestbookEntries.length,
+    totalMusic: musicWishes.length,
+    totalPhotos: photoUploads.length,
+  };
+
+  // ============================================
+  // NAV ITEMS
+  // ============================================
+  const checkActive = useCallback((name) => {
+    if (!isComponentActive) return true;
+    return isComponentActive(name);
+  }, [isComponentActive]);
+
+  const navItems = [
+    { section: 'Übersicht', items: [
+      { id: 'dashboard', label: 'Dashboard', icon: '📊' }
+    ]},
+    { section: 'Gäste', items: [
+      checkActive('rsvp') && { id: 'rsvp', label: 'RSVP', icon: '✉️', badge: stats.totalRsvp },
+      checkActive('guestbook') && { id: 'guestbook', label: 'Gästebuch', icon: '📝', badge: stats.pendingGuestbook, warning: true },
+      checkActive('musicwishes') && { id: 'music', label: 'Musik', icon: '🎵', badge: stats.totalMusic },
+      checkActive('photoupload') && { id: 'photos', label: 'Fotos', icon: '📷', badge: stats.totalPhotos },
+    ].filter(Boolean)},
+    { section: 'Inhalte', items: [
+      { id: 'edit-hero', label: 'Hero', icon: '🖼️' },
+      checkActive('countdown') && { id: 'edit-countdown', label: 'Countdown', icon: '⏰' },
+      checkActive('lovestory') && { id: 'edit-lovestory', label: 'Love Story', icon: '💕' },
+      checkActive('timeline') && { id: 'edit-timeline', label: 'Ablauf', icon: '📅' },
+      checkActive('locations') && { id: 'edit-locations', label: 'Locations', icon: '📍' },
+      checkActive('directions') && { id: 'edit-directions', label: 'Anfahrt', icon: '🚗' },
+      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP', icon: '✏️' },
+      checkActive('dresscode') && { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
+      checkActive('gifts') && { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
+      checkActive('accommodations') && { id: 'edit-hotels', label: 'Hotels', icon: '🏨' },
+      checkActive('witnesses') && { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
+      checkActive('gallery') && { id: 'edit-gallery', label: 'Galerie', icon: '🎨' },
+      checkActive('faq') && { id: 'edit-faq', label: 'FAQ', icon: '❓' },
+      checkActive('weddingabc') && { id: 'edit-abc', label: 'ABC', icon: '🔤' },
+      { id: 'edit-footer', label: 'Footer', icon: '📝' },
+    ].filter(Boolean)},
+    { section: 'Einstellungen', items: [
+      { id: 'status', label: 'Status', icon: '⚙️' }
+    ]},
+  ].filter(s => s.items.length > 0);
+
+  const value = {
+    // Wedding Context
+    project, projectId, coupleNames, slug,
+    
+    // Auth
+    isLoggedIn, loginError, login, logout,
+    
+    // Navigation
+    activeTab, setActiveTab, sidebarOpen, setSidebarOpen, navItems,
+    
+    // Loading
+    isLoading, isSaving,
+    
+    // Data
+    rsvpData, guestbookEntries, musicWishes, photoUploads,
+    selectedPhotos, searchTerm, setSearchTerm,
+    loadData,
+    
+    // Stats
+    stats,
+    
+    // Status
+    currentStatus, changeStatus,
+    
+    // Actions
+    approveGuestbook, deleteGuestbook,
+    deleteMusic,
+    approvePhoto, deletePhoto,
+    togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
+    exportCSV,
+    
+    // Content
+    contentStates, updateContent, saveContent,
+    
+    // Feedback
+    feedback, showFeedback, closeFeedback,
+    
+    // Config
+    cloudName, uploadPreset, baseFolder,
+    cloudinaryConfigured: !!(cloudName && uploadPreset),
+  };
+
+  return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
+}
+
+export function useAdmin() {
+  const context = useContext(AdminContext);
+  if (!context) {
+    throw new Error('useAdmin must be used within AdminProvider');
+  }
+  return context;
+}
+
+export default AdminContext;
