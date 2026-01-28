@@ -1,191 +1,434 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const imageZoom = keyframes`
+  from { transform: scale(1.1); }
+  to { transform: scale(1); }
+`;
+
+const lineGrow = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+const slideInFromLeft = keyframes`
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #FAFAFA;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-white);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(4rem, 8vw, 6rem);
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #666;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #000;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-`;
-
-const Card = styled.div`
-  background: #FFF;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$index * 0.15}s;
-`;
-
-const ImageWrapper = styled.div`
-  position: relative;
-  overflow: hidden;
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  max-width: 800px;
+  opacity: 0;
   
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(0,0,0,0.1);
-    pointer-events: none;
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
+`;
+
+const LocationsGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6rem, 12vw, 10rem);
+`;
+
+const LocationCard = styled.article`
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  
+  /* Alternate layout */
+  &:nth-child(even) {
+    grid-template-columns: 1fr 1.2fr;
+    
+    > *:first-child { order: 2; }
+    > *:last-child { order: 1; }
+  }
+  
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    
+    &:nth-child(even) {
+      > *:first-child { order: 1; }
+      > *:last-child { order: 2; }
+    }
   }
 `;
 
-const CardImage = styled.div`
-  width: 100%;
-  padding-top: 66%;
-  background: ${p => p.$image ? `url(${p.$image}) center/cover` : '#F0F0F0'};
-  transition: transform 0.6s ease;
+const ImageSection = styled.div`
+  position: relative;
+  opacity: 0;
   
-  ${Card}:hover & { transform: scale(1.05); }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 1s ease forwards;
+    animation-delay: ${p.$delay}s;
+  `}
 `;
 
-const CardContent = styled.div`
-  padding: 2rem;
+const ImageFrame = styled.div`
+  position: relative;
+  overflow: hidden;
+  background: var(--editorial-light-gray);
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 75%;
+  }
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%);
+    transition: filter 0.6s ease;
+    
+    ${p => p.$visible && css`
+      animation: ${imageZoom} 1.5s ease forwards;
+    `}
+  }
+  
+  &:hover img {
+    filter: grayscale(0%);
+  }
 `;
 
-const LocationType = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+const TypeBadge = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--editorial-red);
+  color: var(--editorial-white);
+  padding: 1rem 1.5rem;
+  font-family: var(--font-headline);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 700;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+  z-index: 2;
+`;
+
+const TimeBadge = styled.div`
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  z-index: 2;
+`;
+
+const ContentSection = styled.div`
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${slideInFromLeft} 0.8s ease forwards;
+    animation-delay: ${p.$delay + 0.2}s;
+  `}
+`;
+
+const LocationNumber = styled.span`
+  display: block;
+  font-family: var(--font-headline);
+  font-size: clamp(5rem, 12vw, 10rem);
+  font-weight: 700;
+  color: var(--editorial-light-gray);
+  line-height: 0.7;
+  margin-bottom: 1rem;
+  margin-left: -0.1em;
 `;
 
 const LocationName = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
 `;
 
-const DetailRow = styled.div`
+const Divider = styled.div`
+  width: 60px;
+  height: 3px;
+  background: var(--editorial-red);
+  margin-bottom: 1.5rem;
+  transform: scaleX(0);
+  transform-origin: left;
+  
+  ${p => p.$visible && css`
+    animation: ${lineGrow} 0.6s ease forwards;
+    animation-delay: ${p.$delay + 0.4}s;
+  `}
+`;
+
+const Description = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--editorial-gray);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+`;
+
+const DetailsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+`;
+
+const DetailItem = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 1rem;
 `;
 
 const DetailIcon = styled.span`
-  color: #666;
-  font-size: 1rem;
-`;
-
-const DetailText = styled.span`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 1.2rem;
   line-height: 1.5;
 `;
 
-const MapLink = styled.a`
+const DetailText = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--editorial-black);
+  line-height: 1.5;
+  
+  strong {
+    display: block;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    color: var(--editorial-gray);
+    margin-bottom: 0.2rem;
+  }
+`;
+
+const MapButton = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+  font-family: var(--font-headline);
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #000;
-  margin-top: 1.5rem;
-  padding-bottom: 2px;
-  border-bottom: 1px solid #000;
+  letter-spacing: 0.1em;
+  text-decoration: none;
   transition: all 0.3s ease;
   
-  &:hover { color: #666; border-color: #666; }
+  &:hover {
+    background: var(--editorial-red);
+    transform: translateX(5px);
+  }
+  
+  &::after {
+    content: '→';
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover::after {
+    transform: translateX(5px);
+  }
 `;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function Locations() {
   const { content } = useWedding();
   const locationsData = content?.locations || {};
+  
   const title = locationsData.title || 'Die Locations';
   const locations = locationsData.locations || [];
   
-  const [visible, setVisible] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [visibleCards, setVisibleCards] = useState([]);
   const sectionRef = useRef(null);
+  const cardRefs = useRef([]);
 
   const defaultLocations = [
-    { type: 'Trauung', name: 'Schloss Heidelberg', address: 'Schlosshof 1, 69117 Heidelberg', time: '14:00 Uhr', image: null, maps_url: '#' },
-    { type: 'Feier', name: 'Orangerie', address: 'Schlosspark 5, 69117 Heidelberg', time: 'Ab 16:00 Uhr', image: null, maps_url: '#' },
+    { 
+      type: 'Trauung', 
+      name: 'Schloss Heidelberg', 
+      description: 'Im historischen Ambiente des Schlosses geben wir uns das Ja-Wort. Die Kapelle bietet den perfekten Rahmen für diesen besonderen Moment.',
+      address: 'Schlosshof 1, 69117 Heidelberg', 
+      time: '14:00 Uhr', 
+      image: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800',
+      maps_url: 'https://maps.google.com' 
+    },
+    { 
+      type: 'Feier', 
+      name: 'Orangerie im Schlosspark', 
+      description: 'Nach der Trauung feiern wir in der wunderschönen Orangerie. Hohe Decken, historische Architektur und ein atemberaubender Blick in den Park.',
+      address: 'Schlosspark 5, 69117 Heidelberg', 
+      time: 'Ab 16:00 Uhr', 
+      image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+      maps_url: 'https://maps.google.com' 
+    },
   ];
 
   const items = locations.length > 0 ? locations : defaultLocations;
 
+  // Header observer
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setHeaderVisible(true);
+      },
+      { threshold: 0.2 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
+  // Cards observer
+  useEffect(() => {
+    const observers = cardRefs.current.map((ref, i) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisibleCards(prev => [...new Set([...prev, i])]);
+          }
+        },
+        { threshold: 0.2 }
+      );
+      if (ref) observer.observe(ref);
+      return observer;
+    });
+    
+    return () => observers.forEach(obs => obs.disconnect());
+  }, [items.length]);
+
   return (
-    <Section ref={sectionRef} id="location">
+    <Section id="locations" ref={sectionRef}>
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Wo wir feiern</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Eyebrow $visible={headerVisible}>Wo wir feiern</Eyebrow>
+          <Title $visible={headerVisible}>{title}</Title>
         </Header>
         
-        <Grid>
-          {items.map((loc, i) => (
-            <Card key={i} $index={i} $visible={visible}>
-              <ImageWrapper>
-                <CardImage $image={loc.image} />
-              </ImageWrapper>
-              <CardContent>
-                <LocationType>{loc.type}</LocationType>
-                <LocationName>{loc.name}</LocationName>
-                <DetailRow><DetailIcon>📍</DetailIcon><DetailText>{loc.address}</DetailText></DetailRow>
-                <DetailRow><DetailIcon>🕐</DetailIcon><DetailText>{loc.time}</DetailText></DetailRow>
-                {loc.maps_url && <MapLink href={loc.maps_url} target="_blank" rel="noopener noreferrer">Route anzeigen →</MapLink>}
-              </CardContent>
-            </Card>
-          ))}
-        </Grid>
+        <LocationsGrid>
+          {items.map((loc, i) => {
+            const isVisible = visibleCards.includes(i);
+            const delay = 0;
+            
+            return (
+              <LocationCard key={i} ref={el => cardRefs.current[i] = el}>
+                <ImageSection $visible={isVisible} $delay={delay}>
+                  <ImageFrame $visible={isVisible}>
+                    {loc.image && <img src={loc.image} alt={loc.name} />}
+                  </ImageFrame>
+                  <TypeBadge>{loc.type}</TypeBadge>
+                  {loc.time && <TimeBadge>{loc.time}</TimeBadge>}
+                </ImageSection>
+                
+                <ContentSection $visible={isVisible} $delay={delay}>
+                  <LocationNumber>{String(i + 1).padStart(2, '0')}</LocationNumber>
+                  <LocationName>{loc.name}</LocationName>
+                  <Divider $visible={isVisible} $delay={delay} />
+                  
+                  {loc.description && (
+                    <Description>{loc.description}</Description>
+                  )}
+                  
+                  <DetailsList>
+                    {loc.address && (
+                      <DetailItem>
+                        <DetailIcon>📍</DetailIcon>
+                        <DetailText>
+                          <strong>Adresse</strong>
+                          {loc.address}
+                        </DetailText>
+                      </DetailItem>
+                    )}
+                    {loc.time && (
+                      <DetailItem>
+                        <DetailIcon>🕐</DetailIcon>
+                        <DetailText>
+                          <strong>Uhrzeit</strong>
+                          {loc.time}
+                        </DetailText>
+                      </DetailItem>
+                    )}
+                  </DetailsList>
+                  
+                  {loc.maps_url && (
+                    <MapButton href={loc.maps_url} target="_blank" rel="noopener noreferrer">
+                      Route anzeigen
+                    </MapButton>
+                  )}
+                </ContentSection>
+              </LocationCard>
+            );
+          })}
+        </LocationsGrid>
       </Container>
     </Section>
   );

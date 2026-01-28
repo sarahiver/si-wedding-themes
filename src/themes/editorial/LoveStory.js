@@ -1,269 +1,424 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #FFFFFF;
-  position: relative;
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
-const IncludedBadge = styled.div`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  background: #000;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  
-  &::before {
-    content: '✓';
-    font-size: 0.7rem;
+const letterReveal = keyframes`
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+`;
+
+const imageReveal = keyframes`
+  from { 
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
   }
+  to { 
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+`;
+
+const lineGrow = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
+const Section = styled.section`
+  padding: var(--section-padding) 0;
+  background: var(--editorial-white);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 5rem;
+  margin-bottom: clamp(4rem, 10vw, 8rem);
+  max-width: 900px;
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #666;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #000;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
-`;
-
-const TimelineWrapper = styled.div`
-  position: relative;
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  overflow: hidden;
   
-  &::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: #E0E0E0;
-    transform: translateX(-50%);
+  .word {
+    display: inline-block;
+    overflow: hidden;
+  }
+  
+  .letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100%);
     
-    @media (max-width: 768px) { left: 40px; }
+    ${p => p.$visible && css`
+      animation: ${letterReveal} 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+    `}
   }
 `;
 
-const TimelineLine = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 1px;
-  background: #000;
-  transform: translateX(-50%);
-  height: ${p => p.$progress}%;
-  transition: height 0.3s ease;
+const Subtitle = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-style: italic;
+  color: var(--editorial-gray);
+  margin-top: 2rem;
+  max-width: 600px;
+  line-height: 1.6;
+  opacity: 0;
   
-  @media (max-width: 768px) { left: 40px; }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.6s;
+  `}
 `;
 
-const Milestone = styled.div`
+// Newspaper-style article layout
+const ArticlesGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 3rem;
-  margin-bottom: 4rem;
+  gap: clamp(4rem, 8vw, 8rem);
+`;
+
+const Article = styled.article`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
   
+  /* Alternate layout for even items */
   &:nth-child(even) {
-    .content { grid-column: 3; text-align: left; }
-    .image-wrapper { grid-column: 1; grid-row: 1; }
+    direction: rtl;
+    > * { direction: ltr; }
   }
   
-  &:nth-child(odd) {
-    .content { grid-column: 1; text-align: right; }
-    .image-wrapper { grid-column: 3; }
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 80px 1fr;
-    gap: 1.5rem;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
     
-    &:nth-child(even), &:nth-child(odd) {
-      .content { grid-column: 2; text-align: left; }
-      .image-wrapper { grid-column: 2; grid-row: 2; }
+    &:nth-child(even) {
+      direction: ltr;
     }
   }
 `;
 
-const Marker = styled.div`
-  grid-column: 2;
-  width: 12px;
-  height: 12px;
-  background: ${p => p.$active ? '#000' : '#FFF'};
-  border: 2px solid #000;
-  border-radius: 50%;
+const ArticleImage = styled.div`
   position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
+  opacity: 0;
   
-  @media (max-width: 768px) {
-    grid-column: 1;
-    margin-left: 34px;
-  }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 1s ease forwards;
+    animation-delay: ${p.$delay}s;
+  `}
 `;
 
-const ContentBox = styled.div`
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-`;
-
-const Year = styled.div`
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: #666;
-  margin-bottom: 0.75rem;
-`;
-
-const MilestoneTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 0.75rem;
-`;
-
-const MilestoneText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: #666;
-  line-height: 1.7;
-  margin: 0;
-`;
-
-const ImageWrapper = styled.div`
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.15s;
-`;
-
-const Image = styled.div`
-  width: 100%;
-  padding-top: 75%;
-  background: ${p => p.$image ? `url(${p.$image}) center/cover` : '#F5F5F5'};
+const ImageFrame = styled.div`
   position: relative;
   overflow: hidden;
+  background: var(--editorial-light-gray);
   
-  &::after {
+  &::before {
     content: '';
+    display: block;
+    padding-top: 130%; /* Tall magazine-style ratio */
+  }
+  
+  img {
     position: absolute;
     inset: 0;
-    border: 1px solid rgba(0,0,0,0.1);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%);
+    transition: all 0.6s ease;
+  }
+  
+  &:hover img {
+    filter: grayscale(0%);
+    transform: scale(1.03);
   }
 `;
 
-function LoveStory({ content = {}, showBadge = false }) {
-  const title = content.title || 'Unsere Geschichte';
-  const events = content.events || [];
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
   
-  const [visible, setVisible] = useState(false);
-  const [visibleItems, setVisibleItems] = useState([]);
-  const [progress, setProgress] = useState(0);
-  const sectionRef = useRef(null);
-  const itemRefs = useRef([]);
+  ${p => p.$visible && css`
+    animation: ${imageReveal} 1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+    animation-delay: ${p.$delay + 0.2}s;
+  `}
+`;
 
-  const defaultMilestones = [
-    { date: '2018', title: 'Das erste Treffen', description: 'Bei einem gemeinsamen Freund haben wir uns zum ersten Mal getroffen.', image: null },
-    { date: '2019', title: 'Der erste Urlaub', description: 'Unsere erste gemeinsame Reise führte uns nach Italien.', image: null },
-    { date: '2021', title: 'Zusammenziehen', description: 'Wir haben uns entschieden, den nächsten Schritt zu wagen.', image: null },
-    { date: '2024', title: 'Der Antrag', description: 'An einem romantischen Abend wurde die Frage aller Fragen gestellt.', image: null },
+const DateBadge = styled.div`
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: var(--editorial-red);
+  color: var(--editorial-white);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-headline);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  z-index: 2;
+`;
+
+const ArticleContent = styled.div`
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: ${p.$delay + 0.3}s;
+  `}
+`;
+
+const ArticleNumber = styled.span`
+  display: block;
+  font-family: var(--font-headline);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 700;
+  color: var(--editorial-light-gray);
+  line-height: 0.8;
+  margin-bottom: 1rem;
+`;
+
+const ArticleHeadline = styled.h3`
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
+`;
+
+const ArticleLine = styled.div`
+  width: 60px;
+  height: 3px;
+  background: var(--editorial-red);
+  margin-bottom: 1.5rem;
+  transform: scaleX(0);
+  transform-origin: left;
+  
+  ${p => p.$visible && css`
+    animation: ${lineGrow} 0.6s ease forwards;
+    animation-delay: ${p.$delay + 0.5}s;
+  `}
+`;
+
+const ArticleText = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--editorial-gray);
+  line-height: 1.8;
+  margin-bottom: 0;
+`;
+
+const ArticleMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--editorial-light-gray);
+`;
+
+const MetaItem = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--editorial-gray);
+`;
+
+// ============================================
+// HELPER
+// ============================================
+
+const AnimatedTitle = ({ text, visible }) => {
+  const words = text.split(' ');
+  let letterIndex = 0;
+  
+  return (
+    <Title $visible={visible}>
+      {words.map((word, wi) => (
+        <span key={wi} className="word">
+          {word.split('').map((letter, li) => {
+            const delay = letterIndex * 0.03 + 0.2;
+            letterIndex++;
+            return (
+              <span 
+                key={li} 
+                className="letter" 
+                style={{ animationDelay: `${delay}s` }}
+              >
+                {letter}
+              </span>
+            );
+          })}
+          {wi < words.length - 1 && '\u00A0'}
+        </span>
+      ))}
+    </Title>
+  );
+};
+
+// ============================================
+// COMPONENT
+// ============================================
+
+function LoveStory() {
+  const { content } = useWedding();
+  const lovestoryData = content?.lovestory || {};
+  
+  const title = lovestoryData.title || 'Unsere Geschichte';
+  const subtitle = lovestoryData.subtitle || 'Eine Liebe, die Geschichten schreibt';
+  const events = lovestoryData.events || [];
+  
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [visibleArticles, setVisibleArticles] = useState([]);
+  const sectionRef = useRef(null);
+  const articleRefs = useRef([]);
+
+  const defaultEvents = [
+    { 
+      date: '2018', 
+      title: 'Das erste Treffen', 
+      description: 'Es war ein ganz normaler Abend bei gemeinsamen Freunden. Doch dieser Abend sollte alles verändern. Ein Blick, ein Lächeln, ein Gespräch das nicht mehr enden wollte.', 
+      image: 'https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?w=800' 
+    },
+    { 
+      date: '2019', 
+      title: 'Der erste Urlaub', 
+      description: 'Zwei Wochen Italien – von Rom bis zur Amalfiküste. Wir haben gelernt, dass wir auch auf engstem Raum perfekt harmonieren. Und dass keiner von uns Karten lesen kann.', 
+      image: 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800' 
+    },
+    { 
+      date: '2021', 
+      title: 'Zusammenziehen', 
+      description: 'Die erste gemeinsame Wohnung. Zu klein, zu teuer, absolut perfekt. Hier haben wir gelernt, was es heißt, ein Team zu sein – beim IKEA-Aufbau und im echten Leben.', 
+      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800' 
+    },
+    { 
+      date: '2024', 
+      title: 'Der Antrag', 
+      description: 'Unter dem Sternenhimmel, mit zitternden Händen und dem wichtigsten Satz unseres Lebens. Die Antwort kam schneller als die Frage zu Ende war.', 
+      image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800' 
+    },
   ];
 
-  const items = events.length > 0 ? events : defaultMilestones;
+  const items = events.length > 0 ? events : defaultEvents;
 
+  // Header intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setHeaderVisible(true);
+      },
+      { threshold: 0.2 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
+  // Articles intersection observer
   useEffect(() => {
-    const observers = itemRefs.current.map((ref, i) => {
+    const observers = articleRefs.current.map((ref, i) => {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            setVisibleItems(prev => [...new Set([...prev, i])]);
-            setProgress(((i + 1) / items.length) * 100);
+            setVisibleArticles(prev => [...new Set([...prev, i])]);
           }
         },
-        { threshold: 0.3 }
+        { threshold: 0.2 }
       );
       if (ref) observer.observe(ref);
       return observer;
     });
+    
     return () => observers.forEach(obs => obs.disconnect());
   }, [items.length]);
 
   return (
-    <Section ref={sectionRef} id="story">
-      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
+    <Section id="lovestory" ref={sectionRef}>
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Unsere Geschichte</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Eyebrow $visible={headerVisible}>Kapitel für Kapitel</Eyebrow>
+          <AnimatedTitle text={title} visible={headerVisible} />
+          <Subtitle $visible={headerVisible}>{subtitle}</Subtitle>
         </Header>
         
-        <TimelineWrapper>
-          <TimelineLine $progress={progress} />
-          
-          {items.map((item, i) => (
-            <Milestone key={i} ref={el => itemRefs.current[i] = el}>
-              <Marker $active={visibleItems.includes(i)} />
-              
-              <ContentBox className="content" $visible={visibleItems.includes(i)}>
-                <Year>{item.date}</Year>
-                <MilestoneTitle>{item.title}</MilestoneTitle>
-                <MilestoneText>{item.description}</MilestoneText>
-              </ContentBox>
-              
-              <ImageWrapper className="image-wrapper" $visible={visibleItems.includes(i)}>
-                <Image $image={item.image} />
-              </ImageWrapper>
-            </Milestone>
-          ))}
-        </TimelineWrapper>
+        <ArticlesGrid>
+          {items.map((item, i) => {
+            const isVisible = visibleArticles.includes(i);
+            const delay = 0;
+            
+            return (
+              <Article key={i} ref={el => articleRefs.current[i] = el}>
+                <ArticleImage $visible={isVisible} $delay={delay}>
+                  <ImageFrame>
+                    <ImageOverlay $visible={isVisible} $delay={delay}>
+                      {item.image && <img src={item.image} alt={item.title} />}
+                    </ImageOverlay>
+                  </ImageFrame>
+                  <DateBadge>{item.date}</DateBadge>
+                </ArticleImage>
+                
+                <ArticleContent $visible={isVisible} $delay={delay}>
+                  <ArticleNumber>{String(i + 1).padStart(2, '0')}</ArticleNumber>
+                  <ArticleHeadline>{item.title}</ArticleHeadline>
+                  <ArticleLine $visible={isVisible} $delay={delay} />
+                  <ArticleText>{item.description}</ArticleText>
+                  
+                  {item.location && (
+                    <ArticleMeta>
+                      <MetaItem>📍 {item.location}</MetaItem>
+                    </ArticleMeta>
+                  )}
+                </ArticleContent>
+              </Article>
+            );
+          })}
+        </ArticlesGrid>
       </Container>
     </Section>
   );
