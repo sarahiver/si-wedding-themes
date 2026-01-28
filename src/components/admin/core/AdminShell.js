@@ -45,6 +45,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'edit-gallery': 'Galerie',
     'edit-faq': 'FAQ',
     'edit-abc': 'Hochzeits-ABC',
+    'edit-contact': 'Kontakt',
     'edit-footer': 'Footer',
     'status': 'Status',
   };
@@ -94,6 +95,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'edit-gallery': return <Editors.GalleryEditor components={C} />;
       case 'edit-faq': return <Editors.FAQEditor components={C} />;
       case 'edit-abc': return <Editors.ABCEditor components={C} />;
+      case 'edit-contact': return <Editors.ContactEditor components={C} />;
       case 'edit-footer': return <Editors.FooterEditor components={C} />;
       case 'status': return <StatusSection components={C} />;
       default: return <C.EmptyState>Bereich nicht gefunden</C.EmptyState>;

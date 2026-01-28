@@ -1,28 +1,78 @@
-// core/editors/RSVPEditor.js
+// core/editors/RSVPEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
 
 function RSVPEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
-  const content = contentStates.rsvp;
+  const content = contentStates.rsvp || {};
   const update = (field, value) => updateContent('rsvp', { ...content, [field]: value });
 
   return (
     <C.Panel>
-      <C.PanelHeader><C.PanelTitle>RSVP bearbeiten</C.PanelTitle></C.PanelHeader>
+      <C.PanelHeader>
+        <C.PanelTitle>RSVP bearbeiten</C.PanelTitle>
+      </C.PanelHeader>
       <C.PanelContent>
-        <C.FormGroup><C.Label>Titel</C.Label><C.Input value={content.title || ''} onChange={(e) => update('title', e.target.value)} /></C.FormGroup>
-        <C.FormGroup><C.Label>Untertitel</C.Label><C.Input value={content.subtitle || ''} onChange={(e) => update('subtitle', e.target.value)} /></C.FormGroup>
-        <C.FormGroup><C.Label>Deadline</C.Label><C.Input type="date" value={content.deadline || ''} onChange={(e) => update('deadline', e.target.value)} /></C.FormGroup>
+        <C.FormGroup>
+          <C.Label>Titel</C.Label>
+          <C.Input 
+            value={content.title || ''} 
+            onChange={(e) => update('title', e.target.value)}
+            placeholder="Zusage"
+          />
+        </C.FormGroup>
+        
+        <C.FormGroup>
+          <C.Label>Beschreibung</C.Label>
+          <C.TextArea 
+            value={content.description || ''} 
+            onChange={(e) => update('description', e.target.value)}
+            placeholder="Bitte gebt uns bis zum ... Bescheid..."
+          />
+        </C.FormGroup>
+        
+        <C.FormGroup>
+          <C.Label>Anmeldefrist</C.Label>
+          <C.Input 
+            type="date"
+            value={content.deadline || ''} 
+            onChange={(e) => update('deadline', e.target.value)}
+          />
+        </C.FormGroup>
+        
+        <C.SectionLabel>Formular-Optionen</C.SectionLabel>
+        
+        <C.FormGroup>
+          <C.Checkbox
+            checked={content.ask_dietary || false}
+            onChange={(e) => update('ask_dietary', e.target.checked)}
+          />
+          <C.CheckboxLabel>Ernährungswünsche abfragen (vegetarisch, vegan, etc.)</C.CheckboxLabel>
+        </C.FormGroup>
+        
+        <C.FormGroup>
+          <C.Checkbox
+            checked={content.ask_allergies || false}
+            onChange={(e) => update('ask_allergies', e.target.checked)}
+          />
+          <C.CheckboxLabel>Allergien/Unverträglichkeiten abfragen</C.CheckboxLabel>
+        </C.FormGroup>
+        
+        <C.FormGroup>
+          <C.Checkbox
+            checked={content.ask_song_wish || false}
+            onChange={(e) => update('ask_song_wish', e.target.checked)}
+          />
+          <C.CheckboxLabel>Musikwunsch abfragen</C.CheckboxLabel>
+        </C.FormGroup>
+        
         <C.Divider />
-        <C.SectionLabel>Formularfelder</C.SectionLabel>
-        <C.FormGroup><C.Checkbox><input type="checkbox" checked={content.show_menu !== false} onChange={(e) => update('show_menu', e.target.checked)} />Menüauswahl anzeigen</C.Checkbox></C.FormGroup>
-        <C.FormGroup><C.Checkbox><input type="checkbox" checked={content.show_allergies !== false} onChange={(e) => update('show_allergies', e.target.checked)} />Allergien-Feld anzeigen</C.Checkbox></C.FormGroup>
-        <C.FormGroup><C.Checkbox><input type="checkbox" checked={content.show_message !== false} onChange={(e) => update('show_message', e.target.checked)} />Nachricht-Feld anzeigen</C.Checkbox></C.FormGroup>
-        <C.Divider />
-        <C.Button onClick={() => saveContent('rsvp')} disabled={isSaving}>{isSaving ? 'Speichern...' : '💾 Speichern'}</C.Button>
+        <C.Button onClick={() => saveContent('rsvp')} disabled={isSaving}>
+          {isSaving ? 'Speichern...' : '💾 Speichern'}
+        </C.Button>
       </C.PanelContent>
     </C.Panel>
   );
 }
+
 export default RSVPEditor;

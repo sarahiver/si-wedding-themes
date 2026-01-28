@@ -13,7 +13,7 @@ export function AdminProvider({ children }) {
   const wedding = useWedding();
   const { project, projectId, coupleNames, content, slug, isComponentActive, refetch } = wedding || {};
   
-  // Auth - persist in sessionStorage to survive refetch
+  // Auth - persist in sessionStorage
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem(`admin_logged_in_${slug}`) === 'true';
@@ -44,7 +44,7 @@ export function AdminProvider({ children }) {
   // Feedback
   const [feedback, setFeedback] = useState({ show: false, type: 'success', message: '' });
   
-  // Content States (all editors)
+  // Content States - Schema-compliant
   const [contentStates, setContentStates] = useState({});
   
   // Config
@@ -53,27 +53,31 @@ export function AdminProvider({ children }) {
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
   const baseFolder = `iverlasting/${slug || 'default'}`;
 
-  // Initialize content from wedding context
+  // Initialize content from wedding context - Schema-compliant defaults
   useEffect(() => {
     if (content) {
       setContentStates({
-        hero: content.hero || {},
-        countdown: content.countdown || {},
-        lovestory: content.lovestory || { events: [] },
-        timeline: content.timeline || { events: [] },
-        locations: content.locations || { locations: [] },
-        directions: content.directions || { options: [] },
-        rsvp: content.rsvp || {},
-        dresscode: content.dresscode || { colors: [], dos: [], donts: [] },
-        gifts: content.gifts || { items: [] },
-        accommodations: content.accommodations || { hotels: [] },
-        witnesses: content.witnesses || { witnesses: [] },
-        gallery: content.gallery || { images: [] },
-        faq: content.faq || { items: [] },
-        weddingabc: content.weddingabc || { entries: [] },
-        footer: content.footer || {},
-        savethedate: content.savethedate || {},
-        archive: content.archive || {},
+        hero: content.hero || { background_image: '', background_video: '', tagline: '', location_short: '' },
+        countdown: content.countdown || { target_date: '', title: '', show_seconds: true },
+        lovestory: content.lovestory || { title: '', events: [] },
+        timeline: content.timeline || { title: '', events: [] },
+        locations: content.locations || { title: '', locations: [] },
+        directions: content.directions || { title: '', address: '', maps_embed: '', parking_info: '', public_transport: '', taxi_info: '' },
+        rsvp: content.rsvp || { title: '', description: '', deadline: '', ask_dietary: true, ask_allergies: true, ask_song_wish: false },
+        dresscode: content.dresscode || { title: '', code: '', description: '', colors: [], dos: [], donts: [] },
+        gifts: content.gifts || { title: '', description: '', items: [], bank_details: '', paypal_link: '', registry_url: '' },
+        accommodations: content.accommodations || { title: '', description: '', hotels: [] },
+        witnesses: content.witnesses || { title: '', persons: [] },
+        gallery: content.gallery || { title: '', images: [], layout: 'grid' },
+        guestbook: content.guestbook || { title: '', description: '', allow_images: true },
+        musicwishes: content.musicwishes || { title: '', description: '', spotify_playlist: '' },
+        photoupload: content.photoupload || { title: '', description: '', max_files: 10, moderation: true },
+        faq: content.faq || { title: '', questions: [] },
+        weddingabc: content.weddingabc || { title: '', entries: [] },
+        contact: content.contact || { title: '', couple_email: '', couple_phone: '', show_form: true },
+        footer: content.footer || { hashtag: '', impressum_url: '', datenschutz_url: '' },
+        savethedate: content.savethedate || { hero_image: '', tagline: '', message: '', countdown_active: true },
+        archive: content.archive || { hero_image: '', thank_you_title: '', thank_you_text: '', gallery_active: true, guestbook_active: true, photoupload_active: true },
       });
     }
   }, [content]);
@@ -87,9 +91,7 @@ export function AdminProvider({ children }) {
     if (isLoggedIn && projectId) loadData();
   }, [isLoggedIn, projectId]);
 
-  // ============================================
   // DATA LOADING
-  // ============================================
   const loadData = useCallback(async () => {
     if (!projectId) return;
     setIsLoading(true);
@@ -111,9 +113,7 @@ export function AdminProvider({ children }) {
     setIsLoading(false);
   }, [projectId]);
 
-  // ============================================
   // FEEDBACK
-  // ============================================
   const showFeedback = useCallback((type, message) => {
     setFeedback({ show: true, type, message });
     if (type === 'success') {
@@ -125,14 +125,11 @@ export function AdminProvider({ children }) {
     setFeedback(f => ({ ...f, show: false }));
   }, []);
 
-  // ============================================
   // AUTH
-  // ============================================
   const login = useCallback((password) => {
     if (password === adminPassword) {
       setIsLoggedIn(true);
       setLoginError('');
-      // Persist login in sessionStorage
       if (typeof window !== 'undefined') {
         sessionStorage.setItem(`admin_logged_in_${slug}`, 'true');
       }
@@ -149,9 +146,7 @@ export function AdminProvider({ children }) {
     }
   }, [slug]);
 
-  // ============================================
   // ACTIONS
-  // ============================================
   const changeStatus = useCallback(async (newStatus) => {
     try {
       await updateProjectStatus(projectId, newStatus);
@@ -231,9 +226,7 @@ export function AdminProvider({ children }) {
     setSelectedPhotos(new Set());
   }, []);
 
-  // ============================================
   // CONTENT EDITING
-  // ============================================
   const updateContent = useCallback((section, data) => {
     setContentStates(prev => ({ ...prev, [section]: data }));
   }, []);
@@ -253,8 +246,6 @@ export function AdminProvider({ children }) {
         showFeedback('error', 'Fehler beim Speichern: ' + error.message);
       } else {
         showFeedback('success', 'Gespeichert!');
-        // Note: We don't call refetch() here to avoid re-mounting
-        // The data will be fresh on next page load
       }
     } catch (e) {
       console.error('Save error:', e);
@@ -263,9 +254,7 @@ export function AdminProvider({ children }) {
     setIsSaving(false);
   }, [projectId, contentStates, showFeedback]);
 
-  // ============================================
   // EXPORT CSV
-  // ============================================
   const exportCSV = useCallback((data, filename) => {
     if (!data.length) return;
     const headers = Object.keys(data[0]);
@@ -282,9 +271,7 @@ export function AdminProvider({ children }) {
     URL.revokeObjectURL(url);
   }, []);
 
-  // ============================================
   // STATS
-  // ============================================
   const stats = {
     confirmed: rsvpData.filter(r => r.attending).length,
     declined: rsvpData.filter(r => !r.attending).length,
@@ -297,9 +284,7 @@ export function AdminProvider({ children }) {
     totalPhotos: photoUploads.length,
   };
 
-  // ============================================
   // NAV ITEMS
-  // ============================================
   const checkActive = useCallback((name) => {
     if (!isComponentActive) return true;
     return isComponentActive(name);
@@ -322,14 +307,15 @@ export function AdminProvider({ children }) {
       checkActive('timeline') && { id: 'edit-timeline', label: 'Ablauf', icon: '📅' },
       checkActive('locations') && { id: 'edit-locations', label: 'Locations', icon: '📍' },
       checkActive('directions') && { id: 'edit-directions', label: 'Anfahrt', icon: '🚗' },
-      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP Text', icon: '✏️' },
-      checkActive('dresscode') && { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
-      checkActive('gifts') && { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
       checkActive('accommodations') && { id: 'edit-hotels', label: 'Hotels', icon: '🏨' },
-      checkActive('witnesses') && { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
+      checkActive('dresscode') && { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
+      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP Text', icon: '✏️' },
+      checkActive('gifts') && { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
       checkActive('gallery') && { id: 'edit-gallery', label: 'Galerie', icon: '🎨' },
       checkActive('faq') && { id: 'edit-faq', label: 'FAQ', icon: '❓' },
       checkActive('weddingabc') && { id: 'edit-abc', label: 'ABC', icon: '🔤' },
+      checkActive('witnesses') && { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
+      checkActive('contact') && { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
       { id: 'edit-footer', label: 'Footer', icon: '📝' },
     ].filter(Boolean)},
     { section: 'Einstellungen', items: [

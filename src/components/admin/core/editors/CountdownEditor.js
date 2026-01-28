@@ -1,24 +1,11 @@
-// core/editors/CountdownEditor.js
-import React, { useState } from 'react';
+// core/editors/CountdownEditor.js - Schema-konform
+import React from 'react';
 import { useAdmin } from '../AdminContext';
 
 function CountdownEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
-  const content = contentStates.countdown;
-  const [error, setError] = useState('');
-  
-  const update = (field, value) => {
-    updateContent('countdown', { ...content, [field]: value });
-    setError('');
-  };
-
-  const handleSave = () => {
-    if (content.target_date && new Date(content.target_date) < new Date()) {
-      setError('Datum darf nicht in der Vergangenheit liegen');
-      return;
-    }
-    saveContent('countdown');
-  };
+  const content = contentStates.countdown || {};
+  const update = (field, value) => updateContent('countdown', { ...content, [field]: value });
 
   return (
     <C.Panel>
@@ -31,33 +18,39 @@ function CountdownEditor({ components: C }) {
           <C.Input 
             value={content.title || ''} 
             onChange={(e) => update('title', e.target.value)}
-            placeholder="z.B. Noch"
+            placeholder="Noch"
           />
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Label>Datum & Uhrzeit</C.Label>
+          <C.Label>Zieldatum *</C.Label>
           <C.Input 
             type="datetime-local"
-            value={content.target_date?.slice(0, 16) || ''} 
+            value={content.target_date || ''} 
             onChange={(e) => update('target_date', e.target.value)}
-            $error={!!error}
           />
-          {error && <C.ErrorText>{error}</C.ErrorText>}
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox>
-            <input 
-              type="checkbox" 
-              checked={content.show_seconds || false} 
-              onChange={(e) => update('show_seconds', e.target.checked)}
-            />
-            Sekunden anzeigen
-          </C.Checkbox>
+          <C.Label>Startdatum (optional)</C.Label>
+          <C.Input 
+            type="date"
+            value={content.start_date || ''} 
+            onChange={(e) => update('start_date', e.target.value)}
+          />
+          <C.HelpText>Für Zeitleisten-Countdown (Standard: Jahresanfang)</C.HelpText>
         </C.FormGroup>
         
-        <C.Button onClick={handleSave} disabled={isSaving}>
+        <C.FormGroup>
+          <C.Checkbox
+            checked={content.show_seconds || false}
+            onChange={(e) => update('show_seconds', e.target.checked)}
+          />
+          <C.CheckboxLabel>Sekunden anzeigen</C.CheckboxLabel>
+        </C.FormGroup>
+        
+        <C.Divider />
+        <C.Button onClick={() => saveContent('countdown')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}
         </C.Button>
       </C.PanelContent>

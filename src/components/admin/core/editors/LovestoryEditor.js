@@ -1,4 +1,4 @@
-// core/editors/LovestoryEditor.js
+// core/editors/LovestoryEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
@@ -6,37 +6,11 @@ import ImageUploader from './ImageUploader';
 
 function LovestoryEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
-  const content = contentStates.lovestory;
-  
-  const update = (field, value) => {
-    updateContent('lovestory', { ...content, [field]: value });
-  };
+  const content = contentStates.lovestory || {};
+  const update = (field, value) => updateContent('lovestory', { ...content, [field]: value });
 
   const renderItem = (item, index, onChange) => (
     <>
-      <C.FormGroup>
-        <C.Label>Jahr</C.Label>
-        <C.Input 
-          value={item.date || ''} 
-          onChange={(e) => onChange('date', e.target.value)}
-          placeholder="z.B. 2019"
-        />
-      </C.FormGroup>
-      <C.FormGroup>
-        <C.Label>Titel</C.Label>
-        <C.Input 
-          value={item.title || ''} 
-          onChange={(e) => onChange('title', e.target.value)}
-          placeholder="z.B. Erstes Date"
-        />
-      </C.FormGroup>
-      <C.FormGroup>
-        <C.Label>Beschreibung</C.Label>
-        <C.TextArea 
-          value={item.description || ''} 
-          onChange={(e) => onChange('description', e.target.value)}
-        />
-      </C.FormGroup>
       <ImageUploader
         components={C}
         image={item.image}
@@ -45,6 +19,30 @@ function LovestoryEditor({ components: C }) {
         ratio="4/3"
         label="Bild"
       />
+      <C.FormGroup>
+        <C.Label>Zeitpunkt *</C.Label>
+        <C.Input 
+          value={item.date || ''} 
+          onChange={(e) => onChange('date', e.target.value)}
+          placeholder="Juni 2019"
+        />
+      </C.FormGroup>
+      <C.FormGroup>
+        <C.Label>Titel *</C.Label>
+        <C.Input 
+          value={item.title || ''} 
+          onChange={(e) => onChange('title', e.target.value)}
+          placeholder="Das erste Date"
+        />
+      </C.FormGroup>
+      <C.FormGroup>
+        <C.Label>Beschreibung</C.Label>
+        <C.TextArea 
+          value={item.description || ''} 
+          onChange={(e) => onChange('description', e.target.value)}
+          placeholder="Erzählt eure Geschichte..."
+        />
+      </C.FormGroup>
     </>
   );
 
@@ -63,19 +61,18 @@ function LovestoryEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.SectionLabel>Meilensteine</C.SectionLabel>
-        
-        <ListEditor
-          components={C}
-          items={content.events || []}
-          onItemsChange={(events) => update('events', events)}
-          renderItem={renderItem}
-          createNewItem={() => ({ date: '', title: '', description: '', image: null })}
+        <C.SectionLabel>Meilensteine (max. 8)</C.SectionLabel>
+        <ListEditor 
+          components={C} 
+          items={content.events || []} 
+          onItemsChange={(events) => update('events', events)} 
+          renderItem={renderItem} 
+          createNewItem={() => ({ date: '', title: '', description: '', image: '' })} 
           addLabel="+ Meilenstein"
+          maxItems={8}
         />
         
         <C.Divider />
-        
         <C.Button onClick={() => saveContent('lovestory')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}
         </C.Button>
