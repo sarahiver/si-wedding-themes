@@ -1,5 +1,8 @@
 import { createGlobalStyle, keyframes } from 'styled-components';
 
+// Font import via link tag in index.html or add dynamically
+// DO NOT use @import inside createGlobalStyle - it breaks in styled-components v6
+
 // Exportierte Keyframes für alle Komponenten
 export const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -54,8 +57,6 @@ export const typing = keyframes`
 `;
 
 const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
   :root {
     /* Contemporary Brutalist Colors - EXAKT wie Marketing */
     --black: #0D0D0D;
