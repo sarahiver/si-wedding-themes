@@ -170,16 +170,13 @@ const UploadButton = styled.button`
   }
 `;
 
-function PhotoUpload({ content = {}, onUpload }) {
+function PhotoUpload({ onUpload }) {
   const [visible, setVisible] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const sectionRef = useRef(null);
   const inputRef = useRef(null);
-
-  const title = content.title || 'Eure Fotos';
-  const description = content.description || '';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -221,8 +218,8 @@ function PhotoUpload({ content = {}, onUpload }) {
     <Section ref={sectionRef} id="photos">
       <Container>
         <Header>
-          <Title $visible={visible}>📸 {title}</Title>
-          <Subtitle $visible={visible}>{description || 'Teile deine schönsten Momente mit uns'}</Subtitle>
+          <Title $visible={visible}>📸 Foto Upload</Title>
+          <Subtitle $visible={visible}>Teile deine schönsten Momente mit uns</Subtitle>
         </Header>
         
         <DropZoneComponent 

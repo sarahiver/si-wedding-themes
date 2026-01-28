@@ -172,24 +172,16 @@ const TipText = styled.p`
   strong { font-weight: 700; }
 `;
 
-function Dresscode({ content = {} }) {
+function Dresscode() {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'What to Wear';
-  const description = content.description || 'Elegante Abendgarderobe in festlichem Rahmen';
-  const code = content.code || 'Festlich elegant';
-
-  const defaultColors = [
+  const colors = [
     { color: 'var(--black)', name: 'Schwarz' },
     { color: '#4b5563', name: 'Anthrazit' },
     { color: 'var(--white)', name: 'Weiß' },
     { color: '#d4af37', name: 'Gold' },
   ];
-  
-  const colors = content.colors?.length > 0 
-    ? content.colors.map(c => ({ color: c, name: c }))
-    : defaultColors;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -205,8 +197,8 @@ function Dresscode({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>👔👗 Dresscode</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
-          <Subtitle $visible={visible}>{description}</Subtitle>
+          <Title $visible={visible}>What to Wear</Title>
+          <Subtitle $visible={visible}>Elegante Abendgarderobe in festlichem Rahmen</Subtitle>
         </Header>
         
         <Grid>

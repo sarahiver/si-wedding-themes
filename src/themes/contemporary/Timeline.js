@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-
-const pop = keyframes`
-  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-  70% { transform: scale(1.1) rotate(2deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-`;
+import styled from 'styled-components';
 
 const Section = styled.section`
-  padding: 100px 5%;
-  background: #FAFAFA;
+  padding: 8rem 2rem;
+  background: var(--gray-100);
   position: relative;
 `;
 
@@ -20,100 +14,174 @@ const Container = styled.div`
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 5rem;
 `;
 
-const Eyebrow = styled.span`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
+const Eyebrow = styled.div`
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #FF6B6B;
-  display: block;
-  margin-bottom: 1rem;
+  color: var(--coral);
+  padding: 0.5rem 1.5rem;
+  border: 2px solid var(--coral);
+  margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.6s ease;
 `;
 
 const Title = styled.h2`
-  font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 700;
-  color: #0D0D0D;
-  line-height: 1.1;
-`;
-
-const TimelineGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-`;
-
-const Card = styled.div`
-  background: #FFFFFF;
-  border: 3px solid #0D0D0D;
-  padding: 25px;
-  position: relative;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
   opacity: ${p => p.$visible ? 1 : 0};
-  transform: ${p => p.$visible ? 'scale(1) rotate(0deg)' : 'scale(0) rotate(-10deg)'};
-  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: ${p => p.$index * 0.1}s;
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.6s ease 0.1s;
+`;
+
+const TimelineWrapper = styled.div`
+  position: relative;
   
-  ${p => p.$highlighted && css`
-    background: #FFE66D;
-    box-shadow: 8px 8px 0 #0D0D0D;
-  `}
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 8px 8px 0 ${p => p.$highlighted ? '#FF6B6B' : '#0D0D0D'};
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--black) 0px,
+      var(--black) 10px,
+      transparent 10px,
+      transparent 20px
+    );
+    transform: translateX(-50%);
+    
+    @media (max-width: 768px) {
+      left: 20px;
+    }
   }
 `;
 
-const TimeLabel = styled.div`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
+const TimelineItem = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 3rem;
+  position: relative;
+  
+  &:nth-child(odd) {
+    flex-direction: row;
+    
+    .content { margin-left: auto; padding-left: 4rem; }
+    .time { text-align: right; padding-right: 4rem; }
+  }
+  
+  &:nth-child(even) {
+    flex-direction: row-reverse;
+    
+    .content { margin-right: auto; padding-right: 4rem; }
+    .time { text-align: left; padding-left: 4rem; }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: row !important;
+    
+    .content { margin-left: auto !important; padding-left: 4rem !important; padding-right: 0 !important; }
+    .time { display: none; }
+  }
+`;
+
+const TimelineTime = styled.div`
+  width: 45%;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: ${p => p.$highlighted ? '#0D0D0D' : '#FF6B6B'};
-  margin-bottom: 10px;
+  color: var(--gray-400);
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateX(${p => p.$visible ? 0 : (p.$side === 'left' ? '-30px' : '30px')});
+  transition: all 0.6s ease ${p => 0.2 + p.$index * 0.1}s;
+`;
+
+const TimelineDot = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 24px;
+  background: ${p => p.$highlighted ? 'var(--coral)' : 'var(--white)'};
+  border: 4px solid var(--black);
+  z-index: 1;
+  
+  @media (max-width: 768px) {
+    left: 20px;
+  }
+`;
+
+const TimelineContent = styled.div`
+  width: 45%;
+  background: var(--white);
+  padding: 1.5rem;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateX(${p => p.$visible ? 0 : (p.$side === 'left' ? '30px' : '-30px')});
+  transition: all 0.6s ease ${p => 0.2 + p.$index * 0.1}s;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  @media (max-width: 768px) {
+    width: calc(100% - 60px);
+  }
+`;
+
+const EventTime = styled.div`
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: ${p => p.$color || 'var(--coral)'};
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid var(--black);
 `;
 
 const EventTitle = styled.h3`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0D0D0D;
-  margin-bottom: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
 `;
 
 const EventDesc = styled.p`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(13, 13, 13, 0.7);
+  font-size: 0.85rem;
+  color: var(--gray-600);
+  margin: 0;
   line-height: 1.5;
 `;
 
-const EventIcon = styled.span`
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 1.5rem;
-`;
+const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
 
-function Timeline({ content = {}, events: eventsProp }) {
+function Timeline({ events = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  // Get events from content or direct prop
-  const eventsFromContent = content.events || [];
-  const events = eventsProp?.length > 0 ? eventsProp : eventsFromContent;
-
   const defaultEvents = [
-    { time: '14:00', title: 'Zeremonie', description: 'Die Trauung beginnt', icon: '💒', highlighted: true },
-    { time: '15:30', title: 'Empfang', description: 'Sektempfang auf der Terrasse', icon: '🥂' },
-    { time: '17:00', title: 'Dinner', description: '3-Gänge-Menü im Festsaal', icon: '🍽️' },
-    { time: '20:00', title: 'First Dance', description: 'Unser erster Tanz', icon: '💃', highlighted: true },
-    { time: '21:00', title: 'Party', description: 'DJ & Tanzfläche', icon: '🎉' },
-    { time: '00:00', title: 'Mitternachtssnack', description: 'Burger & Pommes', icon: '🍔' },
+    { time: '14:00', title: 'Zeremonie', desc: 'Die Trauung beginnt in der Kapelle', highlighted: true },
+    { time: '15:30', title: 'Empfang', desc: 'Sektempfang auf der Terrasse' },
+    { time: '17:00', title: 'Dinner', desc: '3-Gänge-Menü im Festsaal' },
+    { time: '20:00', title: 'Party', desc: 'DJ & Tanzfläche bis Mitternacht' },
+    { time: '21:00', title: 'First Dance', desc: 'Unser erster Tanz als Ehepaar', highlighted: true },
+    { time: '00:00', title: 'Mitternachtssnack', desc: 'Burger & Pommes für alle' },
   ];
 
   const items = events.length > 0 ? events : defaultEvents;
@@ -131,25 +199,25 @@ function Timeline({ content = {}, events: eventsProp }) {
     <Section ref={sectionRef} id="timeline">
       <Container>
         <Header>
-          <Eyebrow>So läuft der Tag</Eyebrow>
-          <Title>{content.title || 'Tagesablauf'}</Title>
+          <Eyebrow $visible={visible}>📅 Tagesablauf</Eyebrow>
+          <Title $visible={visible}>Schedule</Title>
         </Header>
         
-        <TimelineGrid>
+        <TimelineWrapper>
           {items.map((event, i) => (
-            <Card 
-              key={i} 
-              $index={i} 
-              $visible={visible}
-              $highlighted={event.highlighted || event.highlight}
-            >
-              {event.icon && <EventIcon>{event.icon}</EventIcon>}
-              <TimeLabel $highlighted={event.highlighted || event.highlight}>{event.time}</TimeLabel>
-              <EventTitle>{event.title}</EventTitle>
-              <EventDesc>{event.description || event.desc}</EventDesc>
-            </Card>
+            <TimelineItem key={i}>
+              <TimelineTime className="time" $visible={visible} $index={i} $side={i % 2 === 0 ? 'left' : 'right'}>
+                {event.time}
+              </TimelineTime>
+              <TimelineDot $highlighted={event.highlighted} />
+              <TimelineContent className="content" $visible={visible} $index={i} $side={i % 2 === 0 ? 'right' : 'left'}>
+                <EventTime $color={colors[i % colors.length]}>{event.time}</EventTime>
+                <EventTitle>{event.title}</EventTitle>
+                <EventDesc>{event.desc}</EventDesc>
+              </TimelineContent>
+            </TimelineItem>
           ))}
-        </TimelineGrid>
+        </TimelineWrapper>
       </Container>
     </Section>
   );

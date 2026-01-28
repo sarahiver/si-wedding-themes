@@ -122,13 +122,10 @@ const CardText = styled.p`
   margin: 0;
 `;
 
-function WeddingABC({ content = {} }) {
+function WeddingABC({ entries = [] }) {
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState('all');
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Good to Know';
-  const entries = content.entries || [];
 
   const defaultEntries = [
     { letter: 'A', title: 'Anfahrt', text: 'Nutzt unsere Wegbeschreibung oder Google Maps.' },
@@ -161,7 +158,7 @@ function WeddingABC({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>📖 Hochzeits-ABC</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Good to Know</Title>
         </Header>
         
         <FilterBar $visible={visible}>

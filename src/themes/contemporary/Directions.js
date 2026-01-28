@@ -155,13 +155,9 @@ const TransportDesc = styled.p`
   margin: 0;
 `;
 
-function Directions({ content = {} }) {
+function Directions({ address = 'Schloss Heidelberg, 69117 Heidelberg' }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Get There';
-  const address = content.address || 'Schloss Heidelberg, 69117 Heidelberg';
-  const options = content.options || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -177,7 +173,7 @@ function Directions({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>🗺️ Navigation</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Get There</Title>
         </Header>
         
         <Grid>

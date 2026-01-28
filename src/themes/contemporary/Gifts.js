@@ -191,14 +191,10 @@ const ReserveButton = styled.button`
   }
 `;
 
-function Gifts({ content = {} }) {
+function Gifts({ gifts = [] }) {
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Gift Registry';
-  const description = content.description || 'Euer Beitrag zu unserem nächsten Abenteuer';
-  const gifts = content.items || [];
 
   const defaultGifts = [
     { name: 'KitchenAid', price: '€599', emoji: '🍳', reserved: false },
@@ -229,8 +225,8 @@ function Gifts({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>🎁 Geschenke</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
-          <Subtitle $visible={visible}>{description}</Subtitle>
+          <Title $visible={visible}>Gift Registry</Title>
+          <Subtitle $visible={visible}>Euer Beitrag zu unserem nächsten Abenteuer</Subtitle>
         </Header>
         
         <MainCard $visible={visible}>

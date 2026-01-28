@@ -118,29 +118,18 @@ const CardEmoji = styled.div`
   font-size: 2rem;
 `;
 
-function LoveStory({ content = {} }) {
+function LoveStory({ milestones = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'How we got here';
-  const events = content.events || [];
-
   const defaultMilestones = [
-    { year: "'20", date: '2020', title: 'First Match', text: 'Ein Swipe nach rechts und alles begann...', emoji: '📱' },
-    { year: "'21", date: '2021', title: 'First Date', text: 'Coffee turned into dinner turned into forever.', emoji: '☕' },
-    { year: "'22", date: '2022', title: 'Adventures', text: 'Bali, Paris, Tokyo – die Welt gemeinsam erkunden.', emoji: '✈️' },
-    { year: "'24", date: '2024', title: 'The Question', text: 'Er fragte, sie sagte JA!', emoji: '💍' },
+    { year: "'20", title: 'First Match', text: 'Ein Swipe nach rechts und alles begann...', emoji: '📱' },
+    { year: "'21", title: 'First Date', text: 'Coffee turned into dinner turned into forever.', emoji: '☕' },
+    { year: "'22", title: 'Adventures', text: 'Bali, Paris, Tokyo – die Welt gemeinsam erkunden.', emoji: '✈️' },
+    { year: "'24", title: 'The Question', text: 'Er fragte, sie sagte JA!', emoji: '💍' },
   ];
 
-  // Map content.events to our format if they exist
-  const items = events.length > 0 
-    ? events.map(e => ({
-        year: e.year || `'${(e.date || '').slice(-2)}`,
-        title: e.title,
-        text: e.text || e.description,
-        emoji: e.emoji || e.icon || '💕'
-      }))
-    : defaultMilestones;
+  const items = milestones.length > 0 ? milestones : defaultMilestones;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -157,7 +146,7 @@ function LoveStory({ content = {} }) {
         <Header>
           <TitleGroup>
             <Eyebrow $visible={visible}>💕 Unsere Geschichte</Eyebrow>
-            <Title $visible={visible}>{title}</Title>
+            <Title $visible={visible}>How we got here</Title>
           </TitleGroup>
         </Header>
         

@@ -154,12 +154,9 @@ const InfoText = styled.p`
   margin: 0;
 `;
 
-function Contact({ content = {} }) {
+function Contact({ witnesses = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Got Questions?';
-  const witnesses = content.persons || [];
 
   const defaultWitnesses = [
     { role: 'Trauzeugin', name: 'Lisa Schneider', relation: 'Beste Freundin der Braut', phone: '+49 176 12345678', email: 'lisa@email.de', color: 'var(--coral)', emoji: '👰' },
@@ -182,7 +179,7 @@ function Contact({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>📞 Kontakt</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Got Questions?</Title>
         </Header>
         
         <Grid>

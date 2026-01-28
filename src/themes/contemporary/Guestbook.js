@@ -186,21 +186,18 @@ const EntryMessage = styled.p`
   margin: 0;
 `;
 
-function Guestbook({ content = {}, onSubmit }) {
+function Guestbook({ entries = [], onSubmit }) {
   const [visible, setVisible] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Leave a Note';
-  const description = content.description || '';
 
   const defaultEntries = [
     { name: 'Familie Weber', message: 'Wir freuen uns riesig auf euren großen Tag! Alles Liebe für eure gemeinsame Zukunft.', date: 'vor 2 Tagen' },
     { name: 'Anna & Markus', message: 'Ihr seid das perfekte Paar! Können es kaum erwarten, mit euch zu feiern.', date: 'vor 5 Tagen' },
   ];
 
-  const displayEntries = defaultEntries; // Entries would come from database in real app
+  const displayEntries = entries.length > 0 ? entries : defaultEntries;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -224,7 +221,7 @@ function Guestbook({ content = {}, onSubmit }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>📝 Gästebuch</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Leave a Note</Title>
         </Header>
         
         <FormCard $visible={visible} onSubmit={handleSubmit}>

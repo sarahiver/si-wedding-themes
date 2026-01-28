@@ -162,12 +162,9 @@ const CardButton = styled.a`
   }
 `;
 
-function Locations({ content = {} }) {
+function Locations({ locations = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Where it happens';
-  const locations = content.locations || [];
 
   const defaultLocations = [
     { type: 'Zeremonie', name: 'Alte Kapelle', address: 'Schlossallee 1, 69117 Heidelberg', time: '14:00 Uhr', emoji: '⛪' },
@@ -191,7 +188,7 @@ function Locations({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>📍 Locations</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Where it happens</Title>
         </Header>
         
         <CardsStack>

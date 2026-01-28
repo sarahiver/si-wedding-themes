@@ -197,21 +197,18 @@ const SuccessTitle = styled.h3`
   text-transform: uppercase;
 `;
 
-function MusicWishes({ content = {}, onSubmit }) {
+function MusicWishes({ wishes = [], onSubmit }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '', message: '' });
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Musikwünsche';
-  const description = content.description || '';
 
   const defaultWishes = [
     { song: "I Gotta Feeling", artist: "Black Eyed Peas", by: "Müller" },
     { song: "Uptown Funk", artist: "Bruno Mars", by: "Schmidt" },
   ];
 
-  const displayWishes = defaultWishes; // Wishes would come from database in real app
+  const displayWishes = wishes.length > 0 ? wishes : defaultWishes;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -240,7 +237,7 @@ function MusicWishes({ content = {}, onSubmit }) {
       
       <Container>
         <Header>
-          <Title $visible={visible}>🎵 {title}</Title>
+          <Title $visible={visible}>🎵 Musikwünsche</Title>
         </Header>
         
         {submitted ? (

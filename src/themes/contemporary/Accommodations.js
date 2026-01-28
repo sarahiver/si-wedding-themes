@@ -171,18 +171,14 @@ const TipText = styled.p`
   strong { font-weight: 700; }
 `;
 
-function Accommodations({ content = {} }) {
+function Accommodations({ hotels = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = content.title || 'Where to Stay';
-  const description = content.description || '';
-  const hotels = content.hotels || [];
-
   const defaultHotels = [
-    { name: 'Hotel Heidelberg', location: '500m zur Location', address: '500m zur Location', price: 'ab €129', features: ['Spa', 'Frühstück', 'Parken'], recommended: true, emoji: '🏨' },
-    { name: 'Boutique Rose', location: '1.2km zur Location', address: '1.2km zur Location', price: 'ab €99', features: ['Charme', 'Frühstück'], emoji: '🌹' },
-    { name: 'Hotel am Schloss', location: '300m zur Location', address: '300m zur Location', price: 'ab €149', features: ['Luxus', 'Restaurant'], emoji: '🏰' },
+    { name: 'Hotel Heidelberg', location: '500m zur Location', price: 'ab €129', features: ['Spa', 'Frühstück', 'Parken'], recommended: true, emoji: '🏨' },
+    { name: 'Boutique Rose', location: '1.2km zur Location', price: 'ab €99', features: ['Charme', 'Frühstück'], emoji: '🌹' },
+    { name: 'Hotel am Schloss', location: '300m zur Location', price: 'ab €149', features: ['Luxus', 'Restaurant'], emoji: '🏰' },
   ];
 
   const items = hotels.length > 0 ? hotels : defaultHotels;
@@ -201,7 +197,7 @@ function Accommodations({ content = {} }) {
       <Container>
         <Header>
           <Eyebrow $visible={visible}>🏨 Übernachtung</Eyebrow>
-          <Title $visible={visible}>{title}</Title>
+          <Title $visible={visible}>Where to Stay</Title>
         </Header>
         
         <Grid>

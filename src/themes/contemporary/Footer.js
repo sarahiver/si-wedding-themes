@@ -93,18 +93,6 @@ const CoupleNames = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const Hashtag = styled.div`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--coral);
-  margin: 2rem 0;
-  padding: 0.75rem 2rem;
-  border: 3px solid var(--coral);
-  display: inline-block;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.3s;
-`;
-
 const FooterLinks = styled.div`
   display: flex;
   justify-content: center;
@@ -237,12 +225,12 @@ const ErrorMessage = styled.p`
   margin-top: 1rem;
 `;
 
-function Footer({ coupleNames = 'Sophie & Max', content = {}, showBadge = false, slug = '' }) {
+function Footer({ coupleNames = 'Sophie & Max', onAdminLogin }) {
   const [visible, setVisible] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const sectionRef = useRef(null);
-
-  const hashtag = content.hashtag || '';
-  const tagline = content.tagline || 'Wir freuen uns auf euch!';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -253,44 +241,80 @@ function Footer({ coupleNames = 'Sophie & Max', content = {}, showBadge = false,
     return () => observer.disconnect();
   }, []);
 
-  const handleAdminClick = () => {
-    const adminPath = slug ? `/${slug}/admin` : '/admin';
-    window.location.href = adminPath;
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (credentials.username === 'admin' && credentials.password === 'password') {
+      if (onAdminLogin) onAdminLogin();
+      setShowModal(false);
+      setCredentials({ username: '', password: '' });
+      setError('');
+    } else {
+      setError('Ungültige Anmeldedaten');
+    }
   };
 
-  const year = new Date().getFullYear();
-
   return (
-    <Section ref={sectionRef}>
-      <Container>
-        <BigHeadline $visible={visible}>See you<br />soon!</BigHeadline>
-        <Subtitle $visible={visible}>{tagline}</Subtitle>
-        <CTAButton href="#rsvp" $visible={visible}>Jetzt zusagen →</CTAButton>
-        
-        {hashtag && (
-          <Hashtag $visible={visible}>{hashtag}</Hashtag>
-        )}
-        
-        <Divider />
-        
-        <CoupleNames>{coupleNames}</CoupleNames>
-        
-        <FooterLinks>
-          <FooterLink href="#story">Story</FooterLink>
-          <FooterLink href="#location">Location</FooterLink>
-          <FooterLink href="#timeline">Ablauf</FooterLink>
-          <FooterLink href="#faq">FAQ</FooterLink>
-        </FooterLinks>
-        
-        <AdminLink onClick={handleAdminClick}>
-          Admin
-        </AdminLink>
-        
-        <Copyright>
-          © {year} {coupleNames} • Made with ♥
-        </Copyright>
-      </Container>
-    </Section>
+    <>
+      <Section ref={sectionRef}>
+        <Container>
+          <BigHeadline $visible={visible}>See you<br />soon!</BigHeadline>
+          <Subtitle $visible={visible}>Wir können es kaum erwarten, mit euch zu feiern</Subtitle>
+          <CTAButton href="#rsvp" $visible={visible}>Jetzt zusagen →</CTAButton>
+          
+          <Divider />
+          
+          <CoupleNames>{coupleNames}</CoupleNames>
+          
+          <FooterLinks>
+            <FooterLink href="#story">Story</FooterLink>
+            <FooterLink href="#location">Location</FooterLink>
+            <FooterLink href="#timeline">Ablauf</FooterLink>
+            <FooterLink href="#faq">FAQ</FooterLink>
+          </FooterLinks>
+          
+          <AdminLink onClick={() => setShowModal(true)}>
+            🔐 Admin Login
+          </AdminLink>
+          
+          <Copyright>
+            © {new Date().getFullYear()} {coupleNames} • Made with ♥
+          </Copyright>
+        </Container>
+      </Section>
+      
+      {showModal && (
+        <ModalOverlay onClick={() => setShowModal(false)}>
+          <Modal onClick={e => e.stopPropagation()}>
+            <ModalTitle>🔐 Admin Login</ModalTitle>
+            <form onSubmit={handleLogin}>
+              <FormGroup>
+                <Label>Benutzername</Label>
+                <Input 
+                  type="text" 
+                  value={credentials.username}
+                  onChange={e => setCredentials({ ...credentials, username: e.target.value })}
+                  required
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label>Passwort</Label>
+                <Input 
+                  type="password" 
+                  value={credentials.password}
+                  onChange={e => setCredentials({ ...credentials, password: e.target.value })}
+                  required
+                />
+              </FormGroup>
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+              <ModalButtons>
+                <ModalButton type="button" onClick={() => setShowModal(false)}>Abbrechen</ModalButton>
+                <ModalButton type="submit" $primary>Login</ModalButton>
+              </ModalButtons>
+            </form>
+          </Modal>
+        </ModalOverlay>
+      )}
+    </>
   );
 }
 

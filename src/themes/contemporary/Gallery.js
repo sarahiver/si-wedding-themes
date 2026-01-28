@@ -157,12 +157,9 @@ const ViewAllButton = styled.a`
   }
 `;
 
-function Gallery({ content = {} }) {
+function Gallery({ images = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const title = content.title || 'Memories';
-  const images = content.images || [];
 
   const sizes = ['small', 'medium', 'large', 'small', 'medium', 'small', 'large', 'medium'];
   
@@ -199,7 +196,7 @@ function Gallery({ content = {} }) {
     <Section ref={sectionRef} id="gallery">
       <Header>
         <Eyebrow $visible={visible}>📸 Galerie</Eyebrow>
-        <Title $visible={visible}>{title}</Title>
+        <Title $visible={visible}>Memories</Title>
       </Header>
       
       <MarqueeRow>

@@ -262,7 +262,7 @@ const SuccessText = styled.p`
   color: var(--gray-600);
 `;
 
-function RSVP({ content = {}, onSubmit }) {
+function RSVP({ onSubmit }) {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
@@ -271,10 +271,6 @@ function RSVP({ content = {}, onSubmit }) {
   });
   const sectionRef = useRef(null);
   const totalSteps = 3;
-
-  const title = content.title || 'RSVP';
-  const description = content.description || '';
-  const deadline = content.deadline || '';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
