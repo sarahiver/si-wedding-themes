@@ -198,6 +198,17 @@ export const Checkbox = styled.label`
 `;
 
 export const ErrorText = styled.span`font-size: 0.75rem; color: #C62828; margin-top: 0.25rem; display: block;`;
+export const HelpText = styled.span`font-size: 0.75rem; color: #999; margin-top: 0.25rem; display: block;`;
+export const Select = styled.select`
+  width: 100%;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  border: 1px solid #E0E0E0;
+  background: #FFF;
+  cursor: pointer;
+  &:focus { outline: none; border-color: #000; }
+`;
 
 // Buttons
 export const Button = styled.button`
@@ -275,6 +286,7 @@ export const PhotoImage = styled.div`width: 100%; height: 100%; background: ${p 
 export const PhotoOverlay = styled.div`position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.2s;`;
 export const PhotoButton = styled.button`width: 32px; height: 32px; border-radius: 50%; border: none; background: ${p => p.$approve ? '#2E7D32' : '#C62828'}; color: white; cursor: pointer; font-size: 14px;`;
 export const PhotoPending = styled.div`position: absolute; bottom: 0; left: 0; right: 0; background: #E65100; color: white; font-size: 0.65rem; padding: 0.25rem; text-align: center;`;
+export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.6rem; padding: 0.25rem 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
 
 // Upload (same structure, different colors)
 export const DropZone = styled.div`
@@ -341,13 +353,13 @@ export const EditorialAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select,
   Button, SmallButton, ButtonGroup,
   ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   AlertBox, SearchInput,
-  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
+  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,
   ColorPalette, ColorItem, ColorInput,
