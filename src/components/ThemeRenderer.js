@@ -77,6 +77,8 @@ import ContemporaryFAQ from '../themes/contemporary/FAQ';
 import ContemporaryWeddingABC from '../themes/contemporary/WeddingABC';
 import ContemporaryPhotoUpload from '../themes/contemporary/PhotoUpload';
 import ContemporaryFooter from '../themes/contemporary/Footer';
+import ContemporarySaveTheDate from '../themes/contemporary/SaveTheDate';
+import ContemporaryArchivePage from '../themes/contemporary/ArchivePage';
 
 // ============================================
 // LUXE THEME IMPORTS
@@ -230,8 +232,8 @@ const themes = {
     WeddingABC: ContemporaryWeddingABC,
     PhotoUpload: ContemporaryPhotoUpload,
     Footer: ContemporaryFooter,
-    SaveTheDate: EditorialSaveTheDate,
-    ArchivePage: EditorialArchivePage,
+    SaveTheDate: ContemporarySaveTheDate,
+    ArchivePage: ContemporaryArchivePage,
   },
   luxe: {
     GlobalStyles: LuxeGlobalStyles,
