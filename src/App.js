@@ -2,7 +2,7 @@
 // Dynamic theme loading based on project settings from Supabase
 
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 
 // Lazy load themes for code splitting
@@ -76,14 +76,14 @@ const Loading = () => (
   </div>
 );
 
-// Theme Router - renders the correct theme based on project settings
-function ThemeRouter() {
+// Theme Router - renders the correct theme based on settings
+function ThemeRouter({ themeName, page }) {
   const { project, loading, error, status } = useWedding();
   const [isArchived, setIsArchived] = useState(false);
   
-  // Get theme from project or default to botanical
-  const themeName = project?.settings?.theme || 'botanical';
-  const theme = themes[themeName] || themes.botanical;
+  // Get theme from prop, project settings, or default to botanical
+  const finalThemeName = themeName || project?.settings?.theme || 'botanical';
+  const theme = themes[finalThemeName] || themes.botanical;
   
   const { 
     WeddingPage, 
@@ -108,6 +108,19 @@ function ThemeRouter() {
         <h1>Fehler</h1>
         <p>{error}</p>
       </div>
+    );
+  }
+
+  // Direct page rendering based on 'page' prop (for query param support)
+  if (page) {
+    return (
+      <Suspense fallback={<Loading />}>
+        <GlobalStyles />
+        {page === 'admin' && <AdminDashboard onArchiveToggle={setIsArchived} />}
+        {page === 'archive' && <ArchivePage />}
+        {page === 'save-the-date' && <SaveTheDate />}
+        {!['admin', 'archive', 'save-the-date'].includes(page) && <WeddingPage />}
+      </Suspense>
     );
   }
 
@@ -139,17 +152,22 @@ function ProjectWrapper() {
   );
 }
 
-// Demo mode with static config
-const demoConfig = {
-  coupleName: "Olivia & Benjamin",
-  weddingDate: "2025-06-21",
-  theme: "botanical"
-};
-
+// Demo wrapper with query parameter support
+// Supports: /demo?theme=botanical&page=admin
 function DemoWrapper() {
+  const [searchParams] = useSearchParams();
+  const themeName = searchParams.get('theme') || 'botanical';
+  const page = searchParams.get('page');
+  
+  const demoConfig = {
+    coupleName: "Olivia & Benjamin",
+    weddingDate: "2025-06-21",
+    theme: themeName
+  };
+  
   return (
     <WeddingProvider initialConfig={demoConfig}>
-      <ThemeRouter />
+      <ThemeRouter themeName={themeName} page={page} />
     </WeddingProvider>
   );
 }
@@ -159,8 +177,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Demo route */}
+        {/* Demo route with query param support */}
         <Route path="/demo/*" element={<DemoWrapper />} />
+        <Route path="/demo" element={<DemoWrapper />} />
         
         {/* Project routes - /:slug loads from Supabase */}
         <Route path="/:slug/*" element={<ProjectWrapper />} />
