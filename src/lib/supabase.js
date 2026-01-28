@@ -178,7 +178,7 @@ export async function submitMusicWish(projectId, wishData) {
       name: wishData.name,
       artist: wishData.artist,
       song_title: wishData.songTitle,
-      message: wishData.message,
+      // Note: 'message' field removed - not in database schema
     })
     .select()
     .single();
@@ -265,13 +265,14 @@ export async function deletePhotoUpload(photoId) {
 // GIFT RESERVATIONS
 // ============================================
 
-export async function reserveGift(projectId, itemId, reservedBy) {
+export async function reserveGift(projectId, itemId, reservedBy, reserverEmail = null) {
   const { data, error } = await supabase
     .from('gift_reservations')
     .insert({
       project_id: projectId,
       item_id: itemId,
       reserved_by: reservedBy,
+      reserved_by_email: reserverEmail,
     })
     .select()
     .single();
@@ -283,7 +284,8 @@ export async function getGiftReservations(projectId) {
   const { data, error } = await supabase
     .from('gift_reservations')
     .select('*')
-    .eq('project_id', projectId);
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
   
   return { data: data || [], error };
 }
@@ -293,6 +295,17 @@ export async function deleteGiftReservation(reservationId) {
     .from('gift_reservations')
     .delete()
     .eq('id', reservationId);
+  
+  return { error };
+}
+
+// Unreserve a gift by item_id (for admin use)
+export async function unreserveGiftByItemId(projectId, itemId) {
+  const { error } = await supabase
+    .from('gift_reservations')
+    .delete()
+    .eq('project_id', projectId)
+    .eq('item_id', itemId);
   
   return { error };
 }
