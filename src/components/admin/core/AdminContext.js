@@ -13,8 +13,13 @@ export function AdminProvider({ children }) {
   const wedding = useWedding();
   const { project, projectId, coupleNames, content, slug, isComponentActive, refetch } = wedding || {};
   
-  // Auth
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Auth - persist in sessionStorage to survive refetch
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(`admin_logged_in_${slug}`) === 'true';
+    }
+    return false;
+  });
   const [loginError, setLoginError] = useState('');
   
   // Navigation
@@ -62,9 +67,9 @@ export function AdminProvider({ children }) {
         dresscode: content.dresscode || { colors: [], dos: [], donts: [] },
         gifts: content.gifts || { items: [] },
         accommodations: content.accommodations || { hotels: [] },
-        witnesses: content.witnesses || { persons: [] },
+        witnesses: content.witnesses || { witnesses: [] },
         gallery: content.gallery || { images: [] },
-        faq: content.faq || { questions: [] },
+        faq: content.faq || { items: [] },
         weddingabc: content.weddingabc || { entries: [] },
         footer: content.footer || {},
         savethedate: content.savethedate || {},
@@ -127,15 +132,22 @@ export function AdminProvider({ children }) {
     if (password === adminPassword) {
       setIsLoggedIn(true);
       setLoginError('');
+      // Persist login in sessionStorage
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`admin_logged_in_${slug}`, 'true');
+      }
       return true;
     }
     setLoginError('Falsches Passwort');
     return false;
-  }, [adminPassword]);
+  }, [adminPassword, slug]);
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);
-  }, []);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(`admin_logged_in_${slug}`);
+    }
+  }, [slug]);
 
   // ============================================
   // ACTIONS
@@ -145,12 +157,10 @@ export function AdminProvider({ children }) {
       await updateProjectStatus(projectId, newStatus);
       setCurrentStatus(newStatus);
       showFeedback('success', `Status auf "${newStatus}" geändert`);
-      // Refetch to update the main page
-      if (refetch) refetch();
     } catch (e) {
       showFeedback('error', 'Status konnte nicht geändert werden');
     }
-  }, [projectId, showFeedback, refetch]);
+  }, [projectId, showFeedback]);
 
   const approveGuestbook = useCallback(async (id, approved) => {
     try {
@@ -243,17 +253,15 @@ export function AdminProvider({ children }) {
         showFeedback('error', 'Fehler beim Speichern: ' + error.message);
       } else {
         showFeedback('success', 'Gespeichert!');
-        // Refetch to update the main wedding page
-        if (refetch) {
-          await refetch();
-        }
+        // Note: We don't call refetch() here to avoid re-mounting
+        // The data will be fresh on next page load
       }
     } catch (e) {
       console.error('Save error:', e);
       showFeedback('error', 'Fehler beim Speichern');
     }
     setIsSaving(false);
-  }, [projectId, contentStates, showFeedback, refetch]);
+  }, [projectId, contentStates, showFeedback]);
 
   // ============================================
   // EXPORT CSV
