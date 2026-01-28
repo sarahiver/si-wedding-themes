@@ -199,12 +199,12 @@ export function AdminProvider({ children }) {
     }
   }, [loadData, showFeedback]);
 
-  const deletePhoto = useCallback(async (id) => {
-    if (!window.confirm('Foto wirklich löschen?')) return;
+  const deletePhoto = useCallback(async (id, skipConfirm = false) => {
+    if (!skipConfirm && !window.confirm('Foto wirklich löschen?')) return;
     try {
       await deletePhotoUpload(id);
       await loadData();
-      showFeedback('success', 'Gelöscht');
+      if (!skipConfirm) showFeedback('success', 'Gelöscht');
     } catch (e) {
       showFeedback('error', 'Fehler');
     }
