@@ -1,146 +1,56 @@
+// Luxe Accommodations
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React from 'react';
-import styled from 'styled-components';
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-white);
-`;
+const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
+const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
 
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-white);`;
+const Container = styled.div`max-width: var(--container-width); margin: 0 auto;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
-`;
+const Header = styled.div`text-align: center; margin-bottom: 4rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
+const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
+const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
 
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
-`;
-
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-style: italic;
-  color: var(--luxe-text-heading);
-`;
-
-const Subtitle = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text-light);
-  max-width: 500px;
-  margin: 1rem auto 0;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Card = styled.div`
-  background: var(--luxe-cream);
-  overflow: hidden;
-`;
-
-const CardImage = styled.div`
-  aspect-ratio: 16/10;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const CardContent = styled.div`
-  padding: 1.5rem;
-`;
-
-const HotelName = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 0.5rem;
-`;
-
-const HotelInfo = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--luxe-text-light);
-  margin-bottom: 0.25rem;
-`;
-
-const HotelPrice = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  color: var(--luxe-gold);
-  margin-top: 0.5rem;
-`;
+const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;`;
+const Card = styled.div`opacity: 0; animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: ${p => 0.1 + p.$index * 0.15}s;`;
+const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-sand)'}; margin-bottom: 1.5rem;`;
+const CardTitle = styled.h3`font-family: var(--font-serif); font-size: 1.25rem; color: var(--luxe-black); margin-bottom: 0.5rem;`;
+const CardAddress = styled.p`font-family: var(--font-sans); font-size: 0.85rem; color: var(--luxe-charcoal); margin-bottom: 0.75rem;`;
+const CardPrice = styled.span`font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--luxe-gold);`;
+const CardLink = styled.a`display: inline-block; margin-top: 1rem; font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--luxe-charcoal); border-bottom: 1px solid var(--luxe-taupe); padding-bottom: 0.25rem; &:hover { color: var(--luxe-gold); border-color: var(--luxe-gold); }`;
 
 function Accommodations() {
-  const { content, projectId } = useWedding();
-  const accommodationsData = content?.accommodations || {};
-  const hotels = accommodationsData.hotels || [];
-  const defaultHotels = [
-    {
-      name: 'Schlosshotel Benrath',
-      distance: '2 Minuten Fußweg',
-      price: 'ab 120€ / Nacht',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
-    },
-    {
-      name: 'Hotel Am Zault',
-      distance: '5 Minuten mit dem Auto',
-      price: 'ab 85€ / Nacht',
-      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600',
-    },
+  const { content } = useWedding();
+  const data = content?.accommodations || {};
+  const title = data.title || 'Unterkuenfte';
+  const hotels = data.hotels || [
+    { name: 'Hotel Bella Vista', address: 'Via Roma 12, Florenz', price: 'ab 150 EUR/Nacht', image: '', url: '' },
+    { name: 'Grand Palace', address: 'Piazza Grande 5, Florenz', price: 'ab 200 EUR/Nacht', image: '', url: '' }
   ];
   
-  const hotelData = hotels || defaultHotels;
-  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Section id="accommodations">
+    <Section ref={sectionRef} id="accommodations">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Unterkünfte</Eyebrow>
-          <Title>Übernachten</Title>
-          <Subtitle>Einige Empfehlungen für eure Übernachtung in der Nähe.</Subtitle>
-        </Header>
-        
+        <Header $visible={visible}><Eyebrow>Uebernachten</Eyebrow><Title>{title}</Title></Header>
         <Grid>
-          {hotelData.map((hotel, index) => (
-            <Card key={index}>
-              <CardImage>
-                <img src={hotel.image} alt={hotel.name} loading="lazy" />
-              </CardImage>
-              <CardContent>
-                <HotelName>{hotel.name}</HotelName>
-                <HotelInfo>{hotel.distance}</HotelInfo>
-                <HotelPrice>{hotel.price}</HotelPrice>
-              </CardContent>
+          {hotels.map((hotel, i) => (
+            <Card key={i} $visible={visible} $index={i}>
+              <CardImage $image={hotel.image} />
+              <CardTitle>{hotel.name}</CardTitle>
+              <CardAddress>{hotel.address}</CardAddress>
+              <CardPrice>{hotel.price}</CardPrice>
+              {hotel.url && <CardLink href={hotel.url} target="_blank" rel="noopener">Buchen →</CardLink>}
             </Card>
           ))}
         </Grid>

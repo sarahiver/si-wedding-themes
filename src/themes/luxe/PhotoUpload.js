@@ -1,170 +1,83 @@
+// Luxe PhotoUpload
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import { uploadToCloudinary } from '../../lib/cloudinary';
+import { submitPhotoUpload } from '../../lib/supabase';
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-cream);
-`;
+const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
+const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
 
-const Container = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-sand);`;
+const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-`;
-
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
-`;
-
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-style: italic;
-  color: var(--luxe-text-heading);
-`;
+const Header = styled.div`margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
+const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
+const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
 
 const DropZone = styled.div`
-  padding: 3rem 2rem;
-  background: var(--luxe-white);
-  border: 1px dashed ${p => p.$isDragging ? 'var(--luxe-gold)' : 'var(--luxe-border)'};
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-  
-  &:hover {
-    border-color: var(--luxe-gold);
-  }
+  padding: 4rem 2rem; background: ${p => p.$dragging ? 'var(--luxe-olive)' : 'var(--luxe-white)'}; border: 1px dashed var(--luxe-taupe); cursor: pointer; transition: all 0.3s ease;
+  opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s;
+  &:hover { border-color: var(--luxe-olive); }
 `;
+const DropText = styled.p`font-family: var(--font-sans); font-size: 0.9rem; color: ${p => p.$dragging ? 'var(--luxe-white)' : 'var(--luxe-charcoal)'};`;
+const HiddenInput = styled.input`display: none;`;
 
-const DropText = styled.p`
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  font-style: italic;
-  color: var(--luxe-text-light);
-  margin-bottom: 0.5rem;
-`;
+const Progress = styled.div`margin-top: 2rem;`;
+const ProgressBar = styled.div`height: 4px; background: var(--luxe-sand); margin-top: 1rem;`;
+const ProgressFill = styled.div`height: 100%; background: var(--luxe-olive); width: ${p => p.$progress}%; transition: width 0.3s;`;
 
-const DropSubtext = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--luxe-text-muted);
-`;
-
-const FileInput = styled.input`
-  display: none;
-`;
-
-const PreviewGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-`;
-
-const Preview = styled.div`
-  aspect-ratio: 1;
-  overflow: hidden;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const Success = styled.p`
-  text-align: center;
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--luxe-gold);
-  margin-top: 1.5rem;
-`;
+const Success = styled.div`padding: 2rem;`;
+const SuccessText = styled.p`font-family: var(--font-serif); font-size: 1.5rem; font-style: italic; color: var(--luxe-black);`;
+const ResetBtn = styled.button`margin-top: 1rem; font-family: var(--font-sans); font-size: 0.75rem; color: var(--luxe-taupe); text-decoration: underline; &:hover { color: var(--luxe-black); }`;
 
 function PhotoUpload() {
-  const [isDragging, setIsDragging] = useState(false);
-  const [previews, setPreviews] = useState([]);
-  const [uploaded, setUploaded] = useState(false);
-  
-  const handleDrop = useCallback(async (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    processFiles(files);
+  const { project, content } = useWedding();
+  const title = content?.photoupload?.title || 'Fotos teilen';
+  const [visible, setVisible] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef(null);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
-  
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-    processFiles(files);
-  };
-  
-  const processFiles = async (files) => {
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setPreviews(prev => [...prev, ...newPreviews]);
-    
-    // Demo: In production, upload to storage
-    for (const file of files) {
-      console.log('Photo upload:', { filename: file.name, size: file.size });
+
+  const handleFiles = async (files) => {
+    if (!project?.id || files.length === 0) return;
+    setUploading(true);
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const result = await uploadToCloudinary(files[i]);
+        if (result.url) await submitPhotoUpload(project.id, { url: result.url, public_id: result.public_id });
+        setProgress(Math.round(((i + 1) / files.length) * 100));
+      } catch (err) { console.error(err); }
     }
-    
-    setUploaded(true);
+    setUploading(false);
+    setSuccess(true);
   };
-  
+
+  const handleDrop = useCallback((e) => { e.preventDefault(); setDragging(false); handleFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/'))); }, [project?.id]);
+  const handleChange = (e) => handleFiles([...e.target.files].filter(f => f.type.startsWith('image/')));
+
   return (
-    <Section id="photos">
+    <Section ref={sectionRef} id="photos">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Fotos</Eyebrow>
-          <Title>Teilt eure Bilder</Title>
-        </Header>
-        
-        <DropZone
-          $isDragging={isDragging}
-          onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById('photo-input').click()}
-        >
-          <DropText>Fotos hier ablegen</DropText>
-          <DropSubtext>oder klicken zum Auswählen</DropSubtext>
-          <FileInput
-            id="photo-input"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileSelect}
-          />
-        </DropZone>
-        
-        {previews.length > 0 && (
-          <PreviewGrid>
-            {previews.map((src, index) => (
-              <Preview key={index}>
-                <img src={src} alt={`Preview ${index + 1}`} />
-              </Preview>
-            ))}
-          </PreviewGrid>
+        <Header $visible={visible}><Eyebrow>Momente</Eyebrow><Title>{title}</Title></Header>
+        {success ? (
+          <Success><SuccessText>Vielen Dank!</SuccessText><ResetBtn onClick={() => { setSuccess(false); setProgress(0); }}>Weitere hochladen</ResetBtn></Success>
+        ) : (
+          <DropZone $visible={visible} $dragging={dragging} onClick={() => fileInputRef.current?.click()} onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={handleDrop}>
+            <DropText $dragging={dragging}>{dragging ? 'Loslassen zum Hochladen' : 'Fotos hier ablegen oder klicken'}</DropText>
+            <HiddenInput ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleChange} />
+          </DropZone>
         )}
-        
-        {uploaded && <Success>Danke für eure Fotos!</Success>}
+        {uploading && <Progress><DropText>{progress}%</DropText><ProgressBar><ProgressFill $progress={progress} /></ProgressBar></Progress>}
       </Container>
     </Section>
   );

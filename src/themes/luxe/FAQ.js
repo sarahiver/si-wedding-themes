@@ -1,294 +1,161 @@
+// Luxe FAQ - Elegant Accordion
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes, css } from 'styled-components';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LUXE FAQ - Masonry Card Layout
-// Alternative to accordion - visual card grid
-// ═══════════════════════════════════════════════════════════════════════════
+const slideInLeft = keyframes`
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+const slideInRight = keyframes`
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--luxe-cream);
+  padding: var(--section-padding) 2rem;
+  background: var(--luxe-sand);
 `;
 
 const Container = styled.div`
-  max-width: 1100px;
+  max-width: var(--container-narrow);
   margin: 0 auto;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-text-muted);
+  color: var(--luxe-taupe);
   margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
   font-style: italic;
-  color: var(--luxe-text-heading);
+  color: var(--luxe-black);
 `;
 
-const MasonryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const fadeInUp = keyframes`
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-`;
-
-const Card = styled.div`
-  background: var(--luxe-white);
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-  opacity: 0;
-  transition: all 0.4s ease;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.6s ease-out forwards;
-    animation-delay: ${p.$delay}s;
-  `}
-  
-  /* Create varied heights for masonry effect */
-  ${p => p.$size === 'large' && css`
-    grid-row: span 2;
-    
-    @media (max-width: 600px) {
-      grid-row: span 1;
-    }
-  `}
-  
-  &:hover {
-    box-shadow: 0 15px 40px rgba(0,0,0,0.06);
-    transform: translateY(-3px);
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 0;
-    background: var(--luxe-gold);
-    transition: height 0.4s ease;
-  }
-  
-  &:hover::before {
-    height: 100%;
-  }
-`;
-
-const QuestionNumber = styled.span`
-  font-family: var(--font-serif);
-  font-size: 3rem;
-  font-style: italic;
-  color: var(--luxe-gold);
-  opacity: 0.3;
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
-  line-height: 1;
-`;
-
-const Question = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.15rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 1rem;
-  padding-right: 2rem;
-`;
-
-const Answer = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text-light);
-  line-height: 1.8;
-`;
-
-const Icon = styled.div`
-  width: 40px;
-  height: 40px;
-  margin-bottom: 1rem;
+const FAQList = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: 0;
+`;
+
+const FAQItem = styled.div`
+  border-bottom: 1px solid var(--luxe-taupe);
+  opacity: 0;
+  animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards;
+  animation-delay: ${p => 0.1 + p.$index * 0.1}s;
+  
+  &:first-child {
+    border-top: 1px solid var(--luxe-taupe);
+  }
+`;
+
+const Question = styled.button`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-`;
-
-const MoreSection = styled.div`
-  text-align: center;
-  margin-top: 3rem;
-  padding: 2.5rem;
-  background: var(--luxe-white);
-`;
-
-const MoreTitle = styled.h3`
+  padding: 1.5rem 0;
   font-family: var(--font-serif);
-  font-size: 1.3rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 1rem;
-`;
-
-const MoreText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
-  color: var(--luxe-text-light);
-  margin-bottom: 1.5rem;
-`;
-
-const ContactButton = styled.a`
-  display: inline-block;
-  padding: 0.9rem 2rem;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--luxe-text);
-  border: 1px solid var(--luxe-border);
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--luxe-black);
+  text-align: left;
+  transition: color 0.3s ease;
   
   &:hover {
-    border-color: var(--luxe-gold);
     color: var(--luxe-gold);
   }
 `;
 
+const Icon = styled.span`
+  font-size: 1.25rem;
+  color: var(--luxe-taupe);
+  transition: transform 0.3s ease;
+  transform: rotate(${p => p.$open ? '45deg' : '0deg'});
+`;
+
+const Answer = styled.div`
+  max-height: ${p => p.$open ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+`;
+
+const AnswerText = styled.p`
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--luxe-charcoal);
+  padding-bottom: 1.5rem;
+`;
+
 function FAQ() {
-  const { content, projectId } = useWedding();
+  const { content } = useWedding();
   const faqData = content?.faq || {};
-  const faqs = (faqData.questions || []).map(q => ({ q: q.question, a: q.answer, icon: "❓", size: "normal" }));
+  
+  const title = faqData?.title || 'Haeufige Fragen';
+  const questions = Array.isArray(faqData?.questions) ? faqData.questions : [];
+  
   const [visible, setVisible] = useState(false);
+  const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
-  
-  const defaultFaqs = [
-    { 
-      q: 'Darf ich eine Begleitung mitbringen?', 
-      a: 'Bitte prüft eure Einladung – dort ist vermerkt, ob eine Begleitung inkludiert ist. Bei Fragen meldet euch gerne.',
-      icon: '💑',
-      size: 'normal'
-    },
-    { 
-      q: 'Gibt es Parkplätze?', 
-      a: 'Ja, kostenlose Parkplätze stehen am Veranstaltungsort zur Verfügung. Folgt einfach der Ausschilderung.',
-      icon: '🚗',
-      size: 'normal'
-    },
-    { 
-      q: 'Bis wann soll ich zu- oder absagen?', 
-      a: 'Bitte gebt uns bis zum 1. September 2026 Bescheid, damit wir alles für euch planen können.',
-      icon: '📅',
-      size: 'large'
-    },
-    { 
-      q: 'Sind Kinder willkommen?', 
-      a: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.',
-      icon: '👶',
-      size: 'normal'
-    },
-    { 
-      q: 'Was ist mit Fotos?', 
-      a: 'Wir haben einen professionellen Fotografen. Während der Trauung bitten wir um eine "Unplugged Ceremony" – keine Handys bitte. Danach dürft ihr gerne fotografieren!',
-      icon: '📸',
-      size: 'large'
-    },
-    { 
-      q: 'Gibt es Übernachtungsmöglichkeiten?', 
-      a: 'Ja! Unter "Unterkünfte" findet ihr unsere Hotelempfehlungen in der Nähe.',
-      icon: '🏨',
-      size: 'normal'
-    },
-    { 
-      q: 'Was ist bei Unverträglichkeiten?', 
-      a: 'Gebt bitte bei der RSVP alle Allergien und Unverträglichkeiten an. Unser Catering wird alles berücksichtigen.',
-      icon: '🍽️',
-      size: 'normal'
-    },
-    { 
-      q: 'Wie ist der Ablauf?', 
-      a: 'Alle Details findet ihr unter "Ablauf". Grob: Empfang um 14 Uhr, Trauung um 15 Uhr, Dinner ab 18:30 Uhr, Party danach!',
-      icon: '⏰',
-      size: 'normal'
-    },
+
+  const defaultQuestions = [
+    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns ueber elegante Kleidung in gedeckten Farben. Bitte verzichtet auf Weiss und Creme - das ist der Braut vorbehalten.' },
+    { question: 'Kann ich eine Begleitung mitbringen?', answer: 'Auf eurer Einladung steht, fuer wie viele Personen sie gilt. Bei Fragen meldet euch gerne bei uns.' },
+    { question: 'Gibt es Parkmöglichkeiten?', answer: 'Ja, es stehen ausreichend kostenlose Parkplaetze zur Verfuegung. Die genaue Adresse findet ihr in der Anfahrtsbeschreibung.' },
+    { question: 'Sind Kinder willkommen?', answer: 'Wir feiern diesen Tag gerne mit euren Kindern. Bitte gebt bei der Anmeldung an, ob Kinder dabei sein werden.' },
+    { question: 'Gibt es besondere Essensoptionen?', answer: 'Ja, wir bieten vegetarische und vegane Optionen an. Bitte teilt uns Allergien oder besondere Wuensche bei der Anmeldung mit.' }
   ];
-  
-  const displayFaqs = faqs.length > 0 ? faqs : defaultFaqs;
-  
+
+  const items = questions.length > 0 ? questions : defaultQuestions;
+
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-        }
-      },
-      { threshold: 0.1 }
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
     );
-    
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-    
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
-  
+
   return (
-    <Section id="faq" ref={sectionRef}>
+    <Section ref={sectionRef} id="faq">
       <Container>
-        <Header>
+        <Header $visible={visible}>
           <Eyebrow>Gut zu wissen</Eyebrow>
-          <Title>Häufige Fragen</Title>
+          <Title>{title}</Title>
         </Header>
         
-        <MasonryGrid>
-          {displayFaqs.map((faq, index) => (
-            <Card 
-              key={index} 
-              $visible={visible} 
-              $delay={index * 0.1}
-              $size={faq.size}
-            >
-              <QuestionNumber>0{index + 1}</QuestionNumber>
-              <Icon>{faq.icon}</Icon>
-              <Question>{faq.q}</Question>
-              <Answer>{faq.a}</Answer>
-            </Card>
+        <FAQList>
+          {items.map((item, i) => (
+            <FAQItem key={i} $visible={visible} $index={i}>
+              <Question onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+                {item.question}
+                <Icon $open={openIndex === i}>+</Icon>
+              </Question>
+              <Answer $open={openIndex === i}>
+                <AnswerText>{item.answer}</AnswerText>
+              </Answer>
+            </FAQItem>
           ))}
-        </MasonryGrid>
-        
-        <MoreSection>
-          <MoreTitle>Noch Fragen?</MoreTitle>
-          <MoreText>Schreibt uns oder wendet euch an unsere Trauzeugen</MoreText>
-          <ContactButton href="#contact">Kontakt aufnehmen</ContactButton>
-        </MoreSection>
+        </FAQList>
       </Container>
     </Section>
   );

@@ -1,176 +1,45 @@
+// Luxe Contact
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState } from 'react';
-import styled from 'styled-components';
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-cream);
-`;
+const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
+const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
 
-const Container = styled.div`
-  max-width: 500px;
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-cream);`;
+const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-`;
+const Header = styled.div`margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
+const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
+const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
 
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
-`;
-
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-style: italic;
-  color: var(--luxe-text-heading);
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const Input = styled.input`
-  padding: 0.9rem 1rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text);
-  background: var(--luxe-white);
-  border: 1px solid var(--luxe-border);
-  
-  &:focus { border-color: var(--luxe-gold); }
-`;
-
-const Textarea = styled.textarea`
-  padding: 0.9rem 1rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text);
-  background: var(--luxe-white);
-  border: 1px solid var(--luxe-border);
-  min-height: 120px;
-  resize: vertical;
-  
-  &:focus { border-color: var(--luxe-gold); }
-`;
-
-const Button = styled.button`
-  padding: 1rem 2rem;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--luxe-text);
-  background: transparent;
-  border: 1px solid var(--luxe-border);
-  cursor: pointer;
-  margin-top: 0.5rem;
-  
-  &:hover {
-    border-color: var(--luxe-gold);
-    color: var(--luxe-gold);
-  }
-`;
-
-const Success = styled.div`
-  text-align: center;
-  padding: 2rem;
-  background: var(--luxe-white);
-`;
-
-const SuccessTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 0.5rem;
-`;
-
-const SuccessText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text-light);
-`;
+const ContactLinks = styled.div`display: flex; flex-direction: column; gap: 1.5rem; opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s;`;
+const ContactLink = styled.a`font-family: var(--font-sans); font-size: 1rem; color: var(--luxe-charcoal); transition: color 0.3s ease; &:hover { color: var(--luxe-gold); }`;
 
 function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const { project, content } = useWedding();
+  const data = content?.contact || {};
+  const title = data.title || 'Kontakt';
+  const email = data.email || project?.couple_email || 'hallo@emmaundjames.de';
+  const phone = data.phone || project?.couple_phone || '+49 170 1234567';
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Demo: In production, connect to backend
-    console.log('Contact form submitted:', formData);
-    setSubmitted(true);
-  };
-  
-  if (submitted) {
-    return (
-      <Section id="contact">
-        <Container>
-          <Success>
-            <SuccessTitle>Nachricht gesendet!</SuccessTitle>
-            <SuccessText>Wir melden uns bald bei euch.</SuccessText>
-          </Success>
-        </Container>
-      </Section>
-    );
-  }
-  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Section id="contact">
+    <Section ref={sectionRef} id="contact">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Kontakt</Eyebrow>
-          <Title>Schreibt uns</Title>
-        </Header>
-        
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            placeholder="Euer Name"
-            value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <Input
-            type="email"
-            placeholder="E-Mail"
-            value={formData.email}
-            onChange={e => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
-          <Input
-            type="text"
-            placeholder="Betreff"
-            value={formData.subject}
-            onChange={e => setFormData({ ...formData, subject: e.target.value })}
-            required
-          />
-          <Textarea
-            placeholder="Eure Nachricht..."
-            value={formData.message}
-            onChange={e => setFormData({ ...formData, message: e.target.value })}
-            required
-          />
-          <Button type="submit">Absenden</Button>
-        </Form>
+        <Header $visible={visible}><Eyebrow>Fragen?</Eyebrow><Title>{title}</Title></Header>
+        <ContactLinks $visible={visible}>
+          <ContactLink href={`mailto:${email}`}>{email}</ContactLink>
+          <ContactLink href={`tel:${phone.replace(/\s/g, '')}`}>{phone}</ContactLink>
+        </ContactLinks>
       </Container>
     </Section>
   );

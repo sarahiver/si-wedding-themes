@@ -1,156 +1,56 @@
+// Luxe WeddingABC
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState } from 'react';
-import styled from 'styled-components';
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-white);
-`;
+const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
+const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
 
-const Container = styled.div`
-  max-width: var(--container-max);
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-sand);`;
+const Container = styled.div`max-width: var(--container-width); margin: 0 auto;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-`;
+const Header = styled.div`text-align: center; margin-bottom: 4rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
+const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
+const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
 
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
-`;
-
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-style: italic;
-  color: var(--luxe-text-heading);
-`;
-
-const AlphabetNav = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 3rem;
-`;
-
-const LetterButton = styled.button`
-  width: 32px;
-  height: 32px;
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  font-style: italic;
-  background: ${p => p.$active ? 'var(--luxe-cream)' : 'transparent'};
-  color: ${p => p.$hasEntry ? 'var(--luxe-text)' : 'var(--luxe-text-muted)'};
-  border: 1px solid ${p => p.$active ? 'var(--luxe-gold)' : p.$hasEntry ? 'var(--luxe-border)' : 'transparent'};
-  cursor: ${p => p.$hasEntry ? 'pointer' : 'default'};
-  transition: all 0.3s ease;
-  
-  ${p => p.$hasEntry && !p.$active && `
-    &:hover { border-color: var(--luxe-gold); }
-  `}
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-`;
-
-const Card = styled.div`
-  padding: 1.5rem;
-  background: var(--luxe-cream);
-`;
-
-const Letter = styled.span`
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  font-style: italic;
-  color: var(--luxe-gold);
-  display: block;
-  margin-bottom: 0.5rem;
-`;
-
-const EntryTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 0.5rem;
-`;
-
-const EntryText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  color: var(--luxe-text-light);
-  line-height: 1.7;
-`;
+const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;`;
+const Card = styled.div`padding: 2rem; background: var(--luxe-white); opacity: 0; animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: ${p => 0.1 + p.$index * 0.08}s;`;
+const Letter = styled.span`font-family: var(--font-serif); font-size: 2.5rem; font-style: italic; color: var(--luxe-gold); display: block; margin-bottom: 0.5rem;`;
+const CardTitle = styled.h3`font-family: var(--font-serif); font-size: 1.1rem; color: var(--luxe-black); margin-bottom: 0.75rem;`;
+const CardText = styled.p`font-family: var(--font-sans); font-size: 0.85rem; line-height: 1.7; color: var(--luxe-charcoal);`;
 
 function WeddingABC() {
-  const { content, projectId } = useWedding();
-  const weddingabcData = content?.weddingabc || {};
-  const entries = weddingabcData.entries || [];
-  const [activeLetter, setActiveLetter] = useState(null);
-  
-  const defaultEntries = [
-    { letter: 'A', title: 'Anfahrt', text: 'Parkplätze stehen kostenlos zur Verfügung.' },
-    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Bitte verzichtet auf Weiß.' },
-    { letter: 'F', title: 'Fotos', text: 'Wir haben einen Fotografen. Unplugged Trauung!' },
-    { letter: 'G', title: 'Geschenke', text: 'Eure Anwesenheit ist das schönste Geschenk.' },
-    { letter: 'K', title: 'Kinder', text: 'Feier nur für Erwachsene.' },
-    { letter: 'P', title: 'Party', text: 'Nach dem Dinner wird getanzt!' },
+  const { content } = useWedding();
+  const data = content?.weddingabc || {};
+  const title = data.title || 'Hochzeits-ABC';
+  const entries = data.entries || [
+    { letter: 'A', title: 'Anfahrt', text: 'Alle Details zur Anreise findet ihr unter Anfahrt.' },
+    { letter: 'B', title: 'Blumen', text: 'Wir wuenschen uns keine Blumengeschenke - die Deko ist bereits geplant.' },
+    { letter: 'D', title: 'Dresscode', text: 'Elegant festlich in gedeckten Farben.' },
+    { letter: 'F', title: 'Fotos', text: 'Waehrend der Trauung bitten wir euch, keine Fotos zu machen.' },
+    { letter: 'K', title: 'Kinder', text: 'Kinder sind herzlich willkommen!' },
+    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplaetze stehen zur Verfuegung.' }
   ];
   
-  const abcEntries = entries || defaultEntries;
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  const usedLetters = abcEntries.map(e => e.letter);
-  const filtered = activeLetter ? abcEntries.filter(e => e.letter === activeLetter) : abcEntries;
-  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.1 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Section id="abc">
+    <Section ref={sectionRef} id="abc">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Von A bis Z</Eyebrow>
-          <Title>Alles Wissenswerte</Title>
-        </Header>
-        
-        <AlphabetNav>
-          {alphabet.map(letter => {
-            const hasEntry = usedLetters.includes(letter);
-            return (
-              <LetterButton
-                key={letter}
-                $active={activeLetter === letter}
-                $hasEntry={hasEntry}
-                onClick={() => hasEntry && setActiveLetter(activeLetter === letter ? null : letter)}
-              >
-                {letter}
-              </LetterButton>
-            );
-          })}
-        </AlphabetNav>
-        
+        <Header $visible={visible}><Eyebrow>Alles Wissenswerte</Eyebrow><Title>{title}</Title></Header>
         <Grid>
-          {filtered.map((entry, index) => (
-            <Card key={index}>
+          {entries.map((entry, i) => (
+            <Card key={i} $visible={visible} $index={i}>
               <Letter>{entry.letter}</Letter>
-              <EntryTitle>{entry.title}</EntryTitle>
-              <EntryText>{entry.text}</EntryText>
+              <CardTitle>{entry.title}</CardTitle>
+              <CardText>{entry.text}</CardText>
             </Card>
           ))}
         </Grid>

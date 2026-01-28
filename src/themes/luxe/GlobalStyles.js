@@ -1,57 +1,84 @@
-import { createGlobalStyle } from 'styled-components';
+// Luxe GlobalStyles - Elegant, Fließend, Minimalistisch
+import { createGlobalStyle, keyframes, css } from 'styled-components';
 
-const GlobalStyles = createGlobalStyle`
-  /* ═══════════════════════════════════════════════════════════════════════
-     LUXE THEME - Pure Light & Understated Elegance
-     Airy • Refined • Subtle • Timeless Luxury
-     ═══════════════════════════════════════════════════════════════════════ */
+// ============================================
+// SHARED ANIMATIONS - Slide-In von allen Seiten
+// ============================================
+export const slideInLeft = keyframes`
+  from { opacity: 0; transform: translateX(-80px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+export const slideInRight = keyframes`
+  from { opacity: 0; transform: translateX(80px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+export const slideInUp = keyframes`
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+export const slideInDown = keyframes`
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+export const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+export const scaleIn = keyframes`
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+`;
+
+export const lineExpand = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+// Utility für Slide-In basierend auf Index (alternierend links/rechts)
+export const getSlideAnimation = (index) => {
+  return index % 2 === 0 ? slideInLeft : slideInRight;
+};
+
+// ============================================
+// GLOBAL STYLES
+// ============================================
+const LuxeGlobalStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
   
   :root {
-    /* Core Colors - PURE LIGHT Palette */
+    /* Luxe Farbpalette - Warm, Erdig, Elegant */
+    --luxe-cream: #F5F1EB;
+    --luxe-sand: #E8E0D5;
+    --luxe-taupe: #C4B7A6;
+    --luxe-olive: #8B8B6E;
+    --luxe-sage: #A4A78B;
+    --luxe-charcoal: #3D3D3D;
+    --luxe-black: #1A1A1A;
     --luxe-white: #FFFFFF;
-    --luxe-cream: #FDFCFA;
-    --luxe-cream-warm: #FAF8F5;
-    --luxe-sand: #F5F3F0;
-    --luxe-linen: #F0EEEB;
+    --luxe-gold: #C9A962;
     
-    /* Text Colors - Readable but Elegant */
-    --luxe-text: #5A5A5A;
-    --luxe-text-light: #7A7A7A;
-    --luxe-text-muted: #9A9A9A;
-    --luxe-text-heading: #4A4A4A;
+    /* Transparenzen */
+    --luxe-overlay: rgba(26, 26, 26, 0.4);
+    --luxe-overlay-light: rgba(245, 241, 235, 0.9);
     
-    /* Accent - Very Subtle, Understated */
-    --luxe-gold: #C8B88A;
-    --luxe-gold-soft: #D8CCA0;
-    --luxe-taupe: #C5B9A8;
-    
-    /* Borders - Barely There */
-    --luxe-border: #ECEAE6;
-    --luxe-border-light: #F5F3F0;
-    
-    /* Legacy compatibility - all lighter */
-    --luxe-gray-100: #F7F6F4;
-    --luxe-gray-200: #EFEEEC;
-    --luxe-gray-300: #E0DFDD;
-    --luxe-gray-400: #B5B5B5;
-    --luxe-gray-500: #999999;
-    --luxe-gray-600: #7A7A7A;
-    --luxe-gray-700: #6A6A6A;
-    --luxe-gray-800: #5A5A5A;
-    --luxe-gray-900: #4A4A4A;
-    
-    /* Typography */
+    /* Typografie */
     --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Montserrat', -apple-system, sans-serif;
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
     
     /* Spacing */
-    --section-padding: clamp(6rem, 14vh, 12rem);
-    --container-max: 1100px;
-    --content-max: 750px;
+    --section-padding: clamp(4rem, 10vh, 8rem);
+    --container-width: 1200px;
+    --container-narrow: 800px;
     
     /* Transitions */
-    --ease-luxe: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-elegant: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-medium: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: 0.3s ease;
   }
   
   *, *::before, *::after {
@@ -62,80 +89,23 @@ const GlobalStyles = createGlobalStyle`
   
   html {
     scroll-behavior: smooth;
+    font-size: 16px;
   }
   
   body {
     font-family: var(--font-sans);
-    background: var(--luxe-white);
-    color: var(--luxe-text);
-    line-height: 1.8;
-    overflow-x: hidden;
+    font-weight: 400;
+    background: var(--luxe-cream);
+    color: var(--luxe-charcoal);
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
   
-  /* Typography Hierarchy - Light & Airy */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    font-weight: 300;
-    font-style: italic;
-    color: var(--luxe-text-heading);
-    line-height: 1.3;
-  }
-  
-  h1 { font-size: clamp(2.2rem, 6vw, 4rem); }
-  h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
-  h3 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
-  h4 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
-  
-  p {
-    font-family: var(--font-sans);
-    font-weight: 300;
-    font-size: 0.9rem;
-    line-height: 1.9;
-    color: var(--luxe-text-light);
-  }
-  
-  a {
-    color: var(--luxe-text);
-    text-decoration: none;
-    transition: all 0.3s var(--ease-elegant);
-  }
-  
-  a:hover {
-    color: var(--luxe-gold);
-  }
-  
-  /* Luxe Buttons */
-  button {
-    font-family: var(--font-sans);
-    cursor: pointer;
-    border: none;
-    background: none;
-  }
-  
-  /* Form Elements */
-  input, textarea, select {
-    font-family: var(--font-sans);
-    font-size: 0.9rem;
-    border: none;
-    outline: none;
-    background: transparent;
-  }
-  
-  input:focus, textarea:focus {
-    outline: none;
-  }
-  
-  /* Selection - Subtle */
-  ::selection {
-    background: var(--luxe-cream-warm);
-    color: var(--luxe-text);
-  }
-  
-  /* Scrollbar - Minimal */
+  /* Eleganter Scrollbar */
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 8px;
   }
   
   ::-webkit-scrollbar-track {
@@ -144,29 +114,57 @@ const GlobalStyles = createGlobalStyle`
   
   ::-webkit-scrollbar-thumb {
     background: var(--luxe-taupe);
-    border-radius: 2px;
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--luxe-olive);
+    }
   }
   
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--luxe-gold);
+  /* Selection */
+  ::selection {
+    background: var(--luxe-sage);
+    color: var(--luxe-white);
   }
   
-  /* Utility Classes */
-  .container {
-    max-width: var(--container-max);
-    margin: 0 auto;
-    padding: 0 2rem;
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--luxe-black);
   }
   
-  /* Hide scrollbar for some elements */
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+  p {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    line-height: 1.8;
   }
   
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition-fast);
+  }
+  
+  button {
+    font-family: var(--font-sans);
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* Focus Styles */
+  *:focus-visible {
+    outline: 2px solid var(--luxe-olive);
+    outline-offset: 3px;
   }
 `;
 
-export default GlobalStyles;
+export default LuxeGlobalStyles;

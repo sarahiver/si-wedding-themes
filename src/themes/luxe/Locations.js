@@ -1,155 +1,212 @@
+// Luxe Locations - Elegant mit Bildern
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React from 'react';
-import styled from 'styled-components';
+
+const slideInLeft = keyframes`
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+const slideInRight = keyframes`
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
 
 const Section = styled.section`
   padding: var(--section-padding) 2rem;
-  background: var(--luxe-white);
+  background: var(--luxe-cream);
 `;
 
 const Container = styled.div`
-  max-width: var(--container-max);
+  max-width: var(--container-width);
   margin: 0 auto;
 `;
 
 const Header = styled.div`
   text-align: center;
   margin-bottom: 4rem;
-`;
-
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-text-muted);
+  color: var(--luxe-taupe);
   margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
   font-style: italic;
-  color: var(--luxe-text-heading);
+  color: var(--luxe-black);
 `;
 
-const LocationCard = styled.div`
+const LocationsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 3rem;
-  margin-bottom: 4rem;
-  
-  &:nth-child(even) {
-    direction: rtl;
-    > * { direction: ltr; }
-  }
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    &:nth-child(even) { direction: ltr; }
   }
+`;
+
+const LocationCard = styled.div`
+  opacity: 0;
+  animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards;
+  animation-delay: ${p => 0.1 + p.$index * 0.15}s;
 `;
 
 const ImageWrapper = styled.div`
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const LocationType = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--luxe-gold);
-  margin-bottom: 0.75rem;
-`;
-
-const LocationName = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 1rem;
-`;
-
-const LocationText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text-light);
-  line-height: 1.8;
+  position: relative;
   margin-bottom: 1.5rem;
 `;
 
-const Address = styled.p`
+const Image = styled.div`
+  aspect-ratio: 16/10;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-sand)'};
+`;
+
+const TypeBadge = styled.span`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
-  color: var(--luxe-text-muted);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--luxe-white);
+  background: var(--luxe-overlay);
+  padding: 0.5rem 1rem;
+  backdrop-filter: blur(5px);
+`;
+
+const CardContent = styled.div`
+  padding: 0 0.5rem;
+`;
+
+const CardTitle = styled.h3`
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--luxe-black);
+  margin-bottom: 0.75rem;
+`;
+
+const CardAddress = styled.p`
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--luxe-charcoal);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+`;
+
+const CardTime = styled.p`
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--luxe-gold);
+  margin-bottom: 1rem;
+`;
+
+const MapLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--luxe-charcoal);
+  border-bottom: 1px solid var(--luxe-taupe);
+  padding-bottom: 0.25rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: var(--luxe-gold);
+    border-color: var(--luxe-gold);
+  }
 `;
 
 function Locations() {
-  const { content, projectId } = useWedding();
+  const { content } = useWedding();
   const locationsData = content?.locations || {};
+  
+  const title = locationsData.title || 'Veranstaltungsorte';
   const locations = locationsData.locations || [];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
   const defaultLocations = [
     {
-      type: 'Trauung',
-      name: 'Schloss Benrath',
-      text: 'Die Trauung findet in der historischen Orangerie statt. Ein magischer Ort für den Beginn unserer Reise.',
-      address: 'Benrather Schloßallee 100, 40597 Düsseldorf',
-      image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+      name: 'Villa Medici',
+      type: 'Zeremonie',
+      address: 'Via della Pergola 15\n50121 Florenz, Italien',
+      time: '15:00 Uhr',
+      image: '',
+      maps_url: ''
     },
     {
-      type: 'Feier',
-      name: 'Spiegelsaal',
-      text: 'Im prachtvollen Spiegelsaal werden wir gemeinsam speisen, tanzen und feiern.',
-      address: 'Im Schloss Benrath',
-      image: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800',
-    },
+      name: 'Palazzo Vecchio',
+      type: 'Empfang & Dinner',
+      address: 'Piazza della Signoria\n50122 Florenz, Italien',
+      time: '18:00 Uhr',
+      image: '',
+      maps_url: ''
+    }
   ];
-  
-  const locationData = locations || defaultLocations;
-  
+
+  const locationItems = locations.length > 0 ? locations : defaultLocations;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <Section id="location">
+    <Section ref={sectionRef} id="locations">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Location</Eyebrow>
-          <Title>Wo wir feiern</Title>
+        <Header $visible={visible}>
+          <Eyebrow>Wo wir feiern</Eyebrow>
+          <Title>{title}</Title>
         </Header>
         
-        {locationData.map((loc, index) => (
-          <LocationCard key={index}>
-            <ImageWrapper>
-              <img src={loc.image} alt={loc.name} loading="lazy" />
-            </ImageWrapper>
-            <Content>
-              <LocationType>{loc.type}</LocationType>
-              <LocationName>{loc.name}</LocationName>
-              <LocationText>{loc.text}</LocationText>
-              <Address>{loc.address}</Address>
-            </Content>
-          </LocationCard>
-        ))}
+        <LocationsGrid>
+          {locationItems.map((loc, i) => (
+            <LocationCard key={i} $visible={visible} $index={i}>
+              <ImageWrapper>
+                <Image $image={loc.image} />
+                <TypeBadge>{loc.type}</TypeBadge>
+              </ImageWrapper>
+              <CardContent>
+                <CardTitle>{loc.name}</CardTitle>
+                <CardTime>{loc.time}</CardTime>
+                <CardAddress>{loc.address}</CardAddress>
+                {loc.maps_url && (
+                  <MapLink href={loc.maps_url} target="_blank" rel="noopener noreferrer">
+                    Route anzeigen →
+                  </MapLink>
+                )}
+              </CardContent>
+            </LocationCard>
+          ))}
+        </LocationsGrid>
       </Container>
     </Section>
   );

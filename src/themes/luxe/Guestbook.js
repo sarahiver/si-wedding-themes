@@ -1,178 +1,80 @@
+// Luxe Guestbook
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-cream);
-`;
+const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
+const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
 
-const Container = styled.div`
-  max-width: 700px;
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-white);`;
+const Container = styled.div`max-width: var(--container-narrow); margin: 0 auto;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-`;
+const Header = styled.div`text-align: center; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
+const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
+const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
 
-const GoldLine = styled.div`
-  width: 1px;
-  height: 30px;
-  background: var(--luxe-gold);
-  margin: 0 auto 1.5rem;
-`;
+const Form = styled.form`margin-bottom: 4rem; padding: 2rem; background: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s;`;
+const Input = styled.input`width: 100%; padding: 1rem; font-family: var(--font-sans); font-size: 1rem; color: var(--luxe-black); background: var(--luxe-white); border: 1px solid var(--luxe-sand); margin-bottom: 1rem; &:focus { outline: none; border-color: var(--luxe-olive); }`;
+const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: var(--font-sans); font-size: 1rem; color: var(--luxe-black); background: var(--luxe-white); border: 1px solid var(--luxe-sand); min-height: 120px; resize: vertical; margin-bottom: 1rem; &:focus { outline: none; border-color: var(--luxe-olive); }`;
+const Button = styled.button`padding: 1rem 2rem; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-white); background: var(--luxe-black); border: none; cursor: pointer; &:hover { background: var(--luxe-charcoal); } &:disabled { background: var(--luxe-taupe); }`;
 
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-style: italic;
-  color: var(--luxe-text-heading);
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 3rem;
-`;
-
-const Input = styled.input`
-  padding: 0.9rem 1rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text);
-  background: var(--luxe-white);
-  border: 1px solid var(--luxe-border);
-  
-  &:focus { border-color: var(--luxe-gold); }
-`;
-
-const Textarea = styled.textarea`
-  padding: 0.9rem 1rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text);
-  background: var(--luxe-white);
-  border: 1px solid var(--luxe-border);
-  min-height: 100px;
-  resize: vertical;
-  
-  &:focus { border-color: var(--luxe-gold); }
-`;
-
-const Button = styled.button`
-  padding: 1rem 2rem;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--luxe-text);
-  background: transparent;
-  border: 1px solid var(--luxe-border);
-  cursor: pointer;
-  align-self: flex-start;
-  
-  &:hover {
-    border-color: var(--luxe-gold);
-    color: var(--luxe-gold);
-  }
-`;
-
-const Entries = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const Entry = styled.div`
-  padding: 1.5rem;
-  background: var(--luxe-white);
-`;
-
-const EntryName = styled.p`
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-style: italic;
-  color: var(--luxe-text-heading);
-  margin-bottom: 0.5rem;
-`;
-
-const EntryMessage = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-text-light);
-  line-height: 1.7;
-`;
+const EntriesList = styled.div`display: flex; flex-direction: column; gap: 2rem;`;
+const Entry = styled.div`padding-bottom: 2rem; border-bottom: 1px solid var(--luxe-sand); opacity: 0; animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: ${p => 0.3 + p.$index * 0.1}s; &:last-child { border-bottom: none; }`;
+const EntryName = styled.p`font-family: var(--font-serif); font-size: 1.1rem; font-weight: 500; color: var(--luxe-black); margin-bottom: 0.5rem;`;
+const EntryMessage = styled.p`font-family: var(--font-sans); font-size: 0.9rem; font-weight: 300; line-height: 1.8; color: var(--luxe-charcoal); font-style: italic;`;
+const EntryDate = styled.span`font-family: var(--font-sans); font-size: 0.7rem; color: var(--luxe-taupe); display: block; margin-top: 0.75rem;`;
 
 function Guestbook() {
+  const { project, content } = useWedding();
+  const title = content?.guestbook?.title || 'Gaestebuch';
+  const [visible, setVisible] = useState(false);
   const [entries, setEntries] = useState([]);
-  const [formData, setFormData] = useState({ name: '', message: '' });
-  
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const sectionRef = useRef(null);
+
   useEffect(() => {
-    loadEntries();
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
-  
-  const loadEntries = async () => {
-    // Demo data - in production, fetch from backend
-    setEntries([
-      { id: 1, name: 'Emma', message: 'So excited for you both! Cannot wait to celebrate!' },
-      { id: 2, name: 'James', message: 'Wishing you a lifetime of love and happiness!' },
-    ]);
-  };
-  
+
+  useEffect(() => {
+    if (project?.id) getGuestbookEntries(project.id).then(data => data && setEntries(data));
+  }, [project?.id]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Demo: In production, save to backend
-    console.log('Guestbook entry:', formData);
-    setEntries(prev => [...prev, { id: Date.now(), ...formData }]);
-    setFormData({ name: '', message: '' });
+    if (!project?.id || !name || !message) return;
+    setLoading(true);
+    try {
+      await submitGuestbookEntry(project.id, { name, message });
+      setName(''); setMessage('');
+      const data = await getGuestbookEntries(project.id);
+      if (data) setEntries(data);
+    } catch (err) { console.error(err); } finally { setLoading(false); }
   };
-  
+
   return (
-    <Section id="guestbook">
+    <Section ref={sectionRef} id="guestbook">
       <Container>
-        <Header>
-          <GoldLine />
-          <Eyebrow>Gästebuch</Eyebrow>
-          <Title>Eure Wünsche</Title>
-        </Header>
-        
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            placeholder="Euer Name"
-            value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <Textarea
-            placeholder="Eure Nachricht an uns..."
-            value={formData.message}
-            onChange={e => setFormData({ ...formData, message: e.target.value })}
-            required
-          />
-          <Button type="submit">Eintragen</Button>
+        <Header $visible={visible}><Eyebrow>Eure Worte</Eyebrow><Title>{title}</Title></Header>
+        <Form onSubmit={handleSubmit} $visible={visible}>
+          <Input type="text" placeholder="Euer Name" value={name} onChange={e => setName(e.target.value)} required />
+          <TextArea placeholder="Eure Nachricht an uns..." value={message} onChange={e => setMessage(e.target.value)} required />
+          <Button type="submit" disabled={loading}>{loading ? 'Wird gesendet...' : 'Eintragen'}</Button>
         </Form>
-        
-        <Entries>
-          {entries.map((entry, index) => (
-            <Entry key={index}>
+        <EntriesList>
+          {entries.map((entry, i) => (
+            <Entry key={entry.id || i} $visible={visible} $index={i}>
               <EntryName>{entry.name}</EntryName>
-              <EntryMessage>{entry.message}</EntryMessage>
+              <EntryMessage>"{entry.message}"</EntryMessage>
+              <EntryDate>{new Date(entry.created_at).toLocaleDateString('de-DE')}</EntryDate>
             </Entry>
           ))}
-        </Entries>
+        </EntriesList>
       </Container>
     </Section>
   );

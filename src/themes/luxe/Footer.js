@@ -1,94 +1,62 @@
-// Footer.js - luxe Theme (Supabase integrated)
-import React from 'react';
-import styled from 'styled-components';
+// Luxe Footer
+import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const FooterSection = styled.footer`
-  padding: 4rem 2rem;
-  background: var(--footer-bg, #1a1a1a);
-  color: var(--footer-text, #fff);
-  text-align: center;
-`;
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
-const Names = styled.h3`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: 1.8rem;
-  font-weight: 400;
-  margin-bottom: 1rem;
-  color: var(--footer-accent, #8B9D83);
-`;
+const FooterSection = styled.footer`padding: 4rem 2rem; background: var(--luxe-black); text-align: center;`;
+const Names = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 6vw, 4rem); font-weight: 300; font-style: italic; color: var(--luxe-white); margin-bottom: 1rem;`;
+const Date = styled.p`font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 2rem;`;
+const Hashtag = styled.p`font-family: var(--font-serif); font-size: 1.25rem; font-style: italic; color: var(--luxe-gold); margin-bottom: 2rem;`;
+const AdminBtn = styled.button`font-family: var(--font-sans); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-taupe); margin-top: 2rem; &:hover { color: var(--luxe-gold); }`;
+const Copyright = styled.p`font-family: var(--font-sans); font-size: 0.7rem; color: var(--luxe-taupe); margin-top: 3rem;`;
 
-const Hashtag = styled.p`
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 1rem;
-  color: var(--footer-text-secondary, rgba(255,255,255,0.7));
-  margin-bottom: 2rem;
-`;
+// Simple Admin Login Modal
+const Overlay = styled.div`position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: ${p => p.$open ? 'flex' : 'none'}; align-items: center; justify-content: center;`;
+const Modal = styled.div`background: var(--luxe-cream); padding: 3rem; max-width: 400px; width: 90%;`;
+const ModalTitle = styled.h3`font-family: var(--font-serif); font-size: 1.5rem; color: var(--luxe-black); margin-bottom: 2rem; text-align: center;`;
+const Input = styled.input`width: 100%; padding: 1rem; font-family: var(--font-sans); font-size: 1rem; border: 1px solid var(--luxe-sand); margin-bottom: 1rem; &:focus { outline: none; border-color: var(--luxe-olive); }`;
+const LoginBtn = styled.button`width: 100%; padding: 1rem; font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; background: var(--luxe-black); color: var(--luxe-white); &:hover { background: var(--luxe-charcoal); }`;
+const CloseBtn = styled.button`position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: var(--luxe-white);`;
 
-const Divider = styled.div`
-  width: 60px;
-  height: 1px;
-  background: var(--footer-divider, rgba(255,255,255,0.2));
-  margin: 2rem auto;
-`;
-
-const Copyright = styled.p`
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.75rem;
-  color: var(--footer-text-muted, rgba(255,255,255,0.5));
-  margin-bottom: 1rem;
-`;
-
-const AdminLink = styled.button`
-  background: none;
-  border: none;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.7rem;
-  color: var(--footer-text-muted, rgba(255,255,255,0.3));
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  transition: color 0.3s ease;
+function Footer({ onAdminLogin }) {
+  const { project } = useWedding();
+  const name1 = project?.partner1_name || 'Emma';
+  const name2 = project?.partner2_name || 'James';
+  const date = project?.wedding_date;
+  const hashtag = project?.hashtag;
   
-  &:hover {
-    color: var(--footer-text-secondary, rgba(255,255,255,0.7));
-  }
-`;
+  const [showLogin, setShowLogin] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-const PoweredBy = styled.a`
-  display: block;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.65rem;
-  color: var(--footer-text-muted, rgba(255,255,255,0.3));
-  text-decoration: none;
-  margin-top: 1rem;
-  
-  &:hover {
-    color: var(--footer-text-secondary, rgba(255,255,255,0.5));
-  }
-`;
+  const formattedDate = date ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-function Footer() {
-  const { content, coupleNames, slug } = useWedding();
-  const footer = content?.footer || {};
-  
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
-  const year = new Date().getFullYear();
-  
-  const handleAdminClick = () => {
-    const adminPath = slug ? `/${slug}/admin` : '/admin';
-    window.location.href = adminPath;
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (onAdminLogin) onAdminLogin(username, password);
+    setShowLogin(false);
   };
 
   return (
     <FooterSection>
-      <Names>{names[0]} & {names[1]}</Names>
-      {footer.hashtag && <Hashtag>{footer.hashtag}</Hashtag>}
-      <Divider />
-      <Copyright>© {year} {names[0]} & {names[1]}</Copyright>
-      <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
-      <PoweredBy href="https://siwedding.de" target="_blank" rel="noopener">
-        Powered by IverLasting
-      </PoweredBy>
+      <Names>{name1} & {name2}</Names>
+      {formattedDate && <Date>{formattedDate}</Date>}
+      {hashtag && <Hashtag>#{hashtag}</Hashtag>}
+      <AdminBtn onClick={() => setShowLogin(true)}>Admin</AdminBtn>
+      <Copyright>Mit Liebe gestaltet</Copyright>
+      
+      <Overlay $open={showLogin} onClick={() => setShowLogin(false)}>
+        <Modal onClick={e => e.stopPropagation()}>
+          <ModalTitle>Admin Login</ModalTitle>
+          <form onSubmit={handleLogin}>
+            <Input type="text" placeholder="Benutzername" value={username} onChange={e => setUsername(e.target.value)} />
+            <Input type="password" placeholder="Passwort" value={password} onChange={e => setPassword(e.target.value)} />
+            <LoginBtn type="submit">Anmelden</LoginBtn>
+          </form>
+        </Modal>
+      </Overlay>
     </FooterSection>
   );
 }
