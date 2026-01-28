@@ -1,329 +1,209 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const FooterSection = styled.footer`
-  background: #000;
-  color: #FFF;
-  padding: 5rem 2rem 2rem;
-  position: relative;
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 `;
 
-const IncludedBadge = styled.div`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  background: #FFF;
-  color: #000;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  
-  &::before {
-    content: '✓';
-    font-size: 0.7rem;
-  }
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
+const FooterSection = styled.footer`
+  padding: clamp(4rem, 10vh, 8rem) clamp(1.5rem, 5vw, 4rem);
+  background: var(--editorial-black);
+  text-align: center;
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 4rem;
-  margin-bottom: 4rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    text-align: center;
-  }
-`;
-
-const Brand = styled.div``;
-
-const Logo = styled.div`
-  font-family: 'Instrument Serif', serif;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  
-  span {
-    font-style: italic;
-  }
-`;
-
-const Tagline = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #999;
-  line-height: 1.7;
-  max-width: 300px;
-  
-  @media (max-width: 768px) {
-    max-width: none;
-    margin: 0 auto;
-  }
-`;
-
-const NavColumn = styled.div``;
-
-const NavTitle = styled.h4`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+const Names = styled.h2`
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 15vw, 10rem);
+  font-weight: 700;
+  color: var(--editorial-white);
   text-transform: uppercase;
-  color: #666;
-  margin-bottom: 1.5rem;
-`;
-
-const NavList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  
-  @media (max-width: 768px) {
-    align-items: center;
-  }
-`;
-
-const NavLink = styled.a`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #CCC;
-  transition: color 0.3s ease;
-  
-  &:hover {
-    color: #FFF;
-  }
-`;
-
-const Divider = styled.div`
-  height: 1px;
-  background: #333;
+  letter-spacing: -0.03em;
+  line-height: 0.85;
   margin-bottom: 2rem;
 `;
 
-const Bottom = styled.div`
+const Ampersand = styled.span`
+  display: block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.3em;
+  color: var(--editorial-red);
+  margin: 0.5rem 0;
+`;
+
+const Heart = styled.span`
+  display: inline-block;
+  font-size: 2rem;
+  color: var(--editorial-red);
+  animation: ${pulse} 1.5s ease infinite;
+  margin-bottom: 2rem;
+`;
+
+const DateText = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 3rem;
+`;
+
+const Divider = styled.div`
+  width: 60px;
+  height: 2px;
+  background: var(--editorial-red);
+  margin: 0 auto 3rem;
+`;
+
+const NavLinks = styled.nav`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.5rem 2rem;
+  margin-bottom: 3rem;
+`;
+
+const NavLink = styled.a`
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: color 0.3s ease;
   
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
+  &:hover {
+    color: var(--editorial-red);
+  }
+`;
+
+const BackToTop = styled.a`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--editorial-white);
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 3rem;
+  
+  &:hover {
+    background: var(--editorial-red);
+    border-color: var(--editorial-red);
+    transform: translateY(-3px);
   }
 `;
 
 const Copyright = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  color: #666;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
 `;
 
-const AdminLink = styled.button`
-  font-family: 'Inter', sans-serif;
+const PoweredBy = styled.a`
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #666;
-  background: none;
-  border: none;
-  cursor: pointer;
+  color: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
   transition: color 0.3s ease;
   
   &:hover {
-    color: #999;
+    color: var(--editorial-red);
   }
 `;
 
-const Modal = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  opacity: ${p => p.$open ? 1 : 0};
-  visibility: ${p => p.$open ? 'visible' : 'hidden'};
-  transition: all 0.3s ease;
-`;
+// ============================================
+// COMPONENT
+// ============================================
 
-const ModalContent = styled.div`
-  background: #FFF;
-  padding: 3rem;
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-`;
-
-const ModalClose = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #999;
-  cursor: pointer;
+function Footer() {
+  const { coupleNames, weddingDate, isComponentActive } = useWedding();
   
-  &:hover {
-    color: #000;
-  }
-`;
-
-const ModalTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.75rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 2rem;
-  text-align: center;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #000;
-  margin-bottom: 0.5rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 1rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  color: #000;
-  background: #FAFAFA;
-  border: 1px solid #E0E0E0;
-  transition: all 0.3s ease;
+  // Parse couple names
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
+  const name1 = names[0] || 'Braut';
+  const name2 = names[1] || 'Bräutigam';
   
-  &:focus {
-    outline: none;
-    border-color: #000;
-    background: #FFF;
-  }
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 1rem 2rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #FFF;
-  background: #000;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #333;
-  }
-`;
-
-const ErrorMessage = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #C62828;
-  text-align: center;
-  margin-top: 1rem;
-`;
-
-function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false, slug = '' }) {
-  const hashtag = content.hashtag || '';
-  const tagline = content.tagline || 'Wir freuen uns auf euch!';
-  
-  const defaultLinks = [
-    { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Location', href: '#location' },
-    { label: 'Ablauf', href: '#timeline' },
-  ];
-
-  const defaultQuickLinks = [
-    { label: 'RSVP', href: '#rsvp' },
-    { label: 'FAQ', href: '#faq' },
-  ];
-
-  const navLinks = defaultLinks;
-  const quickNavLinks = defaultQuickLinks;
-
-  const handleAdminClick = () => {
-    // Use slug for admin link if available
-    const adminPath = slug ? `/${slug}/admin` : '/admin';
-    window.location.href = adminPath;
+  // Format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
-
-  const year = new Date().getFullYear();
-  const name1 = coupleNames.split('&')[0]?.trim() || '';
-  const name2 = coupleNames.split('&')[1]?.trim() || '';
+  
+  // Navigation links
+  const navItems = [
+    { id: 'top', label: 'Start', always: true },
+    { id: 'lovestory', label: 'Geschichte' },
+    { id: 'timeline', label: 'Ablauf' },
+    { id: 'rsvp', label: 'RSVP' },
+    { id: 'gallery', label: 'Galerie' },
+    { id: 'contact', label: 'Kontakt' },
+  ].filter(item => item.always || isComponentActive(item.id));
 
   return (
     <FooterSection>
-      {showBadge && <IncludedBadge>Included</IncludedBadge>}
-      
       <Container>
-        <Grid>
-          <Brand>
-            <Logo>
-              {name1} <span>&</span> {name2}
-            </Logo>
-            <Tagline>{tagline}</Tagline>
-          </Brand>
-          
-          <NavColumn>
-            <NavTitle>Navigation</NavTitle>
-            <NavList>
-              {navLinks.map((link, i) => (
-                <li key={i}>
-                  <NavLink href={link.href}>{link.label}</NavLink>
-                </li>
-              ))}
-            </NavList>
-          </NavColumn>
-          
-          <NavColumn>
-            <NavTitle>Quick Links</NavTitle>
-            <NavList>
-              {quickNavLinks.map((link, i) => (
-                <li key={i}>
-                  <NavLink href={link.href}>{link.label}</NavLink>
-                </li>
-              ))}
-            </NavList>
-          </NavColumn>
-        </Grid>
+        <Names>
+          {name1}
+          <Ampersand>&</Ampersand>
+          {name2}
+        </Names>
+        
+        <Heart>♥</Heart>
+        
+        <DateText>{formatDate(weddingDate)}</DateText>
         
         <Divider />
         
-        <Bottom>
-          <Copyright>© {year} {coupleNames}. Made with love.</Copyright>
-          <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
-        </Bottom>
+        <NavLinks>
+          {navItems.map(item => (
+            <NavLink key={item.id} href={`#${item.id}`}>
+              {item.label}
+            </NavLink>
+          ))}
+        </NavLinks>
+        
+        <BackToTop href="#top" aria-label="Nach oben">
+          ↑
+        </BackToTop>
+        
+        <Copyright>
+          © {new Date().getFullYear()} {name1} & {name2}
+        </Copyright>
+        
+        <PoweredBy href="https://siwedding.de" target="_blank" rel="noopener noreferrer">
+          Powered by IverLasting
+        </PoweredBy>
       </Container>
     </FooterSection>
   );

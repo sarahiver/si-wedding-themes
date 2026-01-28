@@ -1,235 +1,204 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #FAFAFA;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-black);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #666;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 12vw, 7rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
-const Subtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: #666;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
+const Description = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
 `;
 
-const AlphabetNav = styled.div`
+const ABCGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.4s;
+  `}
+`;
+
+const ABCItem = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 3rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.3s;
-`;
-
-const LetterButton = styled.button`
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Instrument Serif', serif;
-  font-size: 1rem;
-  color: ${p => p.$active ? '#FFF' : p.$hasEntries ? '#000' : '#CCC'};
-  background: ${p => p.$active ? '#000' : 'transparent'};
-  border: 1px solid ${p => p.$active ? '#000' : p.$hasEntries ? '#E0E0E0' : '#F0F0F0'};
-  cursor: ${p => p.$hasEntries ? 'pointer' : 'default'};
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--editorial-red);
   transition: all 0.3s ease;
   
   &:hover {
-    ${p => p.$hasEntries && !p.$active && `
-      border-color: #000;
-      background: #F5F5F5;
-    `}
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(5px);
   }
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+const Letter = styled.span`
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 8vw, 4rem);
+  font-weight: 700;
+  color: var(--editorial-red);
+  line-height: 0.9;
+  flex-shrink: 0;
 `;
 
-const Card = styled.div`
-  background: #FFF;
-  padding: 2rem;
-  border: 1px solid #E0E0E0;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.4 + p.$index * 0.05}s;
+const ItemContent = styled.div`
+  flex: 1;
 `;
 
-const CardLetter = styled.div`
-  font-family: 'Instrument Serif', serif;
-  font-size: 3rem;
-  font-style: italic;
-  color: #E0E0E0;
-  line-height: 1;
-  margin-bottom: 1rem;
+const ItemTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-white);
+  margin-bottom: 0.5rem;
 `;
 
-const CardTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 0.75rem;
-`;
-
-const CardText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
+const ItemText = styled.p`
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.6;
   margin: 0;
 `;
 
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  grid-column: 1 / -1;
-`;
-
-const EmptyText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #999;
-`;
+// ============================================
+// COMPONENT
+// ============================================
 
 function WeddingABC() {
   const { content } = useWedding();
-  const weddingabcData = content?.weddingabc || {};
-  const title = weddingabcData.title || 'Hochzeits-ABC';
-  const entries = weddingabcData.entries || [];
+  const abcData = content?.weddingabc || {};
+  
+  const title = abcData.title || 'Hochzeits-ABC';
+  const description = abcData.description || 'Von A wie Anfahrt bis Z wie Zeitplan – alles Wichtige auf einen Blick.';
+  const items = abcData.items || [];
+  
   const [visible, setVisible] = useState(false);
-  const [activeLetter, setActiveLetter] = useState(null);
   const sectionRef = useRef(null);
 
-  const defaultEntries = [
-    { letter: 'A', title: 'Anreise', text: 'Die Location ist mit dem Auto und öffentlichen Verkehrsmitteln gut erreichbar. Parkplätze sind vorhanden.' },
-    { letter: 'B', title: 'Blumen', text: 'Unser Farbkonzept ist Weiß und Grün. Wer uns mit Blumen überraschen möchte, kann sich daran orientieren.' },
-    { letter: 'D', title: 'Dresscode', text: 'Elegante Abendgarderobe. Die Herren im Anzug, die Damen im Cocktail- oder Abendkleid.' },
-    { letter: 'F', title: 'Fotos', text: 'Während der Trauung verzichtet bitte auf eigene Fotos. Bei der Feier dürft ihr gerne knipsen!' },
-    { letter: 'G', title: 'Geschenke', text: 'Das größte Geschenk ist eure Anwesenheit. Infos zu unserer Wunschliste findet ihr unter "Geschenke".' },
-    { letter: 'H', title: 'Hochzeitstorte', text: 'Die Torte wird gegen 22 Uhr angeschnitten. Ein süßes Highlight, das ihr nicht verpassen solltet!' },
-    { letter: 'K', title: 'Kinder', text: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.' },
-    { letter: 'M', title: 'Musik', text: 'Habt ihr einen Song, der euch auf die Tanzfläche bringt? Verratet ihn uns unter "Musikwünsche"!' },
-    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplätze sind direkt an der Location vorhanden. Bitte folgt der Beschilderung.' },
-    { letter: 'R', title: 'Reden', text: 'Möchtet ihr eine Rede halten? Meldet euch bitte bei unseren Trauzeugen, damit wir planen können.' },
-    { letter: 'S', title: 'Sektempfang', text: 'Nach der Trauung gibt es einen Sektempfang auf der Terrasse. Stoßt mit uns an!' },
-    { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier können wir Taxis organisieren. Gebt bei der Anmeldung an, ob ihr eines benötigt.' },
-    { letter: 'U', title: 'Übernachtung', text: 'Wir haben Zimmer im Hotel Schlossblick reserviert. Stichwort: Hochzeit Pauli & Mo.' },
-    { letter: 'W', title: 'Wetter', text: 'Plan A ist draußen, Plan B drinnen. Wir sind auf alles vorbereitet – ihr auch?' },
+  const defaultItems = [
+    { letter: 'A', title: 'Anfahrt', text: 'Alle Details zur Anreise findet ihr unter "Anfahrt".' },
+    { letter: 'B', title: 'Blumenkinder', text: 'Wer möchte Blumen streuen? Meldet euch bei den Trauzeugen!' },
+    { letter: 'C', title: 'Checkliste', text: 'RSVP nicht vergessen – bitte bis zum Stichtag antworten.' },
+    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Mehr Infos unter "Dresscode".' },
+    { letter: 'E', title: 'Essen', text: 'Es gibt ein festliches Menü mit vegetarischen Optionen.' },
+    { letter: 'F', title: 'Fotos', text: 'Teilt eure Schnappschüsse in unserer Fotogalerie!' },
+    { letter: 'G', title: 'Geschenke', text: 'Das größte Geschenk ist eure Anwesenheit.' },
+    { letter: 'H', title: 'Hotels', text: 'Zimmerkontingente unter "Unterkünfte".' },
+    { letter: 'K', title: 'Kinder', text: 'Kinder sind herzlich willkommen!' },
+    { letter: 'M', title: 'Musik', text: 'Wünscht euch euren Lieblingssong!' },
+    { letter: 'P', title: 'Parken', text: 'Kostenfreie Parkplätze vor Ort.' },
+    { letter: 'T', title: 'Tanzen', text: 'Bequeme Schuhe nicht vergessen!' },
   ];
 
-  const items = entries.length > 0 ? entries : defaultEntries;
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  const availableLetters = [...new Set(items.map(e => e.letter.toUpperCase()))];
-  const filteredItems = activeLetter 
-    ? items.filter(e => e.letter.toUpperCase() === activeLetter) 
-    : items;
+  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.1 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleLetterClick = (letter) => {
-    if (!availableLetters.includes(letter)) return;
-    setActiveLetter(activeLetter === letter ? null : letter);
-  };
-
   return (
-    <Section ref={sectionRef} id="abc">
+    <Section id="weddingabc" ref={sectionRef}>
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Von A bis Z</Eyebrow>
+          <Eyebrow $visible={visible}>Alles Wichtige</Eyebrow>
           <Title $visible={visible}>{title}</Title>
+          <Description $visible={visible}>{description}</Description>
         </Header>
         
-        <AlphabetNav $visible={visible}>
-          <LetterButton 
-            $active={activeLetter === null} 
-            $hasEntries={true}
-            onClick={() => setActiveLetter(null)}
-          >
-            ★
-          </LetterButton>
-          {alphabet.map(letter => (
-            <LetterButton 
-              key={letter} 
-              $active={activeLetter === letter}
-              $hasEntries={availableLetters.includes(letter)}
-              onClick={() => handleLetterClick(letter)}
-            >
-              {letter}
-            </LetterButton>
+        <ABCGrid $visible={visible}>
+          {displayItems.map((item, i) => (
+            <ABCItem key={i}>
+              <Letter>{item.letter}</Letter>
+              <ItemContent>
+                <ItemTitle>{item.title}</ItemTitle>
+                <ItemText>{item.text}</ItemText>
+              </ItemContent>
+            </ABCItem>
           ))}
-        </AlphabetNav>
-        
-        <Grid>
-          {filteredItems.length > 0 ? (
-            filteredItems.map((entry, i) => (
-              <Card key={i} $index={i} $visible={visible}>
-                <CardLetter>{entry.letter}</CardLetter>
-                <CardTitle>{entry.title}</CardTitle>
-                <CardText>{entry.text}</CardText>
-              </Card>
-            ))
-          ) : (
-            <EmptyState>
-              <EmptyText>Keine Einträge für diesen Buchstaben.</EmptyText>
-            </EmptyState>
-          )}
-        </Grid>
+        </ABCGrid>
       </Container>
     </Section>
   );

@@ -1,317 +1,463 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
+import { useGuestbook } from '../../components/shared/GuestbookCore';
+import FeedbackModal from '../../components/shared/FeedbackModal';
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const lineGrow = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #FFFFFF;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-white);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #666;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 12vw, 7rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
-const Subtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  color: #666;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
+const Description = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-style: italic;
+  color: var(--editorial-gray);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
 `;
 
-const Form = styled.form`
-  background: #FAFAFA;
-  padding: 2.5rem;
-  border: 1px solid #E0E0E0;
-  margin-bottom: 3rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.3s;
+const FormSection = styled.div`
+  background: var(--editorial-light-gray);
+  padding: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 4rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.4s;
+  `}
 `;
 
-const FormRow = styled.div`
+const FormTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-black);
+  margin-bottom: 1.5rem;
+`;
+
+const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
   
-  @media (max-width: 600px) { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: ${p => p.$full ? '1.5rem' : '0'};
+  &.full-width {
+    grid-column: 1 / -1;
+  }
 `;
 
 const Label = styled.label`
   display: block;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-headline);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #000;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--editorial-black);
+  margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 1rem;
-  font-family: 'Inter', sans-serif;
+  background: var(--editorial-white);
+  border: 2px solid transparent;
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: #000;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
+  color: var(--editorial-black);
   transition: all 0.3s ease;
   
-  &:focus { outline: none; border-color: #000; }
+  &:focus {
+    outline: none;
+    border-color: var(--editorial-red);
+  }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
   padding: 1rem;
-  font-family: 'Inter', sans-serif;
+  background: var(--editorial-white);
+  border: 2px solid transparent;
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: #000;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
-  min-height: 120px;
+  color: var(--editorial-black);
+  min-height: 150px;
   resize: vertical;
   transition: all 0.3s ease;
   
-  &:focus { outline: none; border-color: #000; }
+  &:focus {
+    outline: none;
+    border-color: var(--editorial-red);
+  }
 `;
 
 const SubmitButton = styled.button`
-  padding: 1rem 2.5rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #FFF;
-  background: #000;
+  width: 100%;
+  padding: 1.25rem 2rem;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
   border: none;
+  font-family: var(--font-headline);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-top: 1.5rem;
   
-  &:hover { background: #333; }
+  &:hover:not(:disabled) {
+    background: var(--editorial-red);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
-const EntriesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+const EntriesSection = styled.div`
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.5s;
+  `}
 `;
 
-const Entry = styled.div`
-  background: #FAFAFA;
+const EntriesTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-black);
+  margin-bottom: 0.5rem;
+`;
+
+const EntriesCount = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--editorial-gray);
+`;
+
+const Divider = styled.div`
+  width: 60px;
+  height: 3px;
+  background: var(--editorial-red);
+  margin: 1.5rem 0 2rem;
+  transform: scaleX(0);
+  transform-origin: left;
+  
+  ${p => p.$visible && css`
+    animation: ${lineGrow} 0.6s ease forwards;
+    animation-delay: 0.6s;
+  `}
+`;
+
+const EntriesGrid = styled.div`
+  display: grid;
+  gap: 2rem;
+`;
+
+const EntryCard = styled.article`
   padding: 2rem;
-  border-left: 3px solid #000;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.4 + p.$index * 0.1}s;
+  background: var(--editorial-light-gray);
+  border-left: 4px solid var(--editorial-red);
 `;
 
-const EntryText = styled.p`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.1rem;
-  font-style: italic;
-  color: #333;
-  line-height: 1.7;
+const EntryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1rem;
 `;
 
-const EntryMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-`;
-
-const EntryAuthor = styled.span`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #000;
+const EntryName = styled.h4`
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-black);
 `;
 
 const EntryDate = styled.span`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  color: #999;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--editorial-gray);
+`;
+
+const EntryMessage = styled.p`
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--editorial-gray);
+  line-height: 1.8;
+  margin: 0;
+`;
+
+const EntryImage = styled.img`
+  max-width: 200px;
+  margin-top: 1rem;
+  filter: grayscale(30%);
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem;
-  background: #FAFAFA;
-  border: 1px dashed #E0E0E0;
+  background: var(--editorial-light-gray);
+`;
+
+const EmptyIcon = styled.span`
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
 `;
 
 const EmptyText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #999;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--editorial-gray);
 `;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function Guestbook() {
   const { content } = useWedding();
   const guestbookData = content?.guestbook || {};
-  const { projectId } = useWedding();
+  
+  const title = guestbookData.title || 'Gästebuch';
+  const description = guestbookData.description || 'Hinterlasst uns einen lieben Gruß!';
+  
+  const {
+    entries,
+    formData,
+    submitting,
+    error,
+    success,
+    updateField,
+    submitEntry,
+  } = useGuestbook();
+  
   const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({ name: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [entries, setEntries] = useState([]);
-  const [error, setError] = useState(null);
+  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
-
-  const title = guestbookData.title || 'Gäste';
-  const titleAccent = 'buch';
-  const subtitle = guestbookData.description || 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.';
-
-  // Load entries from Supabase
-  useEffect(() => {
-    async function loadEntries() {
-      if (!projectId) return;
-      const { data } = await getGuestbookEntries(projectId, true);
-      if (data) {
-        const formattedEntries = data.map(entry => ({
-          name: entry.name,
-          message: entry.message,
-          date: new Date(entry.created_at).toLocaleDateString('de-DE', { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
-          }),
-        }));
-        setEntries(formattedEntries);
-      }
-    }
-    loadEntries();
-  }, [projectId, submitted]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.1 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      setModalState({
+        isOpen: true,
+        type: 'success',
+        message: 'Danke für deinen Eintrag! Er wird nach Freigabe angezeigt.',
+      });
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        message: error,
+      });
+    }
+  }, [error]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const { error: submitError } = await submitGuestbookEntry(projectId, {
-        name: formData.name,
-        message: formData.message,
-      });
-
-      if (submitError) {
-        throw new Error(submitError.message);
-      }
-
-      setFormData({ name: '', message: '' });
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-    } catch (err) {
-      console.error('Guestbook submission error:', err);
-      setError('Es gab einen Fehler. Bitte versuche es erneut.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    await submitEntry();
   };
 
-  const items = entries;
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const approvedEntries = entries.filter(e => e.approved);
 
   return (
-    <Section ref={sectionRef} id="guestbook">
+    <Section id="guestbook" ref={sectionRef}>
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Eure Wünsche</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Eyebrow $visible={visible}>Eure Worte</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <Description $visible={visible}>{description}</Description>
         </Header>
         
-        <Form $visible={visible} onSubmit={handleSubmit}>
-          <FormRow>
-            <FormGroup>
-              <Label>Euer Name *</Label>
-              <Input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Vor- und Nachname" required />
-            </FormGroup>
-          </FormRow>
-          <FormGroup $full>
-            <Label>Eure Nachricht *</Label>
-            <TextArea value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} placeholder="Schreibt uns eure Glückwünsche..." required />
-          </FormGroup>
-          {error && (
-            <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
-              {error}
-            </div>
-          )}
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Wird gesendet...' : submitted ? '✓ Gesendet!' : 'Eintragen'}
-          </SubmitButton>
-        </Form>
+        <FormSection $visible={visible}>
+          <FormTitle>Eintrag schreiben</FormTitle>
+          <form onSubmit={handleSubmit}>
+            <FormGrid>
+              <FormGroup>
+                <Label>Name *</Label>
+                <Input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => updateField('name', e.target.value)}
+                  placeholder="Dein Name"
+                  required
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label>E-Mail (optional)</Label>
+                <Input
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) => updateField('email', e.target.value)}
+                  placeholder="Für Rückfragen"
+                />
+              </FormGroup>
+              
+              <FormGroup className="full-width">
+                <Label>Nachricht *</Label>
+                <TextArea
+                  value={formData.message}
+                  onChange={(e) => updateField('message', e.target.value)}
+                  placeholder="Deine Glückwünsche oder ein lieber Gruß..."
+                  required
+                />
+              </FormGroup>
+            </FormGrid>
+            
+            <SubmitButton type="submit" disabled={submitting}>
+              {submitting ? 'Wird gesendet...' : 'Eintrag absenden'}
+            </SubmitButton>
+          </form>
+        </FormSection>
         
-        {items.length > 0 ? (
-          <EntriesList>
-            {items.map((entry, i) => (
-              <Entry key={i} $index={i} $visible={visible}>
-                <EntryText>"{entry.message}"</EntryText>
-                <EntryMeta>
-                  <EntryAuthor>— {entry.name}</EntryAuthor>
-                  <EntryDate>{entry.date}</EntryDate>
-                </EntryMeta>
-              </Entry>
-            ))}
-          </EntriesList>
-        ) : (
-          <EmptyState><EmptyText>Noch keine Einträge vorhanden. Seid die Ersten!</EmptyText></EmptyState>
-        )}
+        <EntriesSection $visible={visible}>
+          <EntriesTitle>Einträge</EntriesTitle>
+          <EntriesCount>{approvedEntries.length} Einträge</EntriesCount>
+          <Divider $visible={visible} />
+          
+          {approvedEntries.length > 0 ? (
+            <EntriesGrid>
+              {approvedEntries.map(entry => (
+                <EntryCard key={entry.id}>
+                  <EntryHeader>
+                    <EntryName>{entry.name}</EntryName>
+                    <EntryDate>{formatDate(entry.created_at)}</EntryDate>
+                  </EntryHeader>
+                  <EntryMessage>{entry.message}</EntryMessage>
+                  {entry.image_url && (
+                    <EntryImage src={entry.image_url} alt="" />
+                  )}
+                </EntryCard>
+              ))}
+            </EntriesGrid>
+          ) : (
+            <EmptyState>
+              <EmptyIcon>📝</EmptyIcon>
+              <EmptyText>Noch keine Einträge – sei der Erste!</EmptyText>
+            </EmptyState>
+          )}
+        </EntriesSection>
       </Container>
+      
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        message={modalState.message}
+        autoClose={modalState.type === 'success' ? 3000 : 0}
+      />
     </Section>
   );
 }

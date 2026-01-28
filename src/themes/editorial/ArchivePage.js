@@ -1,508 +1,437 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { getGuestbookEntries, getPhotoUploads } from '../../lib/supabase';
+import EditorialGlobalStyles from './GlobalStyles';
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
 const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const lineExtend = keyframes`
+const letterReveal = keyframes`
+  0% { 
+    opacity: 0; 
+    transform: translateY(100%);
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+`;
+
+const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 `;
 
-const gridReveal = keyframes`
+const imageReveal = keyframes`
   from { 
     opacity: 0;
-    background-size: 0px 0px;
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
   }
   to { 
     opacity: 1;
-    background-size: 80px 80px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
 `;
 
-const circleGrow = keyframes`
-  from { 
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  to { 
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-`;
+// ============================================
+// STYLED COMPONENTS
+// ============================================
 
 const Page = styled.div`
   min-height: 100vh;
-  background: #FFFFFF;
+  background: var(--editorial-white);
 `;
 
 // Hero Section
 const HeroSection = styled.section`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
-  overflow: hidden;
-  background: #FAFAFA;
-`;
-
-const BackgroundGrid = styled.div`
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
-  background-size: 80px 80px;
-  pointer-events: none;
-  opacity: 0;
-  animation: ${gridReveal} 2s ease forwards;
-  animation-delay: 0.2s;
-`;
-
-const BackgroundCircle = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 60vw;
-  height: 60vw;
-  max-width: 700px;
-  max-height: 700px;
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 50%;
-  pointer-events: none;
-  animation: ${circleGrow} 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 0.5s;
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-`;
-
-const ScrollHint = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0;
-  animation: ${fadeInUp} 0.8s ease forwards;
-  animation-delay: 1.5s;
-  
-  span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: #999;
-    writing-mode: vertical-rl;
-  }
+  justify-content: flex-end;
+  background: var(--editorial-black);
+  overflow: hidden;
 `;
 
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 40px;
-  background: rgba(0,0,0,0.1);
-  position: relative;
-  overflow: hidden;
+const HeroBackground = styled.div`
+  position: absolute;
+  inset: 0;
+  background-image: ${p => p.$image ? `url(${p.$image})` : 'none'};
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  opacity: 0;
+  animation: ${fadeIn} 1.5s ease forwards;
   
   &::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 30%;
-    background: #000;
-    animation: ${float} 1.5s ease-in-out infinite;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
   }
 `;
 
 const HeroContent = styled.div`
   position: relative;
   z-index: 10;
-  text-align: center;
-  max-width: 800px;
-  padding: 3rem 2rem;
+  padding: 4rem clamp(1.5rem, 5vw, 4rem);
+  max-width: 1400px;
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.35em;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #999;
-  margin-bottom: 2rem;
-  opacity: 0;
-  animation: ${fadeInUp} 0.8s ease forwards;
-  animation-delay: 0.2s;
-`;
-
-const Title = styled.h1`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  font-weight: 400;
-  color: #000;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
   opacity: 0;
   animation: ${fadeInUp} 0.8s ease forwards;
-  animation-delay: 0.4s;
+  animation-delay: 0.5s;
+`;
+
+const HeroTitle = styled.h1`
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 12vw, 10rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.85;
+  margin-bottom: 2rem;
+  overflow: hidden;
   
-  span {
-    font-style: italic;
+  .letter {
+    display: inline-block;
+    opacity: 0;
+    animation: ${letterReveal} 0.5s ease forwards;
   }
 `;
 
-const Subtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  line-height: 1.8;
-  color: #666;
+const HeroSubtitle = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
   max-width: 500px;
-  margin: 0 auto;
   opacity: 0;
   animation: ${fadeInUp} 0.8s ease forwards;
-  animation-delay: 0.6s;
+  animation-delay: 1.5s;
 `;
 
-const Divider = styled.div`
-  width: 60px;
-  height: 1px;
-  background: #000;
-  margin: 2rem auto;
-  transform: scaleX(0);
-  transform-origin: center;
-  animation: ${lineExtend} 0.8s ease forwards;
-  animation-delay: 0.8s;
+// Content Sections
+const Section = styled.section`
+  padding: var(--section-padding) clamp(1.5rem, 5vw, 4rem);
+  background: ${p => p.$dark ? 'var(--editorial-black)' : 'var(--editorial-white)'};
 `;
 
-const DateLocation = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #999;
-  opacity: 0;
-  animation: ${fadeInUp} 0.8s ease forwards;
-  animation-delay: 1s;
-`;
-
-// Gallery Section
-const GallerySection = styled.section`
-  padding: 6rem 2rem;
-  background: #FFFFFF;
-`;
-
-const SectionContainer = styled.div`
-  max-width: 1200px;
+const Container = styled.div`
+  max-width: 1400px;
   margin: 0 auto;
 `;
 
 const SectionHeader = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+  ${p => p.$centered && 'text-align: center;'}
+`;
+
+const SectionEyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--editorial-red);
+  margin-bottom: 1rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const SectionTitle = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
+  font-family: var(--font-headline);
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 700;
+  color: ${p => p.$light ? 'var(--editorial-white)' : 'var(--editorial-black)'};
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
   
-  span {
-    font-style: italic;
-  }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
-const SectionSubtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
-`;
-
+// Photo Gallery
 const GalleryGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
+  
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
 const GalleryItem = styled.div`
-  aspect-ratio: 4/5;
-  background: #F5F5F5;
-  border: 1px solid #E0E0E0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  
-  &::after {
-    content: 'Photo';
-    font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #CCC;
-  }
-  
-  &:hover {
-    border-color: #000;
-    transform: translateY(-4px);
-  }
-`;
-
-// Photo Upload Section
-const UploadSection = styled.section`
-  padding: 6rem 2rem;
-  background: #FAFAFA;
-`;
-
-const UploadArea = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-  border: 2px dashed #E0E0E0;
-  text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: #FFF;
   
-  &:hover {
-    border-color: #000;
+  &:nth-child(5n+1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: all 0.5s ease;
+  }
+  
+  &:hover img {
+    filter: grayscale(0%);
+    transform: scale(1.05);
   }
 `;
 
-const UploadIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.5;
+// Thank You Message
+const ThankYouSection = styled.div`
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
-const UploadText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
+const ThankYouText = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  margin-bottom: 2rem;
 `;
 
-const UploadButton = styled.span`
-  font-family: 'Inter', sans-serif;
+const Signature = styled.p`
+  font-family: var(--font-headline);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  text-transform: uppercase;
+`;
+
+const Divider = styled.div`
+  width: 60px;
+  height: 3px;
+  background: var(--editorial-red);
+  margin: 2rem auto;
+  transform: scaleX(0);
+  
+  ${p => p.$visible && css`
+    animation: ${lineGrow} 0.6s ease forwards;
+    animation-delay: 0.3s;
+  `}
+`;
+
+// Footer
+const FooterSection = styled.footer`
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+  background: var(--editorial-black);
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const FooterText = styled.p`
+  font-family: var(--font-body);
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #000;
-  border-bottom: 1px solid #000;
-  padding-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.3);
 `;
 
-// Guestbook Section
-const GuestbookSection = styled.section`
-  padding: 6rem 2rem;
-  background: #FFFFFF;
-`;
-
-const GuestbookGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
-`;
-
-const GuestbookCard = styled.div`
-  padding: 2rem;
-  border: 1px solid #E0E0E0;
-  background: #FAFAFA;
-`;
-
-const GuestbookMessage = styled.p`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #333;
-  margin-bottom: 1.5rem;
-  font-style: italic;
-`;
-
-const GuestbookAuthor = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #999;
-`;
-
-// Footer
-const ArchiveFooter = styled.footer`
-  padding: 4rem 2rem;
-  background: #000;
-  text-align: center;
-`;
-
-const FooterLogo = styled.div`
-  font-family: 'Instrument Serif', serif;
-  font-size: 2rem;
-  color: #FFF;
-  margin-bottom: 1rem;
-  
-  span {
-    font-style: italic;
-  }
-`;
-
-const FooterText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 2rem;
-`;
-
-const FooterHashtag = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #999;
-`;
+// ============================================
+// COMPONENT
+// ============================================
 
 function ArchivePage() {
-  const { coupleNames, weddingDate, content, projectId } = useWedding();
-  const archiveContent = content?.archive || {};
+  const { content, coupleNames, weddingDate } = useWedding();
+  const archiveData = content?.archive || {};
+  const galleryData = content?.gallery || {};
   
-  const names = coupleNames?.split('&') || ['Name', 'Name'];
-  const name1 = names[0]?.trim() || 'Name';
-  const name2 = names[1]?.trim() || 'Name';
+  const heroImage = archiveData.hero_image || 
+    'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600';
+  const thankYouMessage = archiveData.thank_you_message || 
+    'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt. Die Erinnerungen an diesen Tag werden uns für immer begleiten.';
+  const photos = galleryData.images || [];
   
+  // Parse couple names
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
+  const name1 = names[0] || 'Braut';
+  const name2 = names[1] || 'Bräutigam';
+  
+  // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+    return date.toLocaleDateString('de-DE', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
   
-  const displayDate = formatDate(weddingDate);
-  const location = content?.hero?.location_short || '';
-  const hashtag = content?.footer?.hashtag || '';
-  const thankYouTitle = archiveContent.thank_you_title || 'Danke!';
-  const thankYouText = archiveContent.thank_you_text || 'Danke, dass ihr Teil des schönsten Tages unseres Lebens wart.';
-
-  const [guestMessages, setGuestMessages] = useState([]);
-  const [photos, setPhotos] = useState([]);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [thankYouVisible, setThankYouVisible] = useState(false);
+  const galleryRef = useRef(null);
+  const thankYouRef = useRef(null);
 
   useEffect(() => {
-    async function loadData() {
-      if (!projectId) return;
-      const [guestbook, photoData] = await Promise.all([
-        getGuestbookEntries(projectId, true),
-        getPhotoUploads(projectId, true),
-      ]);
-      setGuestMessages(guestbook.data || []);
-      setPhotos(photoData.data || []);
+    const observers = [];
+    
+    if (galleryRef.current) {
+      const galleryObserver = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setGalleryVisible(true); },
+        { threshold: 0.1 }
+      );
+      galleryObserver.observe(galleryRef.current);
+      observers.push(galleryObserver);
     }
-    loadData();
-  }, [projectId]);
+    
+    if (thankYouRef.current) {
+      const thankYouObserver = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setThankYouVisible(true); },
+        { threshold: 0.2 }
+      );
+      thankYouObserver.observe(thankYouRef.current);
+      observers.push(thankYouObserver);
+    }
+    
+    return () => observers.forEach(obs => obs.disconnect());
+  }, []);
+
+  // Animate title letters
+  const renderAnimatedTitle = (text) => {
+    let delay = 0.8;
+    return text.split('').map((letter, i) => {
+      const style = { animationDelay: `${delay + i * 0.04}s` };
+      return (
+        <span key={i} className="letter" style={style}>
+          {letter === ' ' ? '\u00A0' : letter}
+        </span>
+      );
+    });
+  };
 
   return (
-    <Page>
-      {/* Hero */}
-      <HeroSection>
-        <BackgroundGrid />
-        <BackgroundCircle />
-        <HeroContent>
-          <Eyebrow>{thankYouTitle}</Eyebrow>
-          <Title>
-            {name1} <span>&</span> {name2}
-          </Title>
-          <Subtitle>
-            {thankYouText}
-          </Subtitle>
-          <Divider />
-          <DateLocation>{displayDate} · {location}</DateLocation>
-        </HeroContent>
+    <>
+      <EditorialGlobalStyles />
+      <Page>
+        {/* Hero */}
+        <HeroSection>
+          <HeroBackground $image={heroImage} />
+          <HeroContent>
+            <Eyebrow>Rückblick</Eyebrow>
+            <HeroTitle>
+              {renderAnimatedTitle(`${name1} & ${name2}`)}
+            </HeroTitle>
+            <HeroSubtitle>
+              {formatDate(weddingDate)} — Der schönste Tag unseres Lebens
+            </HeroSubtitle>
+          </HeroContent>
+        </HeroSection>
         
-        <ScrollHint>
-          <span>Scroll</span>
-          <ScrollLine />
-        </ScrollHint>
-      </HeroSection>
-
-      {/* Photo Gallery */}
-      <GallerySection>
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>Our <span>Memories</span></SectionTitle>
-            <SectionSubtitle>A collection of moments from our celebration</SectionSubtitle>
-          </SectionHeader>
-          
-          <GalleryGrid>
-            {photos.length > 0 ? photos.slice(0, 8).map((photo, i) => (
-              <GalleryItem key={photo.id} style={{ backgroundImage: `url(${photo.cloudinary_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-            )) : [...Array(8)].map((_, i) => (
-              <GalleryItem key={i} />
-            ))}
-          </GalleryGrid>
-        </SectionContainer>
-      </GallerySection>
-
-      {/* Upload Photos */}
-      <UploadSection>
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>Share <span>Your Photos</span></SectionTitle>
-            <SectionSubtitle>Add your favorite moments to our collection</SectionSubtitle>
-          </SectionHeader>
-          
-          <UploadArea>
-            <UploadIcon>📷</UploadIcon>
-            <UploadText>Drag photos here or click to browse</UploadText>
-            <UploadButton>Select Files</UploadButton>
-          </UploadArea>
-        </SectionContainer>
-      </UploadSection>
-
-      {/* Guestbook */}
-      <GuestbookSection>
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>Kind <span>Words</span></SectionTitle>
-            <SectionSubtitle>Messages from our loved ones</SectionSubtitle>
-          </SectionHeader>
-          
-          <GuestbookGrid>
-            {guestMessages.map((entry) => (
-              <GuestbookCard key={entry.id}>
-                <GuestbookMessage>"{entry.message}"</GuestbookMessage>
-                <GuestbookAuthor>— {entry.author}</GuestbookAuthor>
-              </GuestbookCard>
-            ))}
-          </GuestbookGrid>
-        </SectionContainer>
-      </GuestbookSection>
-
-      {/* Footer */}
-      <ArchiveFooter>
-        <FooterLogo>
-          {name1} <span>&</span> {name2}
-        </FooterLogo>
-        <FooterText>Forever grateful for your love and support.</FooterText>
-        <FooterHashtag>{hashtag}</FooterHashtag>
-      </ArchiveFooter>
-    </Page>
+        {/* Gallery */}
+        {photos.length > 0 && (
+          <Section ref={galleryRef}>
+            <Container>
+              <SectionHeader $centered>
+                <SectionEyebrow $visible={galleryVisible}>Erinnerungen</SectionEyebrow>
+                <SectionTitle $visible={galleryVisible}>Galerie</SectionTitle>
+              </SectionHeader>
+              
+              <GalleryGrid $visible={galleryVisible}>
+                {photos.slice(0, 12).map((photo, i) => (
+                  <GalleryItem key={i}>
+                    <img 
+                      src={photo.url || photo} 
+                      alt={`Hochzeitsfoto ${i + 1}`} 
+                      loading="lazy"
+                    />
+                  </GalleryItem>
+                ))}
+              </GalleryGrid>
+            </Container>
+          </Section>
+        )}
+        
+        {/* Thank You */}
+        <Section $dark ref={thankYouRef}>
+          <Container>
+            <ThankYouSection $visible={thankYouVisible}>
+              <SectionEyebrow $visible={thankYouVisible}>Von Herzen</SectionEyebrow>
+              <SectionTitle $visible={thankYouVisible} $light>Danke</SectionTitle>
+              <Divider $visible={thankYouVisible} />
+              <ThankYouText>{thankYouMessage}</ThankYouText>
+              <Signature>{name1} & {name2}</Signature>
+            </ThankYouSection>
+          </Container>
+        </Section>
+        
+        {/* Footer */}
+        <FooterSection>
+          <FooterText>
+            © {new Date().getFullYear()} {name1} & {name2} — Powered by IverLasting
+          </FooterText>
+        </FooterSection>
+      </Page>
+    </>
   );
 }
 

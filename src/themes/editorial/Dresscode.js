@@ -1,258 +1,367 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const scaleIn = keyframes`
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+`;
+
+const lineGrow = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: #000;
-  color: #FFF;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-black);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: clamp(4rem, 8vw, 6rem);
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Inter', sans-serif;
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #999;
+  color: var(--editorial-red);
   margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: #FFF;
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.1s;
-  span { font-style: italic; }
+  font-family: var(--font-headline);
+  font-size: clamp(3rem, 12vw, 8rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
-const Subtitle = styled.p`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.2rem;
+const CodeBadge = styled.div`
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 1rem 2.5rem;
+  border: 2px solid var(--editorial-red);
+  font-family: var(--font-headline);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--editorial-red);
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
+`;
+
+const Description = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
   font-style: italic;
-  color: #999;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2rem;
   max-width: 600px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   line-height: 1.7;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.2s;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-top: 4rem;
+  opacity: 0;
   
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.45s;
+  `}
 `;
 
-const Card = styled.div`
+const ColorsSection = styled.div`
+  margin-bottom: 4rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.5s;
+  `}
+`;
+
+const ColorsLabel = styled.h3`
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
   text-align: center;
-  padding: 2rem;
-  border: 1px solid #333;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.3 + p.$index * 0.15}s;
-`;
-
-const CardImage = styled.div`
-  width: 100%;
-  aspect-ratio: 3/4;
-  background: ${p => p.$src ? `url(${p.$src}) center/cover` : '#1a1a1a'};
-  margin-bottom: 1.5rem;
-`;
-
-const CardIcon = styled.div`
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  ${p => p.$hasImage && 'display: none;'}
-`;
-
-const CardTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #FFF;
-  margin-bottom: 1rem;
-`;
-
-const CardList = styled.ul`
-  text-align: left;
-  max-width: 280px;
-  margin: 0 auto;
-`;
-
-const CardItem = styled.li`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #CCC;
-  line-height: 1.8;
-  padding-left: 1.5rem;
-  position: relative;
-  
-  &::before {
-    content: '—';
-    position: absolute;
-    left: 0;
-    color: #666;
-  }
+  margin-bottom: 2rem;
 `;
 
 const ColorPalette = styled.div`
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 4rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.6s;
 `;
 
 const ColorSwatch = styled.div`
-  width: 60px;
-  height: 60px;
-  background: ${p => p.$color};
-  border: ${p => p.$border ? '1px solid #333' : 'none'};
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
   
-  &::after {
-    content: '${p => p.$name}';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.5rem;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #666;
-    white-space: nowrap;
+  ${p => p.$visible && css`
+    animation: ${scaleIn} 0.5s ease forwards;
+    animation-delay: ${0.6 + p.$index * 0.1}s;
+  `}
+`;
+
+const ColorCircle = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: ${p => p.$color || '#888'};
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  @media (max-width: 600px) {
+    width: 60px;
+    height: 60px;
   }
 `;
 
-const Note = styled.div`
-  margin-top: 4rem;
-  padding: 2rem;
-  border: 1px solid #333;
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.7s;
+const ColorName = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
 `;
 
-const NoteText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #999;
-  line-height: 1.7;
-  margin: 0;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
   
-  strong { color: #FFF; }
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 `;
+
+const ListBlock = styled.div`
+  background: ${p => p.$type === 'do' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(196, 30, 58, 0.1)'};
+  padding: clamp(2rem, 4vw, 3rem);
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: ${p.$type === 'do' ? '0.7s' : '0.8s'};
+  `}
+`;
+
+const ListHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+`;
+
+const ListIcon = styled.span`
+  font-size: 2rem;
+`;
+
+const ListTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: ${p => p.$type === 'do' ? 'var(--editorial-white)' : 'var(--editorial-red)'};
+`;
+
+const Divider = styled.div`
+  width: 40px;
+  height: 2px;
+  background: ${p => p.$type === 'do' ? 'var(--editorial-white)' : 'var(--editorial-red)'};
+  margin-bottom: 1.5rem;
+  transform: scaleX(0);
+  transform-origin: left;
+  
+  ${p => p.$visible && css`
+    animation: ${lineGrow} 0.6s ease forwards;
+    animation-delay: ${p.$type === 'do' ? '0.9s' : '1s'};
+  `}
+`;
+
+const List = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ListItem = styled.li`
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  
+  &::before {
+    content: '${p => p.$type === 'do' ? '✓' : '✗'}';
+    color: ${p => p.$type === 'do' ? '#4CAF50' : 'var(--editorial-red)'};
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function Dresscode() {
   const { content } = useWedding();
   const dresscodeData = content?.dresscode || {};
-  const title = dresscodeData.title || 'Dresscode';
-  const subtitle = dresscodeData.subtitle || 'Elegant';
-  const description = dresscodeData.description || 'Wir freuen uns auf elegante Abendgarderobe.';
-  const imageMale = dresscodeData.image_male || null;
-  const imageFemale = dresscodeData.image_female || null;
   
-  // Support both old format (array of objects) and new format (array of hex strings)
-  const rawColors = dresscodeData.colors || [];
-  const colors = rawColors.map(c => typeof c === 'string' ? { color: c, name: '' } : c);
-
+  const title = dresscodeData.title || 'Dresscode';
+  const code = dresscodeData.code || 'Festlich Elegant';
+  const description = dresscodeData.description || 'Wir freuen uns, wenn ihr euch schick macht – aber vor allem sollt ihr euch wohlfühlen.';
+  const colors = dresscodeData.colors || [];
+  const dos = dresscodeData.dos || [];
+  const donts = dresscodeData.donts || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
+  const defaultColors = [
+    { name: 'Bordeaux', color: '#800020' },
+    { name: 'Navy', color: '#1a1a4e' },
+    { name: 'Champagner', color: '#F7E7CE' },
+    { name: 'Salbei', color: '#9CAF88' },
+  ];
+
+  const defaultDos = [
+    'Anzug oder elegantes Kleid',
+    'Festliche Schuhe',
+    'Schicke Accessoires',
+    'Bequem genug zum Tanzen'
+  ];
+
+  const defaultDonts = [
+    'Komplett weißes Outfit',
+    'Jeans und Sneaker',
+    'Zu kurze Kleider',
+    'Zu auffällige Muster'
+  ];
+
+  const displayColors = colors.length > 0 ? colors : defaultColors;
+  const displayDos = dos.length > 0 ? dos : defaultDos;
+  const displayDonts = donts.length > 0 ? donts : defaultDonts;
+
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.1 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <Section ref={sectionRef} id="dresscode">
+    <Section id="dresscode" ref={sectionRef}>
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Was ihr anzieht</Eyebrow>
           <Title $visible={visible}>{title}</Title>
-          {subtitle && <Subtitle $visible={visible}>{subtitle}</Subtitle>}
+          <CodeBadge $visible={visible}>{code}</CodeBadge>
+          <Description $visible={visible}>{description}</Description>
         </Header>
         
-        {description && (
-          <Note $visible={visible} style={{ marginTop: 0, marginBottom: '3rem' }}>
-            <NoteText>{description}</NoteText>
-          </Note>
+        {displayColors.length > 0 && (
+          <ColorsSection $visible={visible}>
+            <ColorsLabel>Unsere Farbpalette</ColorsLabel>
+            <ColorPalette>
+              {displayColors.map((c, i) => (
+                <ColorSwatch key={i} $visible={visible} $index={i}>
+                  <ColorCircle $color={c.color} />
+                  <ColorName>{c.name}</ColorName>
+                </ColorSwatch>
+              ))}
+            </ColorPalette>
+          </ColorsSection>
         )}
         
         <Grid>
-          <Card $index={0} $visible={visible}>
-            {imageMale ? (
-              <CardImage $src={imageMale} />
-            ) : (
-              <CardIcon>👔</CardIcon>
-            )}
-            <CardTitle>Für die Herren</CardTitle>
-            <CardList>
-              <CardItem>Dunkler Anzug</CardItem>
-              <CardItem>Hemd mit Krawatte oder Fliege</CardItem>
-              <CardItem>Elegante Lederschuhe</CardItem>
-            </CardList>
-          </Card>
+          <ListBlock $type="do" $visible={visible}>
+            <ListHeader>
+              <ListIcon>👍</ListIcon>
+              <ListTitle $type="do">Do's</ListTitle>
+            </ListHeader>
+            <Divider $type="do" $visible={visible} />
+            <List>
+              {displayDos.map((item, i) => (
+                <ListItem key={i} $type="do">{item}</ListItem>
+              ))}
+            </List>
+          </ListBlock>
           
-          <Card $index={1} $visible={visible}>
-            {imageFemale ? (
-              <CardImage $src={imageFemale} />
-            ) : (
-              <CardIcon>👗</CardIcon>
-            )}
-            <CardTitle>Für die Damen</CardTitle>
-            <CardList>
-              <CardItem>Cocktail- oder Abendkleid</CardItem>
-              <CardItem>Eleganter Jumpsuit</CardItem>
-              <CardItem>Bitte kein Weiß oder Creme</CardItem>
-            </CardList>
-          </Card>
+          <ListBlock $type="dont" $visible={visible}>
+            <ListHeader>
+              <ListIcon>👎</ListIcon>
+              <ListTitle $type="dont">Don'ts</ListTitle>
+            </ListHeader>
+            <Divider $type="dont" $visible={visible} />
+            <List>
+              {displayDonts.map((item, i) => (
+                <ListItem key={i} $type="dont">{item}</ListItem>
+              ))}
+            </List>
+          </ListBlock>
         </Grid>
-        
-        {colors.length > 0 && (
-          <ColorPalette $visible={visible}>
-            {colors.map((c, i) => (
-              <ColorSwatch key={i} $color={c.color} $name={c.name || ''} $border={c.color?.toLowerCase() === '#ffffff'} />
-            ))}
-          </ColorPalette>
-        )}
       </Container>
     </Section>
   );

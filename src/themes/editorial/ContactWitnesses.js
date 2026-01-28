@@ -1,105 +1,294 @@
-// ContactWitnesses.js - Editorial Theme
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  padding: 6rem 2rem;
-  background: #fff;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-white);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--editorial-red);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  font-weight: 400;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: #1a1a1a;
+  font-family: var(--font-headline);
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
-const Grid = styled.div`
+const Description = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-style: italic;
+  color: var(--editorial-gray);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
+`;
+
+const WitnessGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-`;
-
-const Card = styled.div`
-  text-align: center;
-  padding: 2rem;
-  border: 1px solid #e5e5e5;
-`;
-
-const Image = styled.div`
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
-  background: ${props => props.$image ? `url(${props.$image})` : '#f5f5f5'};
-  background-size: cover;
-  background-position: center;
-`;
-
-const Name = styled.h3`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #1a1a1a;
-`;
-
-const Role = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #666;
-  margin-bottom: 1rem;
-`;
-
-const ContactInfo = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #444;
+  opacity: 0;
   
-  a {
-    color: #1a1a1a;
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
-    }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.4s;
+  `}
+`;
+
+const WitnessCard = styled.div`
+  background: var(--editorial-light-gray);
+  padding: 2.5rem;
+  text-align: center;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
   }
 `;
 
+const WitnessImage = styled.div`
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--editorial-white);
+  border: 3px solid var(--editorial-red);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%);
+    transition: filter 0.3s ease;
+  }
+  
+  ${WitnessCard}:hover & img {
+    filter: grayscale(0%);
+  }
+`;
+
+const WitnessPlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+`;
+
+const WitnessFor = styled.span`
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--editorial-red);
+  color: var(--editorial-white);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+`;
+
+const WitnessName = styled.h3`
+  font-family: var(--font-headline);
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--editorial-black);
+  margin-bottom: 1rem;
+`;
+
+const WitnessInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const WitnessLink = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--editorial-gray);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: var(--editorial-red);
+  }
+`;
+
+const Note = styled.p`
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--editorial-gray);
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: var(--editorial-light-gray);
+  border-left: 3px solid var(--editorial-red);
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.5s;
+  `}
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
+
 function ContactWitnesses() {
   const { content } = useWedding();
-  const data = content?.witnesses || {};
-  const witnesses = data.persons || [];
+  const witnessData = content?.witnesses || {};
+  
+  const title = witnessData.title || 'Trauzeugen';
+  const description = witnessData.description || 'Für Überraschungen, Fragen oder geheime Absprachen – wendet euch an unsere Trauzeugen.';
+  const witnesses = witnessData.witnesses || [];
+  const note = witnessData.note || '';
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-  if (witnesses.length === 0) return null;
+  const defaultWitnesses = [
+    { 
+      name: 'Muster Trauzeuge', 
+      for_person: 'Für die Braut', 
+      email: 'trauzeugin@beispiel.de', 
+      phone: '+49 123 456789',
+      image: null 
+    },
+    { 
+      name: 'Muster Trauzeuge', 
+      for_person: 'Für den Bräutigam', 
+      email: 'trauzeuge@beispiel.de', 
+      phone: '+49 123 456789',
+      image: null 
+    },
+  ];
+
+  const displayWitnesses = witnesses.length > 0 ? witnesses : defaultWitnesses;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Section id="witnesses">
+    <Section id="witnesses" ref={sectionRef}>
       <Container>
-        <Title>{data.title || 'Trauzeugen'}</Title>
-        <Grid>
-          {witnesses.map((person, index) => (
-            <Card key={index}>
-              <Image $image={person.image} />
-              <Name>{person.name}</Name>
-              <Role>{person.role}</Role>
-              <ContactInfo>
-                {person.phone && <div>{person.phone}</div>}
-                {person.email && <a href={`mailto:${person.email}`}>{person.email}</a>}
-              </ContactInfo>
-            </Card>
+        <Header>
+          <Eyebrow $visible={visible}>Eure Ansprechpartner</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <Description $visible={visible}>{description}</Description>
+        </Header>
+        
+        <WitnessGrid $visible={visible}>
+          {displayWitnesses.map((witness, i) => (
+            <WitnessCard key={i}>
+              <WitnessImage>
+                {witness.image ? (
+                  <img src={witness.image} alt={witness.name} />
+                ) : (
+                  <WitnessPlaceholder>💍</WitnessPlaceholder>
+                )}
+              </WitnessImage>
+              
+              {witness.for_person && (
+                <WitnessFor>{witness.for_person}</WitnessFor>
+              )}
+              <WitnessName>{witness.name}</WitnessName>
+              
+              <WitnessInfo>
+                {witness.email && (
+                  <WitnessLink href={`mailto:${witness.email}`}>
+                    ✉️ {witness.email}
+                  </WitnessLink>
+                )}
+                {witness.phone && (
+                  <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
+                    📞 {witness.phone}
+                  </WitnessLink>
+                )}
+              </WitnessInfo>
+            </WitnessCard>
           ))}
-        </Grid>
+        </WitnessGrid>
+        
+        {note && (
+          <Note $visible={visible}>{note}</Note>
+        )}
       </Container>
     </Section>
   );

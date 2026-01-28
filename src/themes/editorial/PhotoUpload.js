@@ -1,377 +1,368 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { submitPhotoUpload, getPhotoUploads } from '../../lib/supabase';
-import { uploadToCloudinary, isCloudinaryConfigured } from '../../lib/cloudinary';
+import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore';
+import FeedbackModal from '../../components/shared/FeedbackModal';
+
+// ============================================
+// ANIMATIONS
+// ============================================
 
 const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+`;
+
+const progressAnimation = keyframes`
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  padding: 6rem 2rem;
-  background: #fff;
+  padding: var(--section-padding) 0;
+  background: var(--editorial-light-gray);
+  overflow: hidden;
 `;
 
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+`;
+
+const Header = styled.div`
   text-align: center;
-  animation: ${fadeInUp} 0.8s ease;
+  margin-bottom: clamp(3rem, 6vw, 4rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--editorial-red);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: 'Instrument Serif', serif;
-  font-size: 2.5rem;
-  font-weight: 400;
-  margin-bottom: 1rem;
-  color: #1a1a1a;
+  font-family: var(--font-headline);
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-weight: 700;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
 `;
 
 const Description = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 2rem;
-  line-height: 1.6;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-style: italic;
+  color: var(--editorial-gray);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.3s;
+  `}
 `;
 
-const Limit = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #999;
-  margin-bottom: 2rem;
-`;
-
-const DropZone = styled.div`
-  border: 2px dashed ${p => p.$active ? '#000' : '#ddd'};
-  border-radius: 8px;
-  padding: 3rem 2rem;
-  margin-bottom: 2rem;
+const UploadArea = styled.div`
+  background: var(--editorial-white);
+  padding: clamp(3rem, 8vw, 5rem) 2rem;
+  text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: ${p => p.$active ? '#f9f9f9' : '#fff'};
+  border: 3px dashed ${p => p.$dragging ? 'var(--editorial-red)' : 'var(--editorial-light-gray)'};
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.4s;
+  `}
+  
+  ${p => p.$dragging && css`
+    border-color: var(--editorial-red);
+    background: rgba(196, 30, 58, 0.05);
+  `}
+  
+  ${p => p.$uploading && css`
+    animation: ${pulse} 1.5s ease infinite;
+    pointer-events: none;
+  `}
   
   &:hover {
-    border-color: #000;
+    border-color: var(--editorial-black);
   }
 `;
 
-const DropText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
+const UploadIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
 `;
 
-const Button = styled.button`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+const UploadTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
   text-transform: uppercase;
-  padding: 0.8rem 2rem;
-  background: #000;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover { background: #333; }
-  &:disabled { background: #ccc; cursor: not-allowed; }
+  color: var(--editorial-black);
+  margin-bottom: 0.75rem;
 `;
 
-const HiddenInput = styled.input`
-  display: none;
+const UploadText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--editorial-gray);
+  margin-bottom: 0;
 `;
 
-const Preview = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-`;
-
-const PreviewItem = styled.div`
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 4px;
-  overflow: hidden;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const RemoveBtn = styled.button`
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  
-  &:hover { background: #000; }
-`;
-
-const Progress = styled.div`
-  width: 100%;
-  height: 4px;
-  background: #eee;
-  border-radius: 2px;
-  margin-bottom: 1rem;
-  overflow: hidden;
+const UploadHint = styled.span`
+  display: block;
+  font-size: 0.75rem;
+  color: var(--editorial-gray);
+  margin-top: 1rem;
+  opacity: 0.7;
 `;
 
 const ProgressBar = styled.div`
-  height: 100%;
-  background: #000;
-  transition: width 0.3s ease;
-  width: ${p => p.$percent}%;
-`;
-
-const Status = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: ${p => p.$error ? '#d32f2f' : '#666'};
-  margin-top: 1rem;
-`;
-
-const NameInput = styled.input`
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   width: 100%;
-  max-width: 300px;
-  margin-bottom: 1.5rem;
+  height: 6px;
+  background: var(--editorial-light-gray);
+  margin-top: 2rem;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  height: 100%;
+  width: ${p => p.$progress}%;
+  background: linear-gradient(90deg, var(--editorial-red), #ff6b6b, var(--editorial-red));
+  background-size: 200% 100%;
+  animation: ${progressAnimation} 1s linear infinite;
+  transition: width 0.3s ease;
+`;
+
+const PhotoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 3rem;
+  opacity: 0;
   
-  &:focus {
-    outline: none;
-    border-color: #000;
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.5s;
+  `}
+`;
+
+const PhotoCard = styled.div`
+  position: relative;
+  overflow: hidden;
+  background: var(--editorial-white);
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%);
+    transition: filter 0.3s ease;
+  }
+  
+  &:hover img {
+    filter: grayscale(0%);
   }
 `;
 
-const MAX_UPLOADS = 10;
+const PhotoBadge = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem;
+  background: ${p => p.$approved ? '#4CAF50' : 'var(--editorial-red)'};
+  color: var(--editorial-white);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function PhotoUpload() {
-  const { content, projectId, slug } = useWedding();
-  const data = content?.photoupload || {};
+  const { content } = useWedding();
+  const photouploadData = content?.photoupload || {};
   
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [uploaderName, setUploaderName] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('');
-  const [error, setError] = useState('');
-  const [uploadCount, setUploadCount] = useState(0);
-  const [dragActive, setDragActive] = useState(false);
+  const title = photouploadData.title || 'Teilt eure Fotos';
+  const description = photouploadData.description || 'Ladet hier eure Schnappschüsse hoch – die schönsten Momente, festgehalten von euch.';
   
-  const inputRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
+  const sectionRef = useRef(null);
 
-  // Load existing upload count
+  const {
+    uploading,
+    progress,
+    uploadedPhotos,
+    error,
+    success,
+    fileInputRef,
+    handleFileSelect,
+    openFilePicker,
+    handleDrop,
+    handleDragOver,
+    loadPhotos,
+  } = usePhotoUpload({ maxFiles: 10, maxSizeMB: 10 });
+
   useEffect(() => {
-    async function loadCount() {
-      if (projectId) {
-        const { data } = await getPhotoUploads(projectId, false);
-        setUploadCount(data?.length || 0);
-      }
-    }
-    loadCount();
-  }, [projectId]);
-
-  const remainingUploads = MAX_UPLOADS - uploadCount;
-  const canUpload = remainingUploads > 0 && isCloudinaryConfigured();
-
-  const handleFiles = (newFiles) => {
-    const validFiles = Array.from(newFiles)
-      .filter(f => f.type.startsWith('image/'))
-      .slice(0, remainingUploads - files.length);
-    
-    if (validFiles.length === 0) return;
-    
-    setFiles(prev => [...prev, ...validFiles]);
-    
-    // Create previews
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviews(prev => [...prev, { file, url: e.target.result }]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = () => setDragActive(false);
-
-  const removeFile = (index) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleUpload = async () => {
-    if (!uploaderName.trim()) {
-      setError('Bitte gib deinen Namen ein');
-      return;
-    }
-    if (files.length === 0) {
-      setError('Bitte wähle mindestens ein Foto');
-      return;
-    }
-
-    setUploading(true);
-    setError('');
-    setStatus(`Hochladen... 0/${files.length}`);
-    setProgress(0);
-
-    const folder = `iverlasting/${slug}/guest-photos`;
-    
-    try {
-      for (let i = 0; i < files.length; i++) {
-        setStatus(`Hochladen... ${i + 1}/${files.length}`);
-        
-        const result = await uploadToCloudinary(files[i], folder, (percent) => {
-          setProgress(Math.round(((i + percent / 100) / files.length) * 100));
-        });
-
-        // Save to Supabase
-        await submitPhotoUpload(projectId, {
-          uploadedBy: uploaderName,
-          cloudinaryUrl: result.url,
-          cloudinaryPublicId: result.publicId,
-        });
-      }
-
-      setStatus(`${files.length} Foto${files.length > 1 ? 's' : ''} hochgeladen!`);
-      setFiles([]);
-      setPreviews([]);
-      setUploaderName('');
-      setUploadCount(prev => prev + files.length);
-      setProgress(100);
-      
-      setTimeout(() => {
-        setStatus('');
-        setProgress(0);
-      }, 3000);
-      
-    } catch (err) {
-      setError(err.message || 'Upload fehlgeschlagen');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  if (!isCloudinaryConfigured()) {
-    return (
-      <Section id="photoupload">
-        <Container>
-          <Title>{data.title || 'Teilt eure Fotos'}</Title>
-          <Status $error>Foto-Upload ist derzeit nicht verfügbar.</Status>
-        </Container>
-      </Section>
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.1 }
     );
-  }
+    
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    loadPhotos();
+  }, [loadPhotos]);
+
+  useEffect(() => {
+    if (success) {
+      setModalState({
+        isOpen: true,
+        type: 'success',
+        message: 'Fotos wurden hochgeladen! Sie werden nach Freigabe sichtbar.',
+      });
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        message: error,
+      });
+    }
+  }, [error]);
+
+  const onDrop = (e) => {
+    setDragging(false);
+    handleDrop(e);
+  };
+
+  const onDragOver = (e) => {
+    handleDragOver(e);
+    setDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setDragging(false);
+  };
 
   return (
-    <Section id="photoupload">
+    <Section id="photoupload" ref={sectionRef}>
       <Container>
-        <Title>{data.title || 'Teilt eure Fotos'}</Title>
-        <Description>
-          {data.description || 'Ladet eure schönsten Momente hoch und teilt sie mit uns!'}
-        </Description>
+        <Header>
+          <Eyebrow $visible={visible}>Eure Schnappschüsse</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <Description $visible={visible}>{description}</Description>
+        </Header>
         
-        <Limit>
-          {remainingUploads > 0 
-            ? `Du kannst noch ${remainingUploads} Foto${remainingUploads !== 1 ? 's' : ''} hochladen (max. ${MAX_UPLOADS} pro Gast)`
-            : 'Du hast das Upload-Limit erreicht'}
-        </Limit>
-
-        {canUpload && (
-          <>
-            <NameInput
-              type="text"
-              placeholder="Dein Name"
-              value={uploaderName}
-              onChange={(e) => setUploaderName(e.target.value)}
-              disabled={uploading}
-            />
-
-            <DropZone
-              $active={dragActive}
-              onClick={() => inputRef.current?.click()}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            >
-              <DropText>
-                Fotos hierher ziehen oder klicken zum Auswählen
-              </DropText>
-              <Button type="button" disabled={uploading}>
-                Fotos auswählen
-              </Button>
-            </DropZone>
-
-            <HiddenInput
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => handleFiles(e.target.files)}
-              disabled={uploading}
-            />
-
-            {previews.length > 0 && (
-              <Preview>
-                {previews.map((preview, i) => (
-                  <PreviewItem key={i}>
-                    <img src={preview.url} alt={`Preview ${i + 1}`} />
-                    {!uploading && (
-                      <RemoveBtn onClick={() => removeFile(i)}>×</RemoveBtn>
-                    )}
-                  </PreviewItem>
-                ))}
-              </Preview>
-            )}
-
-            {uploading && (
-              <Progress>
-                <ProgressBar $percent={progress} />
-              </Progress>
-            )}
-
-            {files.length > 0 && (
-              <Button onClick={handleUpload} disabled={uploading}>
-                {uploading ? 'Wird hochgeladen...' : `${files.length} Foto${files.length > 1 ? 's' : ''} hochladen`}
-              </Button>
-            )}
-          </>
+        <UploadArea
+          $visible={visible}
+          $dragging={dragging}
+          $uploading={uploading}
+          onClick={openFilePicker}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+        >
+          <UploadIcon>{uploading ? '⏳' : '📸'}</UploadIcon>
+          <UploadTitle>
+            {uploading ? `Wird hochgeladen... ${progress}%` : 'Fotos hochladen'}
+          </UploadTitle>
+          <UploadText>
+            {dragging ? 'Jetzt loslassen!' : 'Klicken oder Dateien hierher ziehen'}
+          </UploadText>
+          <UploadHint>Max. 10 Bilder, je max. 10MB</UploadHint>
+          
+          {uploading && (
+            <ProgressBar>
+              <ProgressFill $progress={progress} />
+            </ProgressBar>
+          )}
+        </UploadArea>
+        
+        <HiddenFileInput 
+          fileInputRef={fileInputRef}
+          handleFileSelect={handleFileSelect}
+          multiple={true}
+          accept="image/*"
+        />
+        
+        {uploadedPhotos.length > 0 && (
+          <PhotoGrid $visible={visible}>
+            {uploadedPhotos.map(photo => (
+              <PhotoCard key={photo.id}>
+                <img src={photo.cloudinary_url} alt="Hochzeitsfoto" loading="lazy" />
+                <PhotoBadge $approved={photo.approved}>
+                  {photo.approved ? 'Freigegeben' : 'Wartet auf Freigabe'}
+                </PhotoBadge>
+              </PhotoCard>
+            ))}
+          </PhotoGrid>
         )}
-
-        {status && <Status>{status}</Status>}
-        {error && <Status $error>{error}</Status>}
       </Container>
+      
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        message={modalState.message}
+        autoClose={modalState.type === 'success' ? 3000 : 0}
+      />
     </Section>
   );
 }
