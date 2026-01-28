@@ -1,8 +1,11 @@
-// Hero.js - Contemporary Theme (Supabase integrated)
-import React, { useEffect, useState, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
+// Contemporary Hero - Split Screen, Floating Shapes, Optional Image
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
 const float1 = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   25% { transform: translate(15px, -15px) rotate(5deg); }
@@ -11,9 +14,26 @@ const float1 = keyframes`
 `;
 
 const float2 = keyframes`
+  0%, 100% { transform: translate(0, 0) rotate(45deg); }
+  25% { transform: translate(10px, -10px) rotate(50deg); }
+  50% { transform: translate(-8px, -20px) rotate(42deg); }
+  75% { transform: translate(-10px, 8px) rotate(48deg); }
+`;
+
+const float3 = keyframes`
   0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(-15px, -15px); }
-  66% { transform: translate(10px, -20px); }
+  33% { transform: translate(12px, -12px); }
+  66% { transform: translate(-8px, -18px); }
+`;
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 `;
 
 const slideUp = keyframes`
@@ -26,6 +46,9 @@ const expand = keyframes`
   to { transform: scaleX(1); }
 `;
 
+// ============================================
+// STYLED COMPONENTS
+// ============================================
 const Section = styled.section`
   min-height: 100vh;
   display: grid;
@@ -40,73 +63,118 @@ const Section = styled.section`
 `;
 
 const LeftPanel = styled.div`
-  background: var(--white, #fff);
-  padding: 8rem 4rem;
+  background: var(--white);
+  padding: clamp(6rem, 10vw, 8rem) clamp(2rem, 5vw, 4rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
+  z-index: 2;
   
   @media (max-width: 900px) {
-    padding: 6rem 2rem;
+    min-height: 100vh;
+    padding-top: 8rem;
+    padding-bottom: 4rem;
   }
 `;
 
-const RightPanel = styled.div`
-  background: ${p => p.$bgImage 
-    ? `url(${p.$bgImage}) center/cover` 
-    : 'linear-gradient(135deg, var(--coral, #FF6B6B) 0%, var(--mint, #4ECDC4) 100%)'};
-  position: relative;
-  min-height: 100vh;
-  
-  @media (max-width: 900px) {
-    min-height: 50vh;
-    order: -1;
-  }
-`;
-
+// Floating Shapes
 const FloatingCircle1 = styled.div`
   position: absolute;
-  width: 80px;
-  height: 80px;
-  background: var(--coral, #FF6B6B);
+  width: clamp(50px, 8vw, 80px);
+  height: clamp(50px, 8vw, 80px);
+  background: var(--coral);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
   border-radius: 50%;
   top: 15%;
-  right: 20%;
-  animation: ${float1} 8s ease-in-out infinite;
+  right: 15%;
+  animation: ${float1} 7s ease-in-out infinite;
+  z-index: 1;
+  
+  @media (max-width: 900px) {
+    top: 10%;
+    right: 10%;
+  }
 `;
 
 const FloatingSquare = styled.div`
   position: absolute;
-  width: 30px;
-  height: 30px;
-  border: 3px solid var(--dark, #1a1a1a);
+  width: clamp(35px, 5vw, 50px);
+  height: clamp(35px, 5vw, 50px);
+  background: var(--electric);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
   bottom: 25%;
-  right: 15%;
-  animation: ${float2} 6s ease-in-out infinite;
-  transform: rotate(15deg);
+  left: 10%;
+  animation: ${float2} 8s ease-in-out infinite;
+  animation-delay: 1s;
+  z-index: 1;
 `;
 
 const FloatingCircle2 = styled.div`
   position: absolute;
-  width: 40px;
-  height: 40px;
-  background: var(--yellow, #FFE66D);
+  width: clamp(25px, 4vw, 35px);
+  height: clamp(25px, 4vw, 35px);
+  background: var(--yellow);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
   border-radius: 50%;
-  top: 50%;
-  right: 35%;
-  animation: ${float1} 10s ease-in-out infinite reverse;
+  top: 60%;
+  right: 25%;
+  animation: ${float3} 6s ease-in-out infinite;
+  animation-delay: 2s;
+  z-index: 1;
+  
+  @media (max-width: 900px) {
+    top: 75%;
+    right: 15%;
+  }
 `;
 
-const FloatingDiamond = styled.div`
+const FloatingTriangle = styled.div`
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background: var(--mint, #4ECDC4);
-  transform: rotate(45deg);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid var(--purple);
+  top: 35%;
+  left: 20%;
+  animation: ${float1} 9s ease-in-out infinite;
+  animation-delay: 0.5s;
+  z-index: 1;
+  filter: drop-shadow(3px 3px 0 var(--black));
+  
+  @media (max-width: 600px) {
+    display: none;
+  }
+`;
+
+const SpinningDecor = styled.div`
+  position: absolute;
   bottom: 15%;
-  left: 10%;
-  animation: ${float2} 7s ease-in-out infinite;
+  right: 10%;
+  width: clamp(40px, 6vw, 60px);
+  height: clamp(40px, 6vw, 60px);
+  border: 3px solid var(--black);
+  animation: ${spin} 20s linear infinite;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%;
+    height: 40%;
+    background: var(--pink);
+    transform: translate(-50%, -50%);
+  }
+  
+  @media (max-width: 900px) {
+    bottom: 5%;
+    right: 5%;
+  }
 `;
 
 const Eyebrow = styled.div`
@@ -114,112 +182,77 @@ const Eyebrow = styled.div`
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.2s;
   opacity: 0;
+  animation: ${slideUp} 0.6s ease forwards 0.2s;
   
   span {
-    font-family: var(--font-sans, 'Inter', sans-serif);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
+    font-size: clamp(0.7rem, 1.5vw, 0.8rem);
+    font-weight: 700;
     letter-spacing: 0.2em;
-    color: var(--dark, #1a1a1a);
+    text-transform: uppercase;
+    color: var(--gray-600);
   }
   
   .line {
     flex: 1;
-    height: 2px;
-    background: var(--coral, #FF6B6B);
-    animation: ${expand} 0.6s ease forwards;
-    animation-delay: 0.8s;
+    max-width: 100px;
+    height: 3px;
+    background: var(--black);
     transform-origin: left;
+    animation: ${expand} 0.8s ease forwards 0.5s;
     transform: scaleX(0);
   }
 `;
 
 const NamesWrapper = styled.div`
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 `;
 
-const NameLine1 = styled.h1`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 400;
-  color: var(--coral, #FF6B6B);
-  line-height: 1;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.4s;
+const NameLine = styled.h1`
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 700;
+  color: var(--black);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
   opacity: 0;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: ${p => p.$delay || '0.4s'};
   
   .highlight {
-    background: linear-gradient(transparent 60%, var(--yellow, #FFE66D) 60%);
-    padding: 0 0.2em;
+    color: var(--coral);
   }
 `;
 
 const Ampersand = styled.span`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  color: var(--gray, #999);
-  display: block;
-  margin: 0.5rem 0;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.5s;
-  opacity: 0;
+  display: inline-block;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 300;
+  color: var(--gray-400);
+  margin: 0 0.3em;
 `;
 
-const NameLine2 = styled.h1`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 400;
-  color: var(--dark, #1a1a1a);
-  line-height: 1;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.6s;
-  opacity: 0;
-`;
-
-const LocationBadge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--white, #fff);
-  border: 2px solid var(--coral, #FF6B6B);
-  padding: 0.6rem 1.2rem;
+const DateLocation = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 2rem;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.7s;
   opacity: 0;
-  
-  span {
-    font-family: var(--font-sans, 'Inter', sans-serif);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--dark, #1a1a1a);
-  }
+  animation: ${slideUp} 0.6s ease forwards 0.8s;
 `;
 
-const DateBadge = styled.div`
-  position: absolute;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--dark, #1a1a1a);
-  color: var(--white, #fff);
-  padding: 1.5rem 3rem;
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: clamp(1.2rem, 4vw, 2rem);
-  font-weight: 400;
-  z-index: 10;
+const Badge = styled.span`
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  font-weight: 600;
+  color: var(--black);
+  padding: 0.75rem 1.25rem;
+  background: ${p => p.$color || 'var(--yellow)'};
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
   
-  @media (max-width: 900px) {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    margin-top: 2rem;
-    text-align: center;
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
   }
 `;
 
@@ -227,70 +260,67 @@ const CTAGroup = styled.div`
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  animation: ${slideUp} 0.8s ease forwards;
-  animation-delay: 0.8s;
   opacity: 0;
+  animation: ${slideUp} 0.6s ease forwards 1s;
 `;
 
 const PrimaryButton = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--coral, #FF6B6B);
-  color: var(--white, #fff);
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  font-weight: 700;
+  color: var(--white);
+  background: var(--coral);
   padding: 1rem 2rem;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 600;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: var(--dark, #1a1a1a);
-    transform: translateY(-2px);
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--black);
+  }
+  
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 4px 4px 0 var(--black);
   }
 `;
 
 const SecondaryButton = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  color: var(--dark, #1a1a1a);
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  font-weight: 700;
+  color: var(--black);
+  background: var(--white);
   padding: 1rem 2rem;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 600;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  border: 2px solid var(--dark, #1a1a1a);
-  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: var(--dark, #1a1a1a);
-    color: var(--white, #fff);
+    background: var(--electric);
+    color: var(--white);
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--black);
   }
 `;
 
-const ScrollIndicator = styled.div`
+const ScrollPrompt = styled.div`
   position: absolute;
   bottom: 2rem;
-  left: 2rem;
+  left: clamp(2rem, 5vw, 4rem);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  
-  span {
-    font-family: var(--font-sans, 'Inter', sans-serif);
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--dark, #1a1a1a);
-  }
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+  opacity: 0;
+  animation: ${slideUp} 0.6s ease forwards 1.2s;
   
   @media (max-width: 900px) {
     display: none;
@@ -300,29 +330,88 @@ const ScrollIndicator = styled.div`
 const ScrollDot = styled.div`
   width: 8px;
   height: 8px;
-  background: var(--coral, #FF6B6B);
+  background: var(--coral);
+  border: 2px solid var(--black);
+  animation: ${bounce} 2s ease-in-out infinite;
 `;
 
+// Right Panel - Optional Image or Gradient
+const RightPanel = styled.div`
+  position: relative;
+  overflow: hidden;
+  
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const ParallaxBackground = styled.div`
+  position: absolute;
+  inset: -10%;
+  background: ${p => p.$image 
+    ? `url(${p.$image}) center/cover`
+    : 'linear-gradient(135deg, var(--coral), var(--electric), var(--yellow))'
+  };
+  transform: translateY(${p => p.$scroll * 50}px);
+  transition: transform 0.1s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px);
+  }
+  
+  ${p => p.$image && css`
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.2);
+    }
+  `}
+`;
+
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const DateBadge = styled.div`
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--white);
+  background: var(--black);
+  padding: 1.5rem 3rem;
+  border: 4px solid var(--white);
+  box-shadow: var(--shadow-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
 function Hero() {
-  const { content, coupleNames, weddingDate } = useWedding();
-  const hero = content?.hero || {};
+  const { content, project } = useWedding();
+  const heroData = content?.hero || {};
+  
+  const name1 = project?.partner1_name || 'Sophie';
+  const name2 = project?.partner2_name || 'Max';
+  const weddingDate = project?.wedding_date 
+    ? new Date(project.wedding_date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '15. August 2025';
+  const location = heroData.location_short || project?.location || 'Berlin';
+  const tagline = heroData.tagline || "We're getting married";
+  const backgroundImage = heroData.background_image || null;
+  
   const [scrollY, setScrollY] = useState(0);
   const sectionRef = useRef(null);
-
-  // Parse names from Supabase
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Sophie', 'Max'];
-  const name1 = names[0] || 'Sophie';
-  const name2 = names[1] || 'Max';
-  
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '15. August 2025';
-    return new Date(dateStr).toLocaleDateString('de-DE', { 
-      day: 'numeric', month: 'long', year: 'numeric' 
-    });
-  };
-  const date = formatDate(weddingDate);
-  const location = hero.location_short || 'Berlin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -339,40 +428,48 @@ function Hero() {
   return (
     <Section ref={sectionRef} id="hero">
       <LeftPanel>
+        {/* Floating Decorative Shapes */}
         <FloatingCircle1 />
         <FloatingSquare />
         <FloatingCircle2 />
+        <FloatingTriangle />
+        <SpinningDecor />
         
         <Eyebrow>
-          <span>{hero.tagline || "We're getting married"}</span>
+          <span>{tagline}</span>
           <div className="line" />
         </Eyebrow>
         
         <NamesWrapper>
-          <NameLine1><span className="highlight">{name1}</span></NameLine1>
-          <Ampersand>&</Ampersand>
-          <NameLine2>{name2}</NameLine2>
+          <NameLine $delay="0.4s">
+            <span className="highlight">{name1}</span>
+          </NameLine>
+          <NameLine $delay="0.5s">
+            <Ampersand>&</Ampersand>{name2}
+          </NameLine>
         </NamesWrapper>
         
-        <LocationBadge>
-          <span>📍</span>
-          <span>{location}</span>
-        </LocationBadge>
+        <DateLocation>
+          <Badge $color="var(--yellow)">📅 {weddingDate}</Badge>
+          <Badge $color="var(--electric)">📍 {location}</Badge>
+        </DateLocation>
         
         <CTAGroup>
-          <PrimaryButton href="#rsvp">Jetzt zusagen →</PrimaryButton>
+          <PrimaryButton href="#rsvp">Jetzt Zusagen →</PrimaryButton>
           <SecondaryButton href="#story">Unsere Story</SecondaryButton>
         </CTAGroup>
         
-        <ScrollIndicator>
+        <ScrollPrompt>
           <ScrollDot />
-          <span>Scroll to explore</span>
-        </ScrollIndicator>
+          Scroll to explore
+        </ScrollPrompt>
       </LeftPanel>
       
-      <RightPanel $bgImage={hero.background_image}>
-        <FloatingDiamond />
-        <DateBadge>{date}</DateBadge>
+      <RightPanel>
+        <ParallaxBackground $scroll={scrollY} $image={backgroundImage} />
+        <ImageOverlay>
+          <DateBadge>{weddingDate}</DateBadge>
+        </ImageOverlay>
       </RightPanel>
     </Section>
   );

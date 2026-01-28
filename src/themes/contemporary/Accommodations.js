@@ -1,107 +1,71 @@
-import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useEffect, useRef } from 'react';
+// Contemporary Accommodations
+import React from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--white);
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--electric);
 `;
 
 const Container = styled.div`
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 `;
 
 const Eyebrow = styled.div`
-  display: inline-block;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--coral);
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--coral);
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease;
+  color: var(--black);
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 700;
-  color: var(--black);
+  color: var(--white);
   text-transform: uppercase;
-  margin-bottom: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease 0.1s;
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 `;
-
-const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)'];
 
 const Card = styled.div`
   background: var(--white);
   border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '40px'});
-  transition: all 0.6s ease ${p => 0.2 + p.$index * 0.1}s;
   
   &:hover {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
   }
+  
+  transition: all 0.3s ease;
 `;
 
 const CardImage = styled.div`
-  height: 180px;
-  background: ${p => p.$color};
-  position: relative;
+  height: 160px;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--gray-200)'};
+  border-bottom: 3px solid var(--black);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 4rem;
 `;
 
-const PriceBadge = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--white);
-  background: var(--black);
-  padding: 0.5rem 1rem;
-  border: 2px solid var(--black);
-`;
-
-const RecommendBadge = styled.div`
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--black);
-  background: var(--yellow);
-  padding: 0.35rem 0.7rem;
-  border: 2px solid var(--black);
-`;
-
-const CardContent = styled.div`
+const CardBody = styled.div`
   padding: 1.5rem;
 `;
 
@@ -113,122 +77,81 @@ const CardTitle = styled.h3`
   margin-bottom: 0.5rem;
 `;
 
-const CardLocation = styled.p`
-  font-size: 0.85rem;
+const CardInfo = styled.p`
+  font-size: 0.9rem;
   color: var(--gray-600);
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
 `;
 
-const Features = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`;
-
-const Feature = styled.span`
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--gray-600);
+const CardPrice = styled.div`
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--coral);
+  margin: 1rem 0;
+  padding: 0.5rem;
   background: var(--gray-100);
-  padding: 0.35rem 0.75rem;
-  border: 2px solid var(--gray-300);
+  border: 2px solid var(--black);
+  text-align: center;
 `;
 
-const BookButton = styled.a`
+const Button = styled.a`
   display: block;
-  width: 100%;
+  text-align: center;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--white);
-  background: var(--coral);
-  padding: 1rem;
-  border: 2px solid var(--black);
-  text-align: center;
+  background: var(--black);
+  padding: 0.75rem;
+  border: none;
   text-transform: uppercase;
-  transition: all 0.2s ease;
   
   &:hover {
-    background: var(--black);
+    background: var(--coral);
   }
 `;
 
-const TipBox = styled.div`
-  margin-top: 3rem;
-  background: var(--electric);
-  padding: 1.5rem 2rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.5s;
-`;
-
-const TipText = styled.p`
-  font-size: 0.9rem;
-  color: var(--black);
-  margin: 0;
-  
-  strong { font-weight: 700; }
-`;
-
 function Accommodations() {
-  const { content, projectId } = useWedding();
-  const accommodationsData = content?.accommodations || {};
-  const hotels = accommodationsData.hotels || [];
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const { content } = useWedding();
+  const data = content?.accommodations || {};
+  
+  const title = data.title || 'Unterkünfte';
+  const hotels = data.hotels || [];
 
   const defaultHotels = [
-    { name: 'Hotel Heidelberg', location: '500m zur Location', price: 'ab €129', features: ['Spa', 'Frühstück', 'Parken'], recommended: true, emoji: '🏨' },
-    { name: 'Boutique Rose', location: '1.2km zur Location', price: 'ab €99', features: ['Charme', 'Frühstück'], emoji: '🌹' },
-    { name: 'Hotel am Schloss', location: '300m zur Location', price: 'ab €149', features: ['Luxus', 'Restaurant'], emoji: '🏰' },
+    { name: 'Hotel Amano', address: 'Auguststraße 43, 10119 Berlin', price: 'ab 120€/Nacht', url: '#', stars: 4 },
+    { name: 'Motel One', address: 'Prinzessinnenstr. 1, 10969 Berlin', price: 'ab 89€/Nacht', url: '#', stars: 3 },
   ];
 
   const items = hotels.length > 0 ? hotels : defaultHotels;
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <Section ref={sectionRef} id="accommodations">
+    <Section id="accommodations">
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>🏨 Übernachtung</Eyebrow>
-          <Title $visible={visible}>Where to Stay</Title>
+          <Eyebrow>🏨 Übernachten</Eyebrow>
+          <Title>{title}</Title>
         </Header>
         
         <Grid>
           {items.map((hotel, i) => (
-            <Card key={i} $index={i} $visible={visible}>
-              <CardImage $color={colors[i % colors.length]}>
-                {hotel.emoji}
-                <PriceBadge>{hotel.price}</PriceBadge>
-                {hotel.recommended && <RecommendBadge>Empfohlen</RecommendBadge>}
+            <Card key={i}>
+              <CardImage $image={hotel.image}>
+                {!hotel.image && '🏨'}
               </CardImage>
-              <CardContent>
+              <CardBody>
                 <CardTitle>{hotel.name}</CardTitle>
-                <CardLocation>📍 {hotel.location}</CardLocation>
-                <Features>
-                  {hotel.features?.map((f, j) => <Feature key={j}>{f}</Feature>)}
-                </Features>
-                <BookButton href="#">Buchen →</BookButton>
-              </CardContent>
+                <CardInfo>{hotel.address}</CardInfo>
+                {hotel.distance && <CardInfo>📍 {hotel.distance}</CardInfo>}
+                {hotel.price && <CardPrice>{hotel.price}</CardPrice>}
+                {hotel.url && (
+                  <Button href={hotel.url} target="_blank" rel="noopener noreferrer">
+                    Buchen →
+                  </Button>
+                )}
+              </CardBody>
             </Card>
           ))}
         </Grid>
-        
-        <TipBox $visible={visible}>
-          <TipText>
-            <strong>💡 Tipp:</strong> Nennt bei der Buchung "Hochzeit Sophie & Max" für Sonderkonditionen!
-          </TipText>
-        </TipBox>
       </Container>
     </Section>
   );

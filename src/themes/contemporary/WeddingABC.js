@@ -1,14 +1,15 @@
-import { useWedding } from '../../context/WeddingContext';
+// Contemporary WeddingABC
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--black);
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--yellow);
 `;
 
 const Container = styled.div`
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
 `;
 
@@ -18,169 +19,119 @@ const Header = styled.div`
 `;
 
 const Eyebrow = styled.div`
-  display: inline-block;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--coral);
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--coral);
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease;
+  color: var(--black);
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 700;
-  color: var(--white);
+  color: var(--black);
   text-transform: uppercase;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease 0.1s;
-`;
-
-const FilterBar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 3rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.2s;
-`;
-
-const FilterButton = styled.button`
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: ${p => p.$active ? 'var(--black)' : 'var(--white)'};
-  background: ${p => p.$active ? 'var(--yellow)' : 'transparent'};
-  padding: 0.5rem 1rem;
-  border: 2px solid ${p => p.$active ? 'var(--black)' : 'var(--gray-600)'};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: var(--coral);
-    color: var(--white);
-    border-color: var(--black);
-  }
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
 `;
 
-const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
+const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)'];
 
 const Card = styled.div`
-  background: var(--gray-800);
-  border: 3px solid var(--gray-600);
-  padding: 2rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.5s ease ${p => 0.2 + (p.$index % 6) * 0.05}s;
+  background: var(--white);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
   
   &:hover {
-    border-color: ${p => p.$color};
-    transform: translateY(-5px);
-    
-    .letter {
-      color: ${p => p.$color};
-    }
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
   }
+  
+  transition: all 0.3s ease;
 `;
 
-const CardHeader = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Letter = styled.span`
-  font-size: 3rem;
+const Letter = styled.div`
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-size: 5rem;
   font-weight: 700;
-  color: var(--gray-500);
+  color: ${p => colors[p.$index % colors.length]};
+  opacity: 0.15;
   line-height: 1;
-  transition: color 0.3s ease;
 `;
 
 const CardTitle = styled.h3`
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--white);
+  color: var(--black);
   text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  position: relative;
+  
+  &::before {
+    content: '${p => p.$letter}';
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: ${p => colors[p.$index % colors.length]};
+    color: var(--white);
+    text-align: center;
+    line-height: 28px;
+    font-size: 0.85rem;
+    margin-right: 0.75rem;
+    border: 2px solid var(--black);
+  }
 `;
 
 const CardText = styled.p`
-  font-size: 0.85rem;
-  color: var(--gray-400);
-  line-height: 1.6;
-  margin: 0;
+  font-size: 0.9rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  position: relative;
 `;
 
 function WeddingABC() {
-  const { content, projectId } = useWedding();
-  const weddingabcData = content?.weddingabc || {};
-  const entries = weddingabcData.entries || [];
-  const [visible, setVisible] = useState(false);
-  const [filter, setFilter] = useState('all');
-  const sectionRef = useRef(null);
+  const { content } = useWedding();
+  const abcData = content?.weddingabc || {};
+  
+  const title = abcData.title || 'Hochzeits-ABC';
+  const entries = abcData.entries || [];
 
   const defaultEntries = [
-    { letter: 'A', title: 'Anfahrt', text: 'Nutzt unsere Wegbeschreibung oder Google Maps.' },
-    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumen schenken – der Fotograf dankt!' },
-    { letter: 'D', title: 'Dresscode', text: 'Elegante Abendgarderobe, kein Weiß bitte.' },
-    { letter: 'F', title: 'Fotos', text: 'Teilt eure Bilder über unseren Upload-Bereich!' },
-    { letter: 'G', title: 'Geschenke', text: 'Wir freuen uns über einen Beitrag zur Hochzeitsreise.' },
-    { letter: 'K', title: 'Kinder', text: 'Unsere Feier ist leider nur für Erwachsene.' },
-    { letter: 'M', title: 'Musik', text: 'Teilt uns eure Musikwünsche mit!' },
-    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplätze vor der Location.' },
-    { letter: 'T', title: 'Taxi', text: 'Taxi Heidelberg: +49 6221 302030' },
-    { letter: 'U', title: 'Unterkunft', text: 'Hotels in der Nähe findet ihr auf unserer Seite.' },
+    { letter: 'A', title: 'Anfahrt', text: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt.' },
+    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumen mitbringen – wir haben bereits dafür gesorgt!' },
+    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Bitte beachtet unsere Farbwünsche.' },
+    { letter: 'F', title: 'Fotos', text: 'Während der Trauung bitten wir um Handypause. Danach freuen wir uns über eure Schnappschüsse!' },
+    { letter: 'K', title: 'Kinder', text: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis.' },
+    { letter: 'M', title: 'Mitbringsel', text: 'Eure Anwesenheit ist Geschenk genug! Infos zur Hochzeitskasse findet ihr unter Geschenke.' },
   ];
 
   const items = entries.length > 0 ? entries : defaultEntries;
-  const letters = ['all', ...new Set(items.map(i => i.letter))];
-  const filtered = filter === 'all' ? items : items.filter(i => i.letter === filter);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <Section ref={sectionRef} id="abc">
+    <Section id="abc">
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>📖 Hochzeits-ABC</Eyebrow>
-          <Title $visible={visible}>Good to Know</Title>
+          <Eyebrow>📖 Von A bis Z</Eyebrow>
+          <Title>{title}</Title>
         </Header>
         
-        <FilterBar $visible={visible}>
-          {letters.map(l => (
-            <FilterButton key={l} $active={filter === l} onClick={() => setFilter(l)}>
-              {l === 'all' ? 'Alle' : l}
-            </FilterButton>
-          ))}
-        </FilterBar>
-        
         <Grid>
-          {filtered.map((entry, i) => (
-            <Card key={i} $index={i} $visible={visible} $color={colors[i % colors.length]}>
-              <CardHeader>
-                <Letter className="letter">{entry.letter}</Letter>
-                <CardTitle>{entry.title}</CardTitle>
-              </CardHeader>
-              <CardText>{entry.text}</CardText>
+          {items.map((item, i) => (
+            <Card key={i}>
+              <Letter $index={i}>{item.letter}</Letter>
+              <CardTitle $letter={item.letter} $index={i}>{item.title}</CardTitle>
+              <CardText>{item.text}</CardText>
             </Card>
           ))}
         </Grid>

@@ -1,265 +1,343 @@
-import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useEffect, useRef } from 'react';
+// Contemporary PhotoUpload
+import React, { useState, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
+import { uploadPhoto } from '../../lib/cloudinary';
+import { savePhotoEntry } from '../../lib/supabase';
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  50% { transform: scale(1.05); }
 `;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: linear-gradient(135deg, var(--yellow), var(--coral));
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--black);
+  position: relative;
 `;
 
 const Container = styled.div`
-  max-width: 700px;
+  max-width: 600px;
   margin: 0 auto;
+  text-align: center;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+`;
+
+const Eyebrow = styled.div`
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 700;
-  color: var(--black);
+  color: var(--white);
   text-transform: uppercase;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease;
 `;
 
 const Subtitle = styled.p`
   font-size: 1rem;
-  color: rgba(0,0,0,0.7);
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.1s;
+  color: var(--gray-400);
+  margin-top: 0.5rem;
 `;
 
 const DropZone = styled.div`
-  background: var(--white);
+  background: ${p => p.$dragging ? 'var(--coral)' : 'var(--gray-800)'};
+  border: 4px dashed ${p => p.$dragging ? 'var(--white)' : 'var(--gray-600)'};
   padding: 4rem 2rem;
-  border: 4px dashed var(--black);
-  text-align: center;
   cursor: pointer;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease 0.2s;
+  transition: all 0.3s ease;
+  animation: ${p => p.$dragging ? pulse : 'none'} 0.5s ease-in-out infinite;
   
   &:hover {
-    background: var(--gray-100);
+    border-color: var(--coral);
+    background: var(--gray-700);
   }
-`;
-
-const DropZoneDragging = styled(DropZone)`
-  background: var(--gray-100);
-  border-style: solid;
-  animation: ${pulse} 0.5s ease infinite;
 `;
 
 const DropIcon = styled.div`
   font-size: 4rem;
-  margin-bottom: 1.5rem;
-`;
-
-const DropTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--black);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `;
 
 const DropText = styled.p`
-  font-size: 0.9rem;
-  color: var(--gray-600);
-  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.5rem;
 `;
 
-const BrowseButton = styled.span`
-  display: inline-block;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--white);
-  background: var(--coral);
-  padding: 1rem 2rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 8px 8px 0 var(--black);
-  }
+const DropSubtext = styled.p`
+  font-size: 0.85rem;
+  color: var(--gray-400);
 `;
 
 const HiddenInput = styled.input`
   display: none;
 `;
 
-const PreviewGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 1rem;
+const UploadButton = styled.button`
   margin-top: 2rem;
-`;
-
-const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)', 'var(--pink)'];
-
-const PreviewItem = styled.div`
-  aspect-ratio: 1;
-  background: ${p => colors[p.$index % colors.length]};
-  border: 3px solid var(--black);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-`;
-
-const RemoveButton = styled.button`
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 28px;
-  height: 28px;
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
   background: var(--coral);
   color: var(--white);
-  border: 2px solid var(--black);
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: var(--black);
-  }
-`;
-
-const UploadButton = styled.button`
-  width: 100%;
-  margin-top: 2rem;
-  padding: 1.25rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--white);
-  background: var(--black);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  text-transform: uppercase;
+  border: 3px solid var(--white);
+  box-shadow: 6px 6px 0 var(--white);
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background: var(--purple);
     transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--black);
+    box-shadow: 9px 9px 0 var(--white);
+  }
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 8px;
+  background: var(--gray-700);
+  border: 2px solid var(--white);
+  margin-top: 2rem;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  height: 100%;
+  background: var(--coral);
+  width: ${p => p.$progress}%;
+  transition: width 0.3s ease;
+`;
+
+const ProgressText = styled.p`
+  font-size: 0.85rem;
+  color: var(--white);
+  margin-top: 0.5rem;
+`;
+
+const SuccessMessage = styled.div`
+  padding: 3rem 2rem;
+  text-align: center;
+`;
+
+const SuccessEmoji = styled.div`
+  font-size: 5rem;
+  margin-bottom: 1rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+`;
+
+const SuccessText = styled.p`
+  color: var(--gray-400);
+  margin-top: 0.5rem;
+`;
+
+const ResetButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--gray-800);
+  color: var(--white);
+  border: 2px solid var(--white);
+  cursor: pointer;
+  
+  &:hover {
+    background: var(--gray-700);
+  }
+`;
+
+const NameInput = styled.input`
+  width: 100%;
+  max-width: 300px;
+  padding: 1rem;
+  font-size: 1rem;
+  background: var(--gray-800);
+  color: var(--white);
+  border: 3px solid var(--gray-600);
+  text-align: center;
+  margin-top: 1.5rem;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--coral);
   }
   
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: var(--shadow-md);
+  &::placeholder {
+    color: var(--gray-500);
   }
 `;
 
 function PhotoUpload() {
-  const { content, projectId } = useWedding();
+  const { project, content } = useWedding();
   const photouploadData = content?.photoupload || {};
-  const onUpload = (files) => console.log("Upload", files);
-  const [visible, setVisible] = useState(false);
+  
+  const title = photouploadData.title || 'Fotos teilen';
+  const description = photouploadData.description || 'Teile deine schönsten Momente mit uns!';
+  
   const [dragging, setDragging] = useState(false);
-  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const sectionRef = useRef(null);
-  const inputRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const [uploaderName, setUploaderName] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
   }, []);
 
-  const handleDrop = (e) => {
+  const handleDragIn = useCallback((e) => {
     e.preventDefault();
+    e.stopPropagation();
+    setDragging(true);
+  }, []);
+
+  const handleDragOut = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragging(false);
-    const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    setFiles(prev => [...prev, ...newFiles]);
-  };
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    
+    const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      setSelectedFiles(files);
+    }
+  }, []);
 
   const handleFileSelect = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setFiles(prev => [...prev, ...newFiles]);
-  };
-
-  const removeFile = (index) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+    const files = [...e.target.files].filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+      setSelectedFiles(files);
+    }
   };
 
   const handleUpload = async () => {
+    if (selectedFiles.length === 0 || !project?.id) return;
+    
     setUploading(true);
-    if (onUpload) await onUpload(files);
-    setTimeout(() => {
+    setProgress(0);
+    
+    try {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const result = await uploadPhoto(file);
+        
+        if (result.url) {
+          await savePhotoEntry(project.id, {
+            url: result.url,
+            public_id: result.public_id,
+            uploader_name: uploaderName || 'Anonym'
+          });
+        }
+        
+        setProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
+      }
+      
+      setSuccess(true);
+    } catch (err) {
+      console.error('Upload error:', err);
+    } finally {
       setUploading(false);
-      setFiles([]);
-    }, 2000);
+    }
   };
 
-  const DropZoneComponent = dragging ? DropZoneDragging : DropZone;
+  const handleReset = () => {
+    setSuccess(false);
+    setSelectedFiles([]);
+    setProgress(0);
+    setUploaderName('');
+  };
 
   return (
-    <Section ref={sectionRef} id="photos">
+    <Section id="photos">
       <Container>
         <Header>
-          <Title $visible={visible}>📸 Foto Upload</Title>
-          <Subtitle $visible={visible}>Teile deine schönsten Momente mit uns</Subtitle>
+          <Eyebrow>📸 Share your shots</Eyebrow>
+          <Title>{title}</Title>
+          <Subtitle>{description}</Subtitle>
         </Header>
         
-        <DropZoneComponent 
-          $visible={visible}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-        >
-          <DropIcon>📷</DropIcon>
-          <DropTitle>Fotos hochladen</DropTitle>
-          <DropText>Drag & Drop oder klicken zum Auswählen</DropText>
-          <BrowseButton>Dateien auswählen</BrowseButton>
-          <HiddenInput 
-            ref={inputRef}
-            type="file" 
-            multiple 
-            accept="image/*"
-            onChange={handleFileSelect}
-          />
-        </DropZoneComponent>
-        
-        {files.length > 0 && (
+        {success ? (
+          <SuccessMessage>
+            <SuccessEmoji>🎉</SuccessEmoji>
+            <SuccessTitle>Upload complete!</SuccessTitle>
+            <SuccessText>Danke fürs Teilen! Die Fotos erscheinen nach Freigabe.</SuccessText>
+            <ResetButton onClick={handleReset}>Mehr Fotos hochladen</ResetButton>
+          </SuccessMessage>
+        ) : (
           <>
-            <PreviewGrid>
-              {files.map((file, i) => (
-                <PreviewItem key={i} $index={i}>
-                  📷
-                  <RemoveButton onClick={() => removeFile(i)}>×</RemoveButton>
-                </PreviewItem>
-              ))}
-            </PreviewGrid>
+            <DropZone
+              $dragging={dragging}
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDragIn}
+              onDragLeave={handleDragOut}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <DropIcon>{selectedFiles.length > 0 ? '✅' : '📷'}</DropIcon>
+              <DropText>
+                {selectedFiles.length > 0 
+                  ? `${selectedFiles.length} Foto${selectedFiles.length > 1 ? 's' : ''} ausgewählt`
+                  : 'Fotos hier ablegen'}
+              </DropText>
+              <DropSubtext>
+                {selectedFiles.length > 0 
+                  ? 'Klicken um andere zu wählen'
+                  : 'oder klicken zum Auswählen'}
+              </DropSubtext>
+              <HiddenInput
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+              />
+            </DropZone>
             
-            <UploadButton onClick={handleUpload} disabled={uploading}>
-              {uploading ? 'Uploading...' : `${files.length} Fotos hochladen →`}
-            </UploadButton>
+            {selectedFiles.length > 0 && (
+              <>
+                <NameInput
+                  type="text"
+                  placeholder="Dein Name (optional)"
+                  value={uploaderName}
+                  onChange={e => setUploaderName(e.target.value)}
+                />
+                
+                <UploadButton onClick={handleUpload} disabled={uploading}>
+                  {uploading ? 'Uploading...' : `${selectedFiles.length} Foto${selectedFiles.length > 1 ? 's' : ''} hochladen →`}
+                </UploadButton>
+              </>
+            )}
+            
+            {uploading && (
+              <>
+                <ProgressBar>
+                  <ProgressFill $progress={progress} />
+                </ProgressBar>
+                <ProgressText>{progress}% hochgeladen</ProgressText>
+              </>
+            )}
           </>
         )}
       </Container>

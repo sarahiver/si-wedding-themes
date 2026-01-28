@@ -1,133 +1,299 @@
-// Navigation.js - Contemporary Theme (Supabase integrated)
+// Contemporary Navigation - Brutalist Floating Card
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
+import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
-const Header = styled.header`
+const slideDown = keyframes`
+  from { transform: translate(-50%, -100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+`;
+
+const Nav = styled.nav`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
-  padding: 1.5rem 3rem;
+  width: calc(100% - 3rem);
+  max-width: 1200px;
+  background: var(--white);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
+  animation: ${slideDown} 0.5s ease;
+  
+  @media (max-width: 768px) {
+    top: 1rem;
+    width: calc(100% - 2rem);
+  }
+`;
+
+const NavInner = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: ${p => p.$scrolled ? 'rgba(255,255,255,0.95)' : 'transparent'};
-  backdrop-filter: ${p => p.$scrolled ? 'blur(10px)' : 'none'};
-  transition: all 0.3s ease;
+  padding: 1rem 1.5rem;
   
   @media (max-width: 768px) {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
   }
 `;
 
 const Logo = styled.a`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: 1.3rem;
-  color: var(--dark, #1a1a1a);
-  text-decoration: none;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
   
-  span {
-    color: var(--coral, #FF6B6B);
-    font-weight: 600;
+  .ampersand {
+    color: var(--coral);
   }
 `;
 
-const Nav = styled.nav`
+const NavLinks = styled.div`
   display: flex;
-  gap: 2rem;
+  align-items: center;
+  gap: 0.25rem;
   
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     display: none;
   }
 `;
 
 const NavLink = styled.a`
-  font-family: var(--font-sans, 'Inter', sans-serif);
   font-size: 0.8rem;
   font-weight: 600;
+  color: var(--black);
+  padding: 0.6rem 1rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--dark, #1a1a1a);
-  text-decoration: none;
-  transition: color 0.3s ease;
+  letter-spacing: 0.05em;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
   
   &:hover {
-    color: var(--coral, #FF6B6B);
+    background: var(--yellow);
+    border-color: var(--black);
   }
 `;
 
-const RSVPButton = styled.a`
-  background: var(--coral, #FF6B6B);
-  color: white;
-  padding: 0.7rem 1.5rem;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-decoration: none;
-  transition: all 0.3s ease;
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   
-  &:hover {
-    background: var(--dark, #1a1a1a);
+  @media (max-width: 900px) {
+    gap: 0.5rem;
   }
 `;
 
-const MobileMenuBtn = styled.button`
+const CTAButton = styled.a`
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--coral);
+  padding: 0.75rem 1.5rem;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--black);
+  }
+  
+  @media (max-width: 500px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+  }
+`;
+
+const MobileButton = styled.button`
   display: none;
-  background: none;
-  border: none;
+  width: 44px;
+  height: 44px;
+  background: var(--yellow);
+  border: 3px solid var(--black);
+  box-shadow: 3px 3px 0 var(--black);
   cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--black);
+  }
+  
+  @media (max-width: 900px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const Hamburger = styled.div`
+  width: 18px;
+  height: 12px;
+  position: relative;
+  
+  span {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: var(--black);
+    transition: all 0.3s ease;
+    
+    &:nth-child(1) { 
+      top: 0; 
+      transform: ${p => p.$open ? 'rotate(45deg) translate(3px, 3px)' : 'none'}; 
+    }
+    &:nth-child(2) { 
+      top: 5px; 
+      opacity: ${p => p.$open ? 0 : 1}; 
+    }
+    &:nth-child(3) { 
+      top: 10px; 
+      transform: ${p => p.$open ? 'rotate(-45deg) translate(3px, -3px)' : 'none'}; 
+    }
+  }
+`;
+
+const MobileMenu = styled.div`
+  position: fixed;
+  top: 5.5rem;
+  left: 1rem;
+  right: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--white);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: ${p => p.$open ? 1 : 0};
+  visibility: ${p => p.$open ? 'visible' : 'hidden'};
+  transform: translateY(${p => p.$open ? 0 : '-10px'});
+  transition: all 0.3s ease;
+  z-index: 999;
   
   @media (max-width: 768px) {
-    display: block;
+    top: 5rem;
+  }
+`;
+
+const MobileLink = styled.a`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--black);
+  padding: 0.75rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--yellow);
+    border-color: var(--black);
+  }
+`;
+
+const MobileCTA = styled.a`
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--coral);
+  padding: 1rem;
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-md);
   }
 `;
 
 function Navigation() {
-  const { coupleNames, isComponentActive } = useWedding();
-  const [scrolled, setScrolled] = useState(false);
+  const { project, content } = useWedding();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
+  const name1 = project?.partner1_name || 'Sophie';
+  const name2 = project?.partner2_name || 'Max';
+
+  const defaultLinks = [
+    { label: 'Story', href: '#story' },
+    { label: 'Location', href: '#location' },
+    { label: 'Ablauf', href: '#timeline' },
+    { label: 'FAQ', href: '#faq' },
+  ];
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      if (mobileOpen) setMobileOpen(false);
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [mobileOpen]);
 
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Sophie', 'Max'];
-
-  const navLinks = [
-    isComponentActive('lovestory') && { href: '#story', label: 'Story' },
-    isComponentActive('locations') && { href: '#location', label: 'Location' },
-    isComponentActive('timeline') && { href: '#timeline', label: 'Ablauf' },
-    isComponentActive('gallery') && { href: '#gallery', label: 'Galerie' },
-    isComponentActive('faq') && { href: '#faq', label: 'FAQ' },
-  ].filter(Boolean);
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   return (
-    <Header $scrolled={scrolled}>
-      <Logo href="#hero">
-        {names[0]} <span>&</span> {names[1]}
-      </Logo>
-      
+    <>
       <Nav>
-        {navLinks.map(link => (
-          <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
-        ))}
+        <NavInner>
+          <Logo href="#">
+            {name1} <span className="ampersand">&</span> {name2}
+          </Logo>
+          
+          <NavLinks>
+            {defaultLinks.map((link, i) => (
+              <NavLink key={i} href={link.href}>{link.label}</NavLink>
+            ))}
+          </NavLinks>
+          
+          <RightSection>
+            <CTAButton href="#rsvp">RSVP</CTAButton>
+            <MobileButton onClick={() => setMobileOpen(!mobileOpen)}>
+              <Hamburger $open={mobileOpen}>
+                <span /><span /><span />
+              </Hamburger>
+            </MobileButton>
+          </RightSection>
+        </NavInner>
       </Nav>
       
-      {isComponentActive('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}
-      
-      <MobileMenuBtn>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      </MobileMenuBtn>
-    </Header>
+      <MobileMenu $open={mobileOpen}>
+        {defaultLinks.map((link, i) => (
+          <MobileLink key={i} href={link.href} onClick={() => setMobileOpen(false)}>
+            {link.label}
+          </MobileLink>
+        ))}
+        <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
+          RSVP →
+        </MobileCTA>
+      </MobileMenu>
+    </>
   );
 }
 

@@ -1,15 +1,11 @@
-import { useWedding } from '../../context/WeddingContext';
+// Contemporary Dresscode
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-`;
+import styled from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--gray-100);
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--white);
 `;
 
 const Container = styled.div`
@@ -19,170 +15,194 @@ const Container = styled.div`
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 `;
 
 const Eyebrow = styled.div`
-  display: inline-block;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--coral);
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--coral);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   opacity: ${p => p.$visible ? 1 : 0};
   transition: all 0.6s ease;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 700;
   color: var(--black);
   text-transform: uppercase;
-  margin-bottom: 1rem;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.6s ease 0.1s;
 `;
 
-const Subtitle = styled.p`
-  font-size: 1rem;
+const CodeBadge = styled.div`
+  display: inline-block;
+  background: var(--black);
+  color: var(--white);
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1rem 2rem;
+  border: 3px solid var(--black);
+  text-transform: uppercase;
+  margin-top: 1rem;
+`;
+
+const Description = styled.p`
+  font-size: 1.1rem;
   color: var(--gray-600);
+  max-width: 600px;
+  margin: 1.5rem auto 0;
+  line-height: 1.7;
   opacity: ${p => p.$visible ? 1 : 0};
   transition: all 0.6s ease 0.2s;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
-  
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Card = styled.div`
-  background: var(--white);
-  padding: 2.5rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-lg);
+const ColorSection = styled.div`
+  margin: 3rem 0;
   text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease ${p => 0.3 + p.$index * 0.15}s;
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-xl);
-  }
 `;
 
-const CardIcon = styled.div`
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  animation: ${float} 3s ease-in-out infinite;
-`;
-
-const CardIconDelayed = styled(CardIcon)`
-  animation-delay: 0.5s;
-`;
-
-const CardTitle = styled.h3`
-  font-size: 1.5rem;
+const ColorTitle = styled.h3`
+  font-size: 1rem;
   font-weight: 700;
-  color: var(--black);
   text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
   margin-bottom: 1.5rem;
-`;
-
-const CardList = styled.ul`
-  text-align: left;
-`;
-
-const CardItem = styled.li`
-  font-size: 0.9rem;
-  color: var(--gray-600);
-  padding: 0.75rem 0;
-  padding-left: 2rem;
-  position: relative;
-  border-bottom: 2px solid var(--gray-200);
-  
-  &:last-child { border: none; }
-  
-  &::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--electric);
-    font-weight: 700;
-  }
 `;
 
 const ColorPalette = styled.div`
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.5s;
-`;
-
-const ColorItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
 `;
 
 const ColorSwatch = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   background: ${p => p.$color};
   border: 3px solid var(--black);
-  box-shadow: var(--shadow-sm);
-`;
-
-const ColorName = styled.span`
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gray-600);
-`;
-
-const TipBox = styled.div`
-  margin-top: 3rem;
-  background: var(--yellow);
-  padding: 1.5rem 2rem;
-  border: 3px solid var(--black);
   box-shadow: var(--shadow-md);
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.6s;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.5rem;
+  
+  span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: ${p => p.$light ? 'var(--black)' : 'var(--white)'};
+    background: ${p => p.$light ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'};
+    padding: 0.15rem 0.3rem;
+  }
+  
+  @media (max-width: 500px) {
+    width: 60px;
+    height: 60px;
+  }
 `;
 
-const TipText = styled.p`
-  font-size: 0.9rem;
-  color: var(--black);
-  margin: 0;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
   
-  strong { font-weight: 700; }
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Card = styled.div`
+  background: ${p => p.$type === 'do' ? 'var(--electric)' : 'var(--coral)'};
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid rgba(0,0,0,0.1);
+`;
+
+const CardIcon = styled.span`
+  font-size: 1.5rem;
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+`;
+
+const CardList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const CardItem = styled.li`
+  font-size: 0.95rem;
+  color: var(--white);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '${p => p.$type === 'do' ? '✓' : '✗'}';
+    font-weight: 700;
+  }
 `;
 
 function Dresscode() {
+  const { content } = useWedding();
+  const dresscodeData = content?.dresscode || {};
+  
+  const title = dresscodeData.title || 'Dresscode';
+  const code = dresscodeData.code || 'Festlich Elegant';
+  const description = dresscodeData.description || 'Wir freuen uns, wenn ihr euch schick macht! Hier sind ein paar Hinweise.';
+  const colors = dresscodeData.colors || [];
+  const dos = dresscodeData.dos || [];
+  const donts = dresscodeData.donts || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const colors = [
-    { color: 'var(--black)', name: 'Schwarz' },
-    { color: '#4b5563', name: 'Anthrazit' },
-    { color: 'var(--white)', name: 'Weiß' },
-    { color: '#d4af37', name: 'Gold' },
+  const defaultColors = [
+    { color: '#1a365d', name: 'Navy', light: false },
+    { color: '#2d3748', name: 'Anthrazit', light: false },
+    { color: '#9b2c2c', name: 'Burgund', light: false },
+    { color: '#d4af37', name: 'Gold', light: true },
+    { color: '#f5f5f5', name: 'Creme', light: true },
   ];
+
+  const defaultDos = [
+    'Elegante Abendgarderobe',
+    'Dunkle Anzüge oder Smokings',
+    'Lange Kleider oder schicke Cocktailkleider',
+    'Dezenter Schmuck'
+  ];
+
+  const defaultDonts = [
+    'Weiß oder Creme (reserviert für die Braut)',
+    'Jeans oder Sneaker',
+    'Zu kurze Kleider',
+    'Grelle Neonfarben'
+  ];
+
+  const displayColors = colors.length > 0 ? colors : defaultColors;
+  const displayDos = dos.length > 0 ? dos : defaultDos;
+  const displayDonts = donts.length > 0 ? donts : defaultDonts;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -197,49 +217,50 @@ function Dresscode() {
     <Section ref={sectionRef} id="dresscode">
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>👔👗 Dresscode</Eyebrow>
-          <Title $visible={visible}>What to Wear</Title>
-          <Subtitle $visible={visible}>Elegante Abendgarderobe in festlichem Rahmen</Subtitle>
+          <Eyebrow $visible={visible}>👗 Was anziehen?</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <CodeBadge>{code}</CodeBadge>
+          <Description $visible={visible}>{description}</Description>
         </Header>
         
+        {displayColors.length > 0 && (
+          <ColorSection>
+            <ColorTitle>Unsere Farbpalette</ColorTitle>
+            <ColorPalette>
+              {displayColors.map((c, i) => (
+                <ColorSwatch key={i} $color={c.color} $light={c.light}>
+                  <span>{c.name}</span>
+                </ColorSwatch>
+              ))}
+            </ColorPalette>
+          </ColorSection>
+        )}
+        
         <Grid>
-          <Card $index={0} $visible={visible}>
-            <CardIcon>🤵</CardIcon>
-            <CardTitle>Für die Herren</CardTitle>
+          <Card $type="do">
+            <CardHeader>
+              <CardIcon>✅</CardIcon>
+              <CardTitle>Do's</CardTitle>
+            </CardHeader>
             <CardList>
-              <CardItem>Dunkler Anzug</CardItem>
-              <CardItem>Hemd mit Krawatte/Fliege</CardItem>
-              <CardItem>Elegante Lederschuhe</CardItem>
-              <CardItem>Optional: Einstecktuch</CardItem>
+              {displayDos.map((item, i) => (
+                <CardItem key={i} $type="do">{item}</CardItem>
+              ))}
             </CardList>
           </Card>
           
-          <Card $index={1} $visible={visible}>
-            <CardIconDelayed>👰</CardIconDelayed>
-            <CardTitle>Für die Damen</CardTitle>
+          <Card $type="dont">
+            <CardHeader>
+              <CardIcon>❌</CardIcon>
+              <CardTitle>Don'ts</CardTitle>
+            </CardHeader>
             <CardList>
-              <CardItem>Cocktail- oder Abendkleid</CardItem>
-              <CardItem>Eleganter Jumpsuit</CardItem>
-              <CardItem>Absatzschuhe oder elegante Flats</CardItem>
-              <CardItem>Bitte kein Weiß/Creme</CardItem>
+              {displayDonts.map((item, i) => (
+                <CardItem key={i} $type="dont">{item}</CardItem>
+              ))}
             </CardList>
           </Card>
         </Grid>
-        
-        <ColorPalette $visible={visible}>
-          {colors.map((c, i) => (
-            <ColorItem key={i}>
-              <ColorSwatch $color={c.color} />
-              <ColorName>{c.name}</ColorName>
-            </ColorItem>
-          ))}
-        </ColorPalette>
-        
-        <TipBox $visible={visible}>
-          <TipText>
-            <strong>💡 Tipp:</strong> Die Feier findet teils im Freien statt – denkt an einen Überwurf für den Abend!
-          </TipText>
-        </TipBox>
       </Container>
     </Section>
   );

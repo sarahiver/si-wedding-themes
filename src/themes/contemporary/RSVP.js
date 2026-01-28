@@ -1,6 +1,8 @@
-import { useWedding } from '../../context/WeddingContext';
+// Contemporary RSVP - Multi-Step Wizard, Brutalist Design
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
+import { submitRSVP } from '../../lib/supabase';
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
@@ -13,47 +15,51 @@ const slideIn = keyframes`
 `;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
   background: linear-gradient(135deg, var(--coral), var(--electric));
   position: relative;
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 600px;
+  max-width: 550px;
   margin: 0 auto;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 700;
   color: var(--white);
   text-transform: uppercase;
-  letter-spacing: -0.02em;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.6s ease;
 `;
 
+const Subtitle = styled.p`
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+  margin-top: 0.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transition: all 0.6s ease 0.2s;
+`;
+
 const Card = styled.div`
   background: var(--white);
-  padding: 3rem;
-  border: 3px solid var(--black);
+  padding: clamp(2rem, 5vw, 3rem);
+  border: 4px solid var(--black);
   box-shadow: var(--shadow-xl);
-  
-  @media (max-width: 500px) {
-    padding: 2rem 1.5rem;
-  }
 `;
 
 const ProgressBar = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   position: relative;
   
   &::before {
@@ -83,23 +89,20 @@ const ProgressBar = styled.div`
 `;
 
 const StepDot = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: ${p => p.$active ? 'var(--coral)' : p.$completed ? 'var(--electric)' : 'var(--gray-200)'};
   border: 3px solid var(--black);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: ${p => (p.$active || p.$completed) ? 'var(--white)' : 'var(--gray-500)'};
   position: relative;
   z-index: 2;
   transition: all 0.3s ease;
-`;
-
-const StepDotActive = styled(StepDot)`
-  animation: ${pulse} 1.5s ease-in-out infinite;
+  animation: ${p => p.$active ? pulse : 'none'} 1.5s ease-in-out infinite;
 `;
 
 const StepContent = styled.div`
@@ -185,7 +188,7 @@ const ToggleGroup = styled.div`
 `;
 
 const ToggleButton = styled.button`
-  padding: 1.5rem;
+  padding: 1.5rem 1rem;
   font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -210,7 +213,6 @@ const ToggleButton = styled.button`
 
 const NavButtons = styled.div`
   display: flex;
-  justify-content: space-between;
   gap: 1rem;
   margin-top: 2rem;
 `;
@@ -221,11 +223,10 @@ const NavBtn = styled.button`
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   background: ${p => p.$primary ? 'var(--coral)' : 'var(--white)'};
   color: ${p => p.$primary ? 'var(--white)' : 'var(--black)'};
   border: 3px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  box-shadow: ${p => p.$primary ? 'var(--shadow-sm)' : 'none'};
   cursor: pointer;
   transition: all 0.2s ease;
   
@@ -263,15 +264,36 @@ const SuccessText = styled.p`
   color: var(--gray-600);
 `;
 
+const ErrorMessage = styled.p`
+  color: var(--coral);
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 107, 107, 0.1);
+  border: 2px solid var(--coral);
+`;
+
 function RSVP() {
-  const { content, projectId } = useWedding();
+  const { content, project } = useWedding();
   const rsvpData = content?.rsvp || {};
-  const onSubmit = (data) => console.log("Submit", data);
+  
+  const title = rsvpData.title || 'RSVP';
+  const subtitle = rsvpData.description || 'Wir freuen uns auf deine Antwort!';
+  
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', attending: null, guests: '1', menu: '', dietary: '', song: '', message: ''
+    name: '', 
+    email: '', 
+    attending: null, 
+    guest_count: '1', 
+    dietary: '', 
+    allergies: '',
+    message: ''
   });
   const sectionRef = useRef(null);
   const totalSteps = 3;
@@ -285,7 +307,10 @@ function RSVP() {
     return () => observer.disconnect();
   }, []);
 
-  const updateField = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+  const updateField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setError('');
+  };
 
   const canProceed = () => {
     if (step === 1) return formData.name && formData.email;
@@ -303,18 +328,43 @@ function RSVP() {
   };
 
   const handleSubmit = async () => {
-    if (onSubmit) await onSubmit(formData);
-    setSubmitted(true);
+    if (!project?.id) {
+      setError('Projekt nicht gefunden');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      const { error: submitError } = await submitRSVP(project.id, {
+        name: formData.name,
+        email: formData.email,
+        status: formData.attending ? 'confirmed' : 'declined',
+        guest_count: formData.attending ? parseInt(formData.guest_count) : 0,
+        dietary_requirements: formData.dietary,
+        allergies: formData.allergies,
+        message: formData.message
+      });
+      
+      if (submitError) throw submitError;
+      setSubmitted(true);
+    } catch (err) {
+      console.error('RSVP Error:', err);
+      setError('Etwas ist schiefgelaufen. Bitte versuche es erneut.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStepDot = (i) => {
     const isActive = step === i;
     const isCompleted = step > i;
-    
-    if (isActive) {
-      return <StepDotActive key={i} $active={true}>{i}</StepDotActive>;
-    }
-    return <StepDot key={i} $completed={isCompleted}>{isCompleted ? '✓' : i}</StepDot>;
+    return (
+      <StepDot key={i} $active={isActive} $completed={isCompleted}>
+        {isCompleted ? '✓' : i}
+      </StepDot>
+    );
   };
 
   if (submitted) {
@@ -323,9 +373,13 @@ function RSVP() {
         <Container>
           <Card>
             <SuccessState>
-              <SuccessEmoji>🎉</SuccessEmoji>
-              <SuccessTitle>Epic!</SuccessTitle>
-              <SuccessText>Deine Antwort ist eingegangen. Wir freuen uns auf dich!</SuccessText>
+              <SuccessEmoji>{formData.attending ? '🎉' : '😢'}</SuccessEmoji>
+              <SuccessTitle>{formData.attending ? 'Epic!' : 'Schade!'}</SuccessTitle>
+              <SuccessText>
+                {formData.attending 
+                  ? 'Deine Zusage ist eingegangen. Wir freuen uns auf dich!' 
+                  : 'Wir werden dich vermissen, aber danke für deine Antwort!'}
+              </SuccessText>
             </SuccessState>
           </Card>
         </Container>
@@ -337,7 +391,8 @@ function RSVP() {
     <Section ref={sectionRef} id="rsvp">
       <Container>
         <Header>
-          <Title $visible={visible}>RSVP</Title>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
         <Card>
@@ -350,12 +405,22 @@ function RSVP() {
               <>
                 <StepTitle>Wer bist du?</StepTitle>
                 <FormGroup>
-                  <Label>Name</Label>
-                  <Input type="text" placeholder="Max Mustermann" value={formData.name} onChange={e => updateField('name', e.target.value)} />
+                  <Label>Name *</Label>
+                  <Input 
+                    type="text" 
+                    placeholder="Max Mustermann" 
+                    value={formData.name} 
+                    onChange={e => updateField('name', e.target.value)} 
+                  />
                 </FormGroup>
                 <FormGroup>
-                  <Label>Email</Label>
-                  <Input type="email" placeholder="max@example.com" value={formData.email} onChange={e => updateField('email', e.target.value)} />
+                  <Label>Email *</Label>
+                  <Input 
+                    type="email" 
+                    placeholder="max@example.com" 
+                    value={formData.email} 
+                    onChange={e => updateField('email', e.target.value)} 
+                  />
                 </FormGroup>
               </>
             )}
@@ -364,32 +429,48 @@ function RSVP() {
               <>
                 <StepTitle>Kommst du?</StepTitle>
                 <ToggleGroup>
-                  <ToggleButton $yes $active={formData.attending === true} onClick={() => updateField('attending', true)}>
+                  <ToggleButton 
+                    type="button"
+                    $yes 
+                    $active={formData.attending === true} 
+                    onClick={() => updateField('attending', true)}
+                  >
                     <span className="emoji">🎉</span>
                     Hell Yeah!
                   </ToggleButton>
-                  <ToggleButton $active={formData.attending === false} onClick={() => updateField('attending', false)}>
+                  <ToggleButton 
+                    type="button"
+                    $active={formData.attending === false} 
+                    onClick={() => updateField('attending', false)}
+                  >
                     <span className="emoji">😢</span>
-                    Can't make it
+                    Leider nicht
                   </ToggleButton>
                 </ToggleGroup>
                 
                 {formData.attending === true && (
                   <>
                     <FormGroup style={{ marginTop: '2rem' }}>
-                      <Label>Anzahl Gäste</Label>
-                      <Select value={formData.guests} onChange={e => updateField('guests', e.target.value)}>
-                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                      <Label>Anzahl Personen</Label>
+                      <Select 
+                        value={formData.guest_count} 
+                        onChange={e => updateField('guest_count', e.target.value)}
+                      >
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
+                        ))}
                       </Select>
                     </FormGroup>
                     <FormGroup>
-                      <Label>Menüwahl</Label>
-                      <Select value={formData.menu} onChange={e => updateField('menu', e.target.value)}>
-                        <option value="">Bitte wählen...</option>
-                        <option value="fleisch">🥩 Fleisch</option>
-                        <option value="fisch">🐟 Fisch</option>
-                        <option value="veggie">🥗 Vegetarisch</option>
+                      <Label>Ernährungswünsche</Label>
+                      <Select 
+                        value={formData.dietary} 
+                        onChange={e => updateField('dietary', e.target.value)}
+                      >
+                        <option value="">Keine besonderen Wünsche</option>
+                        <option value="vegetarisch">🥗 Vegetarisch</option>
                         <option value="vegan">🌱 Vegan</option>
+                        <option value="glutenfrei">🌾 Glutenfrei</option>
                       </Select>
                     </FormGroup>
                   </>
@@ -401,21 +482,39 @@ function RSVP() {
               <>
                 <StepTitle>Noch was?</StepTitle>
                 <FormGroup>
-                  <Label>Songwunsch (optional)</Label>
-                  <Input type="text" placeholder="Welcher Song bringt dich auf die Tanzfläche?" value={formData.song} onChange={e => updateField('song', e.target.value)} />
+                  <Label>Allergien / Unverträglichkeiten</Label>
+                  <Input 
+                    type="text" 
+                    placeholder="z.B. Nüsse, Laktose..." 
+                    value={formData.allergies} 
+                    onChange={e => updateField('allergies', e.target.value)} 
+                  />
                 </FormGroup>
                 <FormGroup>
-                  <Label>Nachricht (optional)</Label>
-                  <Textarea placeholder="Grüße, Wünsche, Allergien..." value={formData.message} onChange={e => updateField('message', e.target.value)} />
+                  <Label>Nachricht an uns</Label>
+                  <Textarea 
+                    placeholder="Grüße, Wünsche, Fragen..." 
+                    value={formData.message} 
+                    onChange={e => updateField('message', e.target.value)} 
+                  />
                 </FormGroup>
               </>
             )}
           </StepContent>
           
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          
           <NavButtons>
-            <NavBtn onClick={handleBack} disabled={step === 1}>← Back</NavBtn>
-            <NavBtn $primary onClick={handleNext} disabled={!canProceed()}>
-              {step === totalSteps ? 'Submit →' : 'Next →'}
+            <NavBtn type="button" onClick={handleBack} disabled={step === 1}>
+              ← Zurück
+            </NavBtn>
+            <NavBtn 
+              type="button"
+              $primary 
+              onClick={handleNext} 
+              disabled={!canProceed() || isSubmitting}
+            >
+              {isSubmitting ? 'Sende...' : step === totalSteps ? 'Absenden →' : 'Weiter →'}
             </NavBtn>
           </NavButtons>
         </Card>

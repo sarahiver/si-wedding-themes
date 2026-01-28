@@ -1,7 +1,6 @@
-// WeddingPage.js - contemporary Theme (Supabase integrated)
-import React from 'react';
-import { useWedding } from '../../context/WeddingContext';
-
+// Contemporary WeddingPage - Main Component
+import React, { useState } from 'react';
+import ContemporaryGlobalStyles from './GlobalStyles';
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -9,169 +8,94 @@ import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
 import Directions from './Directions';
-import Accommodations from './Accommodations';
 import RSVP from './RSVP';
+import Dresscode from './Dresscode';
+import Gifts from './Gifts';
+import Accommodations from './Accommodations';
 import Gallery from './Gallery';
 import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
-import Gifts from './Gifts';
-import Dresscode from './Dresscode';
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
 import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
+import AdminDashboard from './AdminDashboard';
+import { useWedding } from '../../contexts/WeddingContext';
 
 function WeddingPage() {
-  const { 
-    isComponentActive, 
-    content, 
-    coupleNames, 
-    weddingDate, 
-    projectId, 
-    slug 
-  } = useWedding();
-  
-  // Parse couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
-  const name1 = names[0];
-  const name2 = names[1];
-  
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('de-DE', { 
-      day: 'numeric', month: 'long', year: 'numeric' 
-    });
-  };
-  const formattedDate = formatDate(weddingDate);
-  
-  // Props for components
-  const heroProps = {
-    name1, name2,
-    date: formattedDate,
-    location: content?.hero?.location_short || '',
-    tagline: content?.hero?.tagline || 'Wir heiraten',
-    backgroundImage: content?.hero?.background_image || null,
-  };
+  const { project, loading } = useWedding();
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  if (loading) {
+    return (
+      <>
+        <ContemporaryGlobalStyles />
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--white)',
+          fontFamily: 'Space Grotesk, sans-serif'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            background: 'var(--coral)',
+            border: '4px solid var(--black)',
+            boxShadow: '8px 8px 0 var(--black)'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💍</div>
+            <div style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: '700', 
+              color: 'var(--white)',
+              textTransform: 'uppercase'
+            }}>
+              Loading...
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (showAdmin) {
+    return (
+      <>
+        <ContemporaryGlobalStyles />
+        <AdminDashboard onClose={() => setShowAdmin(false)} />
+      </>
+    );
+  }
 
   return (
     <>
-      <Navigation name1={name1} name2={name2} date={formattedDate} />
+      <ContemporaryGlobalStyles />
+      <Navigation />
       <main>
-        <Hero {...heroProps} />
-        {isComponentActive('countdown') && (
-          <Countdown 
-            targetDate={content?.countdown?.target_date || weddingDate} 
-            title={content?.countdown?.title}
-          />
-        )}
-        {isComponentActive('lovestory') && (
-          <LoveStory 
-            events={content?.lovestory?.events || []} 
-            title={content?.lovestory?.title}
-          />
-        )}
-        {isComponentActive('timeline') && (
-          <Timeline 
-            events={content?.timeline?.events || []} 
-            title={content?.timeline?.title}
-          />
-        )}
-        {isComponentActive('locations') && (
-          <Locations 
-            locations={content?.locations?.locations || []} 
-            title={content?.locations?.title}
-          />
-        )}
-        {isComponentActive('directions') && (
-          <Directions 
-            options={content?.directions?.options || []}
-            title={content?.directions?.title}
-            address={content?.directions?.address}
-          />
-        )}
-        {isComponentActive('accommodations') && (
-          <Accommodations 
-            hotels={content?.accommodations?.hotels || []} 
-            title={content?.accommodations?.title}
-          />
-        )}
-        {isComponentActive('dresscode') && (
-          <Dresscode 
-            title={content?.dresscode?.title}
-            code={content?.dresscode?.code}
-            description={content?.dresscode?.description}
-            colors={content?.dresscode?.colors || []}
-          />
-        )}
-        {isComponentActive('rsvp') && (
-          <RSVP 
-            projectId={projectId}
-            title={content?.rsvp?.title}
-            deadline={content?.rsvp?.deadline}
-          />
-        )}
-        {isComponentActive('gallery') && (
-          <Gallery 
-            images={content?.gallery?.images || []} 
-            title={content?.gallery?.title}
-          />
-        )}
-        {isComponentActive('photoupload') && (
-          <PhotoUpload 
-            projectId={projectId} 
-            slug={slug}
-            title={content?.photoupload?.title}
-          />
-        )}
-        {isComponentActive('guestbook') && (
-          <Guestbook 
-            projectId={projectId}
-            title={content?.guestbook?.title}
-          />
-        )}
-        {isComponentActive('musicwishes') && (
-          <MusicWishes 
-            projectId={projectId}
-            title={content?.musicwishes?.title}
-          />
-        )}
-        {isComponentActive('gifts') && (
-          <Gifts 
-            items={content?.gifts?.items || []}
-            title={content?.gifts?.title}
-            description={content?.gifts?.description}
-          />
-        )}
-        {isComponentActive('faq') && (
-          <FAQ 
-            items={content?.faq?.items || []} 
-            title={content?.faq?.title}
-          />
-        )}
-        {isComponentActive('weddingabc') && (
-          <WeddingABC 
-            entries={content?.weddingabc?.entries || []} 
-            title={content?.weddingabc?.title}
-          />
-        )}
-        {isComponentActive('witnesses') && (
-          <ContactWitnesses 
-            witnesses={content?.witnesses?.witnesses || []}
-            title={content?.witnesses?.title}
-          />
-        )}
-        {isComponentActive('contact') && (
-          <Contact />
-        )}
+        <Hero />
+        <Countdown />
+        <LoveStory />
+        <Locations />
+        <Timeline />
+        <RSVP />
+        <Dresscode />
+        <Gifts />
+        <Accommodations />
+        <Directions />
+        <Gallery />
+        <FAQ />
+        <WeddingABC />
+        <Guestbook />
+        <MusicWishes />
+        <PhotoUpload />
+        <ContactWitnesses />
+        <Contact />
       </main>
-      <Footer 
-        name1={name1} 
-        name2={name2}
-        hashtag={content?.footer?.hashtag}
-      />
+      <Footer onAdminLogin={() => setShowAdmin(true)} />
     </>
   );
 }

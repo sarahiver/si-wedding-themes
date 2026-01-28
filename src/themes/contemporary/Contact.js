@@ -1,210 +1,107 @@
-import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useEffect, useRef } from 'react';
+// Contemporary Contact
+import React from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../../contexts/WeddingContext';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--gray-100);
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--coral);
 `;
 
 const Container = styled.div`
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
-`;
-
-const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
 `;
 
 const Eyebrow = styled.div`
-  display: inline-block;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--coral);
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--coral);
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease;
+  color: var(--black);
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 700;
-  color: var(--black);
+  color: var(--white);
   text-transform: uppercase;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease 0.1s;
+  margin-bottom: 1rem;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
-  
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
+const Subtitle = styled.p`
+  font-size: 1.1rem;
+  color: var(--white);
+  opacity: 0.9;
+  margin-bottom: 2rem;
 `;
 
 const Card = styled.div`
   background: var(--white);
+  border: 4px solid var(--black);
+  box-shadow: var(--shadow-xl);
   padding: 2.5rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-lg);
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease ${p => 0.2 + p.$index * 0.15}s;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
-  }
-`;
-
-const Avatar = styled.div`
-  width: 100px;
-  height: 100px;
-  background: ${p => p.$color};
-  border: 3px solid var(--black);
-  margin: 0 auto 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-`;
-
-const RoleBadge = styled.div`
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--coral);
-  padding: 0.4rem 1rem;
-  border: 2px solid var(--black);
-  margin-bottom: 1rem;
-`;
-
-const Name = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--black);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-`;
-
-const Relation = styled.p`
-  font-size: 0.85rem;
-  color: var(--gray-600);
-  margin-bottom: 1.5rem;
-`;
-
-const ContactLinks = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 `;
 
 const ContactItem = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-  color: var(--gray-600);
-  padding: 0.75rem;
-  background: var(--gray-100);
-  border: 2px solid var(--gray-300);
+  gap: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--black);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 3px solid var(--gray-200);
   transition: all 0.2s ease;
+  
+  &:last-child { margin-bottom: 0; }
   
   &:hover {
     background: var(--yellow);
     border-color: var(--black);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-sm);
   }
 `;
 
-const InfoBox = styled.div`
-  background: var(--purple);
-  padding: 2rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease 0.5s;
-`;
-
-const InfoTitle = styled.h4`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--white);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-`;
-
-const InfoText = styled.p`
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.9);
-  margin: 0;
+const Icon = styled.span`
+  font-size: 1.5rem;
 `;
 
 function Contact() {
-  const { content, projectId } = useWedding();
+  const { project, content } = useWedding();
   const contactData = content?.contact || {};
-  const witnesses = [];
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  const defaultWitnesses = [
-    { role: 'Trauzeugin', name: 'Lisa Schneider', relation: 'Beste Freundin der Braut', phone: '+49 176 12345678', email: 'lisa@email.de', color: 'var(--coral)', emoji: '👰' },
-    { role: 'Trauzeuge', name: 'Thomas Weber', relation: 'Bester Freund des Bräutigams', phone: '+49 171 87654321', email: 'thomas@email.de', color: 'var(--electric)', emoji: '🤵' },
-  ];
-
-  const items = witnesses.length > 0 ? witnesses : defaultWitnesses;
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  
+  const title = contactData.title || 'Kontakt';
+  const email = contactData.couple_email || project?.couple_email;
+  const phone = contactData.couple_phone || project?.couple_phone;
 
   return (
-    <Section ref={sectionRef} id="contact">
+    <Section id="contact">
       <Container>
-        <Header>
-          <Eyebrow $visible={visible}>📞 Kontakt</Eyebrow>
-          <Title $visible={visible}>Got Questions?</Title>
-        </Header>
+        <Eyebrow>📞 Fragen?</Eyebrow>
+        <Title>{title}</Title>
+        <Subtitle>Bei Fragen sind wir jederzeit für euch da!</Subtitle>
         
-        <Grid>
-          {items.map((person, i) => (
-            <Card key={i} $index={i} $visible={visible}>
-              <Avatar $color={person.color}>{person.emoji}</Avatar>
-              <RoleBadge>{person.role}</RoleBadge>
-              <Name>{person.name}</Name>
-              <Relation>{person.relation}</Relation>
-              <ContactLinks>
-                <ContactItem href={`tel:${person.phone}`}>📱 {person.phone}</ContactItem>
-                <ContactItem href={`mailto:${person.email}`}>✉️ {person.email}</ContactItem>
-              </ContactLinks>
-            </Card>
-          ))}
-        </Grid>
-        
-        <InfoBox $visible={visible}>
-          <InfoTitle>🎉 Überraschungen</InfoTitle>
-          <InfoText>Plant ihr eine Überraschung? Sprecht euch mit unseren Trauzeugen ab!</InfoText>
-        </InfoBox>
+        <Card>
+          {email && (
+            <ContactItem href={`mailto:${email}`}>
+              <Icon>✉️</Icon>
+              {email}
+            </ContactItem>
+          )}
+          {phone && (
+            <ContactItem href={`tel:${phone.replace(/\s/g, '')}`}>
+              <Icon>📱</Icon>
+              {phone}
+            </ContactItem>
+          )}
+        </Card>
       </Container>
     </Section>
   );

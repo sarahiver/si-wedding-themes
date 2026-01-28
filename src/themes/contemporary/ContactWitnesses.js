@@ -1,69 +1,147 @@
+// Contemporary ContactWitnesses (Trauzeugen)
 import React from 'react';
 import styled from 'styled-components';
-import { useWedding } from '../../context/WeddingContext';
+import { useWedding } from '../../contexts/WeddingContext';
 
 const Section = styled.section`
-  padding: 5rem 2rem;
-  background: var(--background-alt, #f9f9f9);
+  padding: clamp(4rem, 10vh, 8rem) 2rem;
+  background: var(--purple);
 `;
 
 const Container = styled.div`
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
+`;
+
+const Header = styled.div`
   text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const Eyebrow = styled.div`
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: 2.5rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
-  color: var(--text-primary, #333);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+`;
+
+const Subtitle = styled.p`
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+  margin-top: 0.5rem;
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 `;
 
 const Card = styled.div`
+  background: var(--white);
+  border: 3px solid var(--black);
+  box-shadow: var(--shadow-lg);
   padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  text-align: center;
+`;
+
+const Avatar = styled.div`
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--gray-200)'};
+  border: 3px solid var(--black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
 `;
 
 const Name = styled.h3`
-  font-family: var(--font-display, 'Playfair Display', serif);
   font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary, #333);
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
 `;
 
 const Role = styled.p`
-  font-family: var(--font-body, 'Lato', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+`;
+
+const ContactLink = styled.a`
+  display: block;
   font-size: 0.9rem;
-  color: var(--text-secondary, #666);
+  color: var(--gray-600);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 2px solid var(--gray-200);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--yellow);
+    border-color: var(--black);
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 function ContactWitnesses() {
   const { content } = useWedding();
-  const data = content?.witnesses || {};
-  const witnesses = data.list || [];
+  const witnessesData = content?.witnesses || {};
+  
+  const title = witnessesData.title || 'Trauzeugen';
+  const persons = witnessesData.persons || [];
 
-  if (witnesses.length === 0) return null;
+  const defaultPersons = [
+    { name: 'Julia Schmidt', role: 'Trauzeugin der Braut', email: 'julia@example.com', phone: '+49 170 1234567' },
+    { name: 'Thomas Mueller', role: 'Trauzeuge des Braeutigams', email: 'thomas@example.com', phone: '+49 171 7654321' },
+  ];
+
+  const items = persons.length > 0 ? persons : defaultPersons;
 
   return (
     <Section id="witnesses">
       <Container>
-        <Title>{data.title || 'Trauzeugen'}</Title>
+        <Header>
+          <Eyebrow>Unsere Helfer</Eyebrow>
+          <Title>{title}</Title>
+          <Subtitle>Bei Fragen zu Ueberraschungen koennt ihr euch an unsere Trauzeugen wenden</Subtitle>
+        </Header>
+        
         <Grid>
-          {witnesses.map((witness, i) => (
+          {items.map((person, i) => (
             <Card key={i}>
-              <Name>{witness.name}</Name>
-              <Role>{witness.role}</Role>
+              <Avatar $image={person.image} />
+              <Name>{person.name}</Name>
+              <Role>{person.role}</Role>
+              {person.email && (
+                <ContactLink href={`mailto:${person.email}`}>
+                  {person.email}
+                </ContactLink>
+              )}
+              {person.phone && (
+                <ContactLink href={`tel:${person.phone.replace(/\s/g, '')}`}>
+                  {person.phone}
+                </ContactLink>
+              )}
             </Card>
           ))}
         </Grid>
