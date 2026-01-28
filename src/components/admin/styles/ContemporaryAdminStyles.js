@@ -179,4 +179,5 @@ const ContemporaryAdminComponents = {
   LoadingSpinner, EmptyState, FeedbackModal, LogoIcon,
 };
 
+export { ContemporaryAdminComponents };
 export default ContemporaryAdminComponents;
