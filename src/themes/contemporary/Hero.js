@@ -1,5 +1,7 @@
+// Hero.js - Contemporary Theme (Supabase integrated)
 import React, { useEffect, useState, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const float1 = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -9,26 +11,9 @@ const float1 = keyframes`
 `;
 
 const float2 = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(45deg); }
-  25% { transform: translate(10px, -10px) rotate(50deg); }
-  50% { transform: translate(-8px, -20px) rotate(42deg); }
-  75% { transform: translate(-10px, 8px) rotate(48deg); }
-`;
-
-const float3 = keyframes`
   0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(12px, -12px); }
-  66% { transform: translate(-8px, -18px); }
-`;
-
-const spin = keyframes`
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-`;
-
-const bounce = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  33% { transform: translate(-15px, -15px); }
+  66% { transform: translate(10px, -20px); }
 `;
 
 const slideUp = keyframes`
@@ -55,17 +40,28 @@ const Section = styled.section`
 `;
 
 const LeftPanel = styled.div`
-  background: var(--white);
+  background: var(--white, #fff);
   padding: 8rem 4rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
-  z-index: 2;
   
   @media (max-width: 900px) {
-    padding: 8rem 2rem 4rem;
-    min-height: 60vh;
+    padding: 6rem 2rem;
+  }
+`;
+
+const RightPanel = styled.div`
+  background: ${p => p.$bgImage 
+    ? `url(${p.$bgImage}) center/cover` 
+    : 'linear-gradient(135deg, var(--coral, #FF6B6B) 0%, var(--mint, #4ECDC4) 100%)'};
+  position: relative;
+  min-height: 100vh;
+  
+  @media (max-width: 900px) {
+    min-height: 50vh;
+    order: -1;
   }
 `;
 
@@ -73,64 +69,44 @@ const FloatingCircle1 = styled.div`
   position: absolute;
   width: 80px;
   height: 80px;
-  background: var(--coral);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  background: var(--coral, #FF6B6B);
   border-radius: 50%;
   top: 15%;
-  right: 15%;
-  animation: ${float1} 7s ease-in-out infinite;
-  z-index: 1;
+  right: 20%;
+  animation: ${float1} 8s ease-in-out infinite;
 `;
 
 const FloatingSquare = styled.div`
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background: var(--electric);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--dark, #1a1a1a);
   bottom: 25%;
-  left: 10%;
-  animation: ${float2} 8s ease-in-out infinite;
-  animation-delay: 1s;
-  z-index: 1;
+  right: 15%;
+  animation: ${float2} 6s ease-in-out infinite;
+  transform: rotate(15deg);
 `;
 
 const FloatingCircle2 = styled.div`
   position: absolute;
-  width: 35px;
-  height: 35px;
-  background: var(--yellow);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-sm);
+  width: 40px;
+  height: 40px;
+  background: var(--yellow, #FFE66D);
   border-radius: 50%;
-  top: 60%;
-  right: 25%;
-  animation: ${float3} 6s ease-in-out infinite;
-  animation-delay: 2s;
-  z-index: 1;
+  top: 50%;
+  right: 35%;
+  animation: ${float1} 10s ease-in-out infinite reverse;
 `;
 
-const SpinningDecor = styled.div`
+const FloatingDiamond = styled.div`
   position: absolute;
+  width: 50px;
+  height: 50px;
+  background: var(--mint, #4ECDC4);
+  transform: rotate(45deg);
   bottom: 15%;
-  right: 10%;
-  width: 60px;
-  height: 60px;
-  border: 3px solid var(--black);
-  animation: ${spin} 20s linear infinite;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    background: var(--coral);
-    transform: translate(-50%, -50%);
-  }
+  left: 10%;
+  animation: ${float2} 7s ease-in-out infinite;
 `;
 
 const Eyebrow = styled.div`
@@ -138,79 +114,112 @@ const Eyebrow = styled.div`
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.2s;
   opacity: 0;
-  animation: ${slideUp} 0.6s ease forwards 0.2s;
   
   span {
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    color: var(--gray-600);
+    letter-spacing: 0.2em;
+    color: var(--dark, #1a1a1a);
   }
   
   .line {
     flex: 1;
-    height: 3px;
-    background: var(--black);
+    height: 2px;
+    background: var(--coral, #FF6B6B);
+    animation: ${expand} 0.6s ease forwards;
+    animation-delay: 0.8s;
     transform-origin: left;
-    animation: ${expand} 0.8s ease forwards 0.5s;
     transform: scaleX(0);
   }
 `;
 
 const NamesWrapper = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 `;
 
 const NameLine1 = styled.h1`
-  font-size: clamp(4rem, 12vw, 8rem);
-  font-weight: 700;
-  color: var(--black);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 400;
+  color: var(--coral, #FF6B6B);
+  line-height: 1;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.4s;
   opacity: 0;
-  animation: ${slideUp} 0.8s ease forwards 0.4s;
   
-  .highlight { color: var(--coral); }
-`;
-
-const NameLine2 = styled.h1`
-  font-size: clamp(4rem, 12vw, 8rem);
-  font-weight: 700;
-  color: var(--black);
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  opacity: 0;
-  animation: ${slideUp} 0.8s ease forwards 0.5s;
+  .highlight {
+    background: linear-gradient(transparent 60%, var(--yellow, #FFE66D) 60%);
+    padding: 0 0.2em;
+  }
 `;
 
 const Ampersand = styled.span`
-  display: inline-block;
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: 300;
-  color: var(--gray-400);
-  margin: 0 0.5rem;
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: var(--gray, #999);
+  display: block;
+  margin: 0.5rem 0;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
 `;
 
-const Location = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
+const NameLine2 = styled.h1`
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 400;
+  color: var(--dark, #1a1a1a);
+  line-height: 1;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.6s;
   opacity: 0;
-  animation: ${slideUp} 0.6s ease forwards 0.8s;
+`;
+
+const LocationBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--white, #fff);
+  border: 2px solid var(--coral, #FF6B6B);
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 2rem;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.7s;
+  opacity: 0;
   
   span {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--gray-600);
-    padding: 0.75rem 1.25rem;
-    background: var(--yellow);
-    border: 3px solid var(--black);
-    box-shadow: var(--shadow-sm);
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--dark, #1a1a1a);
+  }
+`;
+
+const DateBadge = styled.div`
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark, #1a1a1a);
+  color: var(--white, #fff);
+  padding: 1.5rem 3rem;
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 400;
+  z-index: 10;
+  
+  @media (max-width: 900px) {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: 2rem;
+    text-align: center;
   }
 `;
 
@@ -218,121 +227,102 @@ const CTAGroup = styled.div`
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 0.8s;
   opacity: 0;
-  animation: ${slideUp} 0.6s ease forwards 1s;
 `;
 
 const PrimaryButton = styled.a`
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--white);
-  background: var(--coral);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--coral, #FF6B6B);
+  color: var(--white, #fff);
   padding: 1rem 2rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: all 0.3s ease;
   
   &:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--black);
+    background: var(--dark, #1a1a1a);
+    transform: translateY(-2px);
   }
 `;
 
 const SecondaryButton = styled.a`
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--black);
-  background: var(--white);
-  padding: 1rem 2rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: var(--electric);
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--black);
-  }
-`;
-
-const ScrollPrompt = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 4rem;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.75rem;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--dark, #1a1a1a);
+  padding: 1rem 2rem;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--gray-500);
-  opacity: 0;
-  animation: ${slideUp} 0.6s ease forwards 1.2s;
+  text-decoration: none;
+  border: 2px solid var(--dark, #1a1a1a);
+  transition: all 0.3s ease;
   
-  @media (max-width: 900px) { left: 2rem; }
+  &:hover {
+    background: var(--dark, #1a1a1a);
+    color: var(--white, #fff);
+  }
+`;
+
+const ScrollIndicator = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  span {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--dark, #1a1a1a);
+  }
+  
+  @media (max-width: 900px) {
+    display: none;
+  }
 `;
 
 const ScrollDot = styled.div`
   width: 8px;
   height: 8px;
-  background: var(--coral);
-  border: 2px solid var(--black);
-  animation: ${bounce} 2s ease-in-out infinite;
+  background: var(--coral, #FF6B6B);
 `;
 
-const RightPanel = styled.div`
-  position: relative;
-  overflow: hidden;
-  
-  @media (max-width: 900px) { min-height: 50vh; }
-`;
-
-const ParallaxImage = styled.div`
-  position: absolute;
-  inset: -10%;
-  background: linear-gradient(135deg, var(--coral), var(--electric), var(--yellow));
-  transform: translateY(${p => p.$scroll * 50}px);
-  transition: transform 0.1s ease-out;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px),
-      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px);
-  }
-`;
-
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.1);
-`;
-
-const DateBadge = styled.div`
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 700;
-  color: var(--white);
-  background: var(--black);
-  padding: 1.5rem 3rem;
-  border: 4px solid var(--white);
-  box-shadow: var(--shadow-lg);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', location = 'Berlin' }) {
+function Hero() {
+  const { content, coupleNames, weddingDate } = useWedding();
+  const hero = content?.hero || {};
   const [scrollY, setScrollY] = useState(0);
   const sectionRef = useRef(null);
+
+  // Parse names from Supabase
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Sophie', 'Max'];
+  const name1 = names[0] || 'Sophie';
+  const name2 = names[1] || 'Max';
+  
+  // Format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '15. August 2025';
+    return new Date(dateStr).toLocaleDateString('de-DE', { 
+      day: 'numeric', month: 'long', year: 'numeric' 
+    });
+  };
+  const date = formatDate(weddingDate);
+  const location = hero.location_short || 'Berlin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -352,36 +342,37 @@ function Hero({ name1 = 'Sophie', name2 = 'Max', date = '15. August 2025', locat
         <FloatingCircle1 />
         <FloatingSquare />
         <FloatingCircle2 />
-        <SpinningDecor />
         
         <Eyebrow>
-          <span>We're getting married</span>
+          <span>{hero.tagline || "We're getting married"}</span>
           <div className="line" />
         </Eyebrow>
         
         <NamesWrapper>
           <NameLine1><span className="highlight">{name1}</span></NameLine1>
-          <NameLine2><Ampersand>&</Ampersand>{name2}</NameLine2>
+          <Ampersand>&</Ampersand>
+          <NameLine2>{name2}</NameLine2>
         </NamesWrapper>
         
-        <Location><span>📍 {location}</span></Location>
+        <LocationBadge>
+          <span>📍</span>
+          <span>{location}</span>
+        </LocationBadge>
         
         <CTAGroup>
-          <PrimaryButton href="#rsvp">Jetzt Zusagen →</PrimaryButton>
+          <PrimaryButton href="#rsvp">Jetzt zusagen →</PrimaryButton>
           <SecondaryButton href="#story">Unsere Story</SecondaryButton>
         </CTAGroup>
         
-        <ScrollPrompt>
+        <ScrollIndicator>
           <ScrollDot />
-          Scroll to explore
-        </ScrollPrompt>
+          <span>Scroll to explore</span>
+        </ScrollIndicator>
       </LeftPanel>
       
-      <RightPanel>
-        <ParallaxImage $scroll={scrollY} />
-        <ImageOverlay>
-          <DateBadge>{date}</DateBadge>
-        </ImageOverlay>
+      <RightPanel $bgImage={hero.background_image}>
+        <FloatingDiamond />
+        <DateBadge>{date}</DateBadge>
       </RightPanel>
     </Section>
   );

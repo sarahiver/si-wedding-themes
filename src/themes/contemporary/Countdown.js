@@ -1,216 +1,103 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-
-const expand = keyframes`
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-`;
+// Countdown.js - contemporary Theme (Supabase integrated)
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--black);
-  position: relative;
-  overflow: hidden;
-`;
-
-const BigNumber = styled.div`
-  position: absolute;
-  font-size: clamp(20rem, 50vw, 40rem);
-  font-weight: 700;
-  color: rgba(255,255,255,0.03);
-  line-height: 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  white-space: nowrap;
-`;
-
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-`;
-
-const Header = styled.div`
+  padding: 5rem 2rem;
+  background: var(--section-bg, #f9f9f9);
   text-align: center;
-  margin-bottom: 4rem;
-`;
-
-const Eyebrow = styled.div`
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--coral);
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--coral);
-  margin-bottom: 1.5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.6s ease;
 `;
 
 const Title = styled.h2`
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 700;
-  color: var(--white);
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.6s ease 0.1s;
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: 2rem;
+  color: var(--text-primary, #333);
+  margin-bottom: 3rem;
 `;
 
-const BarsContainer = styled.div`
+const Grid = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 2rem;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
-const BarItem = styled.div`
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateX(${p => p.$visible ? 0 : '-30px'});
-  transition: all 0.6s ease ${p => 0.2 + p.$index * 0.1}s;
-`;
-
-const BarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.75rem;
-`;
-
-const BarLabel = styled.span`
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--gray-400);
-`;
-
-const BarValue = styled.span`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: ${p => p.$color};
-`;
-
-const BarTrack = styled.div`
-  height: 12px;
-  background: var(--gray-800);
-  border: 2px solid var(--gray-600);
-  position: relative;
-  overflow: hidden;
-`;
-
-const BarFill = styled.div`
-  height: 100%;
-  background: ${p => p.$color};
-  width: ${p => p.$percentage}%;
-  transform-origin: left;
-  transform: scaleX(0);
-  ${p => p.$visible && css`animation: ${expand} 1s ease forwards ${0.3 + p.$index * 0.1}s;`}
-`;
-
-const CTASection = styled.div`
+const Unit = styled.div`
   text-align: center;
-  margin-top: 4rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.6s ease 0.6s;
+  min-width: 80px;
 `;
 
-const CTAButton = styled.a`
-  display: inline-block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--black);
-  background: var(--yellow);
-  padding: 1.25rem 3rem;
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
+const Number = styled.div`
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 400;
+  color: var(--accent, #8B9D83);
+  line-height: 1;
+`;
+
+const Label = styled.div`
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: var(--coral);
-    color: var(--white);
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--black);
-  }
+  letter-spacing: 0.15em;
+  color: var(--text-secondary, #666);
+  margin-top: 0.5rem;
 `;
 
-const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
-
-function Countdown({ weddingDate = '2025-08-15T14:00:00' }) {
-  const [visible, setVisible] = useState(false);
+function Countdown() {
+  const { content, weddingDate } = useWedding();
+  const countdown = content?.countdown || {};
+  
+  const targetDate = countdown.target_date || weddingDate || '2026-08-15T14:00:00';
+  
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const calculateTime = () => {
-      const difference = new Date(weddingDate) - new Date();
-      if (difference > 0) {
+      const target = new Date(targetDate).getTime();
+      const now = new Date().getTime();
+      const diff = target - now;
+
+      if (diff > 0) {
         setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((diff % (1000 * 60)) / 1000),
         });
       }
     };
-    calculateTime();
-    const timer = setInterval(calculateTime, 1000);
-    return () => clearInterval(timer);
-  }, [weddingDate]);
 
-  const bars = [
-    { label: 'Tage', value: timeLeft.days, max: 365, color: colors[0] },
-    { label: 'Stunden', value: timeLeft.hours, max: 24, color: colors[1] },
-    { label: 'Minuten', value: timeLeft.minutes, max: 60, color: colors[2] },
-    { label: 'Sekunden', value: timeLeft.seconds, max: 60, color: colors[3] },
-  ];
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
 
   return (
-    <Section ref={sectionRef}>
-      <BigNumber>{timeLeft.days}</BigNumber>
-      
-      <Container>
-        <Header>
-          <Eyebrow $visible={visible}>⏰ Countdown</Eyebrow>
-          <Title $visible={visible}>Time is ticking</Title>
-        </Header>
-        
-        <BarsContainer>
-          {bars.map((bar, i) => (
-            <BarItem key={i} $index={i} $visible={visible}>
-              <BarHeader>
-                <BarLabel>{bar.label}</BarLabel>
-                <BarValue $color={bar.color}>{String(bar.value).padStart(2, '0')}</BarValue>
-              </BarHeader>
-              <BarTrack>
-                <BarFill $color={bar.color} $percentage={(bar.value / bar.max) * 100} $index={i} $visible={visible} />
-              </BarTrack>
-            </BarItem>
-          ))}
-        </BarsContainer>
-        
-        <CTASection $visible={visible}>
-          <CTAButton href="#rsvp">Let's make it epic →</CTAButton>
-        </CTASection>
-      </Container>
+    <Section id="countdown">
+      <Title>{countdown.title || 'Noch'}</Title>
+      <Grid>
+        <Unit>
+          <Number>{timeLeft.days}</Number>
+          <Label>Tage</Label>
+        </Unit>
+        <Unit>
+          <Number>{timeLeft.hours}</Number>
+          <Label>Stunden</Label>
+        </Unit>
+        <Unit>
+          <Number>{timeLeft.minutes}</Number>
+          <Label>Minuten</Label>
+        </Unit>
+        <Unit>
+          <Number>{timeLeft.seconds}</Number>
+          <Label>Sekunden</Label>
+        </Unit>
+      </Grid>
     </Section>
   );
 }

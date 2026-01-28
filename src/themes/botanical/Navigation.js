@@ -1,3 +1,4 @@
+import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 

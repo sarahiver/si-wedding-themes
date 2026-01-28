@@ -1,86 +1,177 @@
+// WeddingPage.js - botanical Theme (Supabase integrated)
 import React from 'react';
 import { useWedding } from '../../context/WeddingContext';
-import Hero from './Hero';
+
 import Navigation from './Navigation';
+import Hero from './Hero';
 import Countdown from './Countdown';
 import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
 import Directions from './Directions';
-import RSVP from './RSVP';
-import Dresscode from './Dresscode';
 import Accommodations from './Accommodations';
-import Contact from './Contact';
+import RSVP from './RSVP';
 import Gallery from './Gallery';
-import Gifts from './Gifts';
 import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
+import Gifts from './Gifts';
+import Dresscode from './Dresscode';
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
+import Contact from './Contact';
+import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 
 function WeddingPage() {
   const { 
+    isComponentActive, 
+    content, 
     coupleNames, 
     weddingDate, 
-    isComponentActive, 
-    getContent,
-    slug
+    projectId, 
+    slug 
   } = useWedding();
-
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Olivia', 'Benjamin'];
   
+  // Parse couple names
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
+  const name1 = names[0];
+  const name2 = names[1];
+  
+  // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('de-DE', { 
+      day: 'numeric', month: 'long', year: 'numeric' 
+    });
   };
-
-  const heroContent = getContent('hero');
-  const countdownContent = getContent('countdown');
+  const formattedDate = formatDate(weddingDate);
+  
+  // Props for components
+  const heroProps = {
+    name1, name2,
+    date: formattedDate,
+    location: content?.hero?.location_short || '',
+    tagline: content?.hero?.tagline || 'Wir heiraten',
+    backgroundImage: content?.hero?.background_image || null,
+  };
 
   return (
     <>
-      <Navigation 
-        coupleNames={coupleNames} 
-        weddingDate={formatDate(weddingDate)}
+      <Navigation name1={name1} name2={name2} date={formattedDate} />
+      <main>
+        <Hero {...heroProps} />
+        {isComponentActive('countdown') && (
+          <Countdown 
+            targetDate={content?.countdown?.target_date || weddingDate} 
+            title={content?.countdown?.title}
+          />
+        )}
+        {isComponentActive('lovestory') && (
+          <LoveStory 
+            events={content?.lovestory?.events || []} 
+            title={content?.lovestory?.title}
+          />
+        )}
+        {isComponentActive('timeline') && (
+          <Timeline 
+            events={content?.timeline?.events || []} 
+            title={content?.timeline?.title}
+          />
+        )}
+        {isComponentActive('locations') && (
+          <Locations 
+            locations={content?.locations?.locations || []} 
+            title={content?.locations?.title}
+          />
+        )}
+        {isComponentActive('directions') && (
+          <Directions 
+            options={content?.directions?.options || []}
+            title={content?.directions?.title}
+            address={content?.directions?.address}
+          />
+        )}
+        {isComponentActive('accommodations') && (
+          <Accommodations 
+            hotels={content?.accommodations?.hotels || []} 
+            title={content?.accommodations?.title}
+          />
+        )}
+        {isComponentActive('dresscode') && (
+          <Dresscode 
+            title={content?.dresscode?.title}
+            code={content?.dresscode?.code}
+            description={content?.dresscode?.description}
+            colors={content?.dresscode?.colors || []}
+          />
+        )}
+        {isComponentActive('rsvp') && (
+          <RSVP 
+            projectId={projectId}
+            title={content?.rsvp?.title}
+            deadline={content?.rsvp?.deadline}
+          />
+        )}
+        {isComponentActive('gallery') && (
+          <Gallery 
+            images={content?.gallery?.images || []} 
+            title={content?.gallery?.title}
+          />
+        )}
+        {isComponentActive('photoupload') && (
+          <PhotoUpload 
+            projectId={projectId} 
+            slug={slug}
+            title={content?.photoupload?.title}
+          />
+        )}
+        {isComponentActive('guestbook') && (
+          <Guestbook 
+            projectId={projectId}
+            title={content?.guestbook?.title}
+          />
+        )}
+        {isComponentActive('musicwishes') && (
+          <MusicWishes 
+            projectId={projectId}
+            title={content?.musicwishes?.title}
+          />
+        )}
+        {isComponentActive('gifts') && (
+          <Gifts 
+            items={content?.gifts?.items || []}
+            title={content?.gifts?.title}
+            description={content?.gifts?.description}
+          />
+        )}
+        {isComponentActive('faq') && (
+          <FAQ 
+            items={content?.faq?.items || []} 
+            title={content?.faq?.title}
+          />
+        )}
+        {isComponentActive('weddingabc') && (
+          <WeddingABC 
+            entries={content?.weddingabc?.entries || []} 
+            title={content?.weddingabc?.title}
+          />
+        )}
+        {isComponentActive('witnesses') && (
+          <ContactWitnesses 
+            witnesses={content?.witnesses?.witnesses || []}
+            title={content?.witnesses?.title}
+          />
+        )}
+        {isComponentActive('contact') && (
+          <Contact />
+        )}
+      </main>
+      <Footer 
+        name1={name1} 
+        name2={name2}
+        hashtag={content?.footer?.hashtag}
       />
-      
-      <Hero 
-        name1={names[0]}
-        name2={names[1]}
-        date={formatDate(weddingDate)}
-        location={heroContent.location_short || ''}
-        eyebrow={heroContent.tagline || 'Wir heiraten'}
-        backgroundImage={heroContent.background_image}
-      />
-      
-      {isComponentActive('countdown') && (
-        <Countdown 
-          weddingDate={weddingDate}
-          title={countdownContent.title}
-          showSeconds={countdownContent.show_seconds}
-        />
-      )}
-      
-      {isComponentActive('lovestory') && <LoveStory content={getContent('lovestory')} />}
-      {isComponentActive('timeline') && <Timeline content={getContent('timeline')} />}
-      {isComponentActive('locations') && <Locations content={getContent('locations')} />}
-      {isComponentActive('directions') && <Directions content={getContent('directions')} />}
-      {isComponentActive('dresscode') && <Dresscode content={getContent('dresscode')} />}
-      {isComponentActive('accommodations') && <Accommodations content={getContent('accommodations')} />}
-      {isComponentActive('rsvp') && <RSVP content={getContent('rsvp')} />}
-      {isComponentActive('gallery') && <Gallery content={getContent('gallery')} />}
-      {isComponentActive('gifts') && <Gifts content={getContent('gifts')} />}
-      {isComponentActive('guestbook') && <Guestbook content={getContent('guestbook')} />}
-      {isComponentActive('musicwishes') && <MusicWishes content={getContent('musicwishes')} />}
-      {isComponentActive('photoupload') && <PhotoUpload content={getContent('photoupload')} />}
-      {isComponentActive('faq') && <FAQ content={getContent('faq')} />}
-      {isComponentActive('weddingabc') && <WeddingABC content={getContent('weddingabc')} />}
-      {isComponentActive('contact') && <Contact content={getContent('contact')} />}
-      
-      <Footer coupleNames={coupleNames} content={getContent('footer')} slug={slug} />
     </>
   );
 }
