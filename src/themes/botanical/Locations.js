@@ -1,162 +1,154 @@
-// Botanical Locations - Clean location cards
+// Botanical Locations - Locations in holes
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
+  position: relative;
+  background: var(--white);
+`;
+
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--cream-dark);
-  position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
-`;
-
-const Content = styled.div`
-  max-width: 800px;
-  width: 100%;
-`;
-
-const Header = styled.div`
   text-align: center;
-  margin-bottom: 2.5rem;
+  padding: 1.5rem 1rem;
+  overflow: hidden;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.3rem, 3vw, 2rem);
   font-weight: 300;
-  color: var(--forest-deep);
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-`;
-
-const LocationCard = styled.div`
-  background: var(--cream);
-  overflow: hidden;
-`;
-
-const CardImage = styled.div`
-  height: 160px;
-  background: ${p => p.$image 
-    ? `url(${p.$image}) center/cover` 
-    : 'var(--forest-light)'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-`;
-
-const CardBody = styled.div`
-  padding: 1.5rem;
+  color: var(--black);
+  margin-bottom: 0.75rem;
 `;
 
 const LocationType = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 0.5rem;
+  color: var(--light);
+  margin-bottom: 0.3rem;
 `;
 
 const LocationName = styled.h3`
   font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: var(--forest-deep);
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  color: var(--black);
+  margin-bottom: 0.4rem;
 `;
 
-const LocationAddress = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--bark-medium);
-  margin-bottom: 0.5rem;
-`;
-
-const LocationTime = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--bark-light);
-`;
-
-const MapButton = styled.a`
-  display: inline-block;
-  margin-top: 1rem;
+const Address = styled.p`
   font-family: var(--font-sans);
   font-size: 0.8rem;
+  color: var(--medium);
+  margin-bottom: 0.3rem;
+`;
+
+const Time = styled.p`
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--light);
+`;
+
+const MapLink = styled.a`
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--forest-deep);
-  border-bottom: 1px solid var(--forest-deep);
-  padding-bottom: 2px;
-  transition: opacity 0.3s ease;
+  color: var(--black);
+  border-bottom: 1px solid var(--black);
+  transition: opacity 0.3s;
   
-  &:hover {
-    opacity: 0.7;
-  }
+  &:hover { opacity: 0.6; }
+`;
+
+const Divider = styled.div`
+  width: 30px;
+  height: 1px;
+  background: var(--pale);
+  margin: 1rem 0;
 `;
 
 function Locations() {
   const { content } = useWedding();
+  const { mainHole, secondaryHoles } = useKnotholes();
   const locationsData = content?.locations || {};
   
   const title = locationsData.title || 'Locations';
   const locations = locationsData.locations || [];
 
   const defaultLocations = [
-    { type: 'Trauung', name: 'Waldkapelle am See', address: 'Waldweg 12, 12345 Naturstadt', time: '14:00 Uhr', image: '', emoji: '💒' },
-    { type: 'Feier', name: 'Gutshof Grüne Wiese', address: 'Landstraße 45, 12345 Naturstadt', time: 'ab 16:00 Uhr', image: '', emoji: '🏡' },
+    { type: 'Trauung', name: 'Standesamt Hamburg', address: 'Rathausmarkt 1', time: '14:00 Uhr', maps_url: '' },
+    { type: 'Feier', name: 'Gut Karlshöhe', address: 'Karlshöhe 60d', time: 'ab 16:00 Uhr', maps_url: '' },
   ];
 
   const items = locations.length > 0 ? locations : defaultLocations;
+  const hasSecondary = secondaryHoles.length > 0 && items.length > 1;
 
   return (
-    <Section id="locations" data-section="locations">
-      <Content>
-        <Header>
-          <Eyebrow>Wo wir feiern</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
+    <Section data-section="locations">
+      {/* Main hole */}
+      <HoleContent $hole={mainHole}>
+        <Eyebrow>Wo wir feiern</Eyebrow>
+        <Title>{title}</Title>
         
-        <Grid>
-          {items.map((location, index) => (
-            <LocationCard key={index}>
-              <CardImage $image={location.image}>
-                {!location.image && (location.emoji || '📍')}
-              </CardImage>
-              <CardBody>
-                <LocationType>{location.type}</LocationType>
-                <LocationName>{location.name}</LocationName>
-                <LocationAddress>{location.address}</LocationAddress>
-                {location.time && <LocationTime>{location.time}</LocationTime>}
-                {location.maps_url && (
-                  <MapButton href={location.maps_url} target="_blank">
-                    Route planen →
-                  </MapButton>
-                )}
-              </CardBody>
-            </LocationCard>
-          ))}
-        </Grid>
-      </Content>
+        <LocationType>{items[0]?.type}</LocationType>
+        <LocationName>{items[0]?.name}</LocationName>
+        <Address>{items[0]?.address}</Address>
+        {items[0]?.time && <Time>{items[0].time}</Time>}
+        {items[0]?.maps_url && (
+          <MapLink href={items[0].maps_url} target="_blank">Route →</MapLink>
+        )}
+        
+        {/* If no secondary hole, show both locations here */}
+        {!hasSecondary && items[1] && (
+          <>
+            <Divider />
+            <LocationType>{items[1].type}</LocationType>
+            <LocationName>{items[1].name}</LocationName>
+            <Address>{items[1].address}</Address>
+            {items[1].time && <Time>{items[1].time}</Time>}
+          </>
+        )}
+      </HoleContent>
+      
+      {/* Secondary hole: second location */}
+      {hasSecondary && (
+        <HoleContent $hole={secondaryHoles[0]}>
+          <LocationType>{items[1].type}</LocationType>
+          <LocationName>{items[1].name}</LocationName>
+          <Address>{items[1].address}</Address>
+          {items[1].time && <Time>{items[1].time}</Time>}
+          {items[1].maps_url && (
+            <MapLink href={items[1].maps_url} target="_blank">Route →</MapLink>
+          )}
+        </HoleContent>
+      )}
     </Section>
   );
 }

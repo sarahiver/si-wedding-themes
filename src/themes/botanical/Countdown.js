@@ -1,50 +1,66 @@
-// Botanical Countdown - Clean design for knothole view
+// Botanical Countdown - Content in holes
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
+  position: relative;
+  background: var(--white);
+`;
+
+// Main content in main hole
+const MainContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+`;
+
+// Secondary content in secondary holes
+const SecondaryContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cream);
-  position: relative;
-  scroll-snap-align: start;
-`;
-
-const Content = styled.div`
   text-align: center;
-  padding: 2rem;
+  padding: 0.5rem;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.75rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-weight: 300;
-  color: var(--forest-deep);
-  margin-bottom: 3rem;
+  color: var(--black);
+  margin-bottom: 1.5rem;
 `;
 
 const CountdownGrid = styled.div`
   display: flex;
   justify-content: center;
-  gap: clamp(1.5rem, 4vw, 3rem);
+  gap: clamp(1rem, 3vw, 2rem);
   flex-wrap: wrap;
 `;
 
@@ -54,32 +70,43 @@ const TimeUnit = styled.div`
 
 const Number = styled.div`
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 10vw, 6rem);
+  font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 300;
-  color: var(--forest-deep);
+  color: var(--black);
   line-height: 1;
-  margin-bottom: 0.5rem;
 `;
 
 const Label = styled.div`
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--bark-light);
+  color: var(--light);
+  margin-top: 0.3rem;
 `;
 
-const DateText = styled.p`
-  margin-top: 3rem;
+const SmallNumber = styled.div`
   font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-style: italic;
-  color: var(--forest-light);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 300;
+  color: var(--medium);
+  line-height: 1;
+`;
+
+const SmallLabel = styled.div`
+  font-family: var(--font-sans);
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--light);
+  margin-top: 0.25rem;
 `;
 
 function Countdown() {
   const { content, project } = useWedding();
+  const { mainHole, secondaryHoles } = useKnotholes();
   const countdownData = content?.countdown || {};
   
   const title = countdownData.title || 'Noch';
@@ -88,7 +115,7 @@ function Countdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    const calculate = () => {
       const target = new Date(targetDate).getTime();
       const now = new Date().getTime();
       const diff = target - now;
@@ -102,43 +129,47 @@ function Countdown() {
         });
       }
     };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    calculate();
+    const timer = setInterval(calculate, 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-
-  const timeUnits = [
-    { value: timeLeft.days, label: 'Tage' },
-    { value: timeLeft.hours, label: 'Stunden' },
-    { value: timeLeft.minutes, label: 'Minuten' },
-    { value: timeLeft.seconds, label: 'Sekunden' },
-  ];
-
   return (
-    <Section id="countdown" data-section="countdown">
-      <Content>
+    <Section data-section="countdown">
+      {/* Main hole: Days and Hours */}
+      <MainContent $hole={mainHole}>
         <Eyebrow>Es dauert nicht mehr lange</Eyebrow>
         <Title>{title}</Title>
-        
         <CountdownGrid>
-          {timeUnits.map((unit) => (
-            <TimeUnit key={unit.label}>
-              <Number>{String(unit.value).padStart(2, '0')}</Number>
-              <Label>{unit.label}</Label>
-            </TimeUnit>
-          ))}
+          <TimeUnit>
+            <Number>{String(timeLeft.days).padStart(2, '0')}</Number>
+            <Label>Tage</Label>
+          </TimeUnit>
+          <TimeUnit>
+            <Number>{String(timeLeft.hours).padStart(2, '0')}</Number>
+            <Label>Stunden</Label>
+          </TimeUnit>
         </CountdownGrid>
-        
-        <DateText>bis zum {formattedDate}</DateText>
-      </Content>
+      </MainContent>
+      
+      {/* Secondary holes: Minutes and Seconds */}
+      {secondaryHoles[0] && (
+        <SecondaryContent $hole={secondaryHoles[0]}>
+          <TimeUnit>
+            <SmallNumber>{String(timeLeft.minutes).padStart(2, '0')}</SmallNumber>
+            <SmallLabel>Min</SmallLabel>
+          </TimeUnit>
+        </SecondaryContent>
+      )}
+      
+      {secondaryHoles[1] && (
+        <SecondaryContent $hole={secondaryHoles[1]}>
+          <TimeUnit>
+            <SmallNumber>{String(timeLeft.seconds).padStart(2, '0')}</SmallNumber>
+            <SmallLabel>Sek</SmallLabel>
+          </TimeUnit>
+        </SecondaryContent>
+      )}
     </Section>
   );
 }

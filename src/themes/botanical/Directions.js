@@ -1,145 +1,136 @@
-// Botanical Directions - Clean layout
+// Botanical Directions - Directions in hole
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
+  position: relative;
+  background: var(--white);
+`;
+
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--cream);
-  position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
-`;
-
-const Content = styled.div`
-  max-width: 600px;
-  width: 100%;
-`;
-
-const Header = styled.div`
+  padding: 1.5rem 1rem;
   text-align: center;
-  margin-bottom: 2.5rem;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
   font-weight: 300;
-  color: var(--forest-deep);
+  color: var(--black);
+  margin-bottom: 1rem;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 500px) {
-    grid-template-columns: 1fr;
-  }
+const InfoGrid = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 1rem;
 `;
 
-const Card = styled.div`
-  background: ${p => p.$dark ? 'var(--forest-deep)' : 'var(--cream-dark)'};
-  padding: 1.5rem;
+const InfoCard = styled.div`
+  flex: 1;
+  background: ${p => p.$dark ? 'var(--dark)' : 'var(--off-white)'};
+  padding: 0.75rem;
+  text-align: left;
 `;
 
-const CardTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: ${p => p.$dark ? 'var(--cream)' : 'var(--forest-deep)'};
-  margin-bottom: 0.75rem;
-`;
-
-const CardText = styled.p`
+const InfoTitle = styled.h3`
   font-family: var(--font-sans);
-  font-size: 0.9rem;
-  color: ${p => p.$dark ? 'var(--forest-mist)' : 'var(--bark-medium)'};
-  line-height: 1.6;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: ${p => p.$dark ? 'var(--pale)' : 'var(--light)'};
+  margin-bottom: 0.4rem;
 `;
 
-const AddressCard = styled.div`
-  text-align: center;
-  padding: 2rem;
-  background: var(--cream-dark);
+const InfoText = styled.p`
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: ${p => p.$dark ? 'var(--off-white)' : 'var(--medium)'};
+  line-height: 1.5;
 `;
 
 const Address = styled.p`
   font-family: var(--font-sans);
-  font-size: 1rem;
-  color: var(--bark-medium);
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--medium);
+  margin-bottom: 1rem;
 `;
 
-const MapsButton = styled.a`
+const MapsBtn = styled.a`
   display: inline-block;
-  padding: 1rem 2rem;
+  padding: 0.75rem 1.5rem;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--forest-deep);
-  color: var(--cream);
-  transition: background 0.3s ease;
+  background: var(--black);
+  color: var(--white);
   
-  &:hover {
-    background: var(--forest-main);
-  }
+  &:hover { opacity: 0.8; }
 `;
 
 function Directions() {
   const { content } = useWedding();
+  const { mainHole } = useKnotholes();
   const data = content?.directions || {};
   
   const title = data.title || 'Anfahrt';
   const address = data.address || 'Waldweg 12, 12345 Naturstadt';
-  const parkingInfo = data.parking_info || 'Kostenlose Parkplätze vor Ort.';
-  const publicTransport = data.public_transport || 'Bus 123 bis Haltestelle Waldkapelle.';
+  const parking = data.parking_info || 'Kostenlose Parkplätze vor Ort.';
+  const publicTransport = data.public_transport || 'Bus 123 bis Waldkapelle.';
 
   return (
-    <Section id="directions" data-section="directions">
-      <Content>
-        <Header>
-          <Eyebrow>So kommt ihr hin</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
+    <Section data-section="directions">
+      <HoleContent $hole={mainHole}>
+        <Eyebrow>So kommt ihr hin</Eyebrow>
+        <Title>{title}</Title>
         
-        <Grid>
-          <Card $dark>
-            <CardTitle $dark>Mit dem Auto</CardTitle>
-            <CardText $dark>{parkingInfo}</CardText>
-          </Card>
-          <Card>
-            <CardTitle>ÖPNV</CardTitle>
-            <CardText>{publicTransport}</CardText>
-          </Card>
-        </Grid>
+        <InfoGrid>
+          <InfoCard $dark>
+            <InfoTitle $dark>Auto</InfoTitle>
+            <InfoText $dark>{parking}</InfoText>
+          </InfoCard>
+          <InfoCard>
+            <InfoTitle>ÖPNV</InfoTitle>
+            <InfoText>{publicTransport}</InfoText>
+          </InfoCard>
+        </InfoGrid>
         
-        <AddressCard>
-          <Address>{address}</Address>
-          <MapsButton 
-            href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
-            target="_blank"
-          >
-            In Google Maps öffnen
-          </MapsButton>
-        </AddressCard>
-      </Content>
+        <Address>{address}</Address>
+        
+        <MapsBtn 
+          href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+          target="_blank"
+        >
+          Google Maps
+        </MapsBtn>
+      </HoleContent>
     </Section>
   );
 }

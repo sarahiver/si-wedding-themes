@@ -1,77 +1,81 @@
-// Botanical Contact - Clean privacy protected
+// Botanical Contact - Contact info in hole
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--cream-dark);
   position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
+  background: var(--white);
 `;
 
-const Content = styled.div`
-  max-width: 400px;
-  width: 100%;
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
   text-align: center;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
   font-weight: 300;
-  color: var(--forest-deep);
+  color: var(--black);
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  color: var(--bark-medium);
-  margin-bottom: 2rem;
+  font-size: 0.85rem;
+  color: var(--medium);
+  margin-bottom: 1.5rem;
 `;
 
-const Card = styled.div`
-  background: var(--cream);
-  padding: 2rem;
+const ButtonsStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 200px;
 `;
 
-const ContactButton = styled.a`
+const ContactBtn = styled.a`
   display: block;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  background: var(--cream-dark);
-  color: var(--forest-deep);
-  margin-bottom: 0.75rem;
-  transition: background 0.3s ease;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+  background: var(--off-white);
+  color: var(--dark);
+  text-align: center;
+  transition: background 0.2s;
   
   &:hover {
-    background: var(--forest-mist);
+    background: var(--pale);
   }
 `;
 
 function Contact() {
   const { project, content } = useWedding();
+  const { mainHole } = useKnotholes();
   const contactData = content?.contact || {};
   
   const title = contactData.title || 'Kontakt';
@@ -79,25 +83,25 @@ function Contact() {
   const phone = contactData.couple_phone || project?.couple_phone;
 
   return (
-    <Section id="contact" data-section="contact">
-      <Content>
+    <Section data-section="contact">
+      <HoleContent $hole={mainHole}>
         <Eyebrow>Fragen?</Eyebrow>
         <Title>{title}</Title>
         <Subtitle>Wir sind für euch da</Subtitle>
         
-        <Card>
+        <ButtonsStack>
           {email && (
-            <ContactButton href={`mailto:${email}`}>
+            <ContactBtn href={`mailto:${email}`}>
               E-Mail schreiben
-            </ContactButton>
+            </ContactBtn>
           )}
           {phone && (
-            <ContactButton href={`tel:${phone.replace(/\s/g, '')}`}>
+            <ContactBtn href={`tel:${phone.replace(/\s/g, '')}`}>
               Anrufen
-            </ContactButton>
+            </ContactBtn>
           )}
-        </Card>
-      </Content>
+        </ButtonsStack>
+      </HoleContent>
     </Section>
   );
 }

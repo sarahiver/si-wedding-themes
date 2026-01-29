@@ -1,244 +1,161 @@
-// Botanical RSVP - Clean form with multi-person support
+// Botanical RSVP - Form in hole
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 import { useRSVP } from '../../components/shared/RSVPCore';
 
 const Section = styled.section`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--cream);
   position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
+  background: var(--white);
 `;
 
-const Content = styled.div`
-  max-width: 500px;
-  width: 100%;
-`;
-
-const Header = styled.div`
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   text-align: center;
-  margin-bottom: 2.5rem;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar { width: 2px; }
+  &::-webkit-scrollbar-thumb { background: var(--pale); }
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.4rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
   font-weight: 300;
-  color: var(--forest-deep);
-`;
-
-const Subtitle = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
-  color: var(--bark-medium);
-  margin-top: 0.5rem;
+  color: var(--black);
+  margin-bottom: 1rem;
 `;
 
 const Form = styled.form`
+  width: 100%;
+  max-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-`;
-
-const FormGroup = styled.div``;
-
-const Label = styled.label`
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--bark-medium);
-  margin-bottom: 0.5rem;
+  gap: 0.6rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem;
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  background: var(--warm-white);
-  border: 1px solid var(--cream-dark);
-  color: var(--soft-black);
-  transition: border-color 0.3s ease;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--pale);
+  background: var(--white);
   
   &:focus {
     outline: none;
-    border-color: var(--forest-light);
+    border-color: var(--dark);
   }
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 1rem;
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  background: var(--warm-white);
-  border: 1px solid var(--cream-dark);
-  color: var(--soft-black);
+  padding: 0.7rem 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--pale);
+  background: var(--white);
   cursor: pointer;
   
   &:focus {
     outline: none;
-    border-color: var(--forest-light);
+    border-color: var(--dark);
   }
+`;
+
+const AttendanceRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+`;
+
+const AttendanceBtn = styled.button`
+  padding: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: ${p => p.$selected ? 'var(--black)' : 'var(--white)'};
+  color: ${p => p.$selected ? 'var(--white)' : 'var(--medium)'};
+  border: 1px solid ${p => p.$selected ? 'var(--black)' : 'var(--pale)'};
+  cursor: pointer;
+  transition: all 0.2s;
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 1rem;
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  background: var(--warm-white);
-  border: 1px solid var(--cream-dark);
-  color: var(--soft-black);
-  min-height: 100px;
-  resize: vertical;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--pale);
+  background: var(--white);
+  min-height: 60px;
+  resize: none;
   
   &:focus {
     outline: none;
-    border-color: var(--forest-light);
+    border-color: var(--dark);
   }
 `;
 
-const AttendanceChoice = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-`;
-
-const AttendanceButton = styled.button`
-  padding: 1.25rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: ${p => p.$selected ? 'var(--forest-deep)' : 'var(--warm-white)'};
-  color: ${p => p.$selected ? 'var(--cream)' : 'var(--bark-medium)'};
-  border: 1px solid ${p => p.$selected ? 'var(--forest-deep)' : 'var(--cream-dark)'};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--forest-light);
-  }
-`;
-
-const GuestSection = styled.div`
-  padding-top: 1rem;
-  border-top: 1px solid var(--cream-dark);
-`;
-
-const GuestCard = styled.div`
-  background: var(--warm-white);
-  padding: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const GuestHeader = styled.p`
+const SubmitBtn = styled.button`
+  width: 100%;
+  padding: 0.8rem;
   font-family: var(--font-sans);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--forest-light);
-  margin-bottom: 0.75rem;
-`;
-
-const GuestFields = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  
-  @media (max-width: 400px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const SmallInput = styled(Input)`
-  padding: 0.75rem;
-  font-size: 0.9rem;
-`;
-
-const SmallSelect = styled(Select)`
-  padding: 0.75rem;
-  font-size: 0.9rem;
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 1.25rem;
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--forest-deep);
-  color: var(--cream);
+  background: var(--black);
+  color: var(--white);
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
+  transition: opacity 0.3s;
   
-  &:hover:not(:disabled) {
-    background: var(--forest-main);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  &:hover:not(:disabled) { opacity: 0.8; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 `;
 
-const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 1rem;
-  font-size: 0.9rem;
+const SuccessMsg = styled.div`
   text-align: center;
-`;
-
-const SuccessCard = styled.div`
-  text-align: center;
-  padding: 3rem 1rem;
+  padding: 2rem 1rem;
 `;
 
 const SuccessTitle = styled.h3`
   font-family: var(--font-serif);
-  font-size: 2rem;
-  font-weight: 400;
-  color: var(--forest-deep);
+  font-size: 1.5rem;
+  color: var(--black);
   margin-bottom: 0.5rem;
 `;
 
 const SuccessText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  color: var(--bark-medium);
+  font-size: 0.9rem;
+  color: var(--medium);
 `;
 
 function RSVP() {
   const { content } = useWedding();
+  const { mainHole } = useKnotholes();
   const rsvpData = content?.rsvp || {};
   
   const title = rsvpData.title || 'Zusagen';
-  const description = rsvpData.description || 'Wir freuen uns auf eure Antwort';
-  const askDietary = rsvpData.ask_dietary !== false;
-  const askAllergies = rsvpData.ask_allergies !== false;
   
   const {
     formData,
@@ -249,178 +166,85 @@ function RSVP() {
     submit,
   } = useRSVP();
 
-  const handlePersonsChange = (newCount) => {
-    updateField('persons', newCount);
-    const currentGuests = formData.guests || [];
-    if (newCount > currentGuests.length) {
-      const newGuests = [...currentGuests];
-      for (let i = currentGuests.length; i < newCount; i++) {
-        newGuests.push({ name: '', dietary: '', allergies: '' });
-      }
-      updateField('guests', newGuests);
-    } else {
-      updateField('guests', currentGuests.slice(0, newCount));
-    }
-  };
-
-  const updateGuest = (index, field, value) => {
-    const newGuests = [...(formData.guests || [])];
-    if (!newGuests[index]) newGuests[index] = { name: '', dietary: '', allergies: '' };
-    newGuests[index] = { ...newGuests[index], [field]: value };
-    updateField('guests', newGuests);
-  };
-
   const canSubmit = formData.name && formData.email && formData.attending !== null;
 
   if (submitted) {
     return (
-      <Section id="rsvp" data-section="rsvp">
-        <Content>
-          <SuccessCard>
-            <SuccessTitle>
-              {formData.attending ? 'Wunderbar!' : 'Schade!'}
-            </SuccessTitle>
+      <Section data-section="rsvp">
+        <HoleContent $hole={mainHole}>
+          <SuccessMsg>
+            <SuccessTitle>{formData.attending ? 'Wunderbar!' : 'Schade!'}</SuccessTitle>
             <SuccessText>
-              {formData.attending 
-                ? 'Wir freuen uns sehr auf euch.' 
-                : 'Danke für die Rückmeldung.'}
+              {formData.attending ? 'Wir freuen uns auf euch.' : 'Danke für die Rückmeldung.'}
             </SuccessText>
-          </SuccessCard>
-        </Content>
+          </SuccessMsg>
+        </HoleContent>
       </Section>
     );
   }
 
   return (
-    <Section id="rsvp" data-section="rsvp">
-      <Content>
-        <Header>
-          <Eyebrow>Seid ihr dabei?</Eyebrow>
-          <Title>{title}</Title>
-          <Subtitle>{description}</Subtitle>
-        </Header>
+    <Section data-section="rsvp">
+      <HoleContent $hole={mainHole}>
+        <Eyebrow>Seid ihr dabei?</Eyebrow>
+        <Title>{title}</Title>
         
         <Form onSubmit={(e) => { e.preventDefault(); submit(); }}>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <Input
+            type="text"
+            value={formData.name}
+            onChange={e => updateField('name', e.target.value)}
+            placeholder="Name"
+          />
           
-          <FormGroup>
-            <Label>Name</Label>
-            <Input
-              type="text"
-              value={formData.name}
-              onChange={e => updateField('name', e.target.value)}
-              placeholder="Vor- und Nachname"
-            />
-          </FormGroup>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={e => updateField('email', e.target.value)}
+            placeholder="E-Mail"
+          />
           
-          <FormGroup>
-            <Label>E-Mail</Label>
-            <Input
-              type="email"
-              value={formData.email}
-              onChange={e => updateField('email', e.target.value)}
-              placeholder="eure@email.de"
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Könnt ihr kommen?</Label>
-            <AttendanceChoice>
-              <AttendanceButton
-                type="button"
-                $selected={formData.attending === true}
-                onClick={() => updateField('attending', true)}
-              >
-                Ja, gerne
-              </AttendanceButton>
-              <AttendanceButton
-                type="button"
-                $selected={formData.attending === false}
-                onClick={() => updateField('attending', false)}
-              >
-                Leider nicht
-              </AttendanceButton>
-            </AttendanceChoice>
-          </FormGroup>
+          <AttendanceRow>
+            <AttendanceBtn
+              type="button"
+              $selected={formData.attending === true}
+              onClick={() => updateField('attending', true)}
+            >
+              Ja, gerne
+            </AttendanceBtn>
+            <AttendanceBtn
+              type="button"
+              $selected={formData.attending === false}
+              onClick={() => updateField('attending', false)}
+            >
+              Leider nicht
+            </AttendanceBtn>
+          </AttendanceRow>
           
           {formData.attending && (
-            <>
-              <FormGroup>
-                <Label>Anzahl Personen</Label>
-                <Select
-                  value={formData.persons}
-                  onChange={e => handlePersonsChange(parseInt(e.target.value))}
-                >
-                  {[1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </Select>
-              </FormGroup>
-              
-              {(askDietary || askAllergies) && formData.persons > 1 && (
-                <GuestSection>
-                  {Array.from({ length: formData.persons }, (_, i) => {
-                    const guest = formData.guests?.[i] || {};
-                    return (
-                      <GuestCard key={i}>
-                        <GuestHeader>Person {i + 1}{i === 0 ? ' (du)' : ''}</GuestHeader>
-                        <GuestFields>
-                          {i > 0 && (
-                            <SmallInput
-                              type="text"
-                              value={guest.name || ''}
-                              onChange={e => updateGuest(i, 'name', e.target.value)}
-                              placeholder="Name"
-                            />
-                          )}
-                          {askDietary && (
-                            <SmallSelect
-                              value={i === 0 ? formData.dietary : guest.dietary || ''}
-                              onChange={e => i === 0 
-                                ? updateField('dietary', e.target.value)
-                                : updateGuest(i, 'dietary', e.target.value)
-                              }
-                            >
-                              <option value="">Ernährung...</option>
-                              <option value="normal">Keine Einschränkungen</option>
-                              <option value="vegetarisch">Vegetarisch</option>
-                              <option value="vegan">Vegan</option>
-                            </SmallSelect>
-                          )}
-                          {askAllergies && (
-                            <SmallInput
-                              type="text"
-                              value={i === 0 ? formData.allergies : guest.allergies || ''}
-                              onChange={e => i === 0
-                                ? updateField('allergies', e.target.value)
-                                : updateGuest(i, 'allergies', e.target.value)
-                              }
-                              placeholder="Allergien..."
-                            />
-                          )}
-                        </GuestFields>
-                      </GuestCard>
-                    );
-                  })}
-                </GuestSection>
-              )}
-            </>
+            <Select
+              value={formData.persons}
+              onChange={e => updateField('persons', parseInt(e.target.value))}
+            >
+              {[1, 2, 3, 4, 5].map(n => (
+                <option key={n} value={n}>{n} Person{n > 1 ? 'en' : ''}</option>
+              ))}
+            </Select>
           )}
           
-          <FormGroup>
-            <Label>Nachricht (optional)</Label>
-            <TextArea
-              value={formData.message}
-              onChange={e => updateField('message', e.target.value)}
-              placeholder="Möchtet ihr uns noch etwas mitteilen?"
-            />
-          </FormGroup>
+          <TextArea
+            value={formData.message}
+            onChange={e => updateField('message', e.target.value)}
+            placeholder="Nachricht (optional)"
+          />
           
-          <SubmitButton type="submit" disabled={!canSubmit || submitting}>
-            {submitting ? 'Wird gesendet...' : 'Absenden'}
-          </SubmitButton>
+          <SubmitBtn type="submit" disabled={!canSubmit || submitting}>
+            {submitting ? 'Senden...' : 'Absenden'}
+          </SubmitBtn>
+          
+          {error && <p style={{ color: '#c00', fontSize: '0.75rem' }}>{error}</p>}
         </Form>
-      </Content>
+      </HoleContent>
     </Section>
   );
 }

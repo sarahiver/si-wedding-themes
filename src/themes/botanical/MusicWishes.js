@@ -1,217 +1,192 @@
-// Botanical MusicWishes - Clean song request form
+// Botanical MusicWishes - Compact form in hole
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 import { submitMusicWish } from '../../lib/supabase';
 
 const Section = styled.section`
   min-height: 100vh;
+  position: relative;
+  background: var(--white);
+`;
+
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--cream-dark);
-  position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
-`;
-
-const Content = styled.div`
-  max-width: 450px;
-  width: 100%;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
+  padding: 1.5rem 1rem;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
   font-weight: 300;
-  color: var(--forest-deep);
+  color: var(--black);
+  margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.9rem;
-  color: var(--bark-medium);
-  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--medium);
+  margin-bottom: 1rem;
+  text-align: center;
 `;
 
 const Form = styled.form`
+  width: 100%;
+  max-width: 260px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem;
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  background: var(--warm-white);
-  border: 1px solid var(--cream);
-  color: var(--soft-black);
-  
-  &:focus {
-    outline: none;
-    border-color: var(--forest-light);
-  }
+  padding: 0.65rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--pale);
+  background: var(--white);
+  &:focus { outline: none; border-color: var(--dark); }
 `;
 
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 1.25rem;
+const SubmitBtn = styled.button`
+  padding: 0.75rem;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--forest-deep);
-  color: var(--cream);
+  background: var(--black);
+  color: var(--white);
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
-  
-  &:hover:not(:disabled) {
-    background: var(--forest-main);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-  }
+  &:disabled { opacity: 0.4; }
 `;
 
-const SuccessMessage = styled.div`
+const SuccessMsg = styled.div`
   text-align: center;
-  padding: 2rem;
 `;
 
 const SuccessTitle = styled.h3`
   font-family: var(--font-serif);
-  font-size: 1.75rem;
-  color: var(--forest-deep);
-  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  color: var(--black);
+  margin-bottom: 0.3rem;
 `;
 
 const SuccessText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  color: var(--bark-medium);
+  font-size: 0.85rem;
+  color: var(--medium);
+  margin-bottom: 1rem;
 `;
 
-const ResetButton = styled.button`
-  margin-top: 1.5rem;
-  padding: 0.75rem 1.5rem;
+const ResetBtn = styled.button`
   font-family: var(--font-sans);
-  font-size: 0.8rem;
-  background: transparent;
-  border: 1px solid var(--bark-light);
-  color: var(--bark-medium);
+  font-size: 0.75rem;
+  color: var(--medium);
+  background: none;
+  border: none;
+  text-decoration: underline;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--forest-light);
-    color: var(--forest-deep);
-  }
 `;
 
 function MusicWishes() {
   const { project, content } = useWedding();
+  const { mainHole } = useKnotholes();
   const musicData = content?.musicwishes || {};
   
   const title = musicData.title || 'Musikwünsche';
   const description = musicData.description || 'Welcher Song bringt euch auf die Tanzfläche?';
   
-  const [formData, setFormData] = useState({ name: '', song: '', artist: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({ name: '', song: '', artist: '' });
+  const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.song || !project?.id) return;
+    if (!form.name || !form.song || !project?.id) return;
     
-    setIsSubmitting(true);
+    setSubmitting(true);
     try {
       await submitMusicWish(project.id, {
-        name: formData.name,
-        song_title: formData.song,
-        artist: formData.artist
+        name: form.name,
+        song_title: form.song,
+        artist: form.artist
       });
       setSuccess(true);
     } catch (err) {
       console.error(err);
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  const handleReset = () => {
+  const reset = () => {
     setSuccess(false);
-    setFormData({ name: '', song: '', artist: '' });
+    setForm({ name: '', song: '', artist: '' });
   };
 
-  if (success) {
-    return (
-      <Section id="music" data-section="music">
-        <Content>
-          <SuccessMessage>
-            <SuccessTitle>Danke!</SuccessTitle>
-            <SuccessText>Dein Musikwunsch wurde gespeichert.</SuccessText>
-            <ResetButton onClick={handleReset}>Noch einen Song?</ResetButton>
-          </SuccessMessage>
-        </Content>
-      </Section>
-    );
-  }
-
   return (
-    <Section id="music" data-section="music">
-      <Content>
-        <Header>
-          <Eyebrow>Musik</Eyebrow>
-          <Title>{title}</Title>
-          <Subtitle>{description}</Subtitle>
-        </Header>
-        
-        <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Dein Name"
-            required
-          />
-          <Input
-            type="text"
-            value={formData.song}
-            onChange={e => setFormData({ ...formData, song: e.target.value })}
-            placeholder="Song-Titel"
-            required
-          />
-          <Input
-            type="text"
-            value={formData.artist}
-            onChange={e => setFormData({ ...formData, artist: e.target.value })}
-            placeholder="Künstler (optional)"
-          />
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Wird gesendet...' : 'Absenden'}
-          </SubmitButton>
-        </Form>
-      </Content>
+    <Section data-section="music">
+      <HoleContent $hole={mainHole}>
+        {success ? (
+          <SuccessMsg>
+            <SuccessTitle>Danke!</SuccessTitle>
+            <SuccessText>Dein Wunsch wurde gespeichert.</SuccessText>
+            <ResetBtn onClick={reset}>Noch einen Song?</ResetBtn>
+          </SuccessMsg>
+        ) : (
+          <>
+            <Eyebrow>Musik</Eyebrow>
+            <Title>{title}</Title>
+            <Subtitle>{description}</Subtitle>
+            
+            <Form onSubmit={handleSubmit}>
+              <Input
+                type="text"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                placeholder="Dein Name"
+                required
+              />
+              <Input
+                type="text"
+                value={form.song}
+                onChange={e => setForm({ ...form, song: e.target.value })}
+                placeholder="Song-Titel"
+                required
+              />
+              <Input
+                type="text"
+                value={form.artist}
+                onChange={e => setForm({ ...form, artist: e.target.value })}
+                placeholder="Künstler (optional)"
+              />
+              <SubmitBtn type="submit" disabled={submitting}>
+                {submitting ? 'Senden...' : 'Absenden'}
+              </SubmitBtn>
+            </Form>
+          </>
+        )}
+      </HoleContent>
     </Section>
   );
 }

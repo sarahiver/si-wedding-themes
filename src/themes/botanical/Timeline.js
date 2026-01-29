@@ -1,135 +1,157 @@
-// Botanical Timeline - Clean day schedule
+// Botanical Timeline - Schedule fits in holes
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--cream-dark);
   position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
+  background: var(--white);
 `;
 
-const Content = styled.div`
-  max-width: 700px;
-  width: 100%;
-`;
-
-const Header = styled.div`
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   text-align: center;
-  margin-bottom: 3rem;
+  padding: 1.5rem 1rem;
+  overflow: hidden;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-light);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
   font-weight: 300;
-  color: var(--forest-deep);
+  color: var(--black);
+  margin-bottom: 1rem;
 `;
 
-const Events = styled.div`
+const EventsList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  width: 100%;
+  max-height: 75%;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar { width: 2px; }
+  &::-webkit-scrollbar-thumb { background: var(--pale); }
 `;
 
 const Event = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 2rem;
-  align-items: start;
-  padding: 1.5rem 0;
-  border-bottom: 1px solid var(--cream);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--off-white);
   
-  &:last-child {
-    border-bottom: none;
-  }
+  &:last-child { border-bottom: none; }
 `;
 
 const Time = styled.div`
   font-family: var(--font-serif);
-  font-size: 1.75rem;
+  font-size: 1.1rem;
   font-weight: 400;
-  color: var(--forest-deep);
-  min-width: 80px;
+  color: var(--black);
+  min-width: 50px;
+  flex-shrink: 0;
 `;
 
-const EventContent = styled.div``;
+const EventContent = styled.div`
+  flex: 1;
+`;
 
 const EventTitle = styled.h3`
   font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: var(--forest-deep);
-  margin-bottom: 0.25rem;
+  color: var(--black);
+  margin-bottom: 0.1rem;
 `;
 
 const EventLocation = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--bark-light);
-  margin-bottom: 0.5rem;
+  color: var(--light);
 `;
 
-const EventDescription = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
-  color: var(--bark-medium);
-  line-height: 1.6;
+// Small decorative content for secondary hole
+const SmallContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--pale);
 `;
 
 function Timeline() {
   const { content } = useWedding();
+  const { mainHole, secondaryHoles } = useKnotholes();
   const timelineData = content?.timeline || {};
   
   const title = timelineData.title || 'Der Tag';
   const events = timelineData.events || [];
 
   const defaultEvents = [
-    { time: '14:00', title: 'Trauung', location: 'Waldkapelle', description: 'Die Zeremonie im Grünen.' },
-    { time: '15:30', title: 'Sektempfang', location: 'Lichtung', description: 'Stoßt mit uns an!' },
-    { time: '17:00', title: 'Dinner', location: 'Scheune', description: 'Ein festliches Menü.' },
-    { time: '20:00', title: 'Tanz', location: 'Festsaal', description: 'Lasst uns feiern!' },
+    { time: '14:00', title: 'Trauung', location: 'Standesamt' },
+    { time: '15:30', title: 'Sektempfang', location: 'Terrasse' },
+    { time: '17:00', title: 'Gruppenfotos', location: 'Garten' },
+    { time: '18:30', title: 'Dinner', location: 'Festsaal' },
+    { time: '21:00', title: 'Eröffnungstanz', location: 'Tanzfläche' },
+    { time: '22:00', title: 'Party', location: 'Festsaal' },
   ];
 
   const items = events.length > 0 ? events : defaultEvents;
 
   return (
-    <Section id="timeline" data-section="timeline">
-      <Content>
-        <Header>
-          <Eyebrow>Der Ablauf</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
-        
-        <Events>
-          {items.map((item, index) => (
-            <Event key={index}>
+    <Section data-section="timeline">
+      <HoleContent $hole={mainHole}>
+        <Eyebrow>Der Ablauf</Eyebrow>
+        <Title>{title}</Title>
+        <EventsList>
+          {items.map((item, i) => (
+            <Event key={i}>
               <Time>{item.time}</Time>
               <EventContent>
                 <EventTitle>{item.title}</EventTitle>
                 {item.location && <EventLocation>{item.location}</EventLocation>}
-                {item.description && <EventDescription>{item.description}</EventDescription>}
               </EventContent>
             </Event>
           ))}
-        </Events>
-      </Content>
+        </EventsList>
+      </HoleContent>
+      
+      {/* Small decorative element in secondary hole */}
+      {secondaryHoles[0] && (
+        <SmallContent $hole={secondaryHoles[0]}>
+          ♡
+        </SmallContent>
+      )}
     </Section>
   );
 }

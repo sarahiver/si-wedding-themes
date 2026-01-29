@@ -1,176 +1,173 @@
-// Botanical WeddingABC - Clean letter navigation
+// Botanical WeddingABC - Letters in hole
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useKnotholes } from './KnotholeOverlay';
 
 const Section = styled.section`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--forest-deep);
   position: relative;
-  scroll-snap-align: start;
-  padding: 4rem 2rem;
+  background: var(--white);
 `;
 
-const Content = styled.div`
-  max-width: 700px;
-  width: 100%;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
+const HoleContent = styled.div`
+  position: absolute;
+  left: ${p => p.$hole.x}%;
+  top: ${p => p.$hole.y}%;
+  width: ${p => p.$hole.width}%;
+  height: ${p => p.$hole.height}%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem 0.75rem;
+  overflow: hidden;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--forest-mist);
-  margin-bottom: 1rem;
+  color: var(--light);
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
   font-weight: 300;
-  color: var(--cream);
+  color: var(--black);
+  margin-bottom: 0.75rem;
 `;
 
-const LettersGrid = styled.div`
+const LetterGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
 `;
 
 const Letter = styled.button`
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-serif);
-  font-size: 1.1rem;
-  background: ${p => p.$active ? 'var(--gold)' : p.$hasContent ? 'var(--forest-light)' : 'transparent'};
-  color: ${p => p.$active || p.$hasContent ? 'var(--cream)' : 'var(--forest-light)'};
-  border: 1px solid ${p => p.$hasContent ? 'var(--forest-light)' : 'var(--forest-main)'};
-  cursor: ${p => p.$hasContent ? 'pointer' : 'default'};
-  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  background: ${p => p.$active ? 'var(--black)' : p.$has ? 'var(--off-white)' : 'transparent'};
+  color: ${p => p.$active ? 'var(--white)' : p.$has ? 'var(--black)' : 'var(--pale)'};
+  border: 1px solid ${p => p.$has || p.$active ? 'var(--pale)' : 'transparent'};
+  cursor: ${p => p.$has ? 'pointer' : 'default'};
+  transition: all 0.2s;
   
   &:hover {
-    ${p => p.$hasContent && `
-      background: var(--gold);
-      border-color: var(--gold);
-    `}
+    ${p => p.$has && !p.$active && 'background: var(--pale);'}
   }
 `;
 
 const ContentPanel = styled.div`
-  background: var(--cream);
-  padding: 2rem;
-  min-height: 150px;
+  width: 100%;
+  flex: 1;
+  background: var(--off-white);
+  padding: 1rem;
+  text-align: left;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar { width: 2px; }
+  &::-webkit-scrollbar-thumb { background: var(--pale); }
 `;
 
 const ContentLetter = styled.span`
   font-family: var(--font-serif);
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 300;
-  color: var(--gold);
-  display: block;
-  margin-bottom: 0.5rem;
+  color: var(--black);
 `;
 
 const ContentWord = styled.h3`
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  color: var(--forest-deep);
-  margin-bottom: 0.75rem;
+  color: var(--black);
+  margin: 0.25rem 0;
 `;
 
 const ContentText = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  color: var(--bark-medium);
-  line-height: 1.7;
+  font-size: 0.85rem;
+  color: var(--medium);
+  line-height: 1.6;
 `;
 
-const EmptyState = styled.div`
-  text-align: center;
-  color: var(--bark-light);
+const EmptyState = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  color: var(--light);
+  text-align: center;
+  padding: 1rem;
 `;
 
 function WeddingABC() {
   const { content } = useWedding();
+  const { mainHole } = useKnotholes();
   const abcData = content?.weddingabc || {};
   
   const title = abcData.title || 'Hochzeits-ABC';
   const entries = abcData.entries || [];
   
-  const [activeLetter, setActiveLetter] = useState(null);
+  const [active, setActive] = useState(null);
 
   const defaultEntries = [
-    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze sind vorhanden. Infos unter Anfahrt.' },
-    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant. Denkt an bequeme Schuhe!' },
-    { letter: 'F', word: 'Fotos', description: 'Während der Trauung bitte Handypause. Danach gerne!' },
+    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze vorhanden. Details unter Anfahrt.' },
+    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant.' },
+    { letter: 'F', word: 'Fotos', description: 'Während der Trauung bitte keine Handys.' },
     { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das schönste Geschenk.' },
     { letter: 'K', word: 'Kinder', description: 'Kinder sind herzlich willkommen!' },
-    { letter: 'M', word: 'Musik', description: 'Habt ihr einen Musikwunsch? Teilt ihn uns mit!' },
   ];
 
   const items = entries.length > 0 ? entries : defaultEntries;
   
   const letterMap = {};
-  items.forEach(item => {
-    letterMap[item.letter.toUpperCase()] = item;
-  });
+  items.forEach(item => { letterMap[item.letter.toUpperCase()] = item; });
 
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-  const activeContent = activeLetter ? letterMap[activeLetter] : null;
+  const activeItem = active ? letterMap[active] : null;
 
   return (
-    <Section id="abc" data-section="abc">
-      <Content>
-        <Header>
-          <Eyebrow>Von A bis Z</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
+    <Section data-section="abc">
+      <HoleContent $hole={mainHole}>
+        <Eyebrow>Von A bis Z</Eyebrow>
+        <Title>{title}</Title>
         
-        <LettersGrid>
-          {alphabet.map(letter => (
+        <LetterGrid>
+          {alphabet.map(l => (
             <Letter
-              key={letter}
-              $hasContent={!!letterMap[letter]}
-              $active={activeLetter === letter}
-              onClick={() => letterMap[letter] && setActiveLetter(letter)}
+              key={l}
+              $has={!!letterMap[l]}
+              $active={active === l}
+              onClick={() => letterMap[l] && setActive(l)}
             >
-              {letter}
+              {l}
             </Letter>
           ))}
-        </LettersGrid>
+        </LetterGrid>
         
         <ContentPanel>
-          {activeContent ? (
+          {activeItem ? (
             <>
-              <ContentLetter>{activeLetter}</ContentLetter>
-              <ContentWord>{activeContent.word}</ContentWord>
-              <ContentText>{activeContent.description}</ContentText>
+              <ContentLetter>{active}</ContentLetter>
+              <ContentWord>{activeItem.word}</ContentWord>
+              <ContentText>{activeItem.description}</ContentText>
             </>
           ) : (
-            <EmptyState>
-              Wähle einen Buchstaben aus
-            </EmptyState>
+            <EmptyState>Wähle einen Buchstaben</EmptyState>
           )}
         </ContentPanel>
-      </Content>
+      </HoleContent>
     </Section>
   );
 }

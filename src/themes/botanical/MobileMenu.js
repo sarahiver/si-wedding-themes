@@ -1,4 +1,4 @@
-// Botanical MobileMenu - Clean Fullscreen Navigation
+// Botanical MobileMenu - Fullscreen navigation overlay
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -8,129 +8,115 @@ const fadeIn = keyframes`
 `;
 
 const slideIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 200;
-  background: var(--bark-dark);
+  z-index: 250;
+  background: var(--white);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   animation: ${fadeIn} 0.3s ease;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  padding: 2rem;
-`;
-
-const CloseButton = styled.button`
-  width: 44px;
-  height: 44px;
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(250, 248, 245, 0.1);
-  border-radius: 50%;
-  color: var(--cream);
   font-size: 1.5rem;
-  transition: all 0.3s ease;
+  color: var(--dark);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s;
   
-  &:hover {
-    background: rgba(250, 248, 245, 0.2);
-    transform: rotate(90deg);
-  }
+  &:hover { transform: rotate(90deg); }
 `;
 
-const NavList = styled.nav`
-  flex: 1;
+const Nav = styled.nav`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem;
+  gap: 0.75rem;
 `;
 
 const NavLink = styled.a`
   font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
   font-weight: 400;
-  color: var(--cream);
-  padding: 0.75rem 1.5rem;
-  transition: all 0.3s ease;
+  color: var(--dark);
+  transition: color 0.2s;
   opacity: 0;
   animation: ${slideIn} 0.5s ease forwards;
-  animation-delay: ${p => p.$delay || '0s'};
+  animation-delay: ${p => p.$delay}s;
   
-  &:hover {
-    color: var(--gold-light);
-  }
+  &:hover { color: var(--light); }
 `;
 
-const AdminButton = styled.button`
-  margin-top: 2rem;
-  padding: 0.75rem 1.5rem;
+const AdminBtn = styled.button`
+  position: absolute;
+  bottom: 2rem;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--bark-light);
-  background: transparent;
-  border: 1px solid var(--bark-light);
-  border-radius: 2px;
+  color: var(--pale);
+  background: none;
+  border: none;
+  cursor: pointer;
   opacity: 0;
-  animation: ${slideIn} 0.5s ease forwards;
-  animation-delay: 0.6s;
-  transition: all 0.3s ease;
+  animation: ${slideIn} 0.5s ease 0.8s forwards;
   
-  &:hover {
-    color: var(--cream);
-    border-color: var(--cream);
-  }
+  &:hover { color: var(--light); }
 `;
 
 const navItems = [
-  { href: '#hero', label: 'Start' },
-  { href: '#story', label: 'Unsere Geschichte' },
-  { href: '#timeline', label: 'Ablauf' },
-  { href: '#gallery', label: 'Galerie' },
-  { href: '#rsvp', label: 'Zusagen' },
-  { href: '#faq', label: 'FAQ' },
+  { label: 'Start', href: '#hero' },
+  { label: 'Geschichte', href: '#story' },
+  { label: 'Ablauf', href: '#timeline' },
+  { label: 'Locations', href: '#locations' },
+  { label: 'Galerie', href: '#gallery' },
+  { label: 'Zusagen', href: '#rsvp' },
+  { label: 'FAQ', href: '#faq' },
+  { label: 'Kontakt', href: '#contact' },
 ];
 
 function MobileMenu({ onClose, onAdminLogin }) {
-  const handleNavClick = () => {
+  const handleLinkClick = () => {
     onClose();
   };
 
   return (
     <Overlay>
-      <Header>
-        <CloseButton onClick={onClose}>×</CloseButton>
-      </Header>
+      <CloseBtn onClick={onClose}>×</CloseBtn>
       
-      <NavList>
+      <Nav>
         {navItems.map((item, i) => (
           <NavLink 
             key={item.href}
             href={item.href}
-            onClick={handleNavClick}
-            $delay={`${0.1 + i * 0.05}s`}
+            onClick={handleLinkClick}
+            $delay={0.1 + i * 0.05}
           >
             {item.label}
           </NavLink>
         ))}
-        
-        <AdminButton onClick={onAdminLogin}>
-          Admin
-        </AdminButton>
-      </NavList>
+      </Nav>
+      
+      <AdminBtn onClick={onAdminLogin}>
+        Admin
+      </AdminBtn>
     </Overlay>
   );
 }
