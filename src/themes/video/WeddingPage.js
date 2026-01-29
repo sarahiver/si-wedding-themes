@@ -1,4 +1,4 @@
-// Video Theme - WeddingPage with SINGLE Fixed Background
+// Video Theme - WeddingPage with background from Hero section
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -44,8 +44,9 @@ function WeddingPage() {
   const { project, content, loading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
 
-  // SINGLE background for entire page
-  const background = content?.video_background || null;
+  // Get background from hero section (set via HeroEditor)
+  const heroContent = content?.hero || {};
+  const background = heroContent.background_media || null;
 
   const handleAdminLogin = (username, password) => {
     if (username && password) setShowAdmin(true);
