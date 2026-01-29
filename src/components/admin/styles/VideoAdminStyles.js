@@ -104,56 +104,55 @@ export const BackLink = styled.a`
 // ============================================
 export const DashboardContainer = styled.div`
   display: flex;
+  height: 100vh;
   min-height: 100vh;
-  background: #1A1A1A;
+  background: #0A0A0A;
   color: #FFFFFF;
   font-family: 'Inter', sans-serif;
+  overflow: hidden;
 `;
 
 export const Sidebar = styled.aside`
-  width: ${p => p.$collapsed ? '60px' : '260px'};
-  background: #0A0A0A;
-  border-right: 1px solid rgba(255,255,255,0.1);
+  width: 260px;
+  background: #111;
+  border-right: 1px solid rgba(255,255,255,0.08);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   z-index: 100;
+  overflow-y: auto;
   
-  @media (max-width: 768px) {
+  @media (max-width: 968px) {
     transform: translateX(${p => p.$open ? '0' : '-100%'});
-    width: 280px;
+    transition: transform 0.3s ease;
+    box-shadow: ${p => p.$open ? '0 0 50px rgba(0,0,0,0.5)' : 'none'};
   }
 `;
 
 export const SidebarHeader = styled.div`
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 `;
 
-export const Logo = styled.div`
-  h2 {
-    font-family: 'Manrope', sans-serif;
-    font-size: ${p => p.$collapsed ? '0' : '1.1rem'};
-    font-weight: 600;
-    color: #FFF;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  
-  p {
-    font-size: 0.65rem;
-    color: #6B8CAE;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-    display: ${p => p.$collapsed ? 'none' : 'block'};
-  }
+export const SidebarTitle = styled.h2`
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+export const SidebarSub = styled.p`
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #6B8CAE;
+  margin-top: 0.25rem;
 `;
 
 export const SidebarNav = styled.nav`
@@ -163,18 +162,16 @@ export const SidebarNav = styled.nav`
 `;
 
 export const NavSection = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
-export const NavSectionTitle = styled.h3`
+export const NavSectionTitle = styled.div`
+  padding: 1rem 1.5rem 0.5rem;
   font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #555;
-  padding: 0 1.5rem;
-  margin-bottom: 0.5rem;
-  display: ${p => p.$collapsed ? 'none' : 'block'};
+  color: rgba(255,255,255,0.3);
 `;
 
 export const NavItem = styled.button`
@@ -182,86 +179,103 @@ export const NavItem = styled.button`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
-  font-weight: ${p => p.$active ? '600' : '400'};
-  color: ${p => p.$active ? '#FFF' : '#888'};
-  background: ${p => p.$active ? 'rgba(107,140,174,0.2)' : 'transparent'};
+  font-weight: ${p => p.$active ? '500' : '400'};
+  color: ${p => p.$active ? '#FFF' : 'rgba(255,255,255,0.5)'};
+  background: ${p => p.$active ? 'rgba(107,140,174,0.15)' : 'transparent'};
   border: none;
-  border-left: 3px solid ${p => p.$active ? '#6B8CAE' : 'transparent'};
+  border-left: 2px solid ${p => p.$active ? '#6B8CAE' : 'transparent'};
   cursor: pointer;
-  transition: all 0.2s ease;
   text-align: left;
+  transition: all 0.2s ease;
   
   &:hover {
     background: rgba(255,255,255,0.05);
     color: #FFF;
   }
-  
-  span:first-child { font-size: 1rem; }
 `;
 
-export const MainContent = styled.main`
+export const NavBadge = styled.span`
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  background: ${p => p.$warning ? '#6B8CAE' : 'rgba(255,255,255,0.1)'};
+  color: ${p => p.$warning ? '#FFF' : 'rgba(255,255,255,0.6)'};
+`;
+
+export const NavDivider = styled.div`
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 1rem 1.5rem;
+`;
+
+// Main Content Area - with scroll fix
+export const Main = styled.main`
   flex: 1;
-  margin-left: ${p => p.$collapsed ? '60px' : '260px'};
-  min-height: 100vh;
-  background: #1A1A1A;
-  transition: margin-left 0.3s ease;
+  margin-left: 260px;
+  padding: 2rem;
+  height: 100vh;
+  overflow-y: auto;
+  background: #0A0A0A;
   
-  @media (max-width: 768px) {
+  @media (max-width: 968px) {
     margin-left: 0;
+    padding: 1.5rem;
+    padding-top: 4rem;
   }
 `;
 
-export const TopBar = styled.header`
-  background: #0A0A0A;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding: 1rem 2rem;
+export const Header = styled.header`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-`;
-
-export const PageTitle = styled.h1`
-  font-family: 'Manrope', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #FFF;
-`;
-
-export const TopBarActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-`;
-
-export const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #888;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1.1rem;
+  align-items: flex-end;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: relative;
   
-  &:hover {
-    background: rgba(255,255,255,0.05);
-    color: #FFF;
-    border-color: #6B8CAE;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background: #6B8CAE;
   }
 `;
 
-export const ContentArea = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
+export const MobileMenuToggle = styled.button`
+  display: none;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 101;
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #FFF;
+  padding: 0.75rem 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  
+  @media (max-width: 968px) {
+    display: block;
+  }
+`;
+
+export const SidebarOverlay = styled.div`
+  display: none;
+  
+  @media (max-width: 968px) {
+    display: ${p => p.$open ? 'block' : 'none'};
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+  }
 `;
 
 // ============================================
@@ -400,19 +414,20 @@ export const Select = styled.select`
   option { background: #252525; }
 `;
 
-export const Checkbox = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+export const Checkbox = styled.input`
+  width: 18px;
+  height: 18px;
+  accent-color: #6B8CAE;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #CCC;
-  
-  input {
-    width: 18px;
-    height: 18px;
-    accent-color: #6B8CAE;
-  }
+`;
+
+export const SectionLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6B8CAE;
+  margin-bottom: 0.5rem;
 `;
 
 // ============================================
@@ -618,12 +633,27 @@ export const EmptyState = styled.div`
   span { font-size: 3rem; display: block; margin-bottom: 1rem; }
 `;
 
-export const Feedback = styled.div`
+export const HelpText = styled.p`
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.5rem;
+`;
+
+export const PageTitle = styled.h1`
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+`;
+
+export const FeedbackModal = styled.div`
   position: fixed;
   bottom: 2rem;
   right: 2rem;
   padding: 1rem 1.5rem;
-  background: ${p => p.$type === 'success' ? '#2E7D32' : p.$type === 'error' ? '#C62828' : '#1565C0'};
+  background: ${p => p.$type === 'success' ? '#2E7D32' : p.$type === 'error' ? '#C62828' : '#6B8CAE'};
   color: #FFF;
   font-size: 0.85rem;
   font-weight: 500;
@@ -635,37 +665,75 @@ export const Feedback = styled.div`
   cursor: pointer;
 `;
 
-export const MobileMenuButton = styled.button`
-  display: none;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #FFF;
-  font-size: 1.25rem;
-  cursor: pointer;
+// ============================================
+// EXPORT ALL COMPONENTS
+// ============================================
+export const VideoAdminComponents = {
+  // Layout
+  DashboardContainer,
+  Sidebar,
+  SidebarHeader,
+  SidebarTitle,
+  SidebarSub,
+  SidebarNav,
+  NavSection,
+  NavSectionTitle,
+  NavItem,
+  NavBadge,
+  NavDivider,
+  Main,
+  Header,
+  PageTitle,
+  MobileMenuToggle,
+  SidebarOverlay,
   
-  @media (max-width: 768px) {
-    display: flex;
-  }
-`;
-
-export const SidebarOverlay = styled.div`
-  display: none;
+  // Login
+  LoginContainer,
+  LoginBox,
+  LoginLogo,
+  LoginForm,
+  LoginError,
+  LoginButton,
+  BackLink,
   
-  @media (max-width: 768px) {
-    display: ${p => p.$open ? 'block' : 'none'};
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 99;
-  }
-`;
-
-export const HelpText = styled.p`
-  font-size: 0.75rem;
-  color: #666;
-  margin-top: 0.5rem;
-`;
+  // Panels
+  Panel,
+  PanelHeader,
+  PanelTitle,
+  PanelContent,
+  StatsGrid,
+  StatCard,
+  
+  // Forms
+  FormGroup,
+  Label,
+  Input,
+  TextArea,
+  Select,
+  Checkbox,
+  SectionLabel,
+  HelpText,
+  
+  // Buttons
+  Button,
+  SmallButton,
+  Divider,
+  
+  // Image Upload
+  DropZone,
+  DropOverlay,
+  DropPlaceholder,
+  DropButton,
+  ProgressBar,
+  
+  // Table
+  Table,
+  Th,
+  Td,
+  Badge,
+  
+  // Misc
+  LoadingSpinner,
+  EmptyState,
+  FeedbackModal,
+};
