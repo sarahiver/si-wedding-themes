@@ -204,9 +204,8 @@ export async function submitMusicWish(projectId, wishData) {
     .insert({
       project_id: projectId,
       name: wishData.name,
-      artist: wishData.artist,
-      song_title: wishData.songTitle,
-      // Note: 'message' field removed - not in database schema
+      artist: wishData.artist || '',
+      song_title: wishData.song_title || wishData.songTitle || '',
     })
     .select()
     .single();
