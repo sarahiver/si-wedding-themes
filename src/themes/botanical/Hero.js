@@ -1,43 +1,24 @@
-// Botanical Hero - Adapts to knothole position
+// Botanical Tree Hero - In the crown of the tree
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { useKnotholes } from './KnotholeOverlay';
 
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(15px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const Section = styled.section`
-  min-height: 100vh;
-  position: relative;
-  background: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-// Content positioned within the main hole
 const Content = styled.div`
-  position: absolute;
-  left: ${p => p.$hole.x}%;
-  top: ${p => p.$hole.y}%;
-  width: ${p => p.$hole.width}%;
-  height: ${p => p.$hole.height}%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
   padding: 2rem;
+  max-width: 600px;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--light);
   margin-bottom: 1.5rem;
@@ -47,7 +28,7 @@ const Eyebrow = styled.p`
 
 const Names = styled.h1`
   font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-size: clamp(3rem, 10vw, 6rem);
   font-weight: 300;
   color: var(--black);
   line-height: 0.95;
@@ -61,35 +42,35 @@ const Ampersand = styled.span`
   font-style: italic;
   font-size: 0.35em;
   color: var(--medium);
-  margin: 0.4em 0;
+  margin: 0.5em 0;
 `;
 
 const DateLocation = styled.div`
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   opacity: 0;
   animation: ${fadeIn} 0.8s ease 0.5s forwards;
 `;
 
 const WeddingDate = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
   color: var(--dark);
   margin-bottom: 0.3rem;
 `;
 
 const Location = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--light);
   letter-spacing: 0.05em;
 `;
 
 const CTAButton = styled.a`
   display: inline-block;
-  margin-top: 2rem;
-  padding: 0.9rem 2rem;
+  margin-top: 2.5rem;
+  padding: 1rem 2.5rem;
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -106,9 +87,34 @@ const CTAButton = styled.a`
   }
 `;
 
+const ScrollHint = styled.div`
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--light);
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease 1s forwards;
+  
+  &::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(180deg, var(--light), transparent);
+  }
+`;
+
 function Hero() {
   const { content, project } = useWedding();
-  const { mainHole } = useKnotholes();
   const heroData = content?.hero || {};
   
   const name1 = heroData.name1 || project?.partner1_name || 'Anna';
@@ -124,21 +130,20 @@ function Hero() {
   }) : '';
 
   return (
-    <Section data-section="hero">
-      <Content $hole={mainHole}>
-        <Eyebrow>{tagline}</Eyebrow>
-        <Names>
-          {name1}
-          <Ampersand>&</Ampersand>
-          {name2}
-        </Names>
-        <DateLocation>
-          <WeddingDate>{formattedDate}</WeddingDate>
-          {location && <Location>{location}</Location>}
-        </DateLocation>
-        <CTAButton href="#rsvp">Zusagen</CTAButton>
-      </Content>
-    </Section>
+    <Content>
+      <Eyebrow>{tagline}</Eyebrow>
+      <Names>
+        {name1}
+        <Ampersand>&</Ampersand>
+        {name2}
+      </Names>
+      <DateLocation>
+        <WeddingDate>{formattedDate}</WeddingDate>
+        {location && <Location>{location}</Location>}
+      </DateLocation>
+      <CTAButton href="#rsvp">Zusagen</CTAButton>
+      <ScrollHint>Scroll</ScrollHint>
+    </Content>
   );
 }
 

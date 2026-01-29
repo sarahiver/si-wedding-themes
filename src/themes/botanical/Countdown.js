@@ -1,76 +1,24 @@
-// Botanical Countdown - Content in holes
+// Botanical Tree Countdown - Grows from branch
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { useKnotholes } from './KnotholeOverlay';
-
-const Section = styled.section`
-  min-height: 100vh;
-  position: relative;
-  background: var(--white);
-`;
-
-// Main content in main hole
-const MainContent = styled.div`
-  position: absolute;
-  left: ${p => p.$hole.x}%;
-  top: ${p => p.$hole.y}%;
-  width: ${p => p.$hole.width}%;
-  height: ${p => p.$hole.height}%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 1rem;
-`;
-
-// Secondary content in secondary holes
-const SecondaryContent = styled.div`
-  position: absolute;
-  left: ${p => p.$hole.x}%;
-  top: ${p => p.$hole.y}%;
-  width: ${p => p.$hole.width}%;
-  height: ${p => p.$hole.height}%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0.5rem;
-`;
-
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 0.55rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--light);
-  margin-bottom: 0.75rem;
-`;
-
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 300;
-  color: var(--black);
-  margin-bottom: 1.5rem;
-`;
+import ContentBranch from './ContentBranch';
 
 const CountdownGrid = styled.div`
   display: flex;
   justify-content: center;
-  gap: clamp(1rem, 3vw, 2rem);
+  gap: 1.5rem;
   flex-wrap: wrap;
 `;
 
 const TimeUnit = styled.div`
   text-align: center;
+  min-width: 60px;
 `;
 
 const Number = styled.div`
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
   font-weight: 300;
   color: var(--black);
   line-height: 1;
@@ -78,38 +26,28 @@ const Number = styled.div`
 
 const Label = styled.div`
   font-family: var(--font-sans);
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--light);
-  margin-top: 0.3rem;
+  margin-top: 0.4rem;
 `;
 
-const SmallNumber = styled.div`
+const DateDisplay = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 300;
+  font-size: 1rem;
+  font-style: italic;
   color: var(--medium);
-  line-height: 1;
+  text-align: center;
+  margin-top: 1.5rem;
 `;
 
-const SmallLabel = styled.div`
-  font-family: var(--font-sans);
-  font-size: 0.5rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--light);
-  margin-top: 0.25rem;
-`;
-
-function Countdown() {
+function Countdown({ side = 'right' }) {
   const { content, project } = useWedding();
-  const { mainHole, secondaryHoles } = useKnotholes();
   const countdownData = content?.countdown || {};
   
-  const title = countdownData.title || 'Noch';
+  const title = countdownData.title || 'Countdown';
   const targetDate = countdownData.target_date || project?.wedding_date || '2025-08-15';
   
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -134,43 +72,35 @@ function Countdown() {
     return () => clearInterval(timer);
   }, [targetDate]);
 
+  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   return (
-    <Section data-section="countdown">
-      {/* Main hole: Days and Hours */}
-      <MainContent $hole={mainHole}>
-        <Eyebrow>Es dauert nicht mehr lange</Eyebrow>
-        <Title>{title}</Title>
-        <CountdownGrid>
-          <TimeUnit>
-            <Number>{String(timeLeft.days).padStart(2, '0')}</Number>
-            <Label>Tage</Label>
-          </TimeUnit>
-          <TimeUnit>
-            <Number>{String(timeLeft.hours).padStart(2, '0')}</Number>
-            <Label>Stunden</Label>
-          </TimeUnit>
-        </CountdownGrid>
-      </MainContent>
-      
-      {/* Secondary holes: Minutes and Seconds */}
-      {secondaryHoles[0] && (
-        <SecondaryContent $hole={secondaryHoles[0]}>
-          <TimeUnit>
-            <SmallNumber>{String(timeLeft.minutes).padStart(2, '0')}</SmallNumber>
-            <SmallLabel>Min</SmallLabel>
-          </TimeUnit>
-        </SecondaryContent>
-      )}
-      
-      {secondaryHoles[1] && (
-        <SecondaryContent $hole={secondaryHoles[1]}>
-          <TimeUnit>
-            <SmallNumber>{String(timeLeft.seconds).padStart(2, '0')}</SmallNumber>
-            <SmallLabel>Sek</SmallLabel>
-          </TimeUnit>
-        </SecondaryContent>
-      )}
-    </Section>
+    <ContentBranch side={side} eyebrow="Es dauert noch" title={title} align="center">
+      <CountdownGrid>
+        <TimeUnit>
+          <Number>{String(timeLeft.days).padStart(2, '0')}</Number>
+          <Label>Tage</Label>
+        </TimeUnit>
+        <TimeUnit>
+          <Number>{String(timeLeft.hours).padStart(2, '0')}</Number>
+          <Label>Stunden</Label>
+        </TimeUnit>
+        <TimeUnit>
+          <Number>{String(timeLeft.minutes).padStart(2, '0')}</Number>
+          <Label>Minuten</Label>
+        </TimeUnit>
+        <TimeUnit>
+          <Number>{String(timeLeft.seconds).padStart(2, '0')}</Number>
+          <Label>Sekunden</Label>
+        </TimeUnit>
+      </CountdownGrid>
+      <DateDisplay>{formattedDate}</DateDisplay>
+    </ContentBranch>
   );
 }
 
