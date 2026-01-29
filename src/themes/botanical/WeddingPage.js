@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+// Botanical WeddingPage - Knothole Overlay Concept
+// Fixed wood frame with organic holes, content scrolls behind
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import BotanicalGlobalStyles from './GlobalStyles';
+import KnotholeOverlay from './KnotholeOverlay';
 
-import Navigation from './Navigation';
+// Components
 import Hero from './Hero';
 import Countdown from './Countdown';
 import LoveStory from './LoveStory';
@@ -24,45 +27,106 @@ import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
+import MobileMenu from './MobileMenu';
 
 const LoadingScreen = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  gap: 1rem;
-  background: var(--bg-cream);
-  font-family: var(--font-handwritten);
-  font-size: 2rem;
-  color: var(--green-sage);
-`;
-
-const LoadingEmoji = styled.span`
-  font-size: 3rem;
-  animation: bounce 1s ease infinite;
+  background: var(--bark-dark);
   
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  span {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--cream);
+    letter-spacing: 0.1em;
   }
 `;
 
+// Main scrollable content container
+const ContentScroller = styled.main`
+  position: relative;
+  z-index: 1;
+`;
+
+// Map section IDs to knothole configurations
+const sectionMap = [
+  'hero',
+  'countdown', 
+  'story',
+  'timeline',
+  'locations',
+  'gallery',
+  'rsvp',
+  'dresscode',
+  'gifts',
+  'accommodations',
+  'directions',
+  'faq',
+  'abc',
+  'guestbook',
+  'music',
+  'photos',
+  'witnesses',
+  'contact',
+  'footer'
+];
+
 function WeddingPage() {
   const { project, loading } = useWedding();
+  const [currentSection, setCurrentSection] = useState('hero');
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const observerRef = useRef(null);
 
-  const handleAdminLogin = (username, password) => {
-    if (username && password) setShowAdmin(true);
-  };
+  // Detect which section is in view
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: 0
+    };
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id || entry.target.dataset.section;
+          if (sectionId) {
+            setCurrentSection(sectionId);
+          }
+        }
+      });
+    }, options);
+
+    // Observe all sections
+    const sections = document.querySelectorAll('section[id], section[data-section]');
+    sections.forEach(section => {
+      observerRef.current.observe(section);
+    });
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [loading]);
+
+  const handleMenuClick = useCallback(() => {
+    setShowMenu(true);
+  }, []);
+
+  const handleAdminLogin = useCallback(() => {
+    setShowMenu(false);
+    setShowAdmin(true);
+  }, []);
 
   if (loading) {
     return (
       <>
         <BotanicalGlobalStyles />
         <LoadingScreen>
-          <LoadingEmoji>🌿</LoadingEmoji>
-          Wird geladen...
+          <span>Wird geladen...</span>
         </LoadingScreen>
       </>
     );
@@ -80,8 +144,23 @@ function WeddingPage() {
   return (
     <>
       <BotanicalGlobalStyles />
-      <Navigation />
-      <main>
+      
+      {/* Fixed knothole overlay */}
+      <KnotholeOverlay 
+        currentSection={currentSection} 
+        onMenuClick={handleMenuClick}
+      />
+      
+      {/* Mobile menu */}
+      {showMenu && (
+        <MobileMenu 
+          onClose={() => setShowMenu(false)}
+          onAdminLogin={handleAdminLogin}
+        />
+      )}
+      
+      {/* Scrollable content behind the overlay */}
+      <ContentScroller>
         <Hero />
         <Countdown />
         <LoveStory />
@@ -100,8 +179,8 @@ function WeddingPage() {
         <PhotoUpload />
         <ContactWitnesses />
         <Contact />
-      </main>
-      <Footer onAdminLogin={handleAdminLogin} />
+        <Footer />
+      </ContentScroller>
     </>
   );
 }

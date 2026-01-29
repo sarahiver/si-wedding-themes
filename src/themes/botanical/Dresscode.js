@@ -1,162 +1,101 @@
-// Botanical Dresscode - Nature-Inspired Style Guide
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+// Botanical Dresscode - Clean style guide
+import React from 'react';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const sway = keyframes`
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
-`;
-
-const fadeGrow = keyframes`
-  from { opacity: 0; transform: scale(0.95) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-`;
-
 const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: linear-gradient(180deg, var(--bg-fog) 0%, var(--bg-cream) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
   position: relative;
-  overflow: hidden;
+  scroll-snap-align: start;
+  padding: 4rem 2rem;
 `;
 
-const DecoLeaf = styled.div`
-  position: absolute;
-  width: ${p => p.$size || '100px'};
-  height: ${p => p.$size || '100px'};
-  background: ${p => p.$color || 'var(--green-mint)'};
-  opacity: ${p => p.$opacity || 0.1};
-  border-radius: 70% 30% 70% 30% / 30% 70% 30% 70%;
-  animation: ${sway} ${p => p.$duration || '10s'} ease-in-out infinite;
-  z-index: 0;
-`;
-
-const Container = styled.div`
-  max-width: var(--container-narrow);
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+const Content = styled.div`
+  max-width: 500px;
+  width: 100%;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 `;
 
-const Eyebrow = styled.div`
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
+const Eyebrow = styled.p`
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--green-fern);
+  color: var(--forest-light);
   margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-handwritten);
-  font-size: clamp(3rem, 8vw, 5rem);
-  color: var(--green-forest);
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 300;
+  color: var(--forest-deep);
 `;
 
 const MainCard = styled.div`
-  background: var(--bg-cream);
-  padding: clamp(2rem, 5vw, 3rem);
-  border-radius: 40px;
-  box-shadow: var(--shadow-medium);
+  background: var(--cream-dark);
+  padding: 2rem;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 `;
 
 const DresscodeName = styled.h3`
-  font-family: var(--font-handwritten);
-  font-size: 2.5rem;
-  color: var(--green-forest);
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--forest-deep);
   margin-bottom: 1rem;
 `;
 
 const Description = styled.p`
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  color: var(--text-medium);
-  line-height: 1.8;
-  max-width: 500px;
-  margin: 0 auto;
-`;
-
-// Color palette
-const ColorsSection = styled.div`
-  margin-top: 2rem;
-`;
-
-const ColorLabel = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--green-fern);
-  margin-bottom: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--bark-medium);
+  line-height: 1.7;
 `;
 
 const ColorPalette = styled.div`
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 0.75rem;
+  margin-top: 1.5rem;
 `;
 
 const ColorDot = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 36px;
+  height: 36px;
   background: ${p => p.$color};
-  border-radius: 50% 50% 45% 55% / 55% 45% 50% 50%;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.3s var(--ease-nature);
-  
-  &:hover {
-    transform: scale(1.15);
-  }
+  border-radius: 50%;
 `;
 
-// Dos and Don'ts
 const TipsGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
+  gap: 1rem;
 `;
 
 const TipCard = styled.div`
-  background: ${p => p.$type === 'do' ? 'var(--green-mint)' : 'var(--earth-sand)'};
+  background: ${p => p.$do ? 'var(--forest-deep)' : 'var(--cream-dark)'};
   padding: 1.5rem;
-  border-radius: 30px;
-  box-shadow: var(--shadow-soft);
-`;
-
-const TipHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-`;
-
-const TipIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: var(--bg-cream);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
 `;
 
 const TipTitle = styled.h4`
-  font-family: var(--font-handwritten);
-  font-size: 1.5rem;
-  color: var(--green-forest);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: ${p => p.$do ? 'var(--gold-light)' : 'var(--bark-light)'};
+  margin-bottom: 1rem;
 `;
 
 const TipList = styled.ul`
@@ -164,20 +103,10 @@ const TipList = styled.ul`
 `;
 
 const TipItem = styled.li`
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  color: var(--text-medium);
-  padding: 0.5rem 0;
-  padding-left: 1.5rem;
-  position: relative;
-  
-  &::before {
-    content: '${p => p.$type === 'do' ? '✓' : '✗'}';
-    position: absolute;
-    left: 0;
-    color: ${p => p.$type === 'do' ? 'var(--green-fern)' : 'var(--earth-bark)'};
-    font-weight: bold;
-  }
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: ${p => p.$do ? 'var(--cream)' : 'var(--bark-medium)'};
+  padding: 0.35rem 0;
 `;
 
 function Dresscode() {
@@ -186,68 +115,50 @@ function Dresscode() {
   
   const title = dresscodeData.title || 'Dresscode';
   const code = dresscodeData.code || 'Festlich Elegant';
-  const description = dresscodeData.description || 'Wir freuen uns, wenn ihr euch schick macht! Denkt an bequeme Schuhe für den Garten.';
-  const colors = dresscodeData.colors || ['#9CAF88', '#B8D4BE', '#D4C5A9', '#E8D5A3', '#FAF8F3'];
-  const dos = dresscodeData.dos || ['Elegante Sommerkleider', 'Helle Anzüge', 'Natürliche Farbtöne', 'Bequeme Schuhe'];
-  const donts = dresscodeData.donts || ['Komplett weiß', 'Zu kurze Röcke', 'Sneakers', 'Jeans'];
+  const description = dresscodeData.description || 'Wir freuen uns, wenn ihr euch schick macht. Denkt an bequeme Schuhe!';
+  const colors = dresscodeData.colors || ['#3D5E3D', '#5A7A5A', '#8BA888', '#B8956B', '#FAF8F5'];
+  const dos = dresscodeData.dos || ['Elegante Kleider', 'Anzüge', 'Natürliche Farben'];
+  const donts = dresscodeData.donts || ['Komplett weiß', 'Jeans', 'Sneakers'];
 
   return (
-    <Section id="dresscode">
-      <DecoLeaf $size="150px" $color="var(--green-sage)" $opacity={0.08} style={{ top: '10%', left: '-5%' }} />
-      <DecoLeaf $size="100px" $color="var(--green-mint)" $opacity={0.06} style={{ bottom: '15%', right: '-3%' }} $duration="12s" />
-      
-      <Container>
+    <Section id="dresscode" data-section="dresscode">
+      <Content>
         <Header>
-          <Eyebrow>👗 Was anziehen?</Eyebrow>
+          <Eyebrow>Was anziehen?</Eyebrow>
           <Title>{title}</Title>
         </Header>
         
         <MainCard>
           <DresscodeName>{code}</DresscodeName>
           <Description>{description}</Description>
-          
           {colors.length > 0 && (
-            <ColorsSection>
-              <ColorLabel>Unsere Farbpalette</ColorLabel>
-              <ColorPalette>
-                {colors.map((color, i) => (
-                  <ColorDot key={i} $color={color} title={color} />
-                ))}
-              </ColorPalette>
-            </ColorsSection>
+            <ColorPalette>
+              {colors.map((color, i) => (
+                <ColorDot key={i} $color={color} />
+              ))}
+            </ColorPalette>
           )}
         </MainCard>
         
         <TipsGrid>
-          {dos.length > 0 && (
-            <TipCard $type="do">
-              <TipHeader>
-                <TipIcon>🌿</TipIcon>
-                <TipTitle>Gerne</TipTitle>
-              </TipHeader>
-              <TipList>
-                {dos.map((item, i) => (
-                  <TipItem key={i} $type="do">{item}</TipItem>
-                ))}
-              </TipList>
-            </TipCard>
-          )}
-          
-          {donts.length > 0 && (
-            <TipCard $type="dont">
-              <TipHeader>
-                <TipIcon>🍂</TipIcon>
-                <TipTitle>Lieber nicht</TipTitle>
-              </TipHeader>
-              <TipList>
-                {donts.map((item, i) => (
-                  <TipItem key={i} $type="dont">{item}</TipItem>
-                ))}
-              </TipList>
-            </TipCard>
-          )}
+          <TipCard $do>
+            <TipTitle $do>Gerne</TipTitle>
+            <TipList>
+              {dos.map((item, i) => (
+                <TipItem key={i} $do>✓ {item}</TipItem>
+              ))}
+            </TipList>
+          </TipCard>
+          <TipCard>
+            <TipTitle>Lieber nicht</TipTitle>
+            <TipList>
+              {donts.map((item, i) => (
+                <TipItem key={i}>✗ {item}</TipItem>
+              ))}
+            </TipList>
+          </TipCard>
         </TipsGrid>
-      </Container>
+      </Content>
     </Section>
   );
 }

@@ -1,197 +1,161 @@
-// Botanical PhotoUpload - Nature-Inspired Photo Sharing
+// Botanical PhotoUpload - Clean upload interface
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { usePhotoUpload } from '../../components/shared/PhotoUploadCore';
 
-const sway = keyframes`
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-`;
-
 const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--bg-moss);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--forest-main);
   position: relative;
-  overflow: hidden;
+  scroll-snap-align: start;
+  padding: 4rem 2rem;
 `;
 
-const DecoLeaf = styled.div`
-  position: absolute;
-  width: ${p => p.$size || '100px'};
-  height: ${p => p.$size || '100px'};
-  background: ${p => p.$color || 'var(--green-mint)'};
-  opacity: ${p => p.$opacity || 0.08};
-  border-radius: 70% 30% 70% 30% / 30% 70% 30% 70%;
-  animation: ${sway} ${p => p.$duration || '10s'} ease-in-out infinite;
-  z-index: 0;
-`;
-
-const Container = styled.div`
-  max-width: var(--container-tight);
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+const Content = styled.div`
+  max-width: 500px;
+  width: 100%;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 `;
 
-const Eyebrow = styled.div`
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
+const Eyebrow = styled.p`
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--green-fern);
+  color: var(--forest-mist);
   margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-handwritten);
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
-  color: var(--green-forest);
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 300;
+  color: var(--cream);
 `;
 
 const Subtitle = styled.p`
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  color: var(--text-light);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--forest-mist);
   margin-top: 0.5rem;
 `;
 
 const UploadCard = styled.div`
-  background: var(--bg-cream);
-  padding: clamp(2rem, 6vw, 3rem);
-  border-radius: 40px;
-  box-shadow: var(--shadow-medium);
+  background: var(--cream);
+  padding: 2rem;
 `;
 
 const DropZone = styled.div`
-  border: 3px dashed ${p => p.$dragging ? 'var(--green-fern)' : 'var(--bg-moss)'};
-  border-radius: 30px;
+  border: 2px dashed ${p => p.$dragging ? 'var(--forest-deep)' : 'var(--cream-dark)'};
+  background: ${p => p.$dragging ? 'var(--cream-dark)' : 'var(--warm-white)'};
   padding: 3rem 2rem;
   text-align: center;
-  background: ${p => p.$dragging ? 'rgba(92, 138, 77, 0.05)' : 'var(--bg-fog)'};
-  transition: all 0.3s var(--ease-nature);
   cursor: pointer;
+  transition: all 0.3s ease;
   
   &:hover {
-    border-color: var(--green-sage);
-    background: rgba(92, 138, 77, 0.03);
+    border-color: var(--forest-light);
   }
 `;
 
 const UploadIcon = styled.div`
-  font-size: 4rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
-  animation: ${sway} 4s ease-in-out infinite;
+  opacity: 0.6;
 `;
 
 const UploadText = styled.p`
-  font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--green-forest);
-  margin-bottom: 0.5rem;
+  color: var(--forest-deep);
+  margin-bottom: 0.25rem;
 `;
 
 const UploadHint = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--bark-light);
 `;
 
 const HiddenInput = styled.input`
   display: none;
 `;
 
-// Progress state
-const ProgressContainer = styled.div`
-  margin-top: 1.5rem;
-`;
-
 const ProgressBar = styled.div`
-  height: 12px;
-  background: var(--bg-moss);
-  border-radius: 20px;
+  margin-top: 1.5rem;
+  height: 4px;
+  background: var(--cream-dark);
   overflow: hidden;
-  margin-bottom: 0.75rem;
 `;
 
 const ProgressFill = styled.div`
   height: 100%;
   width: ${p => p.$progress}%;
-  background: linear-gradient(90deg, var(--green-sage) 0%, var(--green-fern) 100%);
-  border-radius: 20px;
+  background: var(--forest-deep);
   transition: width 0.3s ease;
 `;
 
 const ProgressText = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--text-medium);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--bark-medium);
   text-align: center;
+  margin-top: 0.75rem;
 `;
 
-// Success state
 const SuccessCard = styled.div`
   text-align: center;
   padding: 2rem;
 `;
 
-const SuccessEmoji = styled.div`
-  font-size: 5rem;
-  margin-bottom: 1rem;
-  animation: ${sway} 3s ease-in-out infinite;
-`;
-
 const SuccessTitle = styled.h3`
-  font-family: var(--font-handwritten);
-  font-size: 2.5rem;
-  color: var(--green-forest);
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--forest-deep);
   margin-bottom: 0.5rem;
 `;
 
 const SuccessText = styled.p`
-  font-size: 1rem;
-  color: var(--text-medium);
-  margin-bottom: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--bark-medium);
 `;
 
 const ResetButton = styled.button`
+  margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--bg-fog);
-  border: 2px solid var(--bg-moss);
-  border-radius: 25px;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--green-forest);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  background: transparent;
+  border: 1px solid var(--bark-light);
+  color: var(--bark-medium);
   cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
-    background: var(--green-mint);
+    border-color: var(--forest-light);
+    color: var(--forest-deep);
   }
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(193, 127, 89, 0.15);
-  border: 2px solid var(--earth-clay);
-  color: var(--earth-bark);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
   padding: 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  margin-top: 1rem;
+  font-size: 0.85rem;
   text-align: center;
+  margin-top: 1rem;
 `;
 
 function PhotoUpload() {
@@ -199,31 +163,26 @@ function PhotoUpload() {
   const photouploadData = content?.photoupload || {};
   
   const title = photouploadData.title || 'Eure Fotos';
-  const description = photouploadData.description || 'Teilt eure schönsten Momente mit uns!';
+  const description = photouploadData.description || 'Teilt eure schönsten Momente mit uns';
   
   const [dragging, setDragging] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const {
-    uploading, progress, error, success,
+    uploading, progress, error,
     fileInputRef, handleFileSelect, openFilePicker, handleDrop, handleDragOver,
   } = usePhotoUpload({
     maxFiles: 10,
     onSuccess: () => setShowSuccess(true),
   });
 
-  const handleReset = () => {
-    setShowSuccess(false);
-  };
+  const handleReset = () => setShowSuccess(false);
 
   return (
-    <Section id="photos">
-      <DecoLeaf $size="150px" $color="var(--green-mint)" $opacity={0.06} style={{ top: '10%', left: '-5%' }} />
-      <DecoLeaf $size="100px" $color="var(--green-sage)" $opacity={0.05} style={{ bottom: '15%', right: '-3%' }} $duration="12s" />
-      
-      <Container>
+    <Section id="photos" data-section="photos">
+      <Content>
         <Header>
-          <Eyebrow>📸 Teilen</Eyebrow>
+          <Eyebrow>Teilen</Eyebrow>
           <Title>{title}</Title>
           <Subtitle>{description}</Subtitle>
         </Header>
@@ -231,31 +190,24 @@ function PhotoUpload() {
         <UploadCard>
           {showSuccess ? (
             <SuccessCard>
-              <SuccessEmoji>🌸</SuccessEmoji>
               <SuccessTitle>Danke!</SuccessTitle>
-              <SuccessText>Eure Fotos wurden hochgeladen. Wir freuen uns darauf, die Erinnerungen zu sehen!</SuccessText>
-              <ResetButton onClick={handleReset}>Weitere Fotos hochladen</ResetButton>
+              <SuccessText>Eure Fotos wurden hochgeladen.</SuccessText>
+              <ResetButton onClick={handleReset}>Weitere hochladen</ResetButton>
             </SuccessCard>
           ) : (
             <>
               <DropZone
                 $dragging={dragging}
                 onClick={openFilePicker}
-                onDrop={(e) => {
-                  handleDrop(e);
-                  setDragging(false);
-                }}
-                onDragOver={(e) => {
-                  handleDragOver(e);
-                  setDragging(true);
-                }}
+                onDrop={(e) => { handleDrop(e); setDragging(false); }}
+                onDragOver={(e) => { handleDragOver(e); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
               >
-                <UploadIcon>🌿</UploadIcon>
+                <UploadIcon>📷</UploadIcon>
                 <UploadText>
-                  {dragging ? 'Fotos hier ablegen!' : 'Fotos auswählen oder hierher ziehen'}
+                  {dragging ? 'Hier ablegen' : 'Fotos auswählen'}
                 </UploadText>
-                <UploadHint>Max. 10 Bilder, je max. 10 MB</UploadHint>
+                <UploadHint>oder hierher ziehen • max. 10 Bilder</UploadHint>
               </DropZone>
               
               <HiddenInput
@@ -267,19 +219,19 @@ function PhotoUpload() {
               />
               
               {uploading && (
-                <ProgressContainer>
+                <>
                   <ProgressBar>
                     <ProgressFill $progress={progress} />
                   </ProgressBar>
-                  <ProgressText>Hochladen... {Math.round(progress)}%</ProgressText>
-                </ProgressContainer>
+                  <ProgressText>{Math.round(progress)}%</ProgressText>
+                </>
               )}
               
               {error && <ErrorMessage>{error}</ErrorMessage>}
             </>
           )}
         </UploadCard>
-      </Container>
+      </Content>
     </Section>
   );
 }

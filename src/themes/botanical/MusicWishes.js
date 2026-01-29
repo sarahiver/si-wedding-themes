@@ -1,183 +1,130 @@
-// Botanical MusicWishes - Nature-Inspired Song Request
+// Botanical MusicWishes - Clean song request form
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { submitMusicWish } from '../../lib/supabase';
 
-const sway = keyframes`
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-`;
-
 const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: linear-gradient(
-    180deg,
-    var(--green-fern) 0%,
-    var(--green-moss) 100%
-  );
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-dark);
   position: relative;
-  overflow: hidden;
+  scroll-snap-align: start;
+  padding: 4rem 2rem;
 `;
 
-const FloatingNote = styled.div`
-  position: absolute;
-  font-size: ${p => p.$size || '2.5rem'};
-  opacity: 0.2;
-  animation: ${float} ${p => p.$duration || '8s'} ease-in-out infinite;
-  animation-delay: ${p => p.$delay || '0s'};
-  z-index: 0;
-`;
-
-const Container = styled.div`
-  max-width: var(--container-tight);
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+const Content = styled.div`
+  max-width: 450px;
+  width: 100%;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 `;
 
-const Eyebrow = styled.div`
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
+const Eyebrow = styled.p`
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--green-mint);
+  color: var(--forest-light);
   margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-handwritten);
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
-  color: var(--bg-cream);
-  text-shadow: 0 3px 15px rgba(0,0,0,0.2);
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 300;
+  color: var(--forest-deep);
 `;
 
 const Subtitle = styled.p`
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  color: var(--green-mint);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--bark-medium);
   margin-top: 0.5rem;
-  opacity: 0.9;
 `;
 
-const FormCard = styled.div`
-  background: var(--bg-cream);
-  padding: clamp(2rem, 6vw, 3rem);
-  border-radius: 40px 40px 35px 45px / 35px 45px 40px 40px;
-  box-shadow: var(--shadow-deep);
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.25rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--green-forest);
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem 1.25rem;
-  font-family: var(--font-body);
+  padding: 1rem;
+  font-family: var(--font-sans);
   font-size: 1rem;
-  background: var(--bg-fog);
-  border: 2px solid var(--bg-moss);
-  border-radius: 25px;
-  color: var(--text-dark);
-  transition: all 0.3s var(--ease-nature);
+  background: var(--warm-white);
+  border: 1px solid var(--cream);
+  color: var(--soft-black);
   
   &:focus {
     outline: none;
-    border-color: var(--green-fern);
-    box-shadow: 0 0 0 4px rgba(92, 138, 77, 0.15);
-  }
-  
-  &::placeholder {
-    color: var(--text-muted);
+    border-color: var(--forest-light);
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
-  padding: 1.25rem 2rem;
-  background: linear-gradient(135deg, var(--green-fern) 0%, var(--green-forest) 100%);
-  color: var(--bg-cream);
+  padding: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--forest-deep);
+  color: var(--cream);
   border: none;
-  border-radius: 30px;
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-medium);
-  transition: all 0.4s var(--ease-nature);
-  margin-top: 1rem;
+  transition: background 0.3s ease;
   
   &:hover:not(:disabled) {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-deep), var(--shadow-glow);
+    background: var(--forest-main);
   }
   
   &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    opacity: 0.5;
   }
 `;
 
-const SuccessCard = styled.div`
+const SuccessMessage = styled.div`
   text-align: center;
   padding: 2rem;
 `;
 
-const SuccessEmoji = styled.div`
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: ${sway} 3s ease-in-out infinite;
-`;
-
 const SuccessTitle = styled.h3`
-  font-family: var(--font-handwritten);
-  font-size: 2rem;
-  color: var(--green-forest);
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--forest-deep);
   margin-bottom: 0.5rem;
 `;
 
 const SuccessText = styled.p`
-  font-size: 1rem;
-  color: var(--text-medium);
-  margin-bottom: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--bark-medium);
 `;
 
 const ResetButton = styled.button`
+  margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--bg-fog);
-  border: 2px solid var(--bg-moss);
-  border-radius: 25px;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--green-forest);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  background: transparent;
+  border: 1px solid var(--bark-light);
+  color: var(--bark-medium);
   cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
-    background: var(--green-mint);
+    border-color: var(--forest-light);
+    color: var(--forest-deep);
   }
 `;
 
@@ -216,70 +163,55 @@ function MusicWishes() {
     setFormData({ name: '', song: '', artist: '' });
   };
 
+  if (success) {
+    return (
+      <Section id="music" data-section="music">
+        <Content>
+          <SuccessMessage>
+            <SuccessTitle>Danke!</SuccessTitle>
+            <SuccessText>Dein Musikwunsch wurde gespeichert.</SuccessText>
+            <ResetButton onClick={handleReset}>Noch einen Song?</ResetButton>
+          </SuccessMessage>
+        </Content>
+      </Section>
+    );
+  }
+
   return (
-    <Section id="music">
-      {/* Floating music notes */}
-      <FloatingNote style={{ top: '15%', left: '8%' }} $duration="10s">🎵</FloatingNote>
-      <FloatingNote style={{ top: '25%', right: '12%' }} $size="3rem" $duration="12s" $delay="-3s">🎶</FloatingNote>
-      <FloatingNote style={{ bottom: '20%', left: '10%' }} $size="2rem" $duration="9s" $delay="-5s">🎸</FloatingNote>
-      <FloatingNote style={{ bottom: '30%', right: '8%' }} $duration="11s" $delay="-2s">🎤</FloatingNote>
-      
-      <Container>
+    <Section id="music" data-section="music">
+      <Content>
         <Header>
-          <Eyebrow>🎵 Musik</Eyebrow>
+          <Eyebrow>Musik</Eyebrow>
           <Title>{title}</Title>
           <Subtitle>{description}</Subtitle>
         </Header>
         
-        <FormCard>
-          {success ? (
-            <SuccessCard>
-              <SuccessEmoji>🎉</SuccessEmoji>
-              <SuccessTitle>Perfekt!</SuccessTitle>
-              <SuccessText>Dein Songwunsch wurde gespeichert. Wir sehen uns auf der Tanzfläche!</SuccessText>
-              <ResetButton onClick={handleReset}>Noch einen Song?</ResetButton>
-            </SuccessCard>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <FormGroup>
-                <Label>Dein Name *</Label>
-                <Input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Wer wünscht sich den Song?"
-                  required
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label>Song-Titel *</Label>
-                <Input
-                  type="text"
-                  value={formData.song}
-                  onChange={e => setFormData({ ...formData, song: e.target.value })}
-                  placeholder="z.B. Dancing Queen"
-                  required
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label>Künstler / Band</Label>
-                <Input
-                  type="text"
-                  value={formData.artist}
-                  onChange={e => setFormData({ ...formData, artist: e.target.value })}
-                  placeholder="z.B. ABBA"
-                />
-              </FormGroup>
-              
-              <SubmitButton type="submit" disabled={isSubmitting}>
-                {isSubmitting ? '🎵 Wird gesendet...' : '🎵 Song wünschen'}
-              </SubmitButton>
-            </form>
-          )}
-        </FormCard>
-      </Container>
+        <Form onSubmit={handleSubmit}>
+          <Input
+            type="text"
+            value={formData.name}
+            onChange={e => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Dein Name"
+            required
+          />
+          <Input
+            type="text"
+            value={formData.song}
+            onChange={e => setFormData({ ...formData, song: e.target.value })}
+            placeholder="Song-Titel"
+            required
+          />
+          <Input
+            type="text"
+            value={formData.artist}
+            onChange={e => setFormData({ ...formData, artist: e.target.value })}
+            placeholder="Künstler (optional)"
+          />
+          <SubmitButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : 'Absenden'}
+          </SubmitButton>
+        </Form>
+      </Content>
     </Section>
   );
 }
