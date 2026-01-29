@@ -202,14 +202,14 @@ function WeddingABC() {
   const [activeLetter, setActiveLetter] = useState(null);
 
   const defaultEntries = [
-    { letter: 'A', title: 'Anfahrt', text: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt. Die Location ist gut mit dem Auto und öffentlichen Verkehrsmitteln erreichbar.' },
-    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumen mitbringen – wir haben bereits für wunderschöne Dekoration gesorgt!' },
-    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Bitte beachtet unsere Farbwünsche auf der Dresscode-Seite. Wir freuen uns auf eure schicken Outfits!' },
-    { letter: 'F', title: 'Fotos', text: 'Während der Trauung bitten wir um Handypause. Unser Fotograf hält alles fest. Danach freuen wir uns über eure Schnappschüsse!' },
-    { letter: 'G', title: 'Geschenke', text: 'Eure Anwesenheit ist das größte Geschenk! Falls ihr uns dennoch etwas schenken möchtet, findet ihr Infos unter Geschenke.' },
-    { letter: 'K', title: 'Kinder', text: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis und hoffen auf einen ausgelassenen Abend mit euch!' },
-    { letter: 'M', title: 'Musik', text: 'Habt ihr einen Musikwunsch? Teilt ihn uns mit und wir versuchen, ihn in die Playlist aufzunehmen!' },
-    { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier stehen Taxis bereit. Sprecht uns an, wenn ihr Hilfe bei der Heimfahrt braucht.' },
+    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt. Die Location ist gut mit dem Auto und öffentlichen Verkehrsmitteln erreichbar.' },
+    { letter: 'B', word: 'Blumen', description: 'Bitte keine Blumen mitbringen – wir haben bereits für wunderschöne Dekoration gesorgt!' },
+    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant. Bitte beachtet unsere Farbwünsche auf der Dresscode-Seite. Wir freuen uns auf eure schicken Outfits!' },
+    { letter: 'F', word: 'Fotos', description: 'Während der Trauung bitten wir um Handypause. Unser Fotograf hält alles fest. Danach freuen wir uns über eure Schnappschüsse!' },
+    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk! Falls ihr uns dennoch etwas schenken möchtet, findet ihr Infos unter Geschenke.' },
+    { letter: 'K', word: 'Kinder', description: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis und hoffen auf einen ausgelassenen Abend mit euch!' },
+    { letter: 'M', word: 'Musik', description: 'Habt ihr einen Musikwunsch? Teilt ihn uns mit und wir versuchen, ihn in die Playlist aufzunehmen!' },
+    { letter: 'T', word: 'Taxi', description: 'Am Ende der Feier stehen Taxis bereit. Sprecht uns an, wenn ihr Hilfe bei der Heimfahrt braucht.' },
   ];
 
   const items = entries.length > 0 ? entries : defaultEntries;
@@ -260,11 +260,11 @@ function WeddingABC() {
           <ContentPanel key={activeLetter}>
             <ContentHeader $color={getColor(activeContent.index)}>
               <ContentLetter>{activeLetter}</ContentLetter>
-              <ContentTitle>{activeContent.title}</ContentTitle>
+              <ContentTitle>{activeContent.word}</ContentTitle>
               <CloseButton onClick={() => setActiveLetter(null)}>×</CloseButton>
             </ContentHeader>
             <ContentBody>
-              <ContentText>{activeContent.text}</ContentText>
+              <ContentText>{activeContent.description}</ContentText>
             </ContentBody>
           </ContentPanel>
         ) : (
