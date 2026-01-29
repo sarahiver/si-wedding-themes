@@ -1,28 +1,14 @@
-// KnotholeOverlay - Fixed foreground with organic holes
-// Content scrolls behind this overlay
-import React, { useState, useEffect, useCallback } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+// KnotholeOverlay - Fixed foreground with REAL transparent holes
+// Uses SVG mask to cut actual holes in the wood frame
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
-// Morph animations for the holes
-const morph1 = keyframes`
-  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  50% { border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%; }
-  75% { border-radius: 40% 30% 60% 50% / 60% 50% 40% 30%; }
+// Subtle animation for organic feel
+const breathe = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
 `;
 
-const morph2 = keyframes`
-  0%, 100% { border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%; }
-  33% { border-radius: 70% 30% 30% 70% / 40% 60% 40% 60%; }
-  66% { border-radius: 30% 70% 70% 30% / 60% 40% 60% 40%; }
-`;
-
-const morph3 = keyframes`
-  0%, 100% { border-radius: 50% 50% 40% 60% / 40% 60% 50% 50%; }
-  50% { border-radius: 60% 40% 50% 50% / 50% 50% 60% 40%; }
-`;
-
-// The fixed overlay container
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -31,123 +17,43 @@ const Overlay = styled.div`
   overflow: hidden;
 `;
 
-// Wood/Bark texture background
-const WoodFrame = styled.div`
-  position: absolute;
-  inset: 0;
-  background: 
-    /* Subtle grain texture */
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(61, 50, 41, 0.03) 2px,
-      rgba(61, 50, 41, 0.03) 4px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 50px,
-      rgba(61, 50, 41, 0.02) 50px,
-      rgba(61, 50, 41, 0.02) 51px
-    ),
-    /* Base gradient */
-    radial-gradient(ellipse at 30% 20%, var(--bark-light) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, var(--bark-highlight) 0%, transparent 40%),
-    linear-gradient(135deg, var(--bark-dark) 0%, var(--bark-medium) 50%, var(--bark-dark) 100%);
-`;
-
-// Individual knothole (transparent window)
-const Knothole = styled.div`
-  position: absolute;
-  background: transparent;
-  box-shadow: var(--shadow-hole);
-  transition: all 1.2s var(--ease-out);
-  
-  /* Ring marks around the hole */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -15px;
-    border: 2px solid rgba(0,0,0,0.1);
-    border-radius: inherit;
-    animation: inherit;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: inherit;
-    animation: inherit;
-  }
-`;
-
-// Main large knothole
-const MainHole = styled(Knothole)`
-  width: ${p => p.$config?.width || '55vw'};
-  height: ${p => p.$config?.height || '70vh'};
-  left: ${p => p.$config?.left || '22.5vw'};
-  top: ${p => p.$config?.top || '15vh'};
-  animation: ${morph1} 20s ease-in-out infinite;
-`;
-
-// Secondary holes
-const SecondaryHole = styled(Knothole)`
-  width: ${p => p.$config?.width || '25vw'};
-  height: ${p => p.$config?.height || '30vh'};
-  left: ${p => p.$config?.left || '5vw'};
-  top: ${p => p.$config?.top || '10vh'};
-  animation: ${morph2} 25s ease-in-out infinite;
-  animation-delay: ${p => p.$delay || '0s'};
-`;
-
-const SmallHole = styled(Knothole)`
-  width: ${p => p.$config?.width || '15vw'};
-  height: ${p => p.$config?.height || '20vh'};
-  left: ${p => p.$config?.left || '75vw'};
-  top: ${p => p.$config?.top || '65vh'};
-  animation: ${morph3} 18s ease-in-out infinite;
-  animation-delay: ${p => p.$delay || '-5s'};
-`;
-
-// Menu dots (top right)
+// Menu dots (top right) - needs pointer events
 const MenuButton = styled.button`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
   width: 44px;
   height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  background: rgba(250, 248, 245, 0.9);
+  gap: 4px;
+  background: rgba(250, 248, 245, 0.95);
   border-radius: 50%;
   pointer-events: auto;
   cursor: pointer;
-  z-index: 10;
+  z-index: 200;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+  border: none;
   
   &:hover {
-    background: var(--cream);
     transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
   
   span {
     width: 4px;
     height: 4px;
-    background: var(--bark-dark);
+    background: #3D3229;
     border-radius: 50%;
   }
 `;
 
 // Scroll indicator
 const ScrollHint = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
@@ -155,95 +61,221 @@ const ScrollHint = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--cream);
+  color: rgba(250, 248, 245, 0.7);
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: ${p => p.$visible ? 0.6 : 0};
-  transition: opacity 0.5s ease;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transition: opacity 0.8s ease;
   pointer-events: none;
+  z-index: 150;
   
   &::after {
     content: '';
     width: 1px;
-    height: 30px;
-    background: linear-gradient(180deg, var(--cream), transparent);
+    height: 35px;
+    background: linear-gradient(180deg, rgba(250, 248, 245, 0.5), transparent);
+    animation: ${breathe} 2s ease-in-out infinite;
   }
 `;
 
-// Section configurations for different layouts
+// Section configurations for hole layouts
 const sectionConfigs = {
   hero: {
-    main: { width: '60vw', height: '75vh', left: '20vw', top: '12.5vh' },
-    secondary: null,
-    small: null,
+    main: { cx: 50, cy: 50, rx: 32, ry: 38 },
+    holes: []
   },
   countdown: {
-    main: { width: '50vw', height: '50vh', left: '25vw', top: '25vh' },
-    secondary: { width: '20vw', height: '25vh', left: '5vw', top: '60vh' },
-    small: { width: '15vw', height: '18vh', left: '78vw', top: '15vh' },
+    main: { cx: 50, cy: 50, rx: 28, ry: 30 },
+    holes: [
+      { cx: 12, cy: 75, rx: 10, ry: 12 },
+      { cx: 85, cy: 20, rx: 8, ry: 10 },
+    ]
   },
   story: {
-    main: { width: '45vw', height: '70vh', left: '5vw', top: '15vh' },
-    secondary: { width: '40vw', height: '55vh', left: '55vw', top: '25vh' },
-    small: null,
+    main: { cx: 30, cy: 50, rx: 25, ry: 35 },
+    holes: [
+      { cx: 72, cy: 55, rx: 22, ry: 28 },
+    ]
   },
   timeline: {
-    main: { width: '55vw', height: '80vh', left: '22.5vw', top: '10vh' },
-    secondary: null,
-    small: { width: '12vw', height: '15vh', left: '5vw', top: '70vh' },
+    main: { cx: 50, cy: 50, rx: 30, ry: 42 },
+    holes: [
+      { cx: 10, cy: 80, rx: 7, ry: 8 },
+    ]
   },
   gallery: {
-    main: { width: '35vw', height: '45vh', left: '5vw', top: '10vh' },
-    secondary: { width: '35vw', height: '45vh', left: '45vw', top: '8vh' },
-    small: { width: '40vw', height: '35vh', left: '30vw', top: '58vh' },
+    main: { cx: 28, cy: 35, rx: 20, ry: 25 },
+    holes: [
+      { cx: 68, cy: 32, rx: 20, ry: 25 },
+      { cx: 50, cy: 75, rx: 22, ry: 18 },
+    ]
   },
   rsvp: {
-    main: { width: '50vw', height: '70vh', left: '25vw', top: '15vh' },
-    secondary: null,
-    small: null,
+    main: { cx: 50, cy: 50, rx: 28, ry: 38 },
+    holes: []
   },
   default: {
-    main: { width: '55vw', height: '70vh', left: '22.5vw', top: '15vh' },
-    secondary: { width: '18vw', height: '22vh', left: '3vw', top: '65vh' },
-    small: { width: '12vw', height: '15vh', left: '80vw', top: '10vh' },
+    main: { cx: 50, cy: 50, rx: 30, ry: 36 },
+    holes: [
+      { cx: 10, cy: 78, rx: 9, ry: 11 },
+      { cx: 88, cy: 15, rx: 7, ry: 8 },
+    ]
   },
+};
+
+// Generate organic ellipse path
+const generateOrganicPath = (cx, cy, rx, ry, wobble = 0.15) => {
+  // Create slightly irregular ellipse using bezier curves
+  const w = rx * wobble;
+  const h = ry * wobble;
+  
+  return `
+    M ${cx - rx} ${cy}
+    C ${cx - rx} ${cy - ry * 0.55 - h}, ${cx - rx * 0.55 - w} ${cy - ry}, ${cx} ${cy - ry}
+    C ${cx + rx * 0.55 + w} ${cy - ry}, ${cx + rx} ${cy - ry * 0.55 + h}, ${cx + rx} ${cy}
+    C ${cx + rx} ${cy + ry * 0.55 + h}, ${cx + rx * 0.55 - w} ${cy + ry}, ${cx} ${cy + ry}
+    C ${cx - rx * 0.55 + w} ${cy + ry}, ${cx - rx} ${cy + ry * 0.55 - h}, ${cx - rx} ${cy}
+    Z
+  `;
 };
 
 function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
   const [config, setConfig] = useState(sectionConfigs.hero);
   const [showScrollHint, setShowScrollHint] = useState(true);
+  const [animatedConfig, setAnimatedConfig] = useState(sectionConfigs.hero);
 
   useEffect(() => {
     const newConfig = sectionConfigs[currentSection] || sectionConfigs.default;
     setConfig(newConfig);
     
-    // Hide scroll hint after first scroll
+    // Animate to new config
+    setAnimatedConfig(newConfig);
+    
     if (currentSection !== 'hero') {
       setShowScrollHint(false);
     }
   }, [currentSection]);
 
+  const { main, holes } = animatedConfig;
+
   return (
-    <Overlay>
-      <WoodFrame />
+    <>
+      <Overlay>
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox="0 0 100 100" 
+          preserveAspectRatio="none"
+          style={{ position: 'absolute', inset: 0 }}
+        >
+          <defs>
+            {/* Mask that defines the holes */}
+            <mask id="holeMask">
+              {/* White = visible (the wood frame) */}
+              <rect x="0" y="0" width="100" height="100" fill="white" />
+              
+              {/* Black = transparent (the holes) */}
+              <ellipse 
+                cx={main.cx} 
+                cy={main.cy} 
+                rx={main.rx} 
+                ry={main.ry}
+                fill="black"
+                style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              />
+              
+              {holes.map((hole, i) => (
+                <ellipse
+                  key={i}
+                  cx={hole.cx}
+                  cy={hole.cy}
+                  rx={hole.rx}
+                  ry={hole.ry}
+                  fill="black"
+                  style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                />
+              ))}
+            </mask>
+            
+            {/* Wood grain pattern */}
+            <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="4" height="4">
+              <rect width="4" height="4" fill="#5C4D3C" />
+              <line x1="0" y1="0" x2="4" y2="0" stroke="#3D3229" strokeWidth="0.1" opacity="0.3" />
+            </pattern>
+            
+            {/* Gradient for depth */}
+            <radialGradient id="woodGradient" cx="50%" cy="50%" r="70%">
+              <stop offset="0%" stopColor="#7A6B5A" />
+              <stop offset="50%" stopColor="#5C4D3C" />
+              <stop offset="100%" stopColor="#3D3229" />
+            </radialGradient>
+          </defs>
+          
+          {/* The wood frame with holes cut out */}
+          <rect 
+            x="0" 
+            y="0" 
+            width="100" 
+            height="100" 
+            fill="url(#woodGradient)"
+            mask="url(#holeMask)"
+          />
+          
+          {/* Subtle texture overlay */}
+          <rect 
+            x="0" 
+            y="0" 
+            width="100" 
+            height="100" 
+            fill="url(#woodGrain)"
+            mask="url(#holeMask)"
+            opacity="0.3"
+          />
+          
+          {/* Inner shadow/ring around main hole */}
+          <ellipse 
+            cx={main.cx} 
+            cy={main.cy} 
+            rx={main.rx + 0.8} 
+            ry={main.ry + 0.8}
+            fill="none"
+            stroke="rgba(0,0,0,0.2)"
+            strokeWidth="0.5"
+            style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          />
+          <ellipse 
+            cx={main.cx} 
+            cy={main.cy} 
+            rx={main.rx + 1.5} 
+            ry={main.ry + 1.5}
+            fill="none"
+            stroke="rgba(0,0,0,0.1)"
+            strokeWidth="0.3"
+            style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          />
+          
+          {/* Rings around secondary holes */}
+          {holes.map((hole, i) => (
+            <g key={i}>
+              <ellipse 
+                cx={hole.cx} 
+                cy={hole.cy} 
+                rx={hole.rx + 0.6} 
+                ry={hole.ry + 0.6}
+                fill="none"
+                stroke="rgba(0,0,0,0.15)"
+                strokeWidth="0.4"
+                style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              />
+            </g>
+          ))}
+        </svg>
+      </Overlay>
       
-      {/* Main viewing hole */}
-      <MainHole $config={config.main} />
-      
-      {/* Secondary hole */}
-      {config.secondary && (
-        <SecondaryHole $config={config.secondary} $delay="-8s" />
-      )}
-      
-      {/* Small accent hole */}
-      {config.small && (
-        <SmallHole $config={config.small} $delay="-12s" />
-      )}
-      
-      {/* Menu button */}
+      {/* Menu button - separate for pointer events */}
       <MenuButton onClick={onMenuClick}>
         <span />
         <span />
@@ -254,7 +286,7 @@ function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
       <ScrollHint $visible={showScrollHint}>
         Scroll
       </ScrollHint>
-    </Overlay>
+    </>
   );
 }
 
