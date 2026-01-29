@@ -49,10 +49,8 @@ export function NeonAdmin() {
   return <AdminShell components={NeonAdminComponents} />;
 }
 
-// Video - Cinematic dark theme with dusty blue accents
-export function VideoAdmin() {
-  return <AdminShell components={VideoAdminComponents} />;
-}
+// Video - Uses Editorial styles (Video-specific styles in development)
+export const VideoAdmin = EditorialAdmin;
 
 // ============================================
 // Style components exports (for customization)
