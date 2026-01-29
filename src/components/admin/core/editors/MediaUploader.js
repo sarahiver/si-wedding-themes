@@ -8,6 +8,7 @@ function MediaUploader({
   onUpload,
   folder,
   ratio = '16/9',
+  maxHeight = null,
   label = 'Hintergrund',
   allowVideo = false
 }) {
@@ -110,6 +111,7 @@ function MediaUploader({
         $hasImage={!!mediaUrl}
         $image={currentType === 'image' ? mediaUrl : null}
         $ratio={ratio}
+        style={maxHeight ? { maxHeight, aspectRatio: 'unset' } : {}}
         onDrop={handleDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}

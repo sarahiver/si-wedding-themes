@@ -8,6 +8,7 @@ function ImageUploader({
   onUpload, 
   folder,
   ratio = '16/9',
+  maxHeight = null,
   label = 'Bild'
 }) {
   const { cloudName, uploadPreset, cloudinaryConfigured } = useAdmin();
@@ -76,6 +77,7 @@ function ImageUploader({
         $hasImage={!!image}
         $image={image}
         $ratio={ratio}
+        style={maxHeight ? { maxHeight, aspectRatio: 'unset' } : {}}
         onDrop={handleDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
