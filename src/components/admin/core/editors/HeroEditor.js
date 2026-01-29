@@ -55,8 +55,8 @@ function HeroEditor({ components: C }) {
         
         {/* Mobile Background Toggle */}
         <C.FormGroup>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <C.Checkbox
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
               type="checkbox"
               checked={showMobileUpload}
               onChange={(e) => {
@@ -70,11 +70,10 @@ function HeroEditor({ components: C }) {
                   }
                 }
               }}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <C.Label style={{ margin: 0, cursor: 'pointer' }} onClick={() => setShowMobileUpload(!showMobileUpload)}>
-              Separaten Mobile-Hintergrund verwenden
-            </C.Label>
-          </div>
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Separaten Mobile-Hintergrund verwenden</span>
+          </label>
           <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
             Empfohlen: Hochformat (9:16) für bessere Darstellung auf Smartphones
           </C.HelpText>

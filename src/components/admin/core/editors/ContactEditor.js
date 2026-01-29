@@ -42,11 +42,15 @@ function ContactEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.show_form || false}
-            onChange={(e) => update('show_form', e.target.checked)}
-          />
-          <C.CheckboxLabel>Kontaktformular anzeigen</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.show_form || false}
+              onChange={(e) => update('show_form', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Kontaktformular anzeigen</span>
+          </label>
         </C.FormGroup>
         
         <C.Divider />

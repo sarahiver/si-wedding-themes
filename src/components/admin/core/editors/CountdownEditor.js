@@ -32,14 +32,15 @@ function CountdownEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={content.show_seconds || false}
               onChange={(e) => update('show_seconds', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            Sekunden anzeigen
-          </C.Checkbox>
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Sekunden anzeigen</span>
+          </label>
         </C.FormGroup>
         
         <C.Divider />

@@ -1,6 +1,7 @@
 // core/sections/RSVPSection.js - Mit Edit, Delete und Excel Export
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
+import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../lib/supabase';
 
 function RSVPSection({ components: C }) {
   const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId } = useAdmin();
@@ -51,11 +52,12 @@ function RSVPSection({ components: C }) {
   const deleteRSVP = async (id) => {
     if (!window.confirm('RSVP wirklich löschen?')) return;
     try {
-      const { deleteRSVPResponse } = await import('../../../lib/supabase');
-      await deleteRSVPResponse(id);
+      const { error } = await deleteRSVPResponse(id);
+      if (error) throw error;
       await loadData();
       showFeedback('success', 'Gelöscht');
     } catch (e) {
+      console.error('Delete error:', e);
       showFeedback('error', 'Fehler beim Löschen');
     }
   };
@@ -63,12 +65,13 @@ function RSVPSection({ components: C }) {
   // Update RSVP
   const updateRSVP = async (id) => {
     try {
-      const { updateRSVPResponse } = await import('../../../lib/supabase');
-      await updateRSVPResponse(id, editForm);
+      const { error } = await updateRSVPResponse(id, editForm);
+      if (error) throw error;
       await loadData();
       setEditingId(null);
       showFeedback('success', 'Gespeichert');
     } catch (e) {
+      console.error('Update error:', e);
       showFeedback('error', 'Fehler beim Speichern');
     }
   };
@@ -80,13 +83,14 @@ function RSVPSection({ components: C }) {
       return;
     }
     try {
-      const { submitRSVP } = await import('../../../lib/supabase');
-      await submitRSVP(projectId, newEntry);
+      const { error } = await submitRSVP(projectId, newEntry);
+      if (error) throw error;
       await loadData();
       setShowAddForm(false);
       setNewEntry({ name: '', email: '', persons: 1, attending: true, dietary: '', message: '' });
       showFeedback('success', 'RSVP hinzugefügt');
     } catch (e) {
+      console.error('Add error:', e);
       showFeedback('error', 'Fehler beim Hinzufügen');
     }
   };

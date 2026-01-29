@@ -698,21 +698,30 @@ export const LoadingSpinner = styled.div`display: flex; justify-content: center;
 export const EmptyState = styled.p`text-align: center; color: rgba(255, 255, 255, 0.4); padding: 3rem; font-size: 0.9rem;`;
 
 // ============================================
-// FEEDBACK
+// FEEDBACK - Toast oben rechts
 // ============================================
 export const FeedbackModal = styled.div`
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  top: 1.5rem;
+  right: 1.5rem;
   padding: 1rem 1.5rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   background: ${p => p.type === 'success' ? '#2E7D32' : p.type === 'error' ? '#C41E3A' : '#333'};
   color: white;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
   animation: ${fadeIn} 0.3s ease;
-  z-index: 1000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 250px;
+  
+  &::before {
+    content: '${p => p.type === 'success' ? '✓' : p.type === 'error' ? '✕' : 'ℹ'}';
+    font-size: 1.2rem;
+  }
 `;
 
 export const LogoIcon = null;

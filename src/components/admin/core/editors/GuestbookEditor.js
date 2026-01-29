@@ -32,11 +32,15 @@ function GuestbookEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.allow_images || false}
-            onChange={(e) => update('allow_images', e.target.checked)}
-          />
-          <C.CheckboxLabel>Bilder in Einträgen erlauben</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.allow_images || false}
+              onChange={(e) => update('allow_images', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Bilder in Einträgen erlauben</span>
+          </label>
         </C.FormGroup>
         
         <C.Divider />
