@@ -18,6 +18,7 @@ function LovestoryEditor({ components: C }) {
         folder={`${baseFolder}/lovestory`}
         ratio="4/3"
         label="Bild"
+        maxHeight="80px"
       />
       <C.FormGroup>
         <C.Label>Zeitpunkt *</C.Label>

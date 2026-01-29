@@ -17,6 +17,7 @@ function GiftsEditor({ components: C }) {
         onUpload={(url) => onChange('image', url)}
         folder={`${baseFolder}/gifts`}
         ratio="1/1"
+        maxHeight="80px"
         label="Bild"
       />
       <C.FormGroup>
@@ -36,11 +37,15 @@ function GiftsEditor({ components: C }) {
         />
       </C.FormGroup>
       <C.FormGroup>
-        <C.Checkbox
-          checked={item.reserved || false}
-          onChange={(e) => onChange('reserved', e.target.checked)}
-        />
-        <C.CheckboxLabel>Reserviert</C.CheckboxLabel>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={item.reserved || false}
+            onChange={(e) => onChange('reserved', e.target.checked)}
+            style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+          />
+          <span style={{ color: 'rgba(255,255,255,0.7)' }}>Reserviert</span>
+        </label>
       </C.FormGroup>
       {item.reserved && (
         <C.FormGroup>
@@ -100,11 +105,15 @@ function GiftsEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.show_registry || false}
-            onChange={(e) => update('show_registry', e.target.checked)}
-          />
-          <C.CheckboxLabel>Wunschliste zeigen</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.show_registry || false}
+              onChange={(e) => update('show_registry', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Wunschliste zeigen</span>
+          </label>
         </C.FormGroup>
         
         <C.FormGroup>

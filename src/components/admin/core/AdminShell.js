@@ -47,6 +47,8 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'edit-abc': 'Hochzeits-ABC',
     'edit-contact': 'Kontakt',
     'edit-footer': 'Footer',
+    'edit-savethedate': 'Save the Date',
+    'edit-archive': 'Archiv-Seite',
     'status': 'Status',
   };
 
@@ -97,6 +99,8 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'edit-abc': return <Editors.ABCEditor components={C} />;
       case 'edit-contact': return <Editors.ContactEditor components={C} />;
       case 'edit-footer': return <Editors.FooterEditor components={C} />;
+      case 'edit-savethedate': return <Editors.SaveTheDateEditor components={C} />;
+      case 'edit-archive': return <Editors.ArchiveEditor components={C} />;
       case 'status': return <StatusSection components={C} />;
       default: return <C.EmptyState>Bereich nicht gefunden</C.EmptyState>;
     }

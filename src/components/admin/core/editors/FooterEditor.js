@@ -31,26 +31,6 @@ function FooterEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.SectionLabel>Rechtliches</C.SectionLabel>
-        
-        <C.FormGroup>
-          <C.Label>Impressum Link</C.Label>
-          <C.Input 
-            value={content.impressum_url || ''} 
-            onChange={(e) => update('impressum_url', e.target.value)}
-            placeholder="/impressum"
-          />
-        </C.FormGroup>
-        
-        <C.FormGroup>
-          <C.Label>Datenschutz Link</C.Label>
-          <C.Input 
-            value={content.datenschutz_url || ''} 
-            onChange={(e) => update('datenschutz_url', e.target.value)}
-            placeholder="/datenschutz"
-          />
-        </C.FormGroup>
-        
         <C.Divider />
         <C.Button onClick={() => saveContent('footer')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}

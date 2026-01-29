@@ -17,6 +17,7 @@ function WitnessesEditor({ components: C }) {
         onUpload={(url) => onChange('image', url)}
         folder={`${baseFolder}/witnesses`}
         ratio="1/1"
+        maxHeight="80px"
         label="Foto"
       />
       <C.FormGroup>

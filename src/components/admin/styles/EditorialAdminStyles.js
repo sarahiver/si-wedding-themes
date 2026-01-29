@@ -487,16 +487,11 @@ export const TextArea = styled.textarea`
   &::placeholder { color: rgba(255, 255, 255, 0.3); }
 `;
 
-export const Checkbox = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
+export const Checkbox = styled.input.attrs({ type: 'checkbox' })`
+  width: 18px;
+  height: 18px;
+  accent-color: #C41E3A;
   cursor: pointer;
-  
-  input { width: 18px; height: 18px; accent-color: #C41E3A; }
 `;
 
 export const Select = styled.select`
@@ -515,6 +510,7 @@ export const Select = styled.select`
 
 export const ErrorText = styled.span`font-size: 0.75rem; color: #C41E3A; margin-top: 0.25rem; display: block;`;
 export const HelpText = styled.span`font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); margin-top: 0.25rem; display: block;`;
+export const CheckboxLabel = styled.span`font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);`;
 export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
 
 // ============================================
@@ -602,6 +598,7 @@ export const AlertBox = styled.div`
   ${p => {
     if (p.$type === 'success') return css`background: rgba(46, 125, 50, 0.1); border-color: #4CAF50; color: #4CAF50;`;
     if (p.$type === 'warning') return css`background: rgba(196, 30, 58, 0.1); border-color: #C41E3A; color: #C41E3A;`;
+    if (p.$type === 'info') return css`background: rgba(33, 150, 243, 0.1); border-color: #2196F3; color: #90CAF9;`;
     return css`background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.3); color: rgba(255, 255, 255, 0.7);`;
   }}
 `;
@@ -731,7 +728,7 @@ export const EditorialAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup,
   ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,

@@ -43,27 +43,39 @@ function RSVPEditor({ components: C }) {
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.ask_dietary || false}
-            onChange={(e) => update('ask_dietary', e.target.checked)}
-          />
-          <C.CheckboxLabel>Ernährungswünsche abfragen (vegetarisch, vegan, etc.)</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.ask_dietary || false}
+              onChange={(e) => update('ask_dietary', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Ernährungswünsche abfragen (vegetarisch, vegan, etc.)</span>
+          </label>
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.ask_allergies || false}
-            onChange={(e) => update('ask_allergies', e.target.checked)}
-          />
-          <C.CheckboxLabel>Allergien/Unverträglichkeiten abfragen</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.ask_allergies || false}
+              onChange={(e) => update('ask_allergies', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Allergien/Unverträglichkeiten abfragen</span>
+          </label>
         </C.FormGroup>
         
         <C.FormGroup>
-          <C.Checkbox
-            checked={content.ask_song_wish || false}
-            onChange={(e) => update('ask_song_wish', e.target.checked)}
-          />
-          <C.CheckboxLabel>Musikwunsch abfragen</C.CheckboxLabel>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={content.ask_song_wish || false}
+              onChange={(e) => update('ask_song_wish', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Musikwunsch abfragen</span>
+          </label>
         </C.FormGroup>
         
         <C.Divider />

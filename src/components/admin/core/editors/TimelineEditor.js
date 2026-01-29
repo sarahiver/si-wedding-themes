@@ -59,6 +59,7 @@ function TimelineEditor({ components: C }) {
         onUpload={(url) => onChange('image', url)}
         folder={`${baseFolder}/timeline`}
         ratio="16/9"
+        maxHeight="80px"
         label="Bild (optional)"
       />
     </>

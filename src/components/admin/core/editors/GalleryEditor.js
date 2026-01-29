@@ -8,30 +8,13 @@ function GalleryEditor({ components: C }) {
   const content = contentStates.gallery || {};
   const update = (field, value) => updateContent('gallery', { ...content, [field]: value });
 
-  // Convert images array to include captions
-  const handleImagesChange = (urls) => {
-    // Preserve existing captions when possible
-    const existingImages = content.images || [];
-    const newImages = urls.map((url, i) => {
-      const existing = existingImages.find(img => img.url === url || img === url);
-      return {
-        url: typeof url === 'string' ? url : url.url,
-        caption: existing?.caption || ''
-      };
-    });
-    update('images', newImages);
-  };
-
-  const updateCaption = (index, caption) => {
-    const images = [...(content.images || [])];
-    if (images[index]) {
-      images[index] = { ...images[index], caption };
-      update('images', images);
-    }
-  };
-
-  // Get URLs for MultiImageUploader
+  // Get image URLs (handle both string arrays and object arrays)
   const imageUrls = (content.images || []).map(img => typeof img === 'string' ? img : img.url);
+
+  const handleImagesChange = (urls) => {
+    // Store as simple URL strings (no captions needed per requirement)
+    update('images', urls.map(url => ({ url: typeof url === 'string' ? url : url.url })));
+  };
 
   return (
     <C.Panel>
@@ -68,22 +51,6 @@ function GalleryEditor({ components: C }) {
           folder={`${baseFolder}/gallery`}
           maxImages={20}
         />
-        
-        {(content.images || []).length > 0 && (
-          <>
-            <C.SectionLabel>Bildunterschriften</C.SectionLabel>
-            {(content.images || []).map((img, i) => (
-              <C.FormGroup key={i}>
-                <C.Label>Bild {i + 1}</C.Label>
-                <C.Input 
-                  value={img.caption || ''} 
-                  onChange={(e) => updateCaption(i, e.target.value)}
-                  placeholder="Bildunterschrift..."
-                />
-              </C.FormGroup>
-            ))}
-          </>
-        )}
         
         <C.Divider />
         <C.Button onClick={() => saveContent('gallery')} disabled={isSaving}>

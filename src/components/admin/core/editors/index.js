@@ -15,5 +15,7 @@ export { default as FAQEditor } from './FAQEditor';
 export { default as ABCEditor } from './ABCEditor';
 export { default as ContactEditor } from './ContactEditor';
 export { default as FooterEditor } from './FooterEditor';
+export { default as SaveTheDateEditor } from './SaveTheDateEditor';
+export { default as ArchiveEditor } from './ArchiveEditor';
 export { default as ImageUploader } from './ImageUploader';
 export { default as MediaUploader } from './MediaUploader';

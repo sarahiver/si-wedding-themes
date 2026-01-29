@@ -322,6 +322,10 @@ export function AdminProvider({ children }) {
       checkActive('contact') && { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
       { id: 'edit-footer', label: 'Footer', icon: '📝' },
     ].filter(Boolean)},
+    { section: 'Seiten-Varianten', items: [
+      { id: 'edit-savethedate', label: 'Save the Date', icon: '💌' },
+      { id: 'edit-archive', label: 'Archiv', icon: '📦' },
+    ]},
     { section: 'Einstellungen', items: [
       { id: 'status', label: 'Status', icon: '⚙️' }
     ]},
