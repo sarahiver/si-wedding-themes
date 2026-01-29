@@ -31,18 +31,6 @@ function GalleryEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.FormGroup>
-          <C.Label>Layout</C.Label>
-          <C.Select 
-            value={content.layout || 'grid'} 
-            onChange={(e) => update('layout', e.target.value)}
-          >
-            <option value="grid">Grid</option>
-            <option value="masonry">Masonry</option>
-            <option value="slider">Slider</option>
-          </C.Select>
-        </C.FormGroup>
-        
         <C.SectionLabel>Bilder (max. 20)</C.SectionLabel>
         <MultiImageUploader
           components={C}

@@ -1,4 +1,4 @@
-// core/editors/MultiImageUploader.js - Multiple Image Upload Logic
+// core/editors/MultiImageUploader.js - Multiple Image Upload mit Status
 import React, { useState, useRef } from 'react';
 import { useAdmin } from '../AdminContext';
 
@@ -15,15 +15,18 @@ function MultiImageUploader({
 }) {
   const { cloudName, uploadPreset, cloudinaryConfigured } = useAdmin();
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, fileName: '' });
   const inputRef = useRef(null);
   
   const maxCount = maxImages || max;
 
-  const upload = async (file) => {
+  const upload = async (file, index, total) => {
     if (!cloudinaryConfigured) {
       console.error('Cloudinary not configured');
       return null;
     }
+    
+    setUploadProgress({ current: index + 1, total, fileName: file.name });
     
     const formData = new FormData();
     formData.append('file', file);
@@ -45,11 +48,13 @@ function MultiImageUploader({
 
   const handleChange = async (e) => {
     const files = Array.from(e.target.files).slice(0, maxCount - images.length);
+    if (files.length === 0) return;
+    
     setUploading(true);
     
     const newImages = [];
-    for (const file of files) {
-      const result = await upload(file);
+    for (let i = 0; i < files.length; i++) {
+      const result = await upload(files[i], i, files.length);
       if (result) {
         newImages.push(result.url);
         // Support both APIs
@@ -65,6 +70,7 @@ function MultiImageUploader({
     }
     
     setUploading(false);
+    setUploadProgress({ current: 0, total: 0, fileName: '' });
     e.target.value = '';
   };
 
@@ -81,6 +87,51 @@ function MultiImageUploader({
   return (
     <C.FormGroup>
       <C.Label>{label} ({images.length}/{maxCount})</C.Label>
+      
+      {/* Upload Status */}
+      {uploading && (
+        <div style={{
+          background: 'rgba(196, 30, 58, 0.1)',
+          border: '1px solid rgba(196, 30, 58, 0.3)',
+          padding: '1rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            border: '3px solid rgba(196, 30, 58, 0.3)',
+            borderTopColor: '#C41E3A',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ color: '#C41E3A', fontWeight: '600', fontSize: '0.85rem' }}>
+              Uploading... {uploadProgress.current}/{uploadProgress.total}
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+              {uploadProgress.fileName}
+            </div>
+            <div style={{
+              height: '4px',
+              background: 'rgba(255,255,255,0.1)',
+              marginTop: '0.5rem',
+              borderRadius: '2px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%',
+                background: '#C41E3A',
+                width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+          </div>
+        </div>
+      )}
+      
       <C.ImageGrid>
         {images.map((img, index) => {
           const url = typeof img === 'string' ? img : img.url;
@@ -90,9 +141,9 @@ function MultiImageUploader({
             </C.ImageItem>
           );
         })}
-        {images.length < maxCount && (
-          <C.AddButton onClick={() => inputRef.current?.click()} disabled={uploading}>
-            <span>{uploading ? '...' : '+'}</span>
+        {images.length < maxCount && !uploading && (
+          <C.AddButton onClick={() => inputRef.current?.click()}>
+            <span>+</span>
           </C.AddButton>
         )}
       </C.ImageGrid>
@@ -107,6 +158,13 @@ function MultiImageUploader({
       {!cloudinaryConfigured && (
         <C.HelpText>⚠️ Cloudinary nicht konfiguriert - Upload deaktiviert</C.HelpText>
       )}
+      
+      {/* CSS for spinner animation */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </C.FormGroup>
   );
 }
