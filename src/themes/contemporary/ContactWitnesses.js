@@ -1,4 +1,4 @@
-// Contemporary ContactWitnesses (Trauzeugen)
+// Contemporary ContactWitnesses (Trauzeugen) - Privacy Protected
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -48,8 +48,8 @@ const Grid = styled.div`
 
 const Card = styled.div`
   background: var(--white);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-lg);
+  border: 4px solid var(--black);
+  box-shadow: 8px 8px 0 var(--black);
   padding: 2rem;
   text-align: center;
 `;
@@ -59,7 +59,7 @@ const Avatar = styled.div`
   height: 100px;
   margin: 0 auto 1.5rem;
   background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--gray-200)'};
-  border: 3px solid var(--black);
+  border: 4px solid var(--black);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -86,16 +86,21 @@ const Role = styled.p`
 
 const ContactLink = styled.a`
   display: block;
-  font-size: 0.9rem;
-  color: var(--gray-600);
-  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--black);
+  padding: 0.75rem;
   margin-bottom: 0.5rem;
-  border: 2px solid var(--gray-200);
+  border: 3px solid var(--black);
+  background: var(--gray-100);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   transition: all 0.2s ease;
   
   &:hover {
     background: var(--yellow);
-    border-color: var(--black);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--black);
   }
   
   &:last-child {
@@ -108,11 +113,12 @@ function ContactWitnesses() {
   const witnessesData = content?.witnesses || {};
   
   const title = witnessesData.title || 'Trauzeugen';
+  const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen könnt ihr euch an unsere Trauzeugen wenden';
   const persons = witnessesData.persons || [];
 
   const defaultPersons = [
     { name: 'Julia Schmidt', role: 'Trauzeugin der Braut', email: 'julia@example.com', phone: '+49 170 1234567' },
-    { name: 'Thomas Mueller', role: 'Trauzeuge des Braeutigams', email: 'thomas@example.com', phone: '+49 171 7654321' },
+    { name: 'Thomas Müller', role: 'Trauzeuge des Bräutigams', email: 'thomas@example.com', phone: '+49 171 7654321' },
   ];
 
   const items = persons.length > 0 ? persons : defaultPersons;
@@ -123,23 +129,25 @@ function ContactWitnesses() {
         <Header>
           <Eyebrow>Unsere Helfer</Eyebrow>
           <Title>{title}</Title>
-          <Subtitle>Bei Fragen zu Ueberraschungen koennt ihr euch an unsere Trauzeugen wenden</Subtitle>
+          <Subtitle>{subtitle}</Subtitle>
         </Header>
         
         <Grid>
           {items.map((person, i) => (
             <Card key={i}>
-              <Avatar $image={person.image} />
+              <Avatar $image={person.image}>
+                {!person.image && (i === 0 ? '👩' : '👨')}
+              </Avatar>
               <Name>{person.name}</Name>
               <Role>{person.role}</Role>
               {person.email && (
                 <ContactLink href={`mailto:${person.email}`}>
-                  {person.email}
+                  E-Mail schreiben
                 </ContactLink>
               )}
               {person.phone && (
                 <ContactLink href={`tel:${person.phone.replace(/\s/g, '')}`}>
-                  {person.phone}
+                  Anrufen
                 </ContactLink>
               )}
             </Card>

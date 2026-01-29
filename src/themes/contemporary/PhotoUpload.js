@@ -1,13 +1,22 @@
-// Contemporary PhotoUpload
-import React, { useState, useRef, useCallback } from 'react';
+// Contemporary PhotoUpload - Bold Loading State
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { uploadToCloudinary } from '../../lib/cloudinary';
-import { submitPhotoUpload } from '../../lib/supabase';
+import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore';
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.02); }
+`;
+
+const stripes = keyframes`
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+`;
+
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 `;
 
 const Section = styled.section`
@@ -48,83 +57,134 @@ const Subtitle = styled.p`
   margin-top: 0.5rem;
 `;
 
-const DropZone = styled.div`
-  background: ${p => p.$dragging ? 'var(--coral)' : 'var(--gray-800)'};
-  border: 4px dashed ${p => p.$dragging ? 'var(--white)' : 'var(--gray-600)'};
-  padding: 4rem 2rem;
-  cursor: pointer;
+// Upload Area
+const UploadArea = styled.div`
+  background: var(--gray-900);
+  border: 4px dashed ${p => p.$dragging ? 'var(--coral)' : 'var(--gray-600)'};
+  padding: 3rem 2rem;
+  cursor: ${p => p.$uploading ? 'wait' : 'pointer'};
   transition: all 0.3s ease;
-  animation: ${p => p.$dragging ? pulse : 'none'} 0.5s ease-in-out infinite;
   
-  &:hover {
+  ${p => p.$dragging && `
+    background: rgba(255, 107, 107, 0.1);
     border-color: var(--coral);
-    background: var(--gray-700);
-  }
+  `}
+  
+  ${p => !p.$uploading && `
+    &:hover {
+      border-color: var(--coral);
+      background: var(--gray-800);
+    }
+  `}
 `;
 
-const DropIcon = styled.div`
+const UploadIcon = styled.div`
   font-size: 4rem;
   margin-bottom: 1rem;
+  animation: ${bounce} 2s ease-in-out infinite;
 `;
 
-const DropText = styled.p`
-  font-size: 1.1rem;
-  font-weight: 600;
+const UploadText = styled.p`
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--white);
+  text-transform: uppercase;
   margin-bottom: 0.5rem;
 `;
 
-const DropSubtext = styled.p`
+const UploadHint = styled.p`
   font-size: 0.85rem;
-  color: var(--gray-400);
+  color: var(--gray-500);
 `;
 
-const HiddenInput = styled.input`
-  display: none;
+// Loading State - BOLD
+const LoadingOverlay = styled.div`
+  background: var(--gray-900);
+  border: 4px solid var(--coral);
+  padding: 3rem 2rem;
+  animation: ${pulse} 2s ease-in-out infinite;
 `;
 
-const UploadButton = styled.button`
-  margin-top: 2rem;
-  padding: 1rem 2.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  background: var(--coral);
-  color: var(--white);
-  border: 3px solid var(--white);
-  box-shadow: 6px 6px 0 var(--white);
-  cursor: pointer;
-  transition: all 0.2s ease;
+const LoadingIcon = styled.div`
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 2rem;
+  border: 6px solid var(--gray-700);
+  border-top-color: var(--coral);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   
-  &:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--white);
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 `;
 
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: var(--gray-700);
-  border: 2px solid var(--white);
-  margin-top: 2rem;
+const LoadingTitle = styled.h3`
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+`;
+
+const LoadingSubtitle = styled.p`
+  font-size: 1rem;
+  color: var(--gray-400);
+  margin-bottom: 2rem;
+`;
+
+const ProgressContainer = styled.div`
+  background: var(--gray-800);
+  border: 4px solid var(--white);
+  height: 40px;
+  position: relative;
   overflow: hidden;
 `;
 
 const ProgressFill = styled.div`
   height: 100%;
-  background: var(--coral);
   width: ${p => p.$progress}%;
+  background: var(--coral);
+  background-image: linear-gradient(
+    45deg,
+    rgba(255,255,255,0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 40px 40px;
+  animation: ${stripes} 1s linear infinite;
   transition: width 0.3s ease;
 `;
 
-const ProgressText = styled.p`
-  font-size: 0.85rem;
+const ProgressText = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--white);
-  margin-top: 0.5rem;
+  text-shadow: 2px 2px 0 var(--black);
 `;
 
-const SuccessMessage = styled.div`
+const ProgressHint = styled.p`
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+`;
+
+// Success State
+const SuccessBox = styled.div`
+  background: var(--electric);
+  border: 4px solid var(--white);
+  box-shadow: 8px 8px 0 var(--white);
   padding: 3rem 2rem;
   text-align: center;
 `;
@@ -135,138 +195,80 @@ const SuccessEmoji = styled.div`
 `;
 
 const SuccessTitle = styled.h3`
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--white);
   text-transform: uppercase;
+  margin-bottom: 0.5rem;
 `;
 
 const SuccessText = styled.p`
-  color: var(--gray-400);
-  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 2rem;
 `;
 
-const ResetButton = styled.button`
-  margin-top: 1.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.85rem;
+const Button = styled.button`
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
   font-weight: 700;
-  background: var(--gray-800);
+  text-transform: uppercase;
+  background: ${p => p.$variant === 'secondary' ? 'var(--gray-800)' : 'var(--coral)'};
   color: var(--white);
-  border: 2px solid var(--white);
+  border: 4px solid var(--white);
+  box-shadow: 6px 6px 0 ${p => p.$variant === 'secondary' ? 'var(--gray-600)' : 'var(--white)'};
   cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: ${p => p.$variant === 'secondary' ? '1.5rem' : '0'};
   
   &:hover {
-    background: var(--gray-700);
-  }
-`;
-
-const NameInput = styled.input`
-  width: 100%;
-  max-width: 300px;
-  padding: 1rem;
-  font-size: 1rem;
-  background: var(--gray-800);
-  color: var(--white);
-  border: 3px solid var(--gray-600);
-  text-align: center;
-  margin-top: 1.5rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--coral);
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 ${p => p.$variant === 'secondary' ? 'var(--gray-600)' : 'var(--white)'};
   }
   
-  &::placeholder {
-    color: var(--gray-500);
+  &:active {
+    transform: translate(0, 0);
+    box-shadow: 6px 6px 0 ${p => p.$variant === 'secondary' ? 'var(--gray-600)' : 'var(--white)'};
   }
 `;
 
 function PhotoUpload() {
-  const { project, content } = useWedding();
+  const { content } = useWedding();
   const photouploadData = content?.photoupload || {};
   
   const title = photouploadData.title || 'Fotos teilen';
   const description = photouploadData.description || 'Teile deine schönsten Momente mit uns!';
   
   const [dragging, setDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [success, setSuccess] = useState(false);
-  const [uploaderName, setUploaderName] = useState('');
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const fileInputRef = useRef(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleDrag = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+  const {
+    uploading, progress, error, success,
+    fileInputRef, handleFileSelect, openFilePicker, handleDrop, handleDragOver,
+    resetState
+  } = usePhotoUpload({ maxFiles: 10, maxSizeMB: 10 });
 
-  const handleDragIn = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  useEffect(() => {
+    if (success) {
+      setShowSuccess(true);
+    }
+  }, [success]);
+
+  const onDrop = (e) => {
+    setDragging(false);
+    handleDrop(e);
+  };
+
+  const onDragOver = (e) => {
+    handleDragOver(e);
     setDragging(true);
-  }, []);
-
-  const handleDragOut = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragging(false);
-    
-    const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
-    if (files.length > 0) {
-      setSelectedFiles(files);
-    }
-  }, []);
-
-  const handleFileSelect = (e) => {
-    const files = [...e.target.files].filter(f => f.type.startsWith('image/'));
-    if (files.length > 0) {
-      setSelectedFiles(files);
-    }
   };
 
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0 || !project?.id) return;
-    
-    setUploading(true);
-    setProgress(0);
-    
-    try {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i];
-        const result = await uploadToCloudinary(file);
-        
-        if (result.url) {
-          await submitPhotoUpload(project.id, {
-            url: result.url,
-            public_id: result.public_id,
-            uploader_name: uploaderName || 'Anonym'
-          });
-        }
-        
-        setProgress(Math.round(((i + 1) / selectedFiles.length) * 100));
-      }
-      
-      setSuccess(true);
-    } catch (err) {
-      console.error('Upload error:', err);
-    } finally {
-      setUploading(false);
-    }
-  };
+  const onDragLeave = () => setDragging(false);
 
-  const handleReset = () => {
-    setSuccess(false);
-    setSelectedFiles([]);
-    setProgress(0);
-    setUploaderName('');
+  const handleUploadMore = () => {
+    setShowSuccess(false);
+    resetState();
   };
 
   return (
@@ -278,68 +280,62 @@ function PhotoUpload() {
           <Subtitle>{description}</Subtitle>
         </Header>
         
-        {success ? (
-          <SuccessMessage>
+        {showSuccess ? (
+          <SuccessBox>
             <SuccessEmoji>🎉</SuccessEmoji>
-            <SuccessTitle>Upload complete!</SuccessTitle>
-            <SuccessText>Danke fürs Teilen! Die Fotos erscheinen nach Freigabe.</SuccessText>
-            <ResetButton onClick={handleReset}>Mehr Fotos hochladen</ResetButton>
-          </SuccessMessage>
+            <SuccessTitle>Upload Complete!</SuccessTitle>
+            <SuccessText>Danke fürs Teilen! Die Fotos erscheinen nach Freigabe in der Galerie.</SuccessText>
+            <Button onClick={handleUploadMore}>Mehr Fotos hochladen</Button>
+          </SuccessBox>
+        ) : uploading ? (
+          <LoadingOverlay>
+            <LoadingIcon />
+            <LoadingTitle>Uploading...</LoadingTitle>
+            <LoadingSubtitle>Bitte warten, das Fenster nicht schließen</LoadingSubtitle>
+            <ProgressContainer>
+              <ProgressFill $progress={progress} />
+              <ProgressText>{progress}%</ProgressText>
+            </ProgressContainer>
+            <ProgressHint>Deine Fotos werden hochgeladen</ProgressHint>
+          </LoadingOverlay>
         ) : (
           <>
-            <DropZone
+            <UploadArea
               $dragging={dragging}
-              onClick={() => fileInputRef.current?.click()}
-              onDragEnter={handleDragIn}
-              onDragLeave={handleDragOut}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
+              $uploading={uploading}
+              onClick={openFilePicker}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
             >
-              <DropIcon>{selectedFiles.length > 0 ? '✅' : '📷'}</DropIcon>
-              <DropText>
-                {selectedFiles.length > 0 
-                  ? `${selectedFiles.length} Foto${selectedFiles.length > 1 ? 's' : ''} ausgewählt`
-                  : 'Fotos hier ablegen'}
-              </DropText>
-              <DropSubtext>
-                {selectedFiles.length > 0 
-                  ? 'Klicken um andere zu wählen'
-                  : 'oder klicken zum Auswählen'}
-              </DropSubtext>
-              <HiddenInput
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileSelect}
-              />
-            </DropZone>
+              <UploadIcon>📷</UploadIcon>
+              <UploadText>
+                {dragging ? 'Jetzt loslassen!' : 'Fotos hier ablegen'}
+              </UploadText>
+              <UploadHint>oder klicken zum Auswählen • Max. 10 Bilder</UploadHint>
+            </UploadArea>
             
-            {selectedFiles.length > 0 && (
-              <>
-                <NameInput
-                  type="text"
-                  placeholder="Dein Name (optional)"
-                  value={uploaderName}
-                  onChange={e => setUploaderName(e.target.value)}
-                />
-                
-                <UploadButton onClick={handleUpload} disabled={uploading}>
-                  {uploading ? 'Uploading...' : `${selectedFiles.length} Foto${selectedFiles.length > 1 ? 's' : ''} hochladen →`}
-                </UploadButton>
-              </>
-            )}
-            
-            {uploading && (
-              <>
-                <ProgressBar>
-                  <ProgressFill $progress={progress} />
-                </ProgressBar>
-                <ProgressText>{progress}% hochgeladen</ProgressText>
-              </>
+            {error && (
+              <div style={{ 
+                marginTop: '1rem', 
+                padding: '1rem', 
+                background: 'var(--coral)', 
+                border: '3px solid var(--white)',
+                color: 'var(--white)',
+                fontWeight: '700'
+              }}>
+                {error}
+              </div>
             )}
           </>
         )}
+        
+        <HiddenFileInput 
+          fileInputRef={fileInputRef}
+          handleFileSelect={handleFileSelect}
+          multiple={true}
+          accept="image/*"
+        />
       </Container>
     </Section>
   );

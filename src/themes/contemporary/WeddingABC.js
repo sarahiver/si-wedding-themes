@@ -1,15 +1,28 @@
-// Contemporary WeddingABC
+// Contemporary WeddingABC - Click Letters to Show Text
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+
+const pop = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
+const slideDown = keyframes`
+  from { opacity: 0; max-height: 0; padding: 0 2rem; }
+  to { opacity: 1; max-height: 300px; padding: 2rem; }
+`;
 
 const Section = styled.section`
   padding: clamp(4rem, 10vh, 8rem) 2rem;
   background: var(--yellow);
+  position: relative;
+  overflow: hidden;
 `;
 
 const Container = styled.div`
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 `;
 
@@ -35,69 +48,146 @@ const Title = styled.h2`
   text-transform: uppercase;
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)', 'var(--black)'];
+
+const LettersGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 `;
 
-const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)'];
-
-const Card = styled.div`
-  background: var(--white);
-  border: 3px solid var(--black);
-  box-shadow: var(--shadow-md);
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-  
-  transition: all 0.3s ease;
-`;
-
-const Letter = styled.div`
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  font-size: 5rem;
+const LetterButton = styled.button`
+  width: clamp(45px, 8vw, 65px);
+  height: clamp(45px, 8vw, 65px);
+  background: ${p => p.$active ? colors[p.$index % colors.length] : 'var(--white)'};
+  border: 4px solid var(--black);
+  box-shadow: ${p => p.$active ? '0 0 0 var(--black)' : '4px 4px 0 var(--black)'};
+  font-family: inherit;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-weight: 700;
-  color: ${p => colors[p.$index % colors.length]};
-  opacity: 0.15;
-  line-height: 1;
+  color: ${p => p.$active ? 'var(--white)' : (p.$hasContent ? 'var(--black)' : 'var(--gray-300)')};
+  cursor: ${p => p.$hasContent ? 'pointer' : 'default'};
+  transition: all 0.2s ease;
+  position: relative;
+  
+  ${p => p.$hasContent && !p.$active && `
+    &:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--black);
+      background: ${colors[p.$index % colors.length]};
+      color: var(--white);
+    }
+  `}
+  
+  ${p => p.$active && `
+    transform: translate(2px, 2px);
+    animation: ${pop} 0.3s ease;
+  `}
+  
+  ${p => p.$hasContent && `
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 6px;
+      background: ${p.$active ? 'var(--white)' : colors[p.$index % colors.length]};
+      border-radius: 50%;
+    }
+  `}
 `;
 
-const CardTitle = styled.h3`
-  font-size: 1.1rem;
+const ContentPanel = styled.div`
+  background: var(--white);
+  border: 4px solid var(--black);
+  box-shadow: 8px 8px 0 var(--black);
+  overflow: hidden;
+  animation: ${slideDown} 0.3s ease forwards;
+`;
+
+const ContentHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: ${p => colors[p.$index % colors.length]};
+  border-bottom: 4px solid var(--black);
+`;
+
+const ContentLetter = styled.div`
+  width: 60px;
+  height: 60px;
+  background: var(--white);
+  border: 4px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--black);
+`;
+
+const ContentTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
   text-transform: uppercase;
-  margin-bottom: 0.75rem;
-  position: relative;
+  text-shadow: 2px 2px 0 var(--black);
+`;
+
+const ContentBody = styled.div`
+  padding: 2rem;
+`;
+
+const ContentText = styled.p`
+  font-size: 1.1rem;
+  color: var(--gray-700);
+  line-height: 1.7;
+`;
+
+const CloseButton = styled.button`
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border: 3px solid var(--black);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
   
-  &::before {
-    content: '${p => p.$letter}';
-    display: inline-block;
-    width: 28px;
-    height: 28px;
-    background: ${p => colors[p.$index % colors.length]};
+  &:hover {
+    background: var(--black);
     color: var(--white);
-    text-align: center;
-    line-height: 28px;
-    font-size: 0.85rem;
-    margin-right: 0.75rem;
-    border: 2px solid var(--black);
+    transform: rotate(90deg);
   }
 `;
 
-const CardText = styled.p`
-  font-size: 0.9rem;
-  color: var(--gray-600);
-  line-height: 1.5;
-  position: relative;
+const Hint = styled.p`
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--black);
+  opacity: 0.5;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+`;
+
+const EmptyHint = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: var(--black);
+  opacity: 0.4;
+  
+  span {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 function WeddingABC() {
@@ -106,17 +196,36 @@ function WeddingABC() {
   
   const title = abcData.title || 'Hochzeits-ABC';
   const entries = abcData.entries || [];
+  
+  const [activeLetter, setActiveLetter] = useState(null);
 
   const defaultEntries = [
-    { letter: 'A', title: 'Anfahrt', text: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt.' },
-    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumen mitbringen – wir haben bereits dafür gesorgt!' },
-    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Bitte beachtet unsere Farbwünsche.' },
-    { letter: 'F', title: 'Fotos', text: 'Während der Trauung bitten wir um Handypause. Danach freuen wir uns über eure Schnappschüsse!' },
-    { letter: 'K', title: 'Kinder', text: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis.' },
-    { letter: 'M', title: 'Mitbringsel', text: 'Eure Anwesenheit ist Geschenk genug! Infos zur Hochzeitskasse findet ihr unter Geschenke.' },
+    { letter: 'A', title: 'Anfahrt', text: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt. Die Location ist gut mit dem Auto und öffentlichen Verkehrsmitteln erreichbar.' },
+    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumen mitbringen – wir haben bereits für wunderschöne Dekoration gesorgt!' },
+    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Bitte beachtet unsere Farbwünsche auf der Dresscode-Seite. Wir freuen uns auf eure schicken Outfits!' },
+    { letter: 'F', title: 'Fotos', text: 'Während der Trauung bitten wir um Handypause. Unser Fotograf hält alles fest. Danach freuen wir uns über eure Schnappschüsse!' },
+    { letter: 'G', title: 'Geschenke', text: 'Eure Anwesenheit ist das größte Geschenk! Falls ihr uns dennoch etwas schenken möchtet, findet ihr Infos unter Geschenke.' },
+    { letter: 'K', title: 'Kinder', text: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis und hoffen auf einen ausgelassenen Abend mit euch!' },
+    { letter: 'M', title: 'Musik', text: 'Habt ihr einen Musikwunsch? Teilt ihn uns mit und wir versuchen, ihn in die Playlist aufzunehmen!' },
+    { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier stehen Taxis bereit. Sprecht uns an, wenn ihr Hilfe bei der Heimfahrt braucht.' },
   ];
 
   const items = entries.length > 0 ? entries : defaultEntries;
+  
+  // Create map of letters with content
+  const letterMap = {};
+  items.forEach((item, i) => {
+    letterMap[item.letter.toUpperCase()] = { ...item, index: i };
+  });
+
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  const handleLetterClick = (letter) => {
+    if (!letterMap[letter]) return;
+    setActiveLetter(activeLetter === letter ? null : letter);
+  };
+
+  const activeContent = activeLetter ? letterMap[activeLetter] : null;
 
   return (
     <Section id="abc">
@@ -126,15 +235,39 @@ function WeddingABC() {
           <Title>{title}</Title>
         </Header>
         
-        <Grid>
-          {items.map((item, i) => (
-            <Card key={i}>
-              <Letter $index={i}>{item.letter}</Letter>
-              <CardTitle $letter={item.letter} $index={i}>{item.title}</CardTitle>
-              <CardText>{item.text}</CardText>
-            </Card>
+        <LettersGrid>
+          {alphabet.map((letter, i) => (
+            <LetterButton
+              key={letter}
+              $index={i}
+              $hasContent={!!letterMap[letter]}
+              $active={activeLetter === letter}
+              onClick={() => handleLetterClick(letter)}
+            >
+              {letter}
+            </LetterButton>
           ))}
-        </Grid>
+        </LettersGrid>
+        
+        {activeContent ? (
+          <ContentPanel key={activeLetter}>
+            <ContentHeader $index={activeContent.index}>
+              <ContentLetter>{activeLetter}</ContentLetter>
+              <ContentTitle>{activeContent.title}</ContentTitle>
+              <CloseButton onClick={() => setActiveLetter(null)}>×</CloseButton>
+            </ContentHeader>
+            <ContentBody>
+              <ContentText>{activeContent.text}</ContentText>
+            </ContentBody>
+          </ContentPanel>
+        ) : (
+          <EmptyHint>
+            <span>👆</span>
+            Klicke auf einen farbigen Buchstaben
+          </EmptyHint>
+        )}
+        
+        <Hint>Buchstaben mit Punkt haben Inhalt</Hint>
       </Container>
     </Section>
   );
