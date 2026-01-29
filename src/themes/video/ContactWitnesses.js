@@ -1,74 +1,80 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import SectionWrapper from './SectionWrapper';
 
-const Section = styled.section`
-  padding: 5rem 2rem;
-  background: var(--background-alt, #f9f9f9);
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Container = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-`;
+const Content = styled.div`text-align: center; max-width: 700px; width: 100%;`;
+const Eyebrow = styled.p`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Title = styled.h2`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: 2.5rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
-  color: var(--text-primary, #333);
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-`;
+const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;`;
 
 const Card = styled.div`
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  text-align: center;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: ${p => 0.2 + p.$index * 0.15}s;
 `;
 
-const Name = styled.h3`
-  font-family: var(--font-display, 'Playfair Display', serif);
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary, #333);
+const Avatar = styled.div`
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'rgba(255,255,255,0.1)'};
+  filter: ${p => p.$image ? 'grayscale(100%)' : 'none'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--video-gray);
+  transition: filter 0.4s ease;
+  
+  &:hover { filter: grayscale(0%); }
 `;
 
-const Role = styled.p`
-  font-family: var(--font-body, 'Lato', sans-serif);
-  font-size: 0.9rem;
-  color: var(--text-secondary, #666);
-`;
+const PersonName = styled.h3`font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--video-white); margin-bottom: 0.25rem;`;
+const Role = styled.p`font-family: var(--font-primary); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem;`;
+const ContactLink = styled.a`display: block; font-family: var(--font-primary); font-size: 0.8rem; color: var(--video-gray); margin-bottom: 0.25rem; transition: color 0.3s ease; &:hover { color: var(--video-accent); }`;
 
-function ContactWitnesses() {
+function ContactWitnesses({ background }) {
   const { content } = useWedding();
   const data = content?.witnesses || {};
-  const witnesses = data.list || [];
+  const title = data.title || 'Trauzeugen';
+  const persons = data.persons || [
+    { name: 'Anna Schmidt', role: 'Trauzeugin', email: 'anna@example.de', phone: '+49 170 1111111', image: '' },
+    { name: 'Max Mueller', role: 'Trauzeuge', email: 'max@example.de', phone: '+49 170 2222222', image: '' }
+  ];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-  if (witnesses.length === 0) return null;
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.3 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Section id="witnesses">
-      <Container>
-        <Title>{data.title || 'Trauzeugen'}</Title>
+    <SectionWrapper id="witnesses" background={background}>
+      <Content ref={sectionRef}>
+        <Eyebrow $visible={visible}>Ansprechpartner</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
         <Grid>
-          {witnesses.map((witness, i) => (
-            <Card key={i}>
-              <Name>{witness.name}</Name>
-              <Role>{witness.role}</Role>
+          {persons.map((person, i) => (
+            <Card key={i} $visible={visible} $index={i}>
+              <Avatar $image={person.image}>{!person.image && person.name.charAt(0)}</Avatar>
+              <PersonName>{person.name}</PersonName>
+              <Role>{person.role}</Role>
+              {person.email && <ContactLink href={`mailto:${person.email}`}>{person.email}</ContactLink>}
+              {person.phone && <ContactLink href={`tel:${person.phone.replace(/\s/g, '')}`}>{person.phone}</ContactLink>}
             </Card>
           ))}
         </Grid>
-      </Container>
-    </Section>
+      </Content>
+    </SectionWrapper>
   );
 }
 

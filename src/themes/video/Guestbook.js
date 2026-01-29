@@ -1,319 +1,77 @@
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-// src/components/Guestbook.js
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { submitGuestbookEntry, getGuestbookEntries } from '../../lib/supabase';
+import SectionWrapper from './SectionWrapper';
 
-const Section = styled.section`
-  padding: 150px 5%;
-  background: #1A1A1A;
-  position: relative;
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-`;
+const Content = styled.div`text-align: center; max-width: 600px; width: 100%;`;
+const Eyebrow = styled.p`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 60px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-`;
+const Form = styled.form`display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const Input = styled.input`padding: 1rem; font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-white); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); &:focus { outline: none; border-color: var(--video-accent); } &::placeholder { color: var(--video-gray); }`;
+const TextArea = styled.textarea`padding: 1rem; font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-white); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); min-height: 80px; resize: vertical; &:focus { outline: none; border-color: var(--video-accent); }`;
+const Button = styled.button`padding: 1rem; font-family: var(--font-primary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--video-white); background: var(--video-accent); &:hover { background: var(--video-accent-light); } &:disabled { background: var(--video-gray); }`;
 
-const Eyebrow = styled.span`
-  display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 25px;
+const EntriesList = styled.div`display: flex; flex-direction: column; gap: 1.5rem; text-align: left; max-height: 200px; overflow-y: auto;`;
+const Entry = styled.div`padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.3 + p.$index * 0.1}s;`;
+const EntryName = styled.span`font-family: var(--font-primary); font-size: 0.8rem; font-weight: 600; color: var(--video-accent);`;
+const EntryMessage = styled.p`font-family: var(--font-accent); font-size: 0.95rem; font-style: italic; color: var(--video-silver); margin-top: 0.25rem;`;
 
-  &::before, &::after {
-    content: '—';
-    margin: 0 15px;
-    color: rgba(184, 151, 106, 0.3);
-  }
-`;
-
-const Title = styled.h2`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 400;
-  color: #FFFFFF;
-
-  span {
-    font-style: italic;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 15px;
-`;
-
-const Form = styled.form`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 50px;
-  margin-bottom: 60px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '40px'});
-  transition: all 0.8s ease 0.2s;
-
-  @media (max-width: 600px) {
-    padding: 30px 20px;
-  }
-`;
-
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 25px;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #B8976A;
-  margin-bottom: 12px;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #B8976A;
-  }
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  min-height: 150px;
-  resize: vertical;
-  transition: all 0.3s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #B8976A;
-  }
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  padding: 20px;
-  background: #B8976A;
-  color: #1A1A1A;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  transition: all 0.4s ease;
-  margin-top: 10px;
-
-  &:hover {
-    background: #D4AF37;
-  }
-`;
-
-const EntriesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-`;
-
-const EntryCard = styled.div`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 35px;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateX(${p => p.$visible ? 0 : '-30px'});
-  transition: all 0.6s ease ${p => 0.3 + p.$index * 0.1}s;
-
-  @media (max-width: 600px) {
-    padding: 25px 20px;
-  }
-`;
-
-const EntryHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-`;
-
-const EntryAuthor = styled.h4`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.4rem;
-  color: #FFFFFF;
-`;
-
-const EntryDate = styled.span`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
-`;
-
-const EntryMessage = styled.p`
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.2rem;
-  font-style: italic;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.7);
-
-  &::before {
-    content: '„';
-    color: #B8976A;
-    font-size: 1.5rem;
-  }
-
-  &::after {
-    content: '"';
-    color: #B8976A;
-    font-size: 1.5rem;
-  }
-`;
-
-function Guestbook() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [formData, setFormData] = useState({ name: '', relation: '', message: '' });
+function Guestbook({ background }) {
+  const { project, content } = useWedding();
+  const title = content?.guestbook?.title || 'Gaestebuch';
+  const [visible, setVisible] = useState(false);
+  const [entries, setEntries] = useState([]);
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
-      { threshold: 0.15 }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.3 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (project?.id) getGuestbookEntries(project.id).then(data => setEntries(Array.isArray(data) ? data : []));
+  }, [project?.id]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Guestbook entry:', formData);
-    setFormData({ name: '', relation: '', message: '' });
+    if (!project?.id || !name || !message) return;
+    setLoading(true);
+    try {
+      await submitGuestbookEntry(project.id, { name, message });
+      setName(''); setMessage('');
+      const data = await getGuestbookEntries(project.id);
+      setEntries(Array.isArray(data) ? data : []);
+    } catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
-  const entries = [
-    {
-      name: 'Oma Gertrud',
-      date: '15. Januar 2025',
-      message: 'Meine liebsten Enkel, ich wünsche euch von ganzem Herzen eine wundervolle gemeinsame Zukunft voller Liebe, Lachen und Abenteuer. Ihr seid füreinander bestimmt!'
-    },
-    {
-      name: 'Familie Schmidt',
-      date: '12. Januar 2025',
-      message: 'Wir freuen uns so sehr für euch beide! Möge eure Liebe jeden Tag wachsen und euer gemeinsamer Weg voller glücklicher Momente sein.'
-    },
-    {
-      name: 'Lisa & Tom',
-      date: '10. Januar 2025',
-      message: 'Von den ersten Dates bis zur Hochzeit – wir waren dabei und sind so stolz auf euch! Auf viele weitere gemeinsame Abenteuer!'
-    }
-  ];
-
   return (
-    <Section ref={sectionRef} id="guestbook">
-      <Container>
-        <Header $visible={isVisible}>
-          <Eyebrow>Gästebuch</Eyebrow>
-          <Title>Eure <span>Wünsche</span></Title>
-          <Subtitle>Hinterlasst uns eine persönliche Nachricht</Subtitle>
-        </Header>
-
-        <Form $visible={isVisible} onSubmit={handleSubmit}>
-          <FormRow>
-            <FormGroup>
-              <Label>Euer Name</Label>
-              <Input
-                type="text"
-                placeholder="Max Mustermann"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label>Beziehung zum Paar</Label>
-              <Input
-                type="text"
-                placeholder="z.B. Freunde der Braut"
-                value={formData.relation}
-                onChange={(e) => setFormData({ ...formData, relation: e.target.value })}
-              />
-            </FormGroup>
-          </FormRow>
-
-          <FormGroup>
-            <Label>Eure Nachricht</Label>
-            <Textarea
-              placeholder="Schreibt uns eure Glückwünsche..."
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              required
-            />
-          </FormGroup>
-
-          <SubmitButton type="submit">
-            Nachricht hinterlassen ✨
-          </SubmitButton>
+    <SectionWrapper id="guestbook" background={background}>
+      <Content ref={sectionRef}>
+        <Eyebrow $visible={visible}>Eure Worte</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
+        <Form onSubmit={handleSubmit} $visible={visible}>
+          <Input type="text" placeholder="Euer Name" value={name} onChange={e => setName(e.target.value)} required />
+          <TextArea placeholder="Eure Nachricht..." value={message} onChange={e => setMessage(e.target.value)} required />
+          <Button type="submit" disabled={loading}>{loading ? 'Wird gesendet...' : 'Eintragen'}</Button>
         </Form>
-
         <EntriesList>
-          {entries.map((entry, index) => (
-            <EntryCard key={index} $visible={isVisible} $index={index}>
-              <EntryHeader>
-                <EntryAuthor>{entry.name}</EntryAuthor>
-                <EntryDate>{entry.date}</EntryDate>
-              </EntryHeader>
-              <EntryMessage>{entry.message}</EntryMessage>
-            </EntryCard>
+          {entries.slice(0, 5).map((entry, i) => (
+            <Entry key={entry.id || i} $visible={visible} $index={i}>
+              <EntryName>{entry.name}</EntryName>
+              <EntryMessage>"{entry.message}"</EntryMessage>
+            </Entry>
           ))}
         </EntriesList>
-      </Container>
-    </Section>
+      </Content>
+    </SectionWrapper>
   );
 }
 
