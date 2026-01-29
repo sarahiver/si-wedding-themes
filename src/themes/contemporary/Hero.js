@@ -264,7 +264,8 @@ function Hero() {
   const name1 = heroData.name1 || project?.partner1_name || 'Sophie';
   const name2 = heroData.name2 || project?.partner2_name || 'Max';
   const date = heroData.date || project?.wedding_date;
-  const location = heroData.location || project?.location || 'Berlin';
+  const location = heroData.location_short || heroData.location || project?.location || 'Berlin';
+  const tagline = heroData.tagline || 'Wir heiraten';
   const backgroundImage = heroData.background_image;
   
   const [visible, setVisible] = useState(false);
@@ -289,7 +290,7 @@ function Hero() {
         <FloatingSquare $color="var(--purple)" $size="50px" style={{ bottom: '25%', left: '20%' }} $duration="9s" $delay="2s" />
         <SpinningRing $color="var(--coral)" $size="120px" style={{ bottom: '10%', right: '5%' }} $duration="25s" />
         
-        <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
+        <Eyebrow $visible={visible}>{tagline}</Eyebrow>
         
         <NamesContainer>
           <NameStyled $visible={visible} $delay="0.1s" $first>{name1}</NameStyled>
