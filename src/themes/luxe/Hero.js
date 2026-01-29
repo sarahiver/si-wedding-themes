@@ -1,41 +1,54 @@
-// Luxe Hero - Elegant Fullscreen mit Slide-In
+// Luxe Hero - Cinematic Fullscreen (Phenomenon Style)
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// Cinematic Animations
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
 
+const scaleIn = keyframes`
+  from { transform: scale(1.2); }
+  to { transform: scale(1); }
+`;
+
 const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(40px); }
+  from { opacity: 0; transform: translateY(60px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const slideInLeft = keyframes`
-  from { opacity: 0; transform: translateX(-60px); }
-  to { opacity: 1; transform: translateX(0); }
+const revealText = keyframes`
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
 `;
 
-const lineExpand = keyframes`
+const expandLine = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 `;
 
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+// Styled Components
 const Section = styled.section`
-  min-height: 100vh;
   position: relative;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: var(--luxe-void);
 `;
 
-const BackgroundImage = styled.div`
+const BackgroundMedia = styled.div`
   position: absolute;
   inset: 0;
-  background: ${p => p.$image ? `url(${p.$image}) center/cover no-repeat` : 'var(--luxe-sand)'};
+  z-index: 1;
   
   &::after {
     content: '';
@@ -43,99 +56,120 @@ const BackgroundImage = styled.div`
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(26, 26, 26, 0.1) 0%,
-      rgba(26, 26, 26, 0.3) 100%
+      rgba(10, 10, 10, 0.3) 0%,
+      rgba(10, 10, 10, 0.5) 50%,
+      rgba(10, 10, 10, 0.8) 100%
     );
   }
+`;
+
+const BackgroundImage = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-void) 100%)'};
+  background-size: cover;
+  background-position: center;
+  opacity: ${p => p.$loaded ? 1 : 0};
+  transform: scale(${p => p.$loaded ? 1 : 1.2});
+  transition: opacity 1.5s ease, transform 8s ease-out;
 `;
 
 const Content = styled.div`
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 2rem;
-  max-width: 900px;
+  padding: 0 var(--section-padding-x);
+  max-width: 1000px;
 `;
 
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-white);
-  margin-bottom: 1.5rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? slideUp : 'none'} 0.8s var(--transition-slow) forwards;
-`;
-
-const NamesWrapper = styled.div`
+const Eyebrow = styled.div`
+  overflow: hidden;
   margin-bottom: 2rem;
 `;
 
+const EyebrowText = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--luxe-gold);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: ${p => p.$visible ? css`${slideUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.5s;
+`;
+
+const NamesContainer = styled.div`
+  margin-bottom: 3rem;
+`;
+
+const NameLine = styled.div`
+  overflow: hidden;
+`;
+
 const Name = styled.h1`
-  font-family: var(--font-serif);
-  font-size: clamp(3rem, 12vw, 8rem);
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 15vw, 12rem);
   font-weight: 300;
   font-style: italic;
-  color: var(--luxe-white);
-  line-height: 1;
-  opacity: 0;
-  animation: ${p => p.$visible ? slideInLeft : 'none'} 1s var(--transition-slow) forwards;
+  color: var(--luxe-cream);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  transform: translateY(110%);
+  animation: ${p => p.$visible ? css`${revealText} 1.2s var(--ease-out-expo) forwards` : 'none'};
   animation-delay: ${p => p.$delay || '0s'};
-  
-  &:last-of-type {
-    animation-name: ${p => p.$visible ? keyframes`
-      from { opacity: 0; transform: translateX(60px); }
-      to { opacity: 1; transform: translateX(0); }
-    ` : 'none'};
-  }
 `;
 
-const Ampersand = styled.span`
-  display: block;
-  font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+const Ampersand = styled.div`
+  overflow: hidden;
+  margin: 1rem 0;
+`;
+
+const AmpersandText = styled.span`
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 3rem);
   font-style: italic;
   color: var(--luxe-gold);
-  margin: 0.5rem 0;
-  opacity: 0;
-  animation: ${p => p.$visible ? fadeIn : 'none'} 1s ease forwards;
-  animation-delay: 0.4s;
+  transform: translateY(110%);
+  animation: ${p => p.$visible ? css`${revealText} 1s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.9s;
 `;
 
-const Line = styled.div`
+const Divider = styled.div`
   width: 80px;
   height: 1px;
   background: var(--luxe-gold);
-  margin: 2rem auto;
+  margin: 2.5rem auto;
   transform-origin: center;
   transform: scaleX(0);
-  animation: ${p => p.$visible ? lineExpand : 'none'} 1s ease forwards;
-  animation-delay: 0.6s;
+  animation: ${p => p.$visible ? css`${expandLine} 1s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 1.3s;
 `;
 
-const DateLocation = styled.div`
+const InfoContainer = styled.div`
   opacity: 0;
-  animation: ${p => p.$visible ? slideUp : 'none'} 0.8s ease forwards;
-  animation-delay: 0.8s;
+  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards` : 'none'};
+  animation-delay: 1.5s;
 `;
 
 const DateText = styled.p`
-  font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 400;
-  color: var(--luxe-white);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-style: italic;
+  color: var(--luxe-cream);
   margin-bottom: 0.5rem;
 `;
 
 const LocationText = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-taupe);
+  color: var(--luxe-pearl);
 `;
 
 const ScrollIndicator = styled.div`
@@ -146,74 +180,91 @@ const ScrollIndicator = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--luxe-white);
+  gap: 1rem;
   opacity: 0;
-  animation: ${p => p.$visible ? fadeIn : 'none'} 1s ease forwards;
-  animation-delay: 1.2s;
+  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards, ${float} 3s ease-in-out infinite` : 'none'};
+  animation-delay: 2s, 2s;
+  z-index: 10;
+  
+  @media (max-width: 768px) {
+    bottom: 2rem;
+  }
 `;
 
 const ScrollText = styled.span`
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
+  color: var(--luxe-pearl);
 `;
 
 const ScrollLine = styled.div`
   width: 1px;
-  height: 50px;
-  background: linear-gradient(to bottom, var(--luxe-white), transparent);
-  
-  @keyframes scrollPulse {
-    0%, 100% { transform: scaleY(1); opacity: 1; }
-    50% { transform: scaleY(0.6); opacity: 0.5; }
-  }
-  
-  animation: scrollPulse 2s ease-in-out infinite;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--luxe-gold), transparent);
 `;
 
+// Component
 function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
-  const name1 = heroData.name1 || project?.partner1_name || 'Emma';
-  const name2 = heroData.name2 || project?.partner2_name || 'James';
+  const name1 = heroData.name1 || project?.partner1_name || 'Alexandra';
+  const name2 = heroData.name2 || project?.partner2_name || 'Benjamin';
   const date = heroData.date || project?.wedding_date;
-  const location = heroData.location || project?.location || 'Toskana, Italien';
+  const location = heroData.location || project?.location || 'Villa Como, Italien';
   const backgroundImage = heroData.background_image;
   
   const [visible, setVisible] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 200);
+    const timer = setTimeout(() => {
+      setVisible(true);
+      setLoaded(true);
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
   const formattedDate = date 
-    ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    ? new Date(date).toLocaleDateString('de-DE', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      })
     : '21. September 2025';
 
   return (
     <Section id="hero">
-      <BackgroundImage $image={backgroundImage} />
+      <BackgroundMedia>
+        <BackgroundImage $image={backgroundImage} $loaded={loaded} />
+      </BackgroundMedia>
       
       <Content>
-        <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
+        <Eyebrow>
+          <EyebrowText $visible={visible}>Wir heiraten</EyebrowText>
+        </Eyebrow>
         
-        <NamesWrapper>
-          <Name $visible={visible} $delay="0.2s">{name1}</Name>
-          <Ampersand $visible={visible}>&</Ampersand>
-          <Name $visible={visible} $delay="0.3s">{name2}</Name>
-        </NamesWrapper>
+        <NamesContainer>
+          <NameLine>
+            <Name $visible={visible} $delay="0.6s">{name1}</Name>
+          </NameLine>
+          <Ampersand>
+            <AmpersandText $visible={visible}>&</AmpersandText>
+          </Ampersand>
+          <NameLine>
+            <Name $visible={visible} $delay="0.75s">{name2}</Name>
+          </NameLine>
+        </NamesContainer>
         
-        <Line $visible={visible} />
+        <Divider $visible={visible} />
         
-        <DateLocation $visible={visible}>
+        <InfoContainer $visible={visible}>
           <DateText>{formattedDate}</DateText>
           <LocationText>{location}</LocationText>
-        </DateLocation>
+        </InfoContainer>
       </Content>
       
       <ScrollIndicator $visible={visible}>

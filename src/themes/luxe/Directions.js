@@ -1,32 +1,28 @@
-// Luxe Directions
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
-const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-sand);`;
+const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-charcoal);`;
 const Container = styled.div`max-width: var(--container-narrow); margin: 0 auto;`;
+const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Header = styled.div`text-align: center; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
-const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
-const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
+const Content = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
+const Block = styled.div``;
+const BlockTitle = styled.h4`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem;`;
+const BlockText = styled.p`font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--luxe-pearl);`;
 
-const Content = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
-const InfoBlock = styled.div``;
-const InfoTitle = styled.h4`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem;`;
-const InfoText = styled.p`font-family: var(--font-sans); font-size: 0.9rem; line-height: 1.8; color: var(--luxe-charcoal);`;
-
-const MapLink = styled.a`display: inline-block; margin-top: 2rem; padding: 1rem 2rem; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-white); background: var(--luxe-black); &:hover { background: var(--luxe-charcoal); }`;
+const MapBtn = styled.a`display: inline-block; margin-top: 2rem; padding: 1rem 2rem; font-family: var(--font-body); font-size: 0.7rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-void); background: var(--luxe-gold); transition: background 0.3s ease; &:hover { background: var(--luxe-champagne); }`;
 
 function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
   const title = data.title || 'Anfahrt';
-  const car = data.car_info || 'Parkplaetze stehen kostenlos zur Verfuegung. Die Einfahrt befindet sich auf der Rueckseite des Gebaudes.';
-  const publicTransport = data.public_transport || 'Mit der S-Bahn bis Hauptbahnhof, dann weiter mit der Buslinie 42 bis Haltestelle Schlosspark.';
-  const address = data.address || 'Villa Medici\nVia della Pergola 15\n50121 Florenz';
+  const car = data.car_info || 'Kostenlose Parkplaetze stehen vor Ort zur Verfuegung.';
+  const publicTransport = data.public_transport || 'Mit der S-Bahn bis Hauptbahnhof, dann Bus Linie 42.';
   const mapsUrl = data.maps_url || '';
   
   const [visible, setVisible] = useState(false);
@@ -41,12 +37,12 @@ function Directions() {
   return (
     <Section ref={sectionRef} id="directions">
       <Container>
-        <Header $visible={visible}><Eyebrow>So findet ihr uns</Eyebrow><Title>{title}</Title></Header>
+        <Header><Eyebrow $visible={visible}>So findet ihr uns</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <Content $visible={visible}>
-          <InfoBlock><InfoTitle>Mit dem Auto</InfoTitle><InfoText>{car}</InfoText></InfoBlock>
-          <InfoBlock><InfoTitle>Oeffentliche Verkehrsmittel</InfoTitle><InfoText>{publicTransport}</InfoText></InfoBlock>
+          <Block><BlockTitle>Mit dem Auto</BlockTitle><BlockText>{car}</BlockText></Block>
+          <Block><BlockTitle>Oeffentlich</BlockTitle><BlockText>{publicTransport}</BlockText></Block>
         </Content>
-        {mapsUrl && <div style={{ textAlign: 'center' }}><MapLink href={mapsUrl} target="_blank" rel="noopener">Route anzeigen</MapLink></div>}
+        {mapsUrl && <div style={{ textAlign: 'center' }}><MapBtn href={mapsUrl} target="_blank" rel="noopener">Route anzeigen</MapBtn></div>}
       </Container>
     </Section>
   );

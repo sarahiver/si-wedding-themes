@@ -1,8 +1,6 @@
-// Luxe Theme - Index Export
 export { default as WeddingPage } from './WeddingPage';
 export { default as AdminDashboard } from './AdminDashboard';
 export { default as GlobalStyles } from './GlobalStyles';
-
 export { default as Navigation } from './Navigation';
 export { default as Hero } from './Hero';
 export { default as Countdown } from './Countdown';

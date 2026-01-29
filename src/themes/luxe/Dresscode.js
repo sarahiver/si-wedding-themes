@@ -1,38 +1,35 @@
 // Luxe Dresscode
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
-const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-white);`;
-const Container = styled.div`max-width: var(--container-narrow); margin: 0 auto;`;
+const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-anthracite);`;
+const Container = styled.div`max-width: var(--container-narrow); margin: 0 auto; text-align: center;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Header = styled.div`text-align: center; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
-const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
-const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
+const CodeBadge = styled.div`display: inline-block; padding: 0.75rem 2rem; border: 1px solid var(--luxe-gold); margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const CodeText = styled.span`font-family: var(--font-display); font-size: 1.25rem; font-style: italic; color: var(--luxe-gold);`;
 
-const CodeBadge = styled.div`text-align: center; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s;`;
-const CodeText = styled.span`font-family: var(--font-serif); font-size: 1.5rem; font-style: italic; color: var(--luxe-gold); padding: 0.5rem 1.5rem; border: 1px solid var(--luxe-gold);`;
+const Palette = styled.div`display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.3s;`;
+const Swatch = styled.div`text-align: center;`;
+const Color = styled.div`width: 50px; height: 50px; background: ${p => p.$hex}; margin-bottom: 0.5rem;`;
+const ColorName = styled.span`font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-pearl);`;
 
-const ColorPalette = styled.div`display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.3s;`;
-const ColorSwatch = styled.div`text-align: center;`;
-const Color = styled.div`width: 60px; height: 60px; background: ${p => p.$color}; border: 1px solid var(--luxe-sand); margin-bottom: 0.5rem;`;
-const ColorName = styled.span`font-family: var(--font-sans); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--luxe-charcoal);`;
-
-const Guidelines = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.4s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
-const GuidelineSection = styled.div``;
-const GuidelineTitle = styled.h4`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: ${p => p.$type === 'do' ? 'var(--luxe-olive)' : 'var(--luxe-taupe)'}; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--luxe-sand);`;
-const GuidelineList = styled.ul`list-style: none;`;
-const GuidelineItem = styled.li`font-family: var(--font-sans); font-size: 0.85rem; color: var(--luxe-charcoal); padding: 0.5rem 0; padding-left: 1.5rem; position: relative; &::before { content: '${p => p.$type === 'do' ? '✓' : '×'}'; position: absolute; left: 0; color: ${p => p.$type === 'do' ? 'var(--luxe-olive)' : 'var(--luxe-taupe)'}; }`;
+const Guidelines = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; text-align: left; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.4s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
+const GuideSection = styled.div``;
+const GuideTitle = styled.h4`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: ${p => p.$type === 'do' ? 'var(--luxe-gold)' : 'var(--luxe-slate)'}; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--luxe-charcoal);`;
+const GuideList = styled.ul`list-style: none;`;
+const GuideItem = styled.li`font-family: var(--font-body); font-size: 0.85rem; color: var(--luxe-pearl); padding: 0.5rem 0 0.5rem 1.5rem; position: relative; &::before { content: '${p => p.$type === 'do' ? '✓' : '×'}'; position: absolute; left: 0; color: ${p => p.$type === 'do' ? 'var(--luxe-gold)' : 'var(--luxe-slate)'}; }`;
 
 function Dresscode() {
   const { content } = useWedding();
   const data = content?.dresscode || {};
   const title = data.title || 'Dresscode';
-  const code = data.code || 'Elegant Festlich';
-  const colors = data.colors || [{ name: 'Salbei', hex: '#A4A78B' }, { name: 'Taupe', hex: '#C4B7A6' }, { name: 'Creme', hex: '#F5F1EB' }, { name: 'Anthrazit', hex: '#3D3D3D' }];
+  const code = data.code || 'Black Tie Optional';
+  const colors = data.colors || [{ name: 'Champagner', hex: '#D4AF37' }, { name: 'Elfenbein', hex: '#FFFFF0' }, { name: 'Salbei', hex: '#9CAF88' }, { name: 'Anthrazit', hex: '#2D2D30' }];
   const dos = data.dos || ['Elegante Abendgarderobe', 'Gedeckte, warme Farben', 'Accessoires in Gold'];
   const donts = data.donts || ['Weiss oder Creme', 'Sehr laute Farben', 'Casual Kleidung'];
   
@@ -48,20 +45,13 @@ function Dresscode() {
   return (
     <Section ref={sectionRef} id="dresscode">
       <Container>
-        <Header $visible={visible}><Eyebrow>Was ihr anziehen koennt</Eyebrow><Title>{title}</Title></Header>
+        <Eyebrow $visible={visible}>Was ihr anziehen koennt</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
         <CodeBadge $visible={visible}><CodeText>{code}</CodeText></CodeBadge>
-        <ColorPalette $visible={visible}>
-          {colors.map((c, i) => <ColorSwatch key={i}><Color $color={c.hex} /><ColorName>{c.name}</ColorName></ColorSwatch>)}
-        </ColorPalette>
+        <Palette $visible={visible}>{colors.map((c, i) => <Swatch key={i}><Color $hex={c.hex} /><ColorName>{c.name}</ColorName></Swatch>)}</Palette>
         <Guidelines $visible={visible}>
-          <GuidelineSection>
-            <GuidelineTitle $type="do">Empfohlen</GuidelineTitle>
-            <GuidelineList>{dos.map((item, i) => <GuidelineItem key={i} $type="do">{item}</GuidelineItem>)}</GuidelineList>
-          </GuidelineSection>
-          <GuidelineSection>
-            <GuidelineTitle $type="dont">Bitte vermeiden</GuidelineTitle>
-            <GuidelineList>{donts.map((item, i) => <GuidelineItem key={i} $type="dont">{item}</GuidelineItem>)}</GuidelineList>
-          </GuidelineSection>
+          <GuideSection><GuideTitle $type="do">Empfohlen</GuideTitle><GuideList>{dos.map((item, i) => <GuideItem key={i} $type="do">{item}</GuideItem>)}</GuideList></GuideSection>
+          <GuideSection><GuideTitle $type="dont">Bitte vermeiden</GuideTitle><GuideList>{donts.map((item, i) => <GuideItem key={i} $type="dont">{item}</GuideItem>)}</GuideList></GuideSection>
         </Guidelines>
       </Container>
     </Section>

@@ -1,4 +1,3 @@
-// Luxe WeddingPage - Main Component
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -10,11 +9,11 @@ import Countdown from './Countdown';
 import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
-import Directions from './Directions';
 import RSVP from './RSVP';
 import Dresscode from './Dresscode';
 import Gifts from './Gifts';
 import Accommodations from './Accommodations';
+import Directions from './Directions';
 import Gallery from './Gallery';
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
@@ -31,11 +30,11 @@ const LoadingScreen = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--luxe-cream);
-  font-family: var(--font-serif);
+  background: var(--luxe-void);
+  font-family: var(--font-display);
   font-size: 1.5rem;
   font-style: italic;
-  color: var(--luxe-taupe);
+  color: var(--luxe-slate);
 `;
 
 function WeddingPage() {
@@ -43,28 +42,15 @@ function WeddingPage() {
   const [showAdmin, setShowAdmin] = useState(false);
 
   const handleAdminLogin = (username, password) => {
-    // Simple check - in production this should be more secure
-    if (username && password) {
-      setShowAdmin(true);
-    }
+    if (username && password) setShowAdmin(true);
   };
 
   if (loading) {
-    return (
-      <>
-        <LuxeGlobalStyles />
-        <LoadingScreen>Wird geladen...</LoadingScreen>
-      </>
-    );
+    return (<><LuxeGlobalStyles /><LoadingScreen>Wird geladen...</LoadingScreen></>);
   }
 
   if (showAdmin) {
-    return (
-      <>
-        <LuxeGlobalStyles />
-        <AdminDashboard onClose={() => setShowAdmin(false)} />
-      </>
-    );
+    return (<><LuxeGlobalStyles /><AdminDashboard onClose={() => setShowAdmin(false)} /></>);
   }
 
   return (
@@ -77,12 +63,12 @@ function WeddingPage() {
         <LoveStory />
         <Timeline />
         <Locations />
+        <Gallery />
         <RSVP />
         <Dresscode />
         <Gifts />
         <Accommodations />
         <Directions />
-        <Gallery />
         <FAQ />
         <WeddingABC />
         <Guestbook />

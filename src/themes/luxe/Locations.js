@@ -1,213 +1,65 @@
-// Luxe Locations - Elegant mit Bildern
+// Luxe Locations - Cinematic Split
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const slideInLeft = keyframes`
-  from { opacity: 0; transform: translateX(-60px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
+const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); }`;
 
-const slideInRight = keyframes`
-  from { opacity: 0; transform: translateX(60px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
+const Section = styled.section`background: var(--luxe-void);`;
 
-const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-cream);
-`;
+const Header = styled.div`text-align: center; padding: var(--section-padding-y) var(--section-padding-x) 3rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Container = styled.div`
-  max-width: var(--container-width);
-  margin: 0 auto;
-`;
+const LocationsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); @media (max-width: 600px) { grid-template-columns: 1fr; }`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;
-`;
+const LocationCard = styled.div`position: relative; min-height: 70vh; display: flex; flex-direction: column; @media (max-width: 600px) { min-height: 60vh; }`;
 
-const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-taupe);
-  margin-bottom: 1rem;
-`;
+const ImageSection = styled.div`flex: 1; position: relative; overflow: hidden;`;
+const Image = styled.div`position: absolute; inset: 0; background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-graphite) 100%)'}; background-size: cover; background-position: center; opacity: 0; transform: scale(1.1); animation: ${p => p.$visible ? css`${scaleReveal} 1.2s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => p.$delay || '0s'};`;
 
-const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 300;
-  font-style: italic;
-  color: var(--luxe-black);
-`;
+const ContentSection = styled.div`padding: 2.5rem var(--section-padding-x); background: var(--luxe-charcoal); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => p.$delay || '0s'};`;
 
-const LocationsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 3rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const LocationCard = styled.div`
-  opacity: 0;
-  animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards;
-  animation-delay: ${p => 0.1 + p.$index * 0.15}s;
-`;
-
-const ImageWrapper = styled.div`
-  position: relative;
-  margin-bottom: 1.5rem;
-`;
-
-const Image = styled.div`
-  aspect-ratio: 16/10;
-  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-sand)'};
-`;
-
-const TypeBadge = styled.span`
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--luxe-white);
-  background: var(--luxe-overlay);
-  padding: 0.5rem 1rem;
-  backdrop-filter: blur(5px);
-`;
-
-const CardContent = styled.div`
-  padding: 0 0.5rem;
-`;
-
-const CardTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: var(--luxe-black);
-  margin-bottom: 0.75rem;
-`;
-
-const CardAddress = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--luxe-charcoal);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-`;
-
-const CardTime = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--luxe-gold);
-  margin-bottom: 1rem;
-`;
-
-const MapLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--luxe-charcoal);
-  border-bottom: 1px solid var(--luxe-taupe);
-  padding-bottom: 0.25rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    color: var(--luxe-gold);
-    border-color: var(--luxe-gold);
-  }
-`;
+const TypeBadge = styled.span`font-family: var(--font-body); font-size: 0.6rem; font-weight: 400; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-gold); display: block; margin-bottom: 0.75rem;`;
+const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.75rem; font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 1rem;`;
+const CardAddress = styled.p`font-family: var(--font-body); font-size: 0.85rem; line-height: 1.6; color: var(--luxe-pearl); white-space: pre-line;`;
+const CardTime = styled.p`font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.15em; color: var(--luxe-gold); margin-top: 1rem;`;
 
 function Locations() {
   const { content } = useWedding();
-  const locationsData = content?.locations || {};
-  
-  const title = locationsData.title || 'Veranstaltungsorte';
-  const locations = locationsData.locations || [];
+  const data = content?.locations || {};
+  const title = data.title || 'Veranstaltungsorte';
+  const locations = data.locations || [
+    { name: 'Villa Rothschild', type: 'Zeremonie', address: 'Im Rothschildpark 1\n61462 Koenigstein', time: '15:00 Uhr', image: '' },
+    { name: 'Schloss Johannisberg', type: 'Empfang & Dinner', address: 'Schloss Johannisberg\n65366 Geisenheim', time: '18:00 Uhr', image: '' }
+  ];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const defaultLocations = [
-    {
-      name: 'Villa Medici',
-      type: 'Zeremonie',
-      address: 'Via della Pergola 15\n50121 Florenz, Italien',
-      time: '15:00 Uhr',
-      image: '',
-      maps_url: ''
-    },
-    {
-      name: 'Palazzo Vecchio',
-      type: 'Empfang & Dinner',
-      address: 'Piazza della Signoria\n50122 Florenz, Italien',
-      time: '18:00 Uhr',
-      image: '',
-      maps_url: ''
-    }
-  ];
-
-  const locationItems = locations.length > 0 ? locations : defaultLocations;
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.1 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <Section ref={sectionRef} id="locations">
-      <Container>
-        <Header $visible={visible}>
-          <Eyebrow>Wo wir feiern</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
-        
-        <LocationsGrid>
-          {locationItems.map((loc, i) => (
-            <LocationCard key={i} $visible={visible} $index={i}>
-              <ImageWrapper>
-                <Image $image={loc.image} />
-                <TypeBadge>{loc.type}</TypeBadge>
-              </ImageWrapper>
-              <CardContent>
-                <CardTitle>{loc.name}</CardTitle>
-                <CardTime>{loc.time}</CardTime>
-                <CardAddress>{loc.address}</CardAddress>
-                {loc.maps_url && (
-                  <MapLink href={loc.maps_url} target="_blank" rel="noopener noreferrer">
-                    Route anzeigen →
-                  </MapLink>
-                )}
-              </CardContent>
-            </LocationCard>
-          ))}
-        </LocationsGrid>
-      </Container>
+      <Header><Eyebrow $visible={visible}>Wo wir feiern</Eyebrow><Title $visible={visible}>{title}</Title></Header>
+      <LocationsGrid>
+        {locations.map((loc, i) => (
+          <LocationCard key={i}>
+            <ImageSection><Image $image={loc.image} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
+            <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
+              <TypeBadge>{loc.type}</TypeBadge>
+              <CardTitle>{loc.name}</CardTitle>
+              <CardAddress>{loc.address}</CardAddress>
+              <CardTime>{loc.time}</CardTime>
+            </ContentSection>
+          </LocationCard>
+        ))}
+      </LocationsGrid>
     </Section>
   );
 }

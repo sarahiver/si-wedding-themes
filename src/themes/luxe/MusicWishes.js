@@ -1,25 +1,22 @@
-// Luxe MusicWishes
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { submitMusicWish } from '../../lib/supabase';
 
-const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
-const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-cream);`;
-const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
+const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-void);`;
+const Container = styled.div`max-width: 450px; margin: 0 auto; text-align: center;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Header = styled.div`margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
-const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
-const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
+const Form = styled.form`opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const Input = styled.input`width: 100%; padding: 1rem; font-family: var(--font-body); font-size: 1rem; color: var(--luxe-cream); background: var(--luxe-charcoal); border: 1px solid var(--luxe-graphite); margin-bottom: 1rem; text-align: center; &:focus { outline: none; border-color: var(--luxe-gold); }`;
+const Button = styled.button`padding: 1rem 2rem; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-void); background: var(--luxe-gold); margin-top: 0.5rem; &:hover { background: var(--luxe-champagne); }`;
 
-const Form = styled.form`opacity: 0; animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: 0.2s;`;
-const Input = styled.input`width: 100%; padding: 1rem; font-family: var(--font-sans); font-size: 1rem; color: var(--luxe-black); background: var(--luxe-white); border: 1px solid var(--luxe-sand); margin-bottom: 1rem; text-align: center; &:focus { outline: none; border-color: var(--luxe-olive); }`;
-const Button = styled.button`padding: 1rem 2rem; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-white); background: var(--luxe-black); border: none; cursor: pointer; margin-top: 0.5rem; &:hover { background: var(--luxe-charcoal); }`;
-
-const Success = styled.div`padding: 2rem; opacity: 0; animation: ${slideInLeft} 0.8s var(--transition-slow) forwards;`;
-const SuccessText = styled.p`font-family: var(--font-serif); font-size: 1.5rem; font-style: italic; color: var(--luxe-black);`;
+const Success = styled.div`padding: 2rem; opacity: 0; animation: ${fadeIn} 0.8s ease forwards;`;
+const SuccessText = styled.p`font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--luxe-cream);`;
 
 function MusicWishes() {
   const { project, content } = useWedding();
@@ -49,7 +46,8 @@ function MusicWishes() {
   return (
     <Section ref={sectionRef} id="music">
       <Container>
-        <Header $visible={visible}><Eyebrow>Playlist</Eyebrow><Title>{title}</Title></Header>
+        <Eyebrow $visible={visible}>Playlist</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
         {submitted ? (
           <Success><SuccessText>Danke fuer euren Vorschlag!</SuccessText></Success>
         ) : (

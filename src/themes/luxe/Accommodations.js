@@ -1,33 +1,31 @@
-// Luxe Accommodations
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const slideInLeft = keyframes`from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); }`;
-const slideInRight = keyframes`from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); }`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
+const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); }`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--luxe-white);`;
-const Container = styled.div`max-width: var(--container-width); margin: 0 auto;`;
-
-const Header = styled.div`text-align: center; margin-bottom: 4rem; opacity: 0; animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;`;
-const Eyebrow = styled.p`font-family: var(--font-sans); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-taupe); margin-bottom: 1rem;`;
-const Title = styled.h2`font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; font-style: italic; color: var(--luxe-black);`;
+const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-void);`;
+const Container = styled.div`max-width: var(--container-max); margin: 0 auto;`;
+const Header = styled.div`text-align: center; margin-bottom: 4rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;`;
-const Card = styled.div`opacity: 0; animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards; animation-delay: ${p => 0.1 + p.$index * 0.15}s;`;
-const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-sand)'}; margin-bottom: 1.5rem;`;
-const CardTitle = styled.h3`font-family: var(--font-serif); font-size: 1.25rem; color: var(--luxe-black); margin-bottom: 0.5rem;`;
-const CardAddress = styled.p`font-family: var(--font-sans); font-size: 0.85rem; color: var(--luxe-charcoal); margin-bottom: 0.75rem;`;
-const CardPrice = styled.span`font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--luxe-gold);`;
-const CardLink = styled.a`display: inline-block; margin-top: 1rem; font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--luxe-charcoal); border-bottom: 1px solid var(--luxe-taupe); padding-bottom: 0.25rem; &:hover { color: var(--luxe-gold); border-color: var(--luxe-gold); }`;
+const Card = styled.div`opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
+const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; margin-bottom: 1.5rem; overflow: hidden;`;
+const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--luxe-cream); margin-bottom: 0.5rem;`;
+const CardAddress = styled.p`font-family: var(--font-body); font-size: 0.85rem; color: var(--luxe-pearl); margin-bottom: 0.75rem;`;
+const CardPrice = styled.span`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-gold);`;
+const CardLink = styled.a`display: inline-block; margin-top: 1rem; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-pearl); border-bottom: 1px solid var(--luxe-graphite); padding-bottom: 0.25rem; transition: all 0.3s ease; &:hover { color: var(--luxe-gold); border-color: var(--luxe-gold); }`;
 
 function Accommodations() {
   const { content } = useWedding();
   const data = content?.accommodations || {};
   const title = data.title || 'Unterkuenfte';
   const hotels = data.hotels || [
-    { name: 'Hotel Bella Vista', address: 'Via Roma 12, Florenz', price: 'ab 150 EUR/Nacht', image: '', url: '' },
-    { name: 'Grand Palace', address: 'Piazza Grande 5, Florenz', price: 'ab 200 EUR/Nacht', image: '', url: '' }
+    { name: 'Grand Hotel', address: 'Hauptstrasse 1', price: 'ab 150 EUR/Nacht', image: '', url: '' },
+    { name: 'Boutique Hotel', address: 'Altstadt 15', price: 'ab 120 EUR/Nacht', image: '', url: '' }
   ];
   
   const [visible, setVisible] = useState(false);
@@ -42,7 +40,7 @@ function Accommodations() {
   return (
     <Section ref={sectionRef} id="accommodations">
       <Container>
-        <Header $visible={visible}><Eyebrow>Uebernachten</Eyebrow><Title>{title}</Title></Header>
+        <Header><Eyebrow $visible={visible}>Uebernachten</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <Grid>
           {hotels.map((hotel, i) => (
             <Card key={i} $visible={visible} $index={i}>

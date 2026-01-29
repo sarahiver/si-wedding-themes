@@ -1,7 +1,22 @@
-// Luxe Navigation - Minimalistisch, Elegant
+// Luxe Navigation - Minimal Dark with Fullscreen Menu
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
+const revealText = keyframes`
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+`;
 
 const Nav = styled.nav`
   position: fixed;
@@ -9,130 +24,115 @@ const Nav = styled.nav`
   left: 0;
   right: 0;
   z-index: 1000;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem var(--section-padding-x);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.5s ease;
-  background: ${p => p.$scrolled ? 'var(--luxe-overlay-light)' : 'transparent'};
-  backdrop-filter: ${p => p.$scrolled ? 'blur(10px)' : 'none'};
+  mix-blend-mode: ${p => p.$menuOpen ? 'normal' : 'difference'};
+  transition: mix-blend-mode 0.3s ease;
 `;
 
 const Logo = styled.a`
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
   font-style: italic;
-  color: ${p => p.$scrolled ? 'var(--luxe-black)' : 'var(--luxe-white)'};
-  transition: color 0.5s ease;
+  color: var(--luxe-cream);
+  letter-spacing: 0.02em;
+  z-index: 1001;
 `;
 
-const MenuButton = styled.button`
+const MenuToggle = styled.button`
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  z-index: 1001;
+`;
+
+const MenuLine = styled.span`
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--luxe-cream);
+  transition: all 0.4s var(--ease-out-expo);
   
-  span {
-    display: block;
-    width: 24px;
-    height: 1px;
-    background: ${p => p.$scrolled ? 'var(--luxe-black)' : 'var(--luxe-white)'};
-    transition: all 0.3s ease;
+  &:first-child {
+    transform: ${p => p.$open ? 'rotate(45deg) translateY(0.5px)' : 'translateY(-4px)'};
   }
   
-  &:hover span {
-    background: var(--luxe-gold);
+  &:last-child {
+    transform: ${p => p.$open ? 'rotate(-45deg) translateY(-0.5px)' : 'translateY(4px)'};
   }
 `;
 
-const Overlay = styled.div`
+const FullscreenMenu = styled.div`
   position: fixed;
   inset: 0;
-  background: var(--luxe-black);
+  background: var(--luxe-void);
   z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: ${p => p.$open ? 1 : 0};
   visibility: ${p => p.$open ? 'visible' : 'hidden'};
-  transition: all 0.5s ease;
+  transition: opacity 0.6s var(--ease-out-expo), visibility 0.6s;
 `;
 
-const Menu = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: min(400px, 100vw);
-  height: 100vh;
-  background: var(--luxe-cream);
-  z-index: 1001;
-  padding: 6rem 3rem 3rem;
-  transform: translateX(${p => p.$open ? '0' : '100%'});
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow-y: auto;
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  font-size: 1.5rem;
-  color: var(--luxe-charcoal);
-  
-  &:hover {
-    color: var(--luxe-gold);
-  }
+const MenuContent = styled.div`
+  text-align: center;
 `;
 
 const MenuList = styled.ul`
   list-style: none;
+  margin-bottom: 3rem;
 `;
 
 const MenuItem = styled.li`
-  margin-bottom: 0.5rem;
+  overflow: hidden;
+  margin: 0.5rem 0;
 `;
 
 const MenuLink = styled.a`
-  display: block;
-  font-family: var(--font-serif);
-  font-size: 2rem;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 300;
-  color: var(--luxe-charcoal);
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--luxe-sand);
-  transition: all 0.3s ease;
+  font-style: italic;
+  color: var(--luxe-cream);
+  padding: 0.5rem 0;
+  transform: translateY(${p => p.$open ? '0' : '100%'});
+  transition: transform 0.8s var(--ease-out-expo), color 0.3s ease;
+  transition-delay: ${p => p.$delay || '0s'};
   
   &:hover {
     color: var(--luxe-gold);
-    padding-left: 1rem;
   }
 `;
 
 const MenuFooter = styled.div`
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--luxe-sand);
+  opacity: ${p => p.$open ? 1 : 0};
+  transform: translateY(${p => p.$open ? '0' : '20px'});
+  transition: all 0.8s var(--ease-out-expo);
+  transition-delay: 0.5s;
 `;
 
 const MenuDate = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-taupe);
+  color: var(--luxe-slate);
 `;
 
 function Navigation() {
   const { project } = useWedding();
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   
-  const name1 = project?.partner1_name || 'Emma';
-  const name2 = project?.partner2_name || 'James';
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const name1 = project?.partner1_name || 'A';
+  const name2 = project?.partner2_name || 'B';
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -142,7 +142,8 @@ function Navigation() {
   const menuItems = [
     { label: 'Home', href: '#hero' },
     { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Details', href: '#details' },
+    { label: 'Der Tag', href: '#timeline' },
+    { label: 'Location', href: '#locations' },
     { label: 'Galerie', href: '#gallery' },
     { label: 'RSVP', href: '#rsvp' },
   ];
@@ -152,36 +153,40 @@ function Navigation() {
     setMenuOpen(false);
     setTimeout(() => {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
+    }, 400);
   };
 
   return (
     <>
-      <Nav $scrolled={scrolled}>
-        <Logo href="#hero" $scrolled={scrolled}>{name1} & {name2}</Logo>
-        <MenuButton onClick={() => setMenuOpen(true)} $scrolled={scrolled} aria-label="Menu">
-          <span />
-          <span />
-        </MenuButton>
+      <Nav $menuOpen={menuOpen}>
+        <Logo href="#hero">{name1[0]} & {name2[0]}</Logo>
+        <MenuToggle onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+          <MenuLine $open={menuOpen} />
+          <MenuLine $open={menuOpen} />
+        </MenuToggle>
       </Nav>
       
-      <Overlay $open={menuOpen} onClick={() => setMenuOpen(false)} />
-      
-      <Menu $open={menuOpen}>
-        <CloseButton onClick={() => setMenuOpen(false)} aria-label="Close">×</CloseButton>
-        <MenuList>
-          {menuItems.map(item => (
-            <MenuItem key={item.href}>
-              <MenuLink href={item.href} onClick={(e) => handleClick(e, item.href)}>
-                {item.label}
-              </MenuLink>
-            </MenuItem>
-          ))}
-        </MenuList>
-        <MenuFooter>
-          <MenuDate>Save the Date</MenuDate>
-        </MenuFooter>
-      </Menu>
+      <FullscreenMenu $open={menuOpen}>
+        <MenuContent>
+          <MenuList>
+            {menuItems.map((item, i) => (
+              <MenuItem key={item.href}>
+                <MenuLink 
+                  href={item.href}
+                  onClick={(e) => handleClick(e, item.href)}
+                  $open={menuOpen}
+                  $delay={`${0.1 + i * 0.05}s`}
+                >
+                  {item.label}
+                </MenuLink>
+              </MenuItem>
+            ))}
+          </MenuList>
+          <MenuFooter $open={menuOpen}>
+            <MenuDate>Save the Date</MenuDate>
+          </MenuFooter>
+        </MenuContent>
+      </FullscreenMenu>
     </>
   );
 }

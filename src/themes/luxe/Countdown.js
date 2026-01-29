@@ -1,59 +1,55 @@
-// Luxe Countdown - Elegant, Minimal
+// Luxe Countdown - Elegant Dark with Gold Accents
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const slideInLeft = keyframes`
-  from { opacity: 0; transform: translateX(-60px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
-
-const slideInRight = keyframes`
-  from { opacity: 0; transform: translateX(60px); }
-  to { opacity: 1; transform: translateX(0); }
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const Section = styled.section`
-  padding: var(--section-padding) 2rem;
-  background: var(--luxe-white);
+  padding: var(--section-padding-y) var(--section-padding-x);
+  background: var(--luxe-cream);
+  color: var(--luxe-anthracite);
 `;
 
 const Container = styled.div`
-  max-width: var(--container-width);
+  max-width: var(--container-max);
   margin: 0 auto;
-`;
-
-const Header = styled.div`
   text-align: center;
-  margin-bottom: 4rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? slideInLeft : 'none'} 0.8s var(--transition-slow) forwards;
 `;
 
 const Eyebrow = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--luxe-taupe);
+  color: var(--luxe-gold);
   margin-bottom: 1rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 300;
   font-style: italic;
-  color: var(--luxe-black);
+  color: var(--luxe-anthracite);
+  margin-bottom: 4rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.1s;
 `;
 
-const CountdownGrid = styled.div`
+const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  max-width: 700px;
-  margin: 0 auto;
+  max-width: 800px;
+  margin: 0 auto 4rem;
   
   @media (max-width: 600px) {
     grid-template-columns: repeat(2, 1fr);
@@ -61,52 +57,53 @@ const CountdownGrid = styled.div`
   }
 `;
 
-const TimeUnit = styled.div`
-  text-align: center;
+const Unit = styled.div`
   opacity: 0;
-  animation: ${p => p.$visible ? (p.$index % 2 === 0 ? slideInLeft : slideInRight) : 'none'} 0.8s var(--transition-slow) forwards;
-  animation-delay: ${p => 0.1 + p.$index * 0.1}s;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: ${p => 0.2 + p.$index * 0.1}s;
 `;
 
-const TimeNumber = styled.div`
-  font-family: var(--font-serif);
-  font-size: clamp(3rem, 8vw, 5rem);
+const Number = styled.div`
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 6rem);
   font-weight: 300;
-  color: var(--luxe-black);
+  color: var(--luxe-anthracite);
   line-height: 1;
   margin-bottom: 0.5rem;
 `;
 
-const TimeLabel = styled.div`
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
+const Label = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-taupe);
+  color: var(--luxe-slate);
 `;
 
-const DateDisplay = styled.div`
-  text-align: center;
-  margin-top: 4rem;
-  padding-top: 3rem;
-  border-top: 1px solid var(--luxe-sand);
+const Divider = styled.div`
+  width: 1px;
+  height: 60px;
+  background: var(--luxe-gold);
+  margin: 0 auto 2rem;
   opacity: 0;
-  animation: ${p => p.$visible ? slideInRight : 'none'} 0.8s var(--transition-slow) forwards;
-  animation-delay: 0.5s;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.6s;
 `;
 
-const DateText = styled.p`
-  font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
+const DateDisplay = styled.p`
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   font-style: italic;
-  color: var(--luxe-charcoal);
+  color: var(--luxe-graphite);
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.7s;
 `;
 
 function Countdown() {
   const { content, project } = useWedding();
   const countdownData = content?.countdown || {};
-  
   const title = countdownData.title || 'Der grosse Tag';
   const targetDate = countdownData.target_date || project?.wedding_date || '2025-09-21';
   
@@ -115,10 +112,7 @@ function Countdown() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -154,23 +148,18 @@ function Countdown() {
   return (
     <Section ref={sectionRef} id="countdown">
       <Container>
-        <Header $visible={visible}>
-          <Eyebrow>Save the Date</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
-        
-        <CountdownGrid>
+        <Eyebrow $visible={visible}>Save the Date</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
+        <Grid>
           {units.map((unit, i) => (
-            <TimeUnit key={unit.label} $visible={visible} $index={i}>
-              <TimeNumber>{String(unit.value).padStart(2, '0')}</TimeNumber>
-              <TimeLabel>{unit.label}</TimeLabel>
-            </TimeUnit>
+            <Unit key={unit.label} $visible={visible} $index={i}>
+              <Number>{String(unit.value).padStart(2, '0')}</Number>
+              <Label>{unit.label}</Label>
+            </Unit>
           ))}
-        </CountdownGrid>
-        
-        <DateDisplay $visible={visible}>
-          <DateText>{formattedDate}</DateText>
-        </DateDisplay>
+        </Grid>
+        <Divider $visible={visible} />
+        <DateDisplay $visible={visible}>{formattedDate}</DateDisplay>
       </Container>
     </Section>
   );

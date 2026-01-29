@@ -1,26 +1,12 @@
-// Luxe GlobalStyles - Elegant, Fließend, Minimalistisch
+// Luxe GlobalStyles - Phenomenon/Elyse Residence Inspired
+// Deep dark luxury with cinematic transitions
 import { createGlobalStyle, keyframes, css } from 'styled-components';
 
 // ============================================
-// SHARED ANIMATIONS - Slide-In von allen Seiten
+// CINEMATIC ANIMATIONS
 // ============================================
-export const slideInLeft = keyframes`
-  from { opacity: 0; transform: translateX(-80px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
-
-export const slideInRight = keyframes`
-  from { opacity: 0; transform: translateX(80px); }
-  to { opacity: 1; transform: translateX(0); }
-`;
-
-export const slideInUp = keyframes`
-  from { opacity: 0; transform: translateY(60px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-export const slideInDown = keyframes`
-  from { opacity: 0; transform: translateY(-40px); }
+export const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(80px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
@@ -29,56 +15,81 @@ export const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
-export const scaleIn = keyframes`
-  from { opacity: 0; transform: scale(0.95); }
+export const scaleReveal = keyframes`
+  from { opacity: 0; transform: scale(1.1); }
   to { opacity: 1; transform: scale(1); }
 `;
 
-export const lineExpand = keyframes`
+export const slideFromLeft = keyframes`
+  from { opacity: 0; transform: translateX(-100px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+export const slideFromRight = keyframes`
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+export const clipReveal = keyframes`
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+`;
+
+export const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 `;
 
-// Utility für Slide-In basierend auf Index (alternierend links/rechts)
-export const getSlideAnimation = (index) => {
-  return index % 2 === 0 ? slideInLeft : slideInRight;
-};
+export const textReveal = keyframes`
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+export const parallaxFloat = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+`;
 
 // ============================================
 // GLOBAL STYLES
 // ============================================
 const LuxeGlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
   
   :root {
-    /* Luxe Farbpalette - Warm, Erdig, Elegant */
-    --luxe-cream: #F5F1EB;
-    --luxe-sand: #E8E0D5;
-    --luxe-taupe: #C4B7A6;
-    --luxe-olive: #8B8B6E;
-    --luxe-sage: #A4A78B;
-    --luxe-charcoal: #3D3D3D;
-    --luxe-black: #1A1A1A;
-    --luxe-white: #FFFFFF;
+    /* Deep Dark Luxury Palette - Phenomenon Style */
+    --luxe-void: #0A0A0A;
+    --luxe-anthracite: #0E0E11;
+    --luxe-charcoal: #1A1A1D;
+    --luxe-graphite: #2D2D30;
+    --luxe-slate: #4A4A4D;
+    
+    /* Light Palette */
+    --luxe-cream: #F8F6F3;
+    --luxe-ivory: #FFFEF9;
+    --luxe-pearl: #E8E6E1;
+    
+    /* Accent */
     --luxe-gold: #C9A962;
+    --luxe-champagne: #D4AF37;
+    --luxe-rose: #B76E79;
     
-    /* Transparenzen */
-    --luxe-overlay: rgba(26, 26, 26, 0.4);
-    --luxe-overlay-light: rgba(245, 241, 235, 0.9);
-    
-    /* Typografie */
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Typography */
+    --font-display: 'Cormorant', 'Didot', 'Playfair Display', Georgia, serif;
+    --font-body: 'Outfit', 'Montserrat', -apple-system, sans-serif;
     
     /* Spacing */
-    --section-padding: clamp(4rem, 10vh, 8rem);
-    --container-width: 1200px;
+    --section-padding-y: clamp(80px, 15vh, 160px);
+    --section-padding-x: clamp(24px, 5vw, 80px);
+    --container-max: 1400px;
     --container-narrow: 800px;
     
-    /* Transitions */
-    --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    --transition-medium: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    --transition-fast: 0.3s ease;
+    /* Transitions - Cinematic */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --duration-slow: 1.2s;
+    --duration-medium: 0.8s;
+    --duration-fast: 0.4s;
   }
   
   *, *::before, *::after {
@@ -90,80 +101,89 @@ const LuxeGlobalStyles = createGlobalStyle`
   html {
     scroll-behavior: smooth;
     font-size: 16px;
+    
+    @media (max-width: 768px) {
+      font-size: 15px;
+    }
   }
   
   body {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    background: var(--luxe-cream);
-    color: var(--luxe-charcoal);
+    font-family: var(--font-body);
+    font-weight: 300;
+    background: var(--luxe-anthracite);
+    color: var(--luxe-cream);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
   
-  /* Eleganter Scrollbar */
+  /* Luxury Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   
   ::-webkit-scrollbar-track {
-    background: var(--luxe-cream);
+    background: var(--luxe-void);
   }
   
   ::-webkit-scrollbar-thumb {
-    background: var(--luxe-taupe);
-    border-radius: 4px;
-    
-    &:hover {
-      background: var(--luxe-olive);
-    }
+    background: var(--luxe-gold);
+    border-radius: 3px;
   }
   
   /* Selection */
   ::selection {
-    background: var(--luxe-sage);
-    color: var(--luxe-white);
+    background: var(--luxe-gold);
+    color: var(--luxe-void);
   }
   
-  /* Typography */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    line-height: 1.2;
-    color: var(--luxe-black);
+  /* Display Typography */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
+  
+  h1 { font-size: clamp(3rem, 10vw, 8rem); }
+  h2 { font-size: clamp(2.5rem, 6vw, 5rem); }
+  h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
   
   p {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: 300;
+    font-size: clamp(0.9rem, 1.1vw, 1.1rem);
     line-height: 1.8;
   }
   
   a {
     color: inherit;
     text-decoration: none;
-    transition: var(--transition-fast);
   }
   
   button {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     cursor: pointer;
     border: none;
     background: none;
   }
   
-  img {
+  img, video {
     max-width: 100%;
     height: auto;
     display: block;
   }
   
-  /* Focus Styles */
+  /* Focus */
   *:focus-visible {
-    outline: 2px solid var(--luxe-olive);
-    outline-offset: 3px;
+    outline: 1px solid var(--luxe-gold);
+    outline-offset: 4px;
+  }
+  
+  /* Utility Classes */
+  .overflow-hidden {
+    overflow: hidden;
   }
 `;
 
