@@ -36,6 +36,7 @@ function HeroEditor({ components: C }) {
             folder={baseFolder + '/hero'}
             label="Hintergrund (Video oder Bild)"
             ratio="16/9"
+            maxHeight="150px"
             allowVideo={true}
           />
         ) : (
@@ -46,6 +47,7 @@ function HeroEditor({ components: C }) {
             folder={baseFolder + '/hero'}
             label="Hintergrundbild"
             ratio="16/9"
+            maxHeight="150px"
           />
         )}
         
@@ -93,6 +95,7 @@ function HeroEditor({ components: C }) {
                 folder={baseFolder + '/hero/mobile'}
                 label="Mobile Hintergrund (Video oder Bild)"
                 ratio="9/16"
+                maxHeight="200px"
                 allowVideo={true}
               />
             ) : (
@@ -103,6 +106,7 @@ function HeroEditor({ components: C }) {
                 folder={baseFolder + '/hero/mobile'}
                 label="Mobile Hintergrundbild"
                 ratio="9/16"
+                maxHeight="200px"
               />
             )}
           </>
