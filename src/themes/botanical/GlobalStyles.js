@@ -1,33 +1,25 @@
-// Botanical Tree Theme - Global Styles
-// Black & White, hand-drawn illustration style
+// Botanical Fruit Theme - Global Styles
 import { createGlobalStyle } from 'styled-components';
 
-const BotanicalGlobalStyles = createGlobalStyle`
+const GlobalStyles = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap');
   
   :root {
-    /* Monochrome Palette */
     --black: #1a1a1a;
     --dark: #2d2d2d;
     --medium: #666666;
     --light: #999999;
     --pale: #cccccc;
     --off-white: #f5f5f5;
-    --white: #ffffff;
     --cream: #faf9f7;
+    --white: #ffffff;
     
-    /* Tree colors */
-    --bark: #2d2d2d;
-    --bark-light: #4a4a4a;
-    --leaf: #3d3d3d;
-    
-    /* Typography */
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     
-    /* Transitions */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-in: cubic-bezier(0.5, 0, 0.75, 0);
   }
   
   *, *::before, *::after {
@@ -36,36 +28,24 @@ const BotanicalGlobalStyles = createGlobalStyle`
     padding: 0;
   }
   
-  html {
-    font-size: 16px;
-    scroll-behavior: smooth;
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
   }
   
   body {
     font-family: var(--font-sans);
-    font-weight: 400;
     background: var(--cream);
     color: var(--dark);
     line-height: 1.6;
-    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
   }
   
-  /* Typography */
   h1, h2, h3 {
     font-family: var(--font-serif);
     font-weight: 400;
     line-height: 1.15;
     color: var(--black);
-  }
-  
-  h1 { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 300; }
-  h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
-  h3 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); font-weight: 500; }
-  
-  p {
-    font-size: 1rem;
-    color: var(--medium);
   }
   
   a {
@@ -85,37 +65,31 @@ const BotanicalGlobalStyles = createGlobalStyle`
     height: auto;
     display: block;
     filter: grayscale(100%);
+    
+    &:hover {
+      filter: grayscale(50%);
+    }
   }
   
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: var(--cream); }
-  ::-webkit-scrollbar-thumb { 
-    background: var(--pale); 
-    border-radius: 4px;
-  }
-  
-  /* Selection */
-  ::selection {
-    background: var(--black);
-    color: var(--white);
-  }
-  
-  /* Form elements */
   input, textarea, select {
     font-family: var(--font-sans);
     font-size: 1rem;
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
     border: 1px solid var(--pale);
     background: var(--white);
     color: var(--dark);
-    transition: border-color 0.3s ease;
+    width: 100%;
     
     &:focus {
       outline: none;
       border-color: var(--dark);
     }
   }
+  
+  ::selection {
+    background: var(--black);
+    color: var(--white);
+  }
 `;
 
-export default BotanicalGlobalStyles;
+export default GlobalStyles;

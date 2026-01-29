@@ -1,32 +1,26 @@
-// Botanical Tree Theme - Index
+// Botanical Fruit Theme - Index
 export { default as WeddingPage } from './WeddingPage';
-export { default as Hero } from './Hero';
-export { default as Countdown } from './Countdown';
-export { default as LoveStory } from './LoveStory';
-export { default as Timeline } from './Timeline';
-export { default as Locations } from './Locations';
-export { default as Gallery } from './Gallery';
-export { default as RSVP } from './RSVP';
-export { default as FAQ } from './FAQ';
-export { default as WeddingABC } from './WeddingABC';
-export { default as Dresscode } from './Dresscode';
-export { default as Gifts } from './Gifts';
-export { default as Accommodations } from './Accommodations';
-export { default as Directions } from './Directions';
-export { default as Guestbook } from './Guestbook';
-export { default as MusicWishes } from './MusicWishes';
-export { default as PhotoUpload } from './PhotoUpload';
-export { default as Contact } from './Contact';
-export { default as ContactWitnesses } from './ContactWitnesses';
-export { default as Footer } from './Footer';
+export { default as GlobalStyles } from './GlobalStyles';
+export { default as TreeSVG } from './TreeSVG';
+export { default as ContentBox } from './ContentBox';
 export { default as AdminDashboard } from './AdminDashboard';
+
+// Content exports
+export { default as HeroContent } from './contents/HeroContent';
+export { default as CountdownContent } from './contents/CountdownContent';
+export { default as StoryContent } from './contents/StoryContent';
+export { default as GalleryContent } from './contents/GalleryContent';
+export { default as TimelineContent } from './contents/TimelineContent';
+export { default as RSVPContent } from './contents/RSVPContent';
+export { default as FAQContent } from './contents/FAQContent';
+export { default as GiftsContent } from './contents/GiftsContent';
 
 // Theme config
 export const themeConfig = {
-  id: 'botanical-tree',
-  name: 'Botanical Tree',
-  description: 'Ein wachsender Baum begleitet eure Geschichte - von der Krone bis zu den Wurzeln',
-  preview: '/previews/botanical-tree.jpg',
+  id: 'botanical-fruit',
+  name: 'Botanical Fruit',
+  description: 'Ein architektonischer Baum mit Früchten als Navigation - klicke oder scrolle durch die Inhalte',
+  preview: '/previews/botanical-fruit.jpg',
   colors: {
     primary: '#1a1a1a',
     secondary: '#666666',
