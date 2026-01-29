@@ -1,6 +1,6 @@
-// TreeOverlay - Growing tree illustration that responds to scroll
-// Crown at top (Hero), trunk gets thicker as you scroll, roots at bottom
-import React, { useState, useEffect, useRef } from 'react';
+// TreeOverlay - Sketchy hand-drawn tree that grows with scroll
+// Many thin lines, organic, imperfect strokes - like pen sketches
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 const Overlay = styled.div`
@@ -17,281 +17,471 @@ const TreeSVG = styled.svg`
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 1400px;
+  max-width: 1800px;
   height: 100%;
 `;
 
-// Generates organic wobbly line
-function wobbleLine(x1, y1, x2, y2, wobble = 2, segments = 8) {
-  let path = `M ${x1} ${y1}`;
-  for (let i = 1; i <= segments; i++) {
-    const t = i / segments;
-    const x = x1 + (x2 - x1) * t;
-    const y = y1 + (y2 - y1) * t;
-    const wx = (Math.random() - 0.5) * wobble;
-    const wy = (Math.random() - 0.5) * wobble;
-    if (i === segments) {
-      path += ` L ${x2} ${y2}`;
-    } else {
-      path += ` L ${x + wx} ${y + wy}`;
-    }
-  }
-  return path;
+// Seeded random for consistent rendering
+function seededRandom(seed) {
+  const x = Math.sin(seed * 9999) * 10000;
+  return x - Math.floor(x);
 }
 
-// Branch component
-const Branch = ({ x1, y1, x2, y2, thickness = 1, opacity = 1 }) => {
-  const pathRef = useRef(null);
-  const [path, setPath] = useState('');
+// Generate a sketchy line with multiple thin strokes
+function sketchyLine(x1, y1, x2, y2, seed = 0, numStrokes = 4) {
+  const lines = [];
   
-  useEffect(() => {
-    setPath(wobbleLine(x1, y1, x2, y2, thickness * 0.5));
-  }, [x1, y1, x2, y2, thickness]);
+  for (let s = 0; s < numStrokes; s++) {
+    let path = `M ${x1 + (seededRandom(seed + s * 100) - 0.5) * 0.5} ${y1 + (seededRandom(seed + s * 101) - 0.5) * 0.5}`;
+    const segments = 8 + Math.floor(seededRandom(seed + s) * 6);
+    
+    for (let i = 1; i <= segments; i++) {
+      const t = i / segments;
+      const x = x1 + (x2 - x1) * t;
+      const y = y1 + (y2 - y1) * t;
+      const wobbleX = (seededRandom(seed + i * 10 + s * 50) - 0.5) * 1.2;
+      const wobbleY = (seededRandom(seed + i * 11 + s * 51) - 0.5) * 1.2;
+      path += ` L ${x + wobbleX} ${y + wobbleY}`;
+    }
+    
+    lines.push({
+      d: path,
+      opacity: 0.25 + seededRandom(seed + s * 200) * 0.45,
+      strokeWidth: 0.04 + seededRandom(seed + s * 201) * 0.06
+    });
+  }
   
-  return (
-    <path
-      d={path}
-      fill="none"
-      stroke="var(--bark)"
-      strokeWidth={thickness}
-      strokeLinecap="round"
-      opacity={opacity}
-    />
-  );
-};
+  return lines;
+}
 
-// Generate tree structure based on scroll progress
-function generateTree(scrollProgress, viewportHeight) {
-  const branches = [];
-  const trunk = [];
-  const rings = [];
+// Generate sketchy branch with many thin parallel lines
+function sketchyBranch(x1, y1, x2, y2, thickness, seed) {
+  const paths = [];
   
-  // Trunk center X
-  const centerX = 50;
+  // Multiple thin lines for the branch
+  const numLines = Math.max(3, Math.floor(thickness * 6));
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const nx = -dy / len;
+  const ny = dx / len;
   
-  // Trunk - gets thicker as we scroll down
-  // At top (scroll=0): thin crown branches
-  // At bottom (scroll=1): thick trunk with rings
+  for (let i = 0; i < numLines; i++) {
+    const offset = ((i / (numLines - 1)) - 0.5) * thickness * 0.4;
+    const strokeLines = sketchyLine(
+      x1 + nx * offset,
+      y1 + ny * offset,
+      x2 + nx * offset,
+      y2 + ny * offset,
+      seed + i * 1000,
+      2 + Math.floor(seededRandom(seed + i) * 2)
+    );
+    paths.push(...strokeLines);
+  }
   
-  const trunkTopY = 5;
-  const trunkBottomY = 95;
-  const trunkHeight = trunkBottomY - trunkTopY;
-  
-  // Trunk width increases with depth
-  const trunkWidthTop = 0.5;
-  const trunkWidthBottom = 8;
-  
-  // Main trunk lines (left and right edge)
-  for (let i = 0; i < 20; i++) {
-    const t = i / 19;
-    const y = trunkTopY + t * trunkHeight;
-    const width = trunkWidthTop + t * (trunkWidthBottom - trunkWidthTop);
-    
-    // Only draw trunk section if we've scrolled past it
-    const sectionScroll = t;
-    if (scrollProgress >= sectionScroll * 0.8) {
-      const opacity = Math.min(1, (scrollProgress - sectionScroll * 0.8) * 5);
+  // Cross-hatching for texture
+  if (thickness > 0.8 && len > 3) {
+    const numHatches = Math.floor(len / 2);
+    for (let i = 0; i < numHatches; i++) {
+      const t = (i + 0.3 + seededRandom(seed + i * 500) * 0.4) / numHatches;
+      const hx = x1 + dx * t;
+      const hy = y1 + dy * t;
+      const hatchLen = thickness * 0.3;
+      const angle = Math.PI / 4 + (seededRandom(seed + i * 501) - 0.5) * 0.5;
       
-      // Left trunk edge
-      trunk.push({
-        x: centerX - width,
-        y: y,
-        thickness: 0.3 + t * 0.5,
-        opacity: opacity
-      });
-      
-      // Right trunk edge  
-      trunk.push({
-        x: centerX + width,
-        y: y,
-        thickness: 0.3 + t * 0.5,
-        opacity: opacity
+      paths.push({
+        d: `M ${hx - Math.cos(angle) * hatchLen} ${hy - Math.sin(angle) * hatchLen} L ${hx + Math.cos(angle) * hatchLen} ${hy + Math.sin(angle) * hatchLen}`,
+        opacity: 0.1 + seededRandom(seed + i * 502) * 0.15,
+        strokeWidth: 0.04
       });
     }
   }
   
-  // Crown branches at top (always visible, more detail as you scroll)
-  const crownBranches = [
-    // Main upward branches
-    { x1: centerX, y1: 15, x2: centerX - 15, y2: 5, thick: 0.8 },
-    { x1: centerX, y1: 15, x2: centerX + 12, y2: 3, thick: 0.8 },
-    { x1: centerX, y1: 15, x2: centerX - 5, y2: 2, thick: 0.6 },
-    { x1: centerX, y1: 15, x2: centerX + 8, y2: 6, thick: 0.5 },
-    // Sub-branches
-    { x1: centerX - 15, y1: 5, x2: centerX - 22, y2: 2, thick: 0.4 },
-    { x1: centerX - 15, y1: 5, x2: centerX - 18, y2: 8, thick: 0.3 },
-    { x1: centerX + 12, y1: 3, x2: centerX + 20, y2: 1, thick: 0.4 },
-    { x1: centerX + 12, y1: 3, x2: centerX + 16, y2: 7, thick: 0.3 },
-    // Tiny twigs
-    { x1: centerX - 22, y1: 2, x2: centerX - 26, y2: 0, thick: 0.2 },
-    { x1: centerX + 20, y1: 1, x2: centerX + 25, y2: -1, thick: 0.2 },
-    { x1: centerX - 5, y1: 2, x2: centerX - 8, y2: -1, thick: 0.2 },
-    { x1: centerX + 8, y1: 6, x2: centerX + 12, y2: 4, thick: 0.2 },
+  return paths;
+}
+
+// Generate wild organic crown with many branches
+function generateCrown(centerX, topY, scrollProgress) {
+  const paths = [];
+  const baseOpacity = Math.min(1, 0.3 + scrollProgress * 0.7);
+  
+  // Main structure going up
+  const trunkTop = topY + 20;
+  
+  // Many primary branches radiating out
+  const primaryBranches = [
+    { x: centerX - 18, y: topY + 5, thick: 1.2 },
+    { x: centerX + 15, y: topY + 3, thick: 1.2 },
+    { x: centerX - 8, y: topY + 1, thick: 1.0 },
+    { x: centerX + 10, y: topY + 6, thick: 1.0 },
+    { x: centerX - 22, y: topY + 12, thick: 1.1 },
+    { x: centerX + 20, y: topY + 10, thick: 1.1 },
+    { x: centerX - 3, y: topY, thick: 0.9 },
+    { x: centerX + 5, y: topY + 2, thick: 0.8 },
+    { x: centerX - 14, y: topY + 8, thick: 0.9 },
+    { x: centerX + 18, y: topY + 14, thick: 1.0 },
+    { x: centerX - 25, y: topY + 18, thick: 0.8 },
+    { x: centerX + 24, y: topY + 16, thick: 0.9 },
   ];
   
-  crownBranches.forEach(b => {
-    branches.push({
-      ...b,
-      opacity: Math.min(1, 0.3 + scrollProgress * 0.7)
+  primaryBranches.forEach((b, i) => {
+    const startY = trunkTop - 2 - (i % 5) * 3;
+    const startX = centerX + (seededRandom(i * 50) - 0.5) * 2;
+    
+    // Primary branch
+    const branchPaths = sketchyBranch(startX, startY, b.x, b.y, b.thick, i * 100);
+    branchPaths.forEach(p => {
+      p.opacity *= baseOpacity;
+      paths.push(p);
     });
-  });
-  
-  // Side branches that grow at different scroll positions
-  const sideBranches = [
-    { y: 25, dir: -1, scroll: 0.1 },
-    { y: 30, dir: 1, scroll: 0.15 },
-    { y: 40, dir: -1, scroll: 0.25 },
-    { y: 45, dir: 1, scroll: 0.3 },
-    { y: 55, dir: -1, scroll: 0.4 },
-    { y: 58, dir: 1, scroll: 0.45 },
-    { y: 68, dir: -1, scroll: 0.55 },
-    { y: 72, dir: 1, scroll: 0.6 },
-    { y: 80, dir: -1, scroll: 0.7 },
-    { y: 83, dir: 1, scroll: 0.75 },
-  ];
-  
-  sideBranches.forEach(sb => {
-    if (scrollProgress >= sb.scroll) {
-      const progress = Math.min(1, (scrollProgress - sb.scroll) * 4);
-      const trunkWidth = trunkWidthTop + (sb.y / 100) * (trunkWidthBottom - trunkWidthTop);
-      const startX = centerX + (sb.dir * trunkWidth);
-      const endX = startX + (sb.dir * (8 + progress * 10));
-      const endY = sb.y - 3 - progress * 2;
+    
+    // Secondary branches - more of them!
+    const numSecondary = 3 + Math.floor(seededRandom(i * 60) * 4);
+    for (let j = 0; j < numSecondary; j++) {
+      const t = 0.25 + seededRandom(i * 70 + j) * 0.6;
+      const sx = startX + (b.x - startX) * t;
+      const sy = startY + (b.y - startY) * t;
+      const ex = b.x + (seededRandom(i * 80 + j) - 0.5) * 15;
+      const ey = b.y - 1 - seededRandom(i * 81 + j) * 8;
       
-      branches.push({
-        x1: startX,
-        y1: sb.y,
-        x2: endX,
-        y2: endY,
-        thick: 0.4 + progress * 0.3,
-        opacity: progress
+      const secPaths = sketchyBranch(sx, sy, ex, ey, 0.5, i * 90 + j);
+      secPaths.forEach(p => {
+        p.opacity *= baseOpacity * 0.7;
+        paths.push(p);
       });
       
-      // Sub-branches
-      if (progress > 0.5) {
-        branches.push({
-          x1: endX * 0.7 + startX * 0.3,
-          y1: (sb.y + endY) / 2,
-          x2: endX + sb.dir * 5,
-          y2: endY + 2,
-          thick: 0.2,
-          opacity: (progress - 0.5) * 2
-        });
-      }
-    }
-  });
-  
-  // Growth rings - appear in lower portion as trunk gets thick
-  if (scrollProgress > 0.5) {
-    const ringProgress = (scrollProgress - 0.5) * 2;
-    const numRings = Math.floor(ringProgress * 8);
-    const ringY = 85; // Position of ring cross-section
-    const ringWidth = trunkWidthTop + (ringY / 100) * (trunkWidthBottom - trunkWidthTop);
-    
-    for (let i = 1; i <= numRings; i++) {
-      const scale = i / 8;
-      rings.push({
-        cx: centerX,
-        cy: ringY,
-        rx: ringWidth * scale,
-        ry: ringWidth * scale * 0.4,
-        opacity: 0.1 + scale * 0.2
-      });
-    }
-  }
-  
-  // Roots at bottom
-  const roots = [];
-  if (scrollProgress > 0.8) {
-    const rootProgress = (scrollProgress - 0.8) * 5;
-    const rootWidth = trunkWidthBottom;
-    
-    const rootData = [
-      { angle: -60, length: 15 },
-      { angle: -30, length: 20 },
-      { angle: 0, length: 12 },
-      { angle: 30, length: 18 },
-      { angle: 60, length: 14 },
-    ];
-    
-    rootData.forEach((r, i) => {
-      const progress = Math.min(1, rootProgress * (1 + i * 0.1));
-      if (progress > 0) {
-        const startX = centerX + (r.angle / 60) * rootWidth * 0.5;
-        const endX = startX + Math.sin(r.angle * Math.PI / 180) * r.length * progress;
-        const endY = 95 + Math.cos(r.angle * Math.PI / 180) * r.length * progress * 0.3;
+      // Tertiary twigs - lots of them!
+      const numTwigs = 3 + Math.floor(seededRandom(i * 100 + j) * 4);
+      for (let k = 0; k < numTwigs; k++) {
+        const tt = 0.3 + seededRandom(i * 110 + j * 10 + k) * 0.6;
+        const tsx = sx + (ex - sx) * tt;
+        const tsy = sy + (ey - sy) * tt;
+        const tex = tsx + (seededRandom(i * 120 + j * 10 + k) - 0.5) * 8;
+        const tey = tsy - 1 - seededRandom(i * 121 + j * 10 + k) * 5;
         
-        roots.push({
-          x1: startX,
-          y1: 93,
-          x2: endX,
-          y2: Math.min(100, endY),
-          thick: 0.5 + (1 - Math.abs(r.angle) / 60) * 0.5,
-          opacity: progress * 0.7
+        const twigPaths = sketchyLine(tsx, tsy, tex, tey, i * 130 + j * 10 + k, 3);
+        twigPaths.forEach(p => {
+          p.opacity *= baseOpacity * 0.4;
+          paths.push(p);
+        });
+        
+        // Even tinier twigs
+        if (seededRandom(i * 140 + j * 10 + k) > 0.4) {
+          const tex2 = tex + (seededRandom(i * 150 + k) - 0.5) * 4;
+          const tey2 = tey - seededRandom(i * 151 + k) * 3;
+          const tinyPaths = sketchyLine(tex, tey, tex2, tey2, i * 160 + k, 2);
+          tinyPaths.forEach(p => {
+            p.opacity *= baseOpacity * 0.25;
+            paths.push(p);
+          });
+        }
+      }
+    }
+  });
+  
+  return paths;
+}
+
+// Generate trunk with many parallel sketchy lines
+function generateTrunk(centerX, startY, endY, scrollProgress) {
+  const paths = [];
+  
+  const widthTop = 2;
+  const widthBottom = 15;
+  const numEdgeLines = 8;
+  
+  // Left and right edges with multiple sketchy lines
+  for (let edge = 0; edge < 2; edge++) {
+    const dir = edge === 0 ? -1 : 1;
+    
+    for (let line = 0; line < numEdgeLines; line++) {
+      const lineOffset = (line / numEdgeLines) * 0.4;
+      let path = '';
+      
+      const numPoints = 30;
+      for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+        if (t > scrollProgress * 1.3) break;
+        
+        const y = startY + (endY - startY) * t;
+        const width = widthTop + (widthBottom - widthTop) * Math.pow(t, 0.6);
+        const wobble = (seededRandom(edge * 5000 + line * 100 + i * 10) - 0.5) * 0.8;
+        const x = centerX + dir * (width - lineOffset * width * 0.3) + wobble;
+        
+        if (i === 0) {
+          path = `M ${x} ${y}`;
+        } else {
+          path += ` L ${x} ${y}`;
+        }
+      }
+      
+      if (path) {
+        paths.push({
+          d: path,
+          opacity: 0.2 + seededRandom(edge * 6000 + line * 200) * 0.4,
+          strokeWidth: 0.04 + seededRandom(edge * 6001 + line * 201) * 0.04
         });
       }
+    }
+  }
+  
+  // Vertical bark texture lines
+  const numBarkLines = 25;
+  for (let i = 0; i < numBarkLines; i++) {
+    const xOffset = (seededRandom(i * 700) - 0.5) * 0.8;
+    const startT = seededRandom(i * 701) * 0.4;
+    const endT = startT + 0.2 + seededRandom(i * 702) * 0.4;
+    
+    if (startT > scrollProgress * 1.3) continue;
+    
+    const actualEndT = Math.min(endT, scrollProgress * 1.3);
+    const midWidth = widthTop + (widthBottom - widthTop) * ((startT + actualEndT) / 2);
+    const x = centerX + xOffset * midWidth;
+    const y1 = startY + (endY - startY) * startT;
+    const y2 = startY + (endY - startY) * actualEndT;
+    
+    const barkLines = sketchyLine(
+      x + (seededRandom(i * 703) - 0.5) * 1.5,
+      y1,
+      x + (seededRandom(i * 704) - 0.5) * 1.5,
+      y2,
+      i * 710,
+      2
+    );
+    barkLines.forEach(p => {
+      p.opacity *= 0.2;
+      paths.push(p);
     });
   }
   
-  return { trunk, branches, rings, roots };
+  return paths;
+}
+
+// Generate side branches
+function generateSideBranches(centerX, scrollProgress) {
+  const paths = [];
+  
+  const branches = [
+    { y: 26, dir: -1, length: 22, scroll: 0.06 },
+    { y: 30, dir: 1, length: 20, scroll: 0.10 },
+    { y: 35, dir: -1, length: 25, scroll: 0.15 },
+    { y: 40, dir: 1, length: 22, scroll: 0.20 },
+    { y: 46, dir: -1, length: 28, scroll: 0.26 },
+    { y: 51, dir: 1, length: 24, scroll: 0.31 },
+    { y: 56, dir: -1, length: 22, scroll: 0.36 },
+    { y: 61, dir: 1, length: 26, scroll: 0.41 },
+    { y: 66, dir: -1, length: 24, scroll: 0.46 },
+    { y: 71, dir: 1, length: 22, scroll: 0.51 },
+    { y: 75, dir: -1, length: 20, scroll: 0.56 },
+    { y: 79, dir: 1, length: 24, scroll: 0.61 },
+    { y: 83, dir: -1, length: 18, scroll: 0.66 },
+  ];
+  
+  branches.forEach((branch, idx) => {
+    if (scrollProgress < branch.scroll) return;
+    
+    const progress = Math.min(1, (scrollProgress - branch.scroll) * 4);
+    const trunkWidth = widthAtY(branch.y);
+    
+    const startX = centerX + branch.dir * trunkWidth;
+    const endX = startX + branch.dir * branch.length * progress;
+    const endY = branch.y - 5 - seededRandom(idx * 800) * 5;
+    
+    // Main branch with more strokes
+    const branchPaths = sketchyBranch(startX, branch.y, endX, endY, 0.8 + progress * 0.5, idx * 1000);
+    branchPaths.forEach(p => {
+      p.opacity *= progress;
+      paths.push(p);
+    });
+    
+    // More sub-branches
+    if (progress > 0.3) {
+      const numSub = 3 + Math.floor(seededRandom(idx * 900) * 3);
+      for (let i = 0; i < numSub; i++) {
+        const t = 0.2 + seededRandom(idx * 910 + i) * 0.6;
+        const sx = startX + (endX - startX) * t;
+        const sy = branch.y + (endY - branch.y) * t;
+        const subEndX = sx + branch.dir * (6 + seededRandom(idx * 920 + i) * 10) * progress;
+        const subEndY = sy - 2 - seededRandom(idx * 930 + i) * 6;
+        
+        const subPaths = sketchyBranch(sx, sy, subEndX, subEndY, 0.4, idx * 940 + i);
+        subPaths.forEach(p => {
+          p.opacity *= progress * 0.6;
+          paths.push(p);
+        });
+        
+        // Tiny twigs
+        if (progress > 0.5) {
+          const numTwigs = 2 + Math.floor(seededRandom(idx * 950 + i) * 2);
+          for (let j = 0; j < numTwigs; j++) {
+            const tt = 0.4 + seededRandom(idx * 960 + i * 10 + j) * 0.4;
+            const tsx = sx + (subEndX - sx) * tt;
+            const tsy = sy + (subEndY - sy) * tt;
+            const tex = tsx + branch.dir * (3 + seededRandom(idx * 970 + j) * 4);
+            const tey = tsy - 1 - seededRandom(idx * 971 + j) * 3;
+            
+            const twigPaths = sketchyLine(tsx, tsy, tex, tey, idx * 980 + j, 2);
+            twigPaths.forEach(p => {
+              p.opacity *= progress * 0.35;
+              paths.push(p);
+            });
+          }
+        }
+      }
+    }
+  });
+  
+  return paths;
+}
+
+// Helper: width at Y position
+function widthAtY(y) {
+  const startY = 22;
+  const endY = 88;
+  const widthTop = 2;
+  const widthBottom = 15;
+  const t = (y - startY) / (endY - startY);
+  return widthTop + (widthBottom - widthTop) * Math.pow(Math.max(0, Math.min(1, t)), 0.6);
+}
+
+// Generate growth rings
+function generateRings(centerX, centerY, scrollProgress) {
+  const paths = [];
+  
+  if (scrollProgress < 0.55) return paths;
+  
+  const ringProgress = (scrollProgress - 0.55) / 0.45;
+  const numRings = Math.floor(ringProgress * 12);
+  const maxRadius = 10;
+  
+  for (let i = 1; i <= numRings; i++) {
+    const radius = (i / 12) * maxRadius;
+    const numStrokes = 4;
+    
+    for (let s = 0; s < numStrokes; s++) {
+      const points = [];
+      const numPoints = 32;
+      
+      for (let j = 0; j <= numPoints; j++) {
+        const angle = (j / numPoints) * Math.PI * 2;
+        const wobble = (seededRandom(i * 1000 + j * 10 + s) - 0.5) * 0.6;
+        const r = radius + wobble;
+        points.push({
+          x: centerX + Math.cos(angle) * r * 1.3,
+          y: centerY + Math.sin(angle) * r * 0.45
+        });
+      }
+      
+      let path = `M ${points[0].x} ${points[0].y}`;
+      for (let j = 1; j < points.length; j++) {
+        path += ` L ${points[j].x} ${points[j].y}`;
+      }
+      
+      paths.push({
+        d: path,
+        opacity: 0.1 + seededRandom(i * 1100 + s) * 0.2,
+        strokeWidth: 0.05
+      });
+    }
+  }
+  
+  return paths;
+}
+
+// Generate roots
+function generateRoots(centerX, startY, scrollProgress) {
+  const paths = [];
+  
+  if (scrollProgress < 0.72) return paths;
+  
+  const rootProgress = (scrollProgress - 0.72) / 0.28;
+  
+  const roots = [
+    { angle: -75, length: 18 },
+    { angle: -55, length: 24 },
+    { angle: -35, length: 22 },
+    { angle: -15, length: 18 },
+    { angle: 10, length: 20 },
+    { angle: 30, length: 25 },
+    { angle: 50, length: 22 },
+    { angle: 70, length: 17 },
+    { angle: 85, length: 14 },
+  ];
+  
+  roots.forEach((root, idx) => {
+    const progress = Math.min(1, rootProgress * (1.6 - idx * 0.08));
+    if (progress <= 0) return;
+    
+    const rad = root.angle * Math.PI / 180;
+    const endX = centerX + Math.sin(rad) * root.length * progress;
+    const endY = startY + Math.abs(Math.cos(rad)) * root.length * 0.35 * progress;
+    
+    const rootPaths = sketchyBranch(centerX + (seededRandom(idx * 2000) - 0.5) * 3, startY, endX, endY, 0.6, idx * 2100);
+    rootPaths.forEach(p => {
+      p.opacity *= progress * 0.6;
+      paths.push(p);
+    });
+    
+    // Sub-roots
+    if (progress > 0.4) {
+      const numSub = 2 + Math.floor(seededRandom(idx * 2200) * 3);
+      for (let i = 0; i < numSub; i++) {
+        const t = 0.3 + seededRandom(idx * 2300 + i) * 0.5;
+        const sx = centerX + (endX - centerX) * t;
+        const sy = startY + (endY - startY) * t;
+        const subAngle = root.angle + (seededRandom(idx * 2400 + i) - 0.5) * 50;
+        const subRad = subAngle * Math.PI / 180;
+        const subLen = 5 + seededRandom(idx * 2500 + i) * 7;
+        const subEndX = sx + Math.sin(subRad) * subLen * progress;
+        const subEndY = sy + Math.abs(Math.cos(subRad)) * subLen * 0.3 * progress;
+        
+        const subPaths = sketchyLine(sx, sy, subEndX, subEndY, idx * 2600 + i, 3);
+        subPaths.forEach(p => {
+          p.opacity *= progress * 0.4;
+          paths.push(p);
+        });
+      }
+    }
+  });
+  
+  return paths;
 }
 
 function TreeOverlay({ scrollProgress = 0 }) {
-  const tree = generateTree(scrollProgress, 100);
-  
+  const allPaths = useMemo(() => {
+    const paths = [];
+    const centerX = 50;
+    
+    // Crown at top
+    paths.push(...generateCrown(centerX, 0, scrollProgress));
+    
+    // Main trunk
+    paths.push(...generateTrunk(centerX, 20, 88, scrollProgress));
+    
+    // Side branches
+    paths.push(...generateSideBranches(centerX, scrollProgress));
+    
+    // Growth rings
+    paths.push(...generateRings(centerX, 86, scrollProgress));
+    
+    // Roots at bottom
+    paths.push(...generateRoots(centerX, 90, scrollProgress));
+    
+    return paths;
+  }, [scrollProgress]);
+
   return (
     <Overlay>
       <TreeSVG viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice">
-        {/* Trunk outline */}
-        {tree.trunk.length >= 2 && (
+        {allPaths.map((path, i) => (
           <path
-            d={`M ${tree.trunk.filter((_, i) => i % 2 === 0).map(t => `${t.x} ${t.y}`).join(' L ')} 
-                L ${tree.trunk.filter((_, i) => i % 2 === 1).reverse().map(t => `${t.x} ${t.y}`).join(' L ')} Z`}
+            key={i}
+            d={path.d}
             fill="none"
-            stroke="var(--bark)"
-            strokeWidth="0.3"
-            opacity={tree.trunk[0]?.opacity || 0}
-          />
-        )}
-        
-        {/* Growth rings */}
-        {tree.rings.map((ring, i) => (
-          <ellipse
-            key={`ring-${i}`}
-            cx={ring.cx}
-            cy={ring.cy}
-            rx={ring.rx}
-            ry={ring.ry}
-            fill="none"
-            stroke="var(--bark)"
-            strokeWidth="0.15"
-            opacity={ring.opacity}
-          />
-        ))}
-        
-        {/* Branches */}
-        {tree.branches.map((b, i) => (
-          <Branch
-            key={`branch-${i}`}
-            x1={b.x1}
-            y1={b.y1}
-            x2={b.x2}
-            y2={b.y2}
-            thickness={b.thick}
-            opacity={b.opacity}
-          />
-        ))}
-        
-        {/* Roots */}
-        {tree.roots.map((r, i) => (
-          <Branch
-            key={`root-${i}`}
-            x1={r.x1}
-            y1={r.y1}
-            x2={r.x2}
-            y2={r.y2}
-            thickness={r.thick}
-            opacity={r.opacity}
+            stroke="var(--bark, #2d2d2d)"
+            strokeWidth={path.strokeWidth}
+            strokeLinecap="round"
+            opacity={path.opacity}
           />
         ))}
       </TreeSVG>
