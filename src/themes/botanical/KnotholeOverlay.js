@@ -1,12 +1,31 @@
-// KnotholeOverlay - Fixed foreground with REAL transparent holes
-// Uses SVG mask to cut actual holes in the wood frame
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+// KnotholeOverlay - Elegant wood frame with animated organic holes
+// SVG mask creates real transparent holes, CSS animations make them breathe
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 
-// Subtle animation for organic feel
+// Breathing animation for the whole overlay
 const breathe = keyframes`
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+  50% { transform: scale(1.003); }
+`;
+
+// Floating animation for secondary holes
+const float1 = keyframes`
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(0.5%, 0.3%); }
+  50% { transform: translate(0, 0.5%); }
+  75% { transform: translate(-0.3%, 0.2%); }
+`;
+
+const float2 = keyframes`
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-0.4%, 0.4%); }
+  66% { transform: translate(0.3%, -0.2%); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.18; }
 `;
 
 const Overlay = styled.div`
@@ -17,7 +36,15 @@ const Overlay = styled.div`
   overflow: hidden;
 `;
 
-// Menu dots (top right) - needs pointer events
+const AnimatedSVG = styled.svg`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: ${breathe} 8s ease-in-out infinite;
+`;
+
+// Menu button
 const MenuButton = styled.button`
   position: fixed;
   top: 1.5rem;
@@ -35,158 +62,184 @@ const MenuButton = styled.button`
   cursor: pointer;
   z-index: 200;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.12);
   border: none;
   
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transform: scale(1.08);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.18);
   }
   
   span {
     width: 4px;
     height: 4px;
-    background: #3D3229;
+    background: #4A4A4A;
     border-radius: 50%;
+    transition: background 0.3s ease;
+  }
+  
+  &:hover span {
+    background: #2D2D2D;
   }
 `;
 
 // Scroll indicator
 const ScrollHint = styled.div`
   position: fixed;
-  bottom: 2rem;
+  bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  color: rgba(250, 248, 245, 0.7);
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
+  gap: 0.75rem;
+  color: rgba(250, 248, 245, 0.8);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   opacity: ${p => p.$visible ? 1 : 0};
-  transition: opacity 0.8s ease;
+  transition: opacity 1s ease;
   pointer-events: none;
   z-index: 150;
+`;
+
+const ScrollLine = styled.div`
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, rgba(250, 248, 245, 0.6), transparent);
+  position: relative;
+  overflow: hidden;
   
   &::after {
     content: '';
-    width: 1px;
-    height: 35px;
-    background: linear-gradient(180deg, rgba(250, 248, 245, 0.5), transparent);
-    animation: ${breathe} 2s ease-in-out infinite;
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, transparent, rgba(250, 248, 245, 0.9), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes scrollPulse {
+    0% { top: -50%; }
+    100% { top: 150%; }
   }
 `;
 
-// Section configurations for hole layouts
+// Hole configurations per section
 const sectionConfigs = {
   hero: {
-    main: { cx: 50, cy: 50, rx: 32, ry: 38 },
+    main: { cx: 50, cy: 50, rx: 30, ry: 36 },
     holes: []
   },
   countdown: {
-    main: { cx: 50, cy: 50, rx: 28, ry: 30 },
+    main: { cx: 50, cy: 48, rx: 26, ry: 28 },
     holes: [
-      { cx: 12, cy: 75, rx: 10, ry: 12 },
-      { cx: 85, cy: 20, rx: 8, ry: 10 },
+      { cx: 12, cy: 72, rx: 9, ry: 11, anim: 1 },
+      { cx: 86, cy: 22, rx: 7, ry: 9, anim: 2 },
     ]
   },
   story: {
-    main: { cx: 30, cy: 50, rx: 25, ry: 35 },
+    main: { cx: 28, cy: 50, rx: 23, ry: 32 },
     holes: [
-      { cx: 72, cy: 55, rx: 22, ry: 28 },
+      { cx: 72, cy: 52, rx: 20, ry: 26, anim: 1 },
     ]
   },
   timeline: {
-    main: { cx: 50, cy: 50, rx: 30, ry: 42 },
+    main: { cx: 50, cy: 48, rx: 28, ry: 38 },
     holes: [
-      { cx: 10, cy: 80, rx: 7, ry: 8 },
+      { cx: 10, cy: 78, rx: 6, ry: 7, anim: 2 },
+      { cx: 88, cy: 82, rx: 5, ry: 6, anim: 1 },
     ]
   },
   gallery: {
-    main: { cx: 28, cy: 35, rx: 20, ry: 25 },
+    main: { cx: 26, cy: 35, rx: 18, ry: 22 },
     holes: [
-      { cx: 68, cy: 32, rx: 20, ry: 25 },
-      { cx: 50, cy: 75, rx: 22, ry: 18 },
+      { cx: 70, cy: 32, rx: 18, ry: 22, anim: 1 },
+      { cx: 48, cy: 74, rx: 20, ry: 16, anim: 2 },
     ]
   },
   rsvp: {
-    main: { cx: 50, cy: 50, rx: 28, ry: 38 },
+    main: { cx: 50, cy: 50, rx: 26, ry: 36 },
     holes: []
   },
   default: {
-    main: { cx: 50, cy: 50, rx: 30, ry: 36 },
+    main: { cx: 50, cy: 48, rx: 28, ry: 34 },
     holes: [
-      { cx: 10, cy: 78, rx: 9, ry: 11 },
-      { cx: 88, cy: 15, rx: 7, ry: 8 },
+      { cx: 10, cy: 75, rx: 8, ry: 10, anim: 1 },
+      { cx: 88, cy: 18, rx: 6, ry: 7, anim: 2 },
     ]
   },
-};
-
-// Generate organic ellipse path
-const generateOrganicPath = (cx, cy, rx, ry, wobble = 0.15) => {
-  // Create slightly irregular ellipse using bezier curves
-  const w = rx * wobble;
-  const h = ry * wobble;
-  
-  return `
-    M ${cx - rx} ${cy}
-    C ${cx - rx} ${cy - ry * 0.55 - h}, ${cx - rx * 0.55 - w} ${cy - ry}, ${cx} ${cy - ry}
-    C ${cx + rx * 0.55 + w} ${cy - ry}, ${cx + rx} ${cy - ry * 0.55 + h}, ${cx + rx} ${cy}
-    C ${cx + rx} ${cy + ry * 0.55 + h}, ${cx + rx * 0.55 - w} ${cy + ry}, ${cx} ${cy + ry}
-    C ${cx - rx * 0.55 + w} ${cy + ry}, ${cx - rx} ${cy + ry * 0.55 - h}, ${cx - rx} ${cy}
-    Z
-  `;
 };
 
 function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
   const [config, setConfig] = useState(sectionConfigs.hero);
   const [showScrollHint, setShowScrollHint] = useState(true);
-  const [animatedConfig, setAnimatedConfig] = useState(sectionConfigs.hero);
+  const [time, setTime] = useState(0);
+
+  // Organic wobble animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(t => t + 0.02);
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const newConfig = sectionConfigs[currentSection] || sectionConfigs.default;
     setConfig(newConfig);
-    
-    // Animate to new config
-    setAnimatedConfig(newConfig);
     
     if (currentSection !== 'hero') {
       setShowScrollHint(false);
     }
   }, [currentSection]);
 
-  const { main, holes } = animatedConfig;
+  const { main, holes } = config;
+
+  // Organic wobble for main hole
+  const wobbleX = Math.sin(time) * 0.4;
+  const wobbleY = Math.cos(time * 0.7) * 0.3;
+  const wobbleRX = Math.sin(time * 0.5) * 0.3;
+  const wobbleRY = Math.cos(time * 0.6) * 0.25;
 
   return (
     <>
       <Overlay>
-        <svg 
-          width="100%" 
-          height="100%" 
+        <AnimatedSVG 
           viewBox="0 0 100 100" 
           preserveAspectRatio="none"
-          style={{ position: 'absolute', inset: 0 }}
         >
           <defs>
-            {/* Mask that defines the holes */}
+            {/* Mask with animated holes */}
             <mask id="holeMask">
-              {/* White = visible (the wood frame) */}
               <rect x="0" y="0" width="100" height="100" fill="white" />
               
-              {/* Black = transparent (the holes) */}
+              {/* Main hole with organic wobble */}
               <ellipse 
-                cx={main.cx} 
-                cy={main.cy} 
-                rx={main.rx} 
-                ry={main.ry}
+                cx={main.cx + wobbleX} 
+                cy={main.cy + wobbleY} 
+                rx={main.rx + wobbleRX}
+                ry={main.ry + wobbleRY}
                 fill="black"
-                style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
-              />
+              >
+                <animate 
+                  attributeName="rx" 
+                  values={`${main.rx};${main.rx + 0.5};${main.rx}`}
+                  dur="6s" 
+                  repeatCount="indefinite"
+                />
+                <animate 
+                  attributeName="ry" 
+                  values={`${main.ry};${main.ry + 0.4};${main.ry}`}
+                  dur="7s" 
+                  repeatCount="indefinite"
+                />
+              </ellipse>
               
+              {/* Secondary holes with their own animations */}
               {holes.map((hole, i) => (
                 <ellipse
                   key={i}
@@ -195,96 +248,166 @@ function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
                   rx={hole.rx}
                   ry={hole.ry}
                   fill="black"
-                  style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                />
+                >
+                  <animate 
+                    attributeName="cx" 
+                    values={`${hole.cx};${hole.cx + (hole.anim === 1 ? 0.8 : -0.6)};${hole.cx}`}
+                    dur={hole.anim === 1 ? "10s" : "12s"}
+                    repeatCount="indefinite"
+                  />
+                  <animate 
+                    attributeName="cy" 
+                    values={`${hole.cy};${hole.cy + (hole.anim === 1 ? 0.6 : 0.8)};${hole.cy}`}
+                    dur={hole.anim === 1 ? "8s" : "9s"}
+                    repeatCount="indefinite"
+                  />
+                  <animate 
+                    attributeName="rx" 
+                    values={`${hole.rx};${hole.rx * 1.08};${hole.rx}`}
+                    dur={hole.anim === 1 ? "5s" : "6s"}
+                    repeatCount="indefinite"
+                  />
+                  <animate 
+                    attributeName="ry" 
+                    values={`${hole.ry};${hole.ry * 1.06};${hole.ry}`}
+                    dur={hole.anim === 1 ? "7s" : "5s"}
+                    repeatCount="indefinite"
+                  />
+                </ellipse>
               ))}
             </mask>
             
-            {/* Wood grain pattern */}
-            <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="4" height="4">
-              <rect width="4" height="4" fill="#5C4D3C" />
-              <line x1="0" y1="0" x2="4" y2="0" stroke="#3D3229" strokeWidth="0.1" opacity="0.3" />
-            </pattern>
-            
-            {/* Gradient for depth */}
-            <radialGradient id="woodGradient" cx="50%" cy="50%" r="70%">
-              <stop offset="0%" stopColor="#7A6B5A" />
-              <stop offset="50%" stopColor="#5C4D3C" />
-              <stop offset="100%" stopColor="#3D3229" />
+            {/* Elegant gradient - less brown, more sophisticated */}
+            <radialGradient id="frameGradient" cx="50%" cy="50%" r="80%">
+              <stop offset="0%" stopColor="#8B8578" />
+              <stop offset="40%" stopColor="#6B635A" />
+              <stop offset="70%" stopColor="#524B44" />
+              <stop offset="100%" stopColor="#3A3530" />
             </radialGradient>
+            
+            {/* Subtle light spots */}
+            <radialGradient id="lightSpot1" cx="25%" cy="20%" r="30%">
+              <stop offset="0%" stopColor="#A09A90" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#A09A90" stopOpacity="0" />
+            </radialGradient>
+            
+            <radialGradient id="lightSpot2" cx="75%" cy="75%" r="35%">
+              <stop offset="0%" stopColor="#9A9488" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#9A9488" stopOpacity="0" />
+            </radialGradient>
+            
+            {/* Fine grain texture */}
+            <pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100">
+              <rect width="100" height="100" fill="transparent" />
+              <circle cx="10" cy="15" r="0.15" fill="#000" opacity="0.03" />
+              <circle cx="30" cy="45" r="0.1" fill="#000" opacity="0.02" />
+              <circle cx="55" cy="25" r="0.12" fill="#000" opacity="0.025" />
+              <circle cx="75" cy="65" r="0.1" fill="#000" opacity="0.02" />
+              <circle cx="90" cy="35" r="0.15" fill="#000" opacity="0.03" />
+              <circle cx="20" cy="80" r="0.1" fill="#000" opacity="0.02" />
+              <circle cx="60" cy="90" r="0.12" fill="#000" opacity="0.025" />
+              <circle cx="85" cy="10" r="0.1" fill="#000" opacity="0.02" />
+            </pattern>
           </defs>
           
-          {/* The wood frame with holes cut out */}
+          {/* Base frame */}
           <rect 
-            x="0" 
-            y="0" 
-            width="100" 
-            height="100" 
-            fill="url(#woodGradient)"
+            x="0" y="0" width="100" height="100" 
+            fill="url(#frameGradient)"
             mask="url(#holeMask)"
           />
           
-          {/* Subtle texture overlay */}
+          {/* Light accents */}
           <rect 
-            x="0" 
-            y="0" 
-            width="100" 
-            height="100" 
-            fill="url(#woodGrain)"
+            x="0" y="0" width="100" height="100" 
+            fill="url(#lightSpot1)"
             mask="url(#holeMask)"
-            opacity="0.3"
+          />
+          <rect 
+            x="0" y="0" width="100" height="100" 
+            fill="url(#lightSpot2)"
+            mask="url(#holeMask)"
           />
           
-          {/* Inner shadow/ring around main hole */}
-          <ellipse 
-            cx={main.cx} 
-            cy={main.cy} 
-            rx={main.rx + 0.8} 
-            ry={main.ry + 0.8}
-            fill="none"
-            stroke="rgba(0,0,0,0.2)"
-            strokeWidth="0.5"
-            style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          {/* Subtle grain */}
+          <rect 
+            x="0" y="0" width="100" height="100" 
+            fill="url(#grain)"
+            mask="url(#holeMask)"
+            opacity="1"
           />
+          
+          {/* Ring around main hole - animated */}
           <ellipse 
-            cx={main.cx} 
-            cy={main.cy} 
-            rx={main.rx + 1.5} 
-            ry={main.ry + 1.5}
+            cx={main.cx + wobbleX} 
+            cy={main.cy + wobbleY} 
+            rx={main.rx + wobbleRX + 1} 
+            ry={main.ry + wobbleRY + 1}
             fill="none"
-            stroke="rgba(0,0,0,0.1)"
+            stroke="rgba(0,0,0,0.12)"
             strokeWidth="0.3"
-            style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          />
+          <ellipse 
+            cx={main.cx + wobbleX} 
+            cy={main.cy + wobbleY} 
+            rx={main.rx + wobbleRX + 2} 
+            ry={main.ry + wobbleRY + 2}
+            fill="none"
+            stroke="rgba(0,0,0,0.06)"
+            strokeWidth="0.2"
           />
           
           {/* Rings around secondary holes */}
           {holes.map((hole, i) => (
             <g key={i}>
               <ellipse 
-                cx={hole.cx} 
-                cy={hole.cy} 
-                rx={hole.rx + 0.6} 
-                ry={hole.ry + 0.6}
+                cx={hole.cx}
+                cy={hole.cy}
+                rx={hole.rx + 0.8}
+                ry={hole.ry + 0.8}
                 fill="none"
-                stroke="rgba(0,0,0,0.15)"
-                strokeWidth="0.4"
-                style={{ transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
-              />
+                stroke="rgba(0,0,0,0.1)"
+                strokeWidth="0.25"
+              >
+                <animate 
+                  attributeName="cx" 
+                  values={`${hole.cx};${hole.cx + (hole.anim === 1 ? 0.8 : -0.6)};${hole.cx}`}
+                  dur={hole.anim === 1 ? "10s" : "12s"}
+                  repeatCount="indefinite"
+                />
+                <animate 
+                  attributeName="cy" 
+                  values={`${hole.cy};${hole.cy + (hole.anim === 1 ? 0.6 : 0.8)};${hole.cy}`}
+                  dur={hole.anim === 1 ? "8s" : "9s"}
+                  repeatCount="indefinite"
+                />
+                <animate 
+                  attributeName="rx" 
+                  values={`${hole.rx + 0.8};${hole.rx * 1.08 + 0.8};${hole.rx + 0.8}`}
+                  dur={hole.anim === 1 ? "5s" : "6s"}
+                  repeatCount="indefinite"
+                />
+                <animate 
+                  attributeName="ry" 
+                  values={`${hole.ry + 0.8};${hole.ry * 1.06 + 0.8};${hole.ry + 0.8}`}
+                  dur={hole.anim === 1 ? "7s" : "5s"}
+                  repeatCount="indefinite"
+                />
+              </ellipse>
             </g>
           ))}
-        </svg>
+        </AnimatedSVG>
       </Overlay>
       
-      {/* Menu button - separate for pointer events */}
       <MenuButton onClick={onMenuClick}>
         <span />
         <span />
         <span />
       </MenuButton>
       
-      {/* Scroll hint */}
       <ScrollHint $visible={showScrollHint}>
         Scroll
+        <ScrollLine />
       </ScrollHint>
     </>
   );
