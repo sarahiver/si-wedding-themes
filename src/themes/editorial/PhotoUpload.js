@@ -407,28 +407,47 @@ function PhotoUpload() {
             $visible={visible}
             $dragging={dragging}
             $uploading={uploading}
-            onClick={openFilePicker}
+            onClick={!uploading ? openFilePicker : undefined}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
+            style={{ cursor: uploading ? 'wait' : 'pointer' }}
           >
-            <UploadIcon $uploading={uploading}>
-              {uploading ? '⏳' : '📷'}
-            </UploadIcon>
-            <UploadTitle>
-              {uploading ? 'Wird hochgeladen...' : 'Fotos hochladen'}
-            </UploadTitle>
-            <UploadText>
-              {dragging ? 'Jetzt loslassen!' : 'Klicken oder Dateien hierher ziehen'}
-            </UploadText>
-            <UploadHint>Max. 10 Bilder · Je max. 10MB</UploadHint>
-            
-            {uploading && (
+            {uploading ? (
+              // Upload Status - deutlich sichtbar
               <>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 2rem',
+                  border: '4px solid rgba(196, 30, 58, 0.2)',
+                  borderTopColor: '#C41E3A',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <UploadTitle>Fotos werden hochgeladen</UploadTitle>
+                <UploadText style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1.5rem' }}>
+                  Bitte warten, das Fenster nicht schließen...
+                </UploadText>
                 <ProgressBar>
                   <ProgressFill $progress={progress} />
                 </ProgressBar>
-                <ProgressText>{progress}%</ProgressText>
+                <ProgressText>{progress}% abgeschlossen</ProgressText>
+                <style>{`
+                  @keyframes spin {
+                    to { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </>
+            ) : (
+              // Normal State
+              <>
+                <UploadIcon $uploading={false}>📷</UploadIcon>
+                <UploadTitle>Fotos hochladen</UploadTitle>
+                <UploadText>
+                  {dragging ? 'Jetzt loslassen!' : 'Klicken oder Dateien hierher ziehen'}
+                </UploadText>
+                <UploadHint>Max. 10 Bilder · Je max. 10MB</UploadHint>
               </>
             )}
           </UploadArea>
