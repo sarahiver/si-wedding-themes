@@ -19,6 +19,10 @@ const FixedBackground = styled.div`
     height: 100%;
     object-fit: cover;
   }
+  
+  @media (max-width: 768px) {
+    position: fixed;
+  }
 `;
 
 const BackgroundOverlay = styled.div`
@@ -32,6 +36,10 @@ const BackgroundOverlay = styled.div`
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 10, 10, 0.4) 100%);
+  }
+  
+  @media (max-width: 768px) {
+    background: rgba(10, 10, 10, 0.75);
   }
 `;
 
@@ -51,6 +59,16 @@ const Container = styled.div`
   &::-webkit-scrollbar { display: none; }
   
   -webkit-overflow-scrolling: touch;
+  
+  @media (max-width: 768px) {
+    /* Mobile: vertical scroll */
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    flex-direction: column;
+    scroll-snap-type: none;
+  }
 `;
 
 const Navigation = styled.nav`
@@ -68,6 +86,10 @@ const Navigation = styled.nav`
   animation: ${fadeIn} 1s ease forwards;
   animation-delay: 0.5s;
   opacity: 0;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const NavList = styled.ul`
@@ -77,31 +99,12 @@ const NavList = styled.ul`
   gap: 1rem;
   list-style: none;
   flex-wrap: nowrap;
-  
-  /* NO separate scroll - all items visible or ellipsis */
   overflow: hidden;
-  
-  @media (max-width: 768px) {
-    gap: 0.6rem;
-  }
 `;
 
 const NavItem = styled.li`
   white-space: nowrap;
   flex-shrink: 0;
-  
-  /* Hide less important items on mobile */
-  @media (max-width: 768px) {
-    &:nth-child(n+8) {
-      display: none;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    &:nth-child(n+6) {
-      display: none;
-    }
-  }
 `;
 
 const NavButton = styled.button`
@@ -132,11 +135,59 @@ const NavButton = styled.button`
     color: var(--video-white);
     &::after { transform: scaleX(1); }
   }
+`;
+
+/* Mobile Dot Navigation */
+const MobileNav = styled.nav`
+  display: none;
   
   @media (max-width: 768px) {
-    font-size: ${p => p.$active ? '0.65rem' : '0.5rem'};
-    letter-spacing: 0.05em;
-    padding: 0.5rem 0.15rem;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.98) 0%, rgba(10, 10, 10, 0.8) 80%, transparent 100%);
+    padding: 0 1rem;
+    animation: ${fadeIn} 1s ease forwards;
+    animation-delay: 0.5s;
+    opacity: 0;
+  }
+`;
+
+const DotContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+`;
+
+const Dot = styled.button`
+  height: 4px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s var(--ease-out-expo);
+  
+  /* Width: active = wide, others = small */
+  width: ${p => p.$active ? '24px' : '4px'};
+  
+  /* Color: active = accent, others fade by distance */
+  background: ${p => {
+    if (p.$active) return 'var(--video-accent)';
+    const distance = Math.abs(p.$distance);
+    if (distance === 1) return 'rgba(255, 255, 255, 0.5)';
+    if (distance === 2) return 'rgba(255, 255, 255, 0.3)';
+    if (distance === 3) return 'rgba(255, 255, 255, 0.15)';
+    return 'rgba(255, 255, 255, 0.08)';
+  }};
+  
+  &:hover {
+    background: ${p => p.$active ? 'var(--video-accent)' : 'rgba(255, 255, 255, 0.6)'};
   }
 `;
 
@@ -224,6 +275,61 @@ function HorizontalScroll({ sections, background, children }) {
     });
   }, []);
 
+  // Mobile: scroll to section by ID
+  const scrollToMobileSection = useCallback((index) => {
+    const sectionId = sections[index]?.id;
+    if (!sectionId) return;
+    
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [sections]);
+
+  // Mobile: track which section is visible
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth > 768) return;
+    
+    const handleMobileScroll = () => {
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      
+      // Find which section is most visible
+      let bestIndex = 0;
+      let bestVisibility = 0;
+      
+      sections.forEach((section, index) => {
+        const element = document.getElementById(section.id);
+        if (!element) return;
+        
+        const rect = element.getBoundingClientRect();
+        const elementTop = rect.top;
+        const elementBottom = rect.bottom;
+        
+        // Calculate how much of the element is in the viewport
+        const visibleTop = Math.max(0, elementTop);
+        const visibleBottom = Math.min(viewportHeight, elementBottom);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+        
+        // Weight by position (prefer elements near top of viewport)
+        const centerOffset = Math.abs((elementTop + elementBottom) / 2 - viewportHeight / 2);
+        const visibility = visibleHeight - centerOffset * 0.3;
+        
+        if (visibility > bestVisibility) {
+          bestVisibility = visibility;
+          bestIndex = index;
+        }
+      });
+      
+      setActiveIndex(bestIndex);
+    };
+    
+    window.addEventListener('scroll', handleMobileScroll, { passive: true });
+    handleMobileScroll(); // Initial check
+    
+    return () => window.removeEventListener('scroll', handleMobileScroll);
+  }, [sections]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -292,6 +398,20 @@ function HorizontalScroll({ sections, background, children }) {
           ))}
         </NavList>
       </Navigation>
+      
+      <MobileNav>
+        <DotContainer>
+          {sections.map((section, index) => (
+            <Dot
+              key={section.id}
+              $active={index === activeIndex}
+              $distance={index - activeIndex}
+              onClick={() => scrollToMobileSection(index)}
+              aria-label={section.label}
+            />
+          ))}
+        </DotContainer>
+      </MobileNav>
       
       <ScrollHint $show={showHint}>
         Scroll <Arrow>→</Arrow>
