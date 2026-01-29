@@ -255,8 +255,11 @@ const ContactLink = styled.a`
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-family: var(--font-headline);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.3s ease;
@@ -267,10 +270,13 @@ const ContactLink = styled.a`
     color: var(--editorial-white);
     transform: translateY(-3px);
   }
-  
-  span {
-    font-size: 1.2rem;
-  }
+`;
+
+const ContactLinksRow = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 `;
 
 // ============================================
@@ -283,19 +289,15 @@ function Contact() {
   
   const title = contactData.title || 'Kontakt';
   const subtitle = contactData.subtitle || 'Bei Fragen sind wir für euch da';
-  const contacts = contactData.contacts || [];
+  
+  // Nutze die einfachen Felder aus dem Admin
+  const coupleEmail = contactData.couple_email;
+  const couplePhone = contactData.couple_phone;
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
-  
-  const defaultContacts = [
-    { name: names[0] || 'Braut', role: 'Braut', email: 'braut@beispiel.de', phone: '+49 123 456789', image: null },
-    { name: names[1] || 'Bräutigam', role: 'Bräutigam', email: 'braeutigam@beispiel.de', phone: '+49 123 456789', image: null },
-  ];
-
-  const displayContacts = contacts.length > 0 ? contacts : defaultContacts;
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Wir'];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -333,41 +335,32 @@ function Contact() {
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
-        <ContactGrid>
-          {displayContacts.map((contact, i) => (
-            <ContactCard key={i} $visible={visible} $index={i}>
-              <ContactImageWrapper>
-                <ContactRing $index={i} />
-                <ContactImage $index={i}>
-                  {contact.image ? (
-                    <img src={contact.image} alt={contact.name} />
-                  ) : (
-                    <ContactPlaceholder>
-                      {contact.role === 'Braut' ? '👰' : '🤵'}
-                    </ContactPlaceholder>
-                  )}
-                </ContactImage>
-              </ContactImageWrapper>
-              
-              <ContactRole>{contact.role}</ContactRole>
-              <ContactName>{contact.name}</ContactName>
-              <Divider />
-              
-              <ContactLinks>
-                {contact.email && (
-                  <ContactLink href={`mailto:${contact.email}`}>
-                    <span>✉</span> {contact.email}
-                  </ContactLink>
-                )}
-                {contact.phone && (
-                  <ContactLink href={`tel:${contact.phone.replace(/\s/g, '')}`}>
-                    <span>☎</span> {contact.phone}
-                  </ContactLink>
-                )}
-              </ContactLinks>
-            </ContactCard>
-          ))}
-        </ContactGrid>
+        <ContactCard $visible={visible} $index={0} style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <ContactName>{names.join(' & ')}</ContactName>
+          <Divider />
+          
+          <ContactLinksRow>
+            {couplePhone && (
+              <ContactLink href={`tel:${couplePhone.replace(/\s/g, '')}`}>
+                Anrufen
+              </ContactLink>
+            )}
+            {couplePhone && (
+              <ContactLink 
+                href={`https://wa.me/${couplePhone.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp
+              </ContactLink>
+            )}
+            {coupleEmail && (
+              <ContactLink href={`mailto:${coupleEmail}`}>
+                E-Mail
+              </ContactLink>
+            )}
+          </ContactLinksRow>
+        </ContactCard>
       </Container>
     </Section>
   );

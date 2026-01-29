@@ -160,23 +160,28 @@ const WitnessName = styled.h3`
 
 const WitnessInfo = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 `;
 
 const WitnessLink = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-headline);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--editorial-gray);
   text-decoration: none;
-  transition: color 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
   
   &:hover {
-    color: var(--editorial-red);
+    background: var(--editorial-red);
+    border-color: var(--editorial-red);
+    color: var(--editorial-white);
   }
 `;
 
@@ -271,14 +276,23 @@ function ContactWitnesses() {
               <WitnessName>{witness.name}</WitnessName>
               
               <WitnessInfo>
-                {witness.email && (
-                  <WitnessLink href={`mailto:${witness.email}`}>
-                    ✉️ {witness.email}
+                {witness.phone && (
+                  <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
+                    Anrufen
                   </WitnessLink>
                 )}
                 {witness.phone && (
-                  <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
-                    📞 {witness.phone}
+                  <WitnessLink 
+                    href={`https://wa.me/${witness.phone.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </WitnessLink>
+                )}
+                {witness.email && (
+                  <WitnessLink href={`mailto:${witness.email}`}>
+                    E-Mail
                   </WitnessLink>
                 )}
               </WitnessInfo>
