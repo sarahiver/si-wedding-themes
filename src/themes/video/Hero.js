@@ -4,25 +4,11 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import SectionWrapper from './SectionWrapper';
 
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
+const lineExpand = keyframes`from { transform: scaleX(0); } to { transform: scaleX(1); }`;
 
-const fadeUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const lineExpand = keyframes`
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-`;
-
-const Content = styled.div`
-  text-align: center;
-  max-width: 800px;
-`;
+const Content = styled.div`text-align: center; max-width: 800px;`;
 
 const Eyebrow = styled.p`
   font-family: var(--font-primary);
@@ -49,7 +35,6 @@ const Names = styled.h1`
   opacity: 0;
   animation: ${p => p.$visible ? css`${fadeIn} 1s var(--ease-out-expo) forwards` : 'none'};
   animation-delay: ${p => p.$delay || '0.5s'};
-  
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 `;
 
@@ -100,7 +85,7 @@ const LocationText = styled.p`
   animation-delay: 1.4s;
 `;
 
-function Hero({ background }) {
+function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
@@ -117,15 +102,11 @@ function Hero({ background }) {
   }, []);
 
   const formattedDate = date 
-    ? new Date(date).toLocaleDateString('de-DE', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      })
+    ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '21. Juni 2025';
 
   return (
-    <SectionWrapper id="hero" background={background}>
+    <SectionWrapper id="hero">
       <Content>
         <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
         <Names $visible={visible} $delay="0.5s">{name1}</Names>

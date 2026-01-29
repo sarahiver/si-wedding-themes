@@ -40,7 +40,7 @@ const Letter = styled.span`
 const CardTitle = styled.h3`font-family: var(--font-primary); font-size: 0.85rem; font-weight: 600; color: var(--video-white); margin-bottom: 0.35rem;`;
 const CardText = styled.p`font-family: var(--font-primary); font-size: 0.8rem; color: var(--video-gray); line-height: 1.5;`;
 
-function WeddingABC({ background }) {
+function WeddingABC() {
   const { content } = useWedding();
   const data = content?.weddingabc || {};
   const title = data.title || 'Hochzeits-ABC';
@@ -63,7 +63,7 @@ function WeddingABC({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="abc" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Alles Wissenswerte</Eyebrow>
         <Title $visible={visible}>{title}</Title>

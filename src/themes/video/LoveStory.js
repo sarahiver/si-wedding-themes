@@ -66,7 +66,7 @@ const ItemText = styled.p`
   line-height: 1.7;
 `;
 
-function LoveStory({ background }) {
+function LoveStory() {
   const { content } = useWedding();
   const data = content?.lovestory || {};
   const title = data.title || 'Unsere Geschichte';
@@ -86,7 +86,7 @@ function LoveStory({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="story" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Unsere Reise</Eyebrow>
         <Title $visible={visible}>{title}</Title>

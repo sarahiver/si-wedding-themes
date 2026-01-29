@@ -1,4 +1,4 @@
-// Video Theme - WeddingPage with ALL Sections
+// Video Theme - WeddingPage with SINGLE Fixed Background
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -44,8 +44,8 @@ function WeddingPage() {
   const { project, content, loading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
 
-  // Section backgrounds from content (editable in admin)
-  const backgrounds = content?.section_backgrounds || {};
+  // SINGLE background for entire page
+  const background = content?.video_background || null;
 
   const handleAdminLogin = (username, password) => {
     if (username && password) setShowAdmin(true);
@@ -95,26 +95,26 @@ function WeddingPage() {
   return (
     <>
       <VideoGlobalStyles />
-      <HorizontalScroll sections={sections}>
-        <Hero background={backgrounds.hero} />
-        <Countdown background={backgrounds.countdown} />
-        <LoveStory background={backgrounds.story} />
-        <Timeline background={backgrounds.timeline} />
-        <Locations background={backgrounds.locations} />
-        <Gallery background={backgrounds.gallery} />
-        <RSVP background={backgrounds.rsvp} />
-        <Dresscode background={backgrounds.dresscode} />
-        <Gifts background={backgrounds.gifts} />
-        <Accommodations background={backgrounds.accommodations} />
-        <Directions background={backgrounds.directions} />
-        <FAQ background={backgrounds.faq} />
-        <WeddingABC background={backgrounds.abc} />
-        <Guestbook background={backgrounds.guestbook} />
-        <MusicWishes background={backgrounds.music} />
-        <PhotoUpload background={backgrounds.photos} />
-        <ContactWitnesses background={backgrounds.witnesses} />
-        <Contact background={backgrounds.contact} />
-        <Footer background={backgrounds.footer} onAdminLogin={handleAdminLogin} />
+      <HorizontalScroll sections={sections} background={background}>
+        <Hero />
+        <Countdown />
+        <LoveStory />
+        <Timeline />
+        <Locations />
+        <Gallery />
+        <RSVP />
+        <Dresscode />
+        <Gifts />
+        <Accommodations />
+        <Directions />
+        <FAQ />
+        <WeddingABC />
+        <Guestbook />
+        <MusicWishes />
+        <PhotoUpload />
+        <ContactWitnesses />
+        <Contact />
+        <Footer onAdminLogin={handleAdminLogin} />
       </HorizontalScroll>
     </>
   );

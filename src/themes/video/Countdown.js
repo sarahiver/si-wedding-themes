@@ -88,7 +88,7 @@ const DateDisplay = styled.p`
   animation-delay: 0.7s;
 `;
 
-function Countdown({ background }) {
+function Countdown() {
   const { content, project } = useWedding();
   const data = content?.countdown || {};
   const title = data.title || 'Der grosse Tag';
@@ -130,7 +130,7 @@ function Countdown({ background }) {
   ];
 
   return (
-    <SectionWrapper id="countdown" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Save the Date</Eyebrow>
         <Title $visible={visible}>{title}</Title>

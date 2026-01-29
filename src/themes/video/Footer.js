@@ -85,10 +85,7 @@ const AdminBtn = styled.button`
   animation: ${p => p.$visible ? css`${fadeIn} 0.8s ease forwards` : 'none'};
   animation-delay: 1.4s;
   
-  &:hover {
-    color: var(--video-white);
-    border-color: var(--video-accent);
-  }
+  &:hover { color: var(--video-white); border-color: var(--video-accent); }
 `;
 
 const Copyright = styled.p`
@@ -109,7 +106,7 @@ const ModalInput = styled.input`width: 100%; padding: 1rem; font-family: var(--f
 const ModalBtn = styled.button`width: 100%; padding: 1rem; font-family: var(--font-primary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--video-white); background: var(--video-accent); &:hover { background: var(--video-accent-light); }`;
 const CloseBtn = styled.button`position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: var(--video-gray); &:hover { color: var(--video-white); }`;
 
-function Footer({ background, onAdminLogin }) {
+function Footer({ onAdminLogin }) {
   const { project } = useWedding();
   const name1 = project?.partner1_name || 'Emma';
   const name2 = project?.partner2_name || 'Noah';
@@ -137,18 +134,14 @@ function Footer({ background, onAdminLogin }) {
   };
 
   return (
-    <SectionWrapper id="footer" background={background}>
+    <SectionWrapper id="footer">
       <Content ref={sectionRef}>
         <Names $visible={visible}>{name1} & {name2}</Names>
         {formattedDate && <DateText $visible={visible}>{formattedDate}</DateText>}
         <Divider $visible={visible} />
-        <Quote $visible={visible}>
-          "Danke, dass ihr Teil unserer Geschichte seid"
-        </Quote>
+        <Quote $visible={visible}>"Danke, dass ihr Teil unserer Geschichte seid"</Quote>
         {hashtag && <Hashtag $visible={visible}>#{hashtag}</Hashtag>}
-        <AdminBtn $visible={visible} onClick={() => setShowLogin(true)}>
-          Admin
-        </AdminBtn>
+        <AdminBtn $visible={visible} onClick={() => setShowLogin(true)}>Admin</AdminBtn>
         <Copyright $visible={visible}>Mit Liebe gestaltet</Copyright>
       </Content>
       

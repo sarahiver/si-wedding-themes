@@ -57,7 +57,7 @@ const GuideTitle = styled.h4`font-family: var(--font-primary); font-size: 0.65re
 const GuideList = styled.ul`list-style: none;`;
 const GuideItem = styled.li`font-family: var(--font-primary); font-size: 0.85rem; color: var(--video-silver); padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);`;
 
-function Dresscode({ background }) {
+function Dresscode() {
   const { content } = useWedding();
   const data = content?.dresscode || {};
   const title = data.title || 'Dresscode';
@@ -76,7 +76,7 @@ function Dresscode({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="dresscode" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Was anziehen?</Eyebrow>
         <Title $visible={visible}>{title}</Title>

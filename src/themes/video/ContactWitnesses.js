@@ -39,7 +39,7 @@ const PersonName = styled.h3`font-family: var(--font-display); font-size: 1.1rem
 const Role = styled.p`font-family: var(--font-primary); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem;`;
 const ContactLink = styled.a`display: block; font-family: var(--font-primary); font-size: 0.8rem; color: var(--video-gray); margin-bottom: 0.25rem; transition: color 0.3s ease; &:hover { color: var(--video-accent); }`;
 
-function ContactWitnesses({ background }) {
+function ContactWitnesses() {
   const { content } = useWedding();
   const data = content?.witnesses || {};
   const title = data.title || 'Trauzeugen';
@@ -58,7 +58,7 @@ function ContactWitnesses({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="witnesses" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Ansprechpartner</Eyebrow>
         <Title $visible={visible}>{title}</Title>

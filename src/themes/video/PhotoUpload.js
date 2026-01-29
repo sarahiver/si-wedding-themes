@@ -38,7 +38,7 @@ const SuccessTitle = styled.h3`font-family: var(--font-accent); font-size: 2rem;
 const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver); margin-bottom: 1rem;`;
 const ResetBtn = styled.button`font-family: var(--font-primary); font-size: 0.75rem; color: var(--video-accent); text-decoration: underline;`;
 
-function PhotoUpload({ background }) {
+function PhotoUpload() {
   const { project, content } = useWedding();
   const title = content?.photoupload?.title || 'Fotos teilen';
   
@@ -74,7 +74,7 @@ function PhotoUpload({ background }) {
   const handleChange = (e) => handleFiles([...e.target.files].filter(f => f.type.startsWith('image/')));
 
   return (
-    <SectionWrapper id="photos" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Momente festhalten</Eyebrow>
         <Title $visible={visible}>{title}</Title>

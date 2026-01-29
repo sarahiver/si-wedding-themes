@@ -38,7 +38,7 @@ const ItemContent = styled.div`
 const ItemTitle = styled.h3`font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--video-white); margin-bottom: 0.25rem;`;
 const ItemDesc = styled.p`font-family: var(--font-primary); font-size: 0.85rem; color: var(--video-gray);`;
 
-function Timeline({ background }) {
+function Timeline() {
   const { content } = useWedding();
   const data = content?.timeline || {};
   const title = data.title || 'Tagesablauf';
@@ -59,7 +59,7 @@ function Timeline({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="timeline" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Der Tag</Eyebrow>
         <Title $visible={visible}>{title}</Title>

@@ -20,7 +20,7 @@ const Entry = styled.div`padding-bottom: 1rem; border-bottom: 1px solid rgba(255
 const EntryName = styled.span`font-family: var(--font-primary); font-size: 0.8rem; font-weight: 600; color: var(--video-accent);`;
 const EntryMessage = styled.p`font-family: var(--font-accent); font-size: 0.95rem; font-style: italic; color: var(--video-silver); margin-top: 0.25rem;`;
 
-function Guestbook({ background }) {
+function Guestbook() {
   const { project, content } = useWedding();
   const title = content?.guestbook?.title || 'Gaestebuch';
   const [visible, setVisible] = useState(false);
@@ -53,7 +53,7 @@ function Guestbook({ background }) {
   };
 
   return (
-    <SectionWrapper id="guestbook" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Eure Worte</Eyebrow>
         <Title $visible={visible}>{title}</Title>

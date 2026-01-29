@@ -43,7 +43,7 @@ const BankRow = styled.div`
 const BankLabel = styled.span`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--video-gray);`;
 const BankValue = styled.span`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-white);`;
 
-function Gifts({ background }) {
+function Gifts() {
   const { content, project } = useWedding();
   const data = content?.gifts || {};
   const title = data.title || 'Geschenke';
@@ -62,7 +62,7 @@ function Gifts({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="gifts" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Aufmerksamkeit</Eyebrow>
         <Title $visible={visible}>{title}</Title>

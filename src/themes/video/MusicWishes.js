@@ -51,7 +51,7 @@ const Success = styled.div`text-align: center; opacity: 0; animation: ${fadeIn} 
 const SuccessTitle = styled.h3`font-family: var(--font-accent); font-size: 2rem; font-style: italic; color: var(--video-white); margin-bottom: 0.5rem;`;
 const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver);`;
 
-function MusicWishes({ background }) {
+function MusicWishes() {
   const { project, content } = useWedding();
   const title = content?.musicwishes?.title || 'Musikwuensche';
   
@@ -80,7 +80,7 @@ function MusicWishes({ background }) {
   };
 
   return (
-    <SectionWrapper id="music" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Playlist</Eyebrow>
         <Title $visible={visible}>{title}</Title>

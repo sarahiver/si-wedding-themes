@@ -29,7 +29,7 @@ const CardAddress = styled.p`font-family: var(--font-primary); font-size: 0.8rem
 const CardPrice = styled.span`font-family: var(--font-primary); font-size: 0.75rem; font-weight: 500; color: var(--video-accent);`;
 const CardLink = styled.a`display: block; margin-top: 1rem; font-family: var(--font-primary); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--video-silver); transition: color 0.3s ease; &:hover { color: var(--video-accent); }`;
 
-function Accommodations({ background }) {
+function Accommodations() {
   const { content } = useWedding();
   const data = content?.accommodations || {};
   const title = data.title || 'Unterkuenfte';
@@ -48,7 +48,7 @@ function Accommodations({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="accommodations" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Uebernachten</Eyebrow>
         <Title $visible={visible}>{title}</Title>

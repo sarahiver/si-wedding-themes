@@ -1,71 +1,39 @@
-// Video Theme - AdminDashboard with ALL Section Background Management
-import React, { useState, useEffect } from 'react';
+// Video Theme - AdminDashboard with SINGLE Background Upload
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { AdminProvider } from '../../components/admin/core/AdminContext';
 import { useWedding } from '../../context/WeddingContext';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 import { updateProjectContent } from '../../lib/supabase';
 
-// Background Manager Component
+// Background Manager Component - SINGLE BACKGROUND
 const BackgroundManager = () => {
   const { project, content, refreshContent } = useWedding();
-  const [backgrounds, setBackgrounds] = useState(content?.section_backgrounds || {});
-  const [uploading, setUploading] = useState({});
+  const [background, setBackground] = useState(content?.video_background || { type: 'video', url: '' });
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // ALL SECTIONS
-  const sections = [
-    { id: 'hero', label: 'Hero / Start' },
-    { id: 'countdown', label: 'Countdown' },
-    { id: 'story', label: 'Unsere Geschichte' },
-    { id: 'timeline', label: 'Tagesablauf' },
-    { id: 'locations', label: 'Location' },
-    { id: 'gallery', label: 'Galerie' },
-    { id: 'rsvp', label: 'RSVP' },
-    { id: 'dresscode', label: 'Dresscode' },
-    { id: 'gifts', label: 'Geschenke' },
-    { id: 'accommodations', label: 'Unterkuenfte' },
-    { id: 'directions', label: 'Anfahrt' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'abc', label: 'Hochzeits-ABC' },
-    { id: 'guestbook', label: 'Gaestebuch' },
-    { id: 'music', label: 'Musikwuensche' },
-    { id: 'photos', label: 'Foto-Upload' },
-    { id: 'witnesses', label: 'Trauzeugen' },
-    { id: 'contact', label: 'Kontakt' },
-    { id: 'footer', label: 'Footer / Ende' },
-  ];
-
-  const handleTypeChange = (sectionId, type) => {
-    setBackgrounds(prev => ({
-      ...prev,
-      [sectionId]: { ...prev[sectionId], type }
-    }));
+  const handleTypeChange = (type) => {
+    setBackground(prev => ({ ...prev, type }));
   };
 
-  const handleUrlChange = (sectionId, url) => {
-    setBackgrounds(prev => ({
-      ...prev,
-      [sectionId]: { ...prev[sectionId], url }
-    }));
+  const handleUrlChange = (url) => {
+    setBackground(prev => ({ ...prev, url }));
   };
 
-  const handleFileUpload = async (sectionId, file) => {
+  const handleFileUpload = async (file) => {
     if (!file) return;
-    setUploading(prev => ({ ...prev, [sectionId]: true }));
+    setUploading(true);
     try {
       const result = await uploadToCloudinary(file);
       if (result.url) {
         const type = file.type.startsWith('video/') ? 'video' : 'image';
-        setBackgrounds(prev => ({
-          ...prev,
-          [sectionId]: { type, url: result.url }
-        }));
+        setBackground({ type, url: result.url });
       }
     } catch (err) {
       console.error('Upload failed:', err);
     } finally {
-      setUploading(prev => ({ ...prev, [sectionId]: false }));
+      setUploading(false);
     }
   };
 
@@ -75,7 +43,7 @@ const BackgroundManager = () => {
     try {
       await updateProjectContent(project.id, {
         ...content,
-        section_backgrounds: backgrounds
+        video_background: background
       });
       if (refreshContent) await refreshContent();
     } catch (err) {
@@ -87,71 +55,87 @@ const BackgroundManager = () => {
 
   return (
     <div>
-      <SectionTitle>Section Hintergruende</SectionTitle>
+      <SectionTitle>Hintergrund-Video / Bild</SectionTitle>
       <InfoText>
-        Lade fuer jede Section ein Bild oder Video hoch. 
-        Alle Medien werden automatisch in S/W dargestellt.
-        Tipp: Stockfootage von Pexels, Unsplash oder Coverr funktioniert super!
+        Lade ein Video oder Bild hoch, das als fixer Hintergrund fuer die gesamte Seite verwendet wird.
+        Das Medium wird automatisch in Schwarz-Weiss dargestellt.
+        <br /><br />
+        <strong>Tipp:</strong> Stockfootage von <a href="https://www.pexels.com/videos/" target="_blank" rel="noopener noreferrer" style={{ color: '#6B8CAE' }}>Pexels</a>, 
+        <a href="https://coverr.co/" target="_blank" rel="noopener noreferrer" style={{ color: '#6B8CAE' }}> Coverr</a> oder 
+        <a href="https://pixabay.com/videos/" target="_blank" rel="noopener noreferrer" style={{ color: '#6B8CAE' }}> Pixabay</a> funktioniert super!
       </InfoText>
       
-      <Grid>
-        {sections.map(section => (
-          <BackgroundCard key={section.id}>
-            <CardHeader>
-              <CardTitle>{section.label}</CardTitle>
-              <TypeToggle>
-                <TypeBtn 
-                  $active={backgrounds[section.id]?.type !== 'video'} 
-                  onClick={() => handleTypeChange(section.id, 'image')}
-                >
-                  Bild
-                </TypeBtn>
-                <TypeBtn 
-                  $active={backgrounds[section.id]?.type === 'video'} 
-                  onClick={() => handleTypeChange(section.id, 'video')}
-                >
-                  Video
-                </TypeBtn>
-              </TypeToggle>
-            </CardHeader>
-            
-            <Preview>
-              {backgrounds[section.id]?.url ? (
-                backgrounds[section.id]?.type === 'video' ? (
-                  <video src={backgrounds[section.id].url} muted loop autoPlay style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%)' }} />
-                ) : (
-                  <img src={backgrounds[section.id].url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%)' }} />
-                )
-              ) : (
-                <PlaceholderText>Kein Hintergrund</PlaceholderText>
-              )}
-            </Preview>
-            
-            <UploadArea>
-              <input 
-                type="file" 
-                accept={backgrounds[section.id]?.type === 'video' ? 'video/*' : 'image/*'}
-                onChange={(e) => handleFileUpload(section.id, e.target.files[0])}
-                style={{ display: 'none' }}
-                id={`upload-${section.id}`}
+      <BackgroundCard>
+        <CardHeader>
+          <CardTitle>Hintergrund-Medium</CardTitle>
+          <TypeToggle>
+            <TypeBtn $active={background.type !== 'video'} onClick={() => handleTypeChange('image')}>
+              Bild
+            </TypeBtn>
+            <TypeBtn $active={background.type === 'video'} onClick={() => handleTypeChange('video')}>
+              Video
+            </TypeBtn>
+          </TypeToggle>
+        </CardHeader>
+        
+        <Preview>
+          {background.url ? (
+            background.type === 'video' ? (
+              <video 
+                src={background.url} 
+                muted 
+                loop 
+                autoPlay 
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%)' }} 
               />
-              <UploadBtn as="label" htmlFor={`upload-${section.id}`}>
-                {uploading[section.id] ? 'Uploading...' : 'Datei waehlen'}
-              </UploadBtn>
-              <UrlInput 
-                type="text" 
-                placeholder="Oder URL eingeben..."
-                value={backgrounds[section.id]?.url || ''}
-                onChange={(e) => handleUrlChange(section.id, e.target.value)}
+            ) : (
+              <img 
+                src={background.url} 
+                alt="Background Preview" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%)' }} 
               />
-            </UploadArea>
-          </BackgroundCard>
-        ))}
-      </Grid>
+            )
+          ) : (
+            <PlaceholderBox>
+              <PlaceholderIcon>🎬</PlaceholderIcon>
+              <PlaceholderText>Kein Hintergrund ausgewaehlt</PlaceholderText>
+            </PlaceholderBox>
+          )}
+        </Preview>
+        
+        <UploadArea>
+          <input 
+            type="file" 
+            accept={background.type === 'video' ? 'video/*' : 'image/*'}
+            onChange={(e) => handleFileUpload(e.target.files[0])}
+            style={{ display: 'none' }}
+            id="background-upload"
+          />
+          <UploadBtn as="label" htmlFor="background-upload">
+            {uploading ? 'Wird hochgeladen...' : 'Datei auswaehlen'}
+          </UploadBtn>
+          
+          <Divider>oder</Divider>
+          
+          <UrlInput 
+            type="text" 
+            placeholder="Video/Bild URL eingeben..."
+            value={background.url}
+            onChange={(e) => handleUrlChange(e.target.value)}
+          />
+        </UploadArea>
+        
+        {background.url && (
+          <RemoveBtn onClick={() => setBackground({ type: 'video', url: '' })}>
+            Hintergrund entfernen
+          </RemoveBtn>
+        )}
+      </BackgroundCard>
       
       <SaveArea>
         <SaveButton onClick={handleSave} disabled={saving}>
-          {saving ? 'Speichern...' : 'Alle Aenderungen speichern'}
+          {saving ? 'Speichern...' : 'Aenderungen speichern'}
         </SaveButton>
       </SaveArea>
     </div>
@@ -203,7 +187,7 @@ const CloseBtn = styled.button`
 
 const MainContent = styled.main`
   padding: 2rem;
-  max-width: 1400px;
+  max-width: 700px;
   margin: 0 auto;
 `;
 
@@ -216,33 +200,27 @@ const SectionTitle = styled.h2`
 `;
 
 const InfoText = styled.p`
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #888;
   margin-bottom: 2rem;
-  line-height: 1.6;
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  line-height: 1.7;
 `;
 
 const BackgroundCard = styled.div`
   background: #252525;
   border: 1px solid rgba(255,255,255,0.1);
-  padding: 1rem;
+  padding: 1.5rem;
 `;
 
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const CardTitle = styled.h3`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #FFF;
 `;
@@ -253,11 +231,11 @@ const TypeToggle = styled.div`
 `;
 
 const TypeBtn = styled.button`
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 1rem;
   color: ${p => p.$active ? '#FFF' : '#888'};
   background: ${p => p.$active ? '#6B8CAE' : 'transparent'};
   border: 1px solid ${p => p.$active ? '#6B8CAE' : 'rgba(255,255,255,0.15)'};
@@ -271,42 +249,73 @@ const Preview = styled.div`
   width: 100%;
   aspect-ratio: 16/9;
   background: #1A1A1A;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+`;
+
+const PlaceholderBox = styled.div`
+  text-align: center;
+`;
+
+const PlaceholderIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
 `;
 
 const PlaceholderText = styled.span`
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: #555;
 `;
 
 const UploadArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const UploadBtn = styled.button`
-  padding: 0.6rem 1rem;
-  font-size: 0.65rem;
-  font-weight: 500;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #FFF;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: #6B8CAE;
+  border: none;
   cursor: pointer;
   text-align: center;
+  transition: background 0.2s ease;
   
-  &:hover { background: rgba(255,255,255,0.15); }
+  &:hover { background: #8BA5C1; }
+`;
+
+const Divider = styled.div`
+  text-align: center;
+  font-size: 0.75rem;
+  color: #555;
+  position: relative;
+  
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+  }
+  
+  &::before { left: 0; }
+  &::after { right: 0; }
 `;
 
 const UrlInput = styled.input`
-  padding: 0.6rem;
-  font-size: 0.8rem;
+  padding: 1rem;
+  font-size: 0.9rem;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   color: #FFF;
@@ -315,23 +324,33 @@ const UrlInput = styled.input`
   &::placeholder { color: #555; }
 `;
 
+const RemoveBtn = styled.button`
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #888;
+  text-decoration: underline;
+  cursor: pointer;
+  
+  &:hover { color: #FF6B6B; }
+`;
+
 const SaveArea = styled.div`
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(255,255,255,0.1);
-  display: flex;
-  justify-content: flex-end;
 `;
 
 const SaveButton = styled.button`
+  width: 100%;
   padding: 1rem 2rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #FFF;
   background: #6B8CAE;
   cursor: pointer;
+  transition: background 0.2s ease;
   
   &:hover { background: #8BA5C1; }
   &:disabled { background: #555; cursor: not-allowed; }

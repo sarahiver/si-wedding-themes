@@ -73,7 +73,7 @@ const LightboxImage = styled.img`max-width: 90%; max-height: 85vh; object-fit: c
 const LightboxClose = styled.button`position: absolute; top: 2rem; right: 2rem; font-size: 2rem; color: var(--video-white); &:hover { color: var(--video-accent); }`;
 const LightboxNav = styled.button`position: absolute; top: 50%; transform: translateY(-50%); font-size: 2.5rem; color: var(--video-white); padding: 1rem; &:hover { color: var(--video-accent); } &.prev { left: 1rem; } &.next { right: 1rem; }`;
 
-function Gallery({ background }) {
+function Gallery() {
   const { content } = useWedding();
   const data = content?.gallery || {};
   const title = data.title || 'Galerie';
@@ -94,7 +94,7 @@ function Gallery({ background }) {
   const navigate = (dir) => setLightbox(prev => ({ ...prev, index: (prev.index + dir + images.length) % images.length }));
 
   return (
-    <SectionWrapper id="gallery" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Momente</Eyebrow>
         <Title $visible={visible}>{title}</Title>

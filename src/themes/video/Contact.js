@@ -12,7 +12,7 @@ const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem,
 const Links = styled.div`display: flex; flex-direction: column; gap: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
 const Link = styled.a`font-family: var(--font-primary); font-size: 1rem; color: var(--video-silver); transition: color 0.3s ease; &:hover { color: var(--video-accent); }`;
 
-function Contact({ background }) {
+function Contact() {
   const { project, content } = useWedding();
   const title = content?.contact?.title || 'Kontakt';
   const email = content?.contact?.email || project?.couple_email || 'hallo@hochzeit.de';
@@ -28,7 +28,7 @@ function Contact({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="contact" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Fragen?</Eyebrow>
         <Title $visible={visible}>{title}</Title>

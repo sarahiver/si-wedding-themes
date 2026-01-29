@@ -49,7 +49,7 @@ const MapBtn = styled.a`
   &:hover { background: var(--video-accent-light); }
 `;
 
-function Directions({ background }) {
+function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
   const title = data.title || 'Anfahrt';
@@ -67,7 +67,7 @@ function Directions({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="directions" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>So findet ihr uns</Eyebrow>
         <Title $visible={visible}>{title}</Title>

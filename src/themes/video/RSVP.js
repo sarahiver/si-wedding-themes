@@ -110,7 +110,7 @@ const Success = styled.div`text-align: center; padding: 2rem; opacity: 0; animat
 const SuccessTitle = styled.h3`font-family: var(--font-accent); font-size: 2rem; font-style: italic; color: var(--video-white); margin-bottom: 0.5rem;`;
 const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver);`;
 
-function RSVP({ background }) {
+function RSVP() {
   const { project, content } = useWedding();
   const title = content?.rsvp?.title || 'Zusagen';
   
@@ -139,7 +139,7 @@ function RSVP({ background }) {
   };
 
   return (
-    <SectionWrapper id="rsvp" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Antworten</Eyebrow>
         <Title $visible={visible}>{title}</Title>

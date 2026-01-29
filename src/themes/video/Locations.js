@@ -27,7 +27,7 @@ const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.25rem
 const CardAddress = styled.p`font-family: var(--font-primary); font-size: 0.85rem; color: var(--video-silver); line-height: 1.6; white-space: pre-line; margin-bottom: 0.75rem;`;
 const CardTime = styled.span`font-family: var(--font-accent); font-size: 0.9rem; font-style: italic; color: var(--video-accent);`;
 
-function Locations({ background }) {
+function Locations() {
   const { content } = useWedding();
   const data = content?.locations || {};
   const title = data.title || 'Location';
@@ -45,7 +45,7 @@ function Locations({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="locations" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Wo wir feiern</Eyebrow>
         <Title $visible={visible}>{title}</Title>

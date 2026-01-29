@@ -16,7 +16,7 @@ const Icon = styled.span`font-size: 1.25rem; color: var(--video-accent); transit
 const Answer = styled.div`max-height: ${p => p.$open ? '200px' : '0'}; overflow: hidden; transition: max-height 0.4s ease;`;
 const AnswerText = styled.p`font-family: var(--font-primary); font-size: 0.85rem; color: var(--video-silver); padding-bottom: 1rem; line-height: 1.7;`;
 
-function FAQ({ background }) {
+function FAQ() {
   const { content } = useWedding();
   const data = content?.faq || {};
   const title = data.title || 'FAQ';
@@ -37,7 +37,7 @@ function FAQ({ background }) {
   }, []);
 
   return (
-    <SectionWrapper id="faq" background={background}>
+    <SectionWrapper id="
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Gut zu wissen</Eyebrow>
         <Title $visible={visible}>{title}</Title>
