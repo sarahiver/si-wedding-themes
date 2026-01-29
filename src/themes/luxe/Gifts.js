@@ -1,4 +1,20 @@
- Gifts() {
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
+
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
+
+const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-cream); color: var(--luxe-anthracite);`;
+const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
+const Description = styled.p`font-family: var(--font-body); font-size: 0.95rem; line-height: 1.8; color: var(--luxe-graphite); margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const BankCard = styled.div`background: var(--luxe-anthracite); padding: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.3s;`;
+const BankRow = styled.div`display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--luxe-charcoal); &:last-child { border-bottom: none; }`;
+const BankLabel = styled.span`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-slate);`;
+const BankValue = styled.span`font-family: var(--font-body); font-size: 0.9rem; color: var(--luxe-cream);`;
+
+function Gifts() {
   const { content, project } = useWedding();
   const data = content?.gifts || {};
   const title = data.title || 'Geschenke';
