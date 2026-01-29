@@ -144,6 +144,11 @@ export const SidebarTitle = styled.h2`
   color: #FFF;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  
+  span {
+    font-weight: 400;
+    color: #6B8CAE;
+  }
 `;
 
 export const SidebarSub = styled.p`
@@ -674,6 +679,7 @@ export const VideoAdminComponents = {
   Sidebar,
   SidebarHeader,
   SidebarTitle,
+  SidebarLogo: SidebarTitle, // Alias
   SidebarSub,
   SidebarNav,
   NavSection,
