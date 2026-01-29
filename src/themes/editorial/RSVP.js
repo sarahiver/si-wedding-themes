@@ -312,6 +312,57 @@ const ErrorMessage = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+const GuestSection = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+`;
+
+const GuestSectionTitle = styled.h4`
+  font-family: var(--font-headline);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--editorial-white);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const GuestCard = styled.div`
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  &:first-of-type {
+    padding-top: 0;
+  }
+`;
+
+const GuestNumber = styled.span`
+  display: inline-block;
+  font-family: var(--font-headline);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--editorial-red);
+  margin-bottom: 1rem;
+`;
+
+const GuestFields = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+`;
+
+const GuestField = styled.div``;
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -330,10 +381,10 @@ function RSVP() {
   const {
     formData,
     submitting,
+    submitted,
     error,
-    success,
     updateField,
-    submitRSVP,
+    submit,
   } = useRSVP();
   
   const [visible, setVisible] = useState(false);
@@ -353,7 +404,7 @@ function RSVP() {
   }, []);
 
   useEffect(() => {
-    if (success) {
+    if (submitted) {
       setModalState({
         isOpen: true,
         type: 'success',
@@ -362,7 +413,7 @@ function RSVP() {
           : 'Schade, dass ihr nicht dabei sein könnt. Danke für die Rückmeldung!',
       });
     }
-  }, [success, formData.attending]);
+  }, [submitted, formData.attending]);
 
   useEffect(() => {
     if (error) {
@@ -376,7 +427,7 @@ function RSVP() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await submitRSVP();
+    await submit();
   };
 
   const formatDeadline = (dateStr) => {
@@ -459,7 +510,21 @@ function RSVP() {
                   <Label>Anzahl Personen</Label>
                   <Select
                     value={formData.persons}
-                    onChange={(e) => updateField('persons', parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const newCount = parseInt(e.target.value);
+                      updateField('persons', newCount);
+                      // Initialize guests array if needed
+                      const currentGuests = formData.guests || [];
+                      if (newCount > currentGuests.length) {
+                        const newGuests = [...currentGuests];
+                        for (let i = currentGuests.length; i < newCount; i++) {
+                          newGuests.push({ name: '', dietary: '', allergies: '' });
+                        }
+                        updateField('guests', newGuests);
+                      } else {
+                        updateField('guests', currentGuests.slice(0, newCount));
+                      }
+                    }}
                   >
                     {[1, 2, 3, 4, 5].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
@@ -467,30 +532,103 @@ function RSVP() {
                   </Select>
                 </FormGroup>
                 
-                {askDietary && (
-                  <FormGroup>
-                    <Label>Ernährung</Label>
-                    <Select
-                      value={formData.dietary}
-                      onChange={(e) => updateField('dietary', e.target.value)}
-                    >
-                      <option value="">Keine besonderen Wünsche</option>
-                      <option value="vegetarisch">Vegetarisch</option>
-                      <option value="vegan">Vegan</option>
-                      <option value="andere">Andere</option>
-                    </Select>
-                  </FormGroup>
+                {/* Bei 1 Person: einfache Felder */}
+                {formData.persons === 1 && (
+                  <>
+                    {askDietary && (
+                      <FormGroup>
+                        <Label>Ernährung</Label>
+                        <Select
+                          value={formData.dietary}
+                          onChange={(e) => updateField('dietary', e.target.value)}
+                        >
+                          <option value="">Keine besonderen Wünsche</option>
+                          <option value="vegetarisch">Vegetarisch</option>
+                          <option value="vegan">Vegan</option>
+                          <option value="andere">Andere</option>
+                        </Select>
+                      </FormGroup>
+                    )}
+                    
+                    {askAllergies && (
+                      <FormGroup className="full-width">
+                        <Label>Allergien / Unverträglichkeiten</Label>
+                        <Input
+                          type="text"
+                          value={formData.allergies}
+                          onChange={(e) => updateField('allergies', e.target.value)}
+                          placeholder="z.B. Nüsse, Laktose..."
+                        />
+                      </FormGroup>
+                    )}
+                  </>
                 )}
                 
-                {askAllergies && (
+                {/* Bei mehreren Personen: Felder pro Person */}
+                {formData.persons > 1 && (askDietary || askAllergies) && (
                   <FormGroup className="full-width">
-                    <Label>Allergien / Unverträglichkeiten</Label>
-                    <Input
-                      type="text"
-                      value={formData.allergies}
-                      onChange={(e) => updateField('allergies', e.target.value)}
-                      placeholder="z.B. Nüsse, Laktose..."
-                    />
+                    <GuestSection>
+                      <GuestSectionTitle>Angaben pro Person</GuestSectionTitle>
+                      {Array.from({ length: formData.persons }, (_, i) => {
+                        const guest = formData.guests?.[i] || { name: '', dietary: '', allergies: '' };
+                        const updateGuest = (field, value) => {
+                          const newGuests = [...(formData.guests || [])];
+                          if (!newGuests[i]) newGuests[i] = { name: '', dietary: '', allergies: '' };
+                          newGuests[i] = { ...newGuests[i], [field]: value };
+                          updateField('guests', newGuests);
+                        };
+                        
+                        return (
+                          <GuestCard key={i}>
+                            <GuestNumber>Person {i + 1}{i === 0 ? ' (Hauptgast)' : ''}</GuestNumber>
+                            <GuestFields>
+                              {i > 0 && (
+                                <GuestField>
+                                  <Label>Name</Label>
+                                  <Input
+                                    type="text"
+                                    value={guest.name}
+                                    onChange={(e) => updateGuest('name', e.target.value)}
+                                    placeholder={`Name Person ${i + 1}`}
+                                  />
+                                </GuestField>
+                              )}
+                              {askDietary && (
+                                <GuestField>
+                                  <Label>Ernährung</Label>
+                                  <Select
+                                    value={i === 0 ? formData.dietary : guest.dietary}
+                                    onChange={(e) => i === 0 
+                                      ? updateField('dietary', e.target.value)
+                                      : updateGuest('dietary', e.target.value)
+                                    }
+                                  >
+                                    <option value="">Keine besonderen Wünsche</option>
+                                    <option value="vegetarisch">Vegetarisch</option>
+                                    <option value="vegan">Vegan</option>
+                                    <option value="andere">Andere</option>
+                                  </Select>
+                                </GuestField>
+                              )}
+                              {askAllergies && (
+                                <GuestField>
+                                  <Label>Allergien</Label>
+                                  <Input
+                                    type="text"
+                                    value={i === 0 ? formData.allergies : guest.allergies}
+                                    onChange={(e) => i === 0
+                                      ? updateField('allergies', e.target.value)
+                                      : updateGuest('allergies', e.target.value)
+                                    }
+                                    placeholder="z.B. Nüsse, Laktose..."
+                                  />
+                                </GuestField>
+                              )}
+                            </GuestFields>
+                          </GuestCard>
+                        );
+                      })}
+                    </GuestSection>
                   </FormGroup>
                 )}
                 
@@ -501,7 +639,7 @@ function RSVP() {
                       type="text"
                       value={formData.songWish}
                       onChange={(e) => updateField('songWish', e.target.value)}
-                      placeholder="Welcher Song bringt dich auf die Tanzfläche?"
+                      placeholder="Welcher Song bringt euch auf die Tanzfläche?"
                     />
                   </FormGroup>
                 )}
