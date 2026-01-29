@@ -80,14 +80,7 @@ const VideoGlobalStyles = createGlobalStyle`
   
   html {
     font-size: 16px;
-    /* Disable vertical scroll on desktop */
-    overflow-y: hidden;
-    overflow-x: hidden;
-    
-    @media (max-width: 768px) {
-      overflow-y: hidden;
-      overflow-x: hidden;
-    }
+    overflow: hidden;
   }
   
   body {
@@ -99,6 +92,7 @@ const VideoGlobalStyles = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
+    max-width: 100vw;
   }
   
   /* Custom Scrollbar - Hidden but functional */
@@ -120,10 +114,14 @@ const VideoGlobalStyles = createGlobalStyle`
     line-height: 1.1;
     letter-spacing: -0.02em;
     color: var(--video-white);
+    /* Prevent overflow */
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
   
-  h1 { font-size: clamp(2.5rem, 8vw, 5rem); }
-  h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
+  h1 { font-size: clamp(2rem, 8vw, 5rem); }
+  h2 { font-size: clamp(1.75rem, 5vw, 3.5rem); }
   h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
   
   p {

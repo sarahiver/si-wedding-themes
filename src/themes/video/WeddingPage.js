@@ -47,6 +47,7 @@ function WeddingPage() {
   // Get background from hero section (set via HeroEditor)
   const heroContent = content?.hero || {};
   const background = heroContent.background_media || null;
+  const backgroundMobile = heroContent.background_media_mobile || null;
 
   const handleAdminLogin = (username, password) => {
     if (username && password) setShowAdmin(true);
@@ -96,7 +97,7 @@ function WeddingPage() {
   return (
     <>
       <VideoGlobalStyles />
-      <HorizontalScroll sections={sections} background={background}>
+      <HorizontalScroll sections={sections} background={background} backgroundMobile={backgroundMobile}>
         <Hero />
         <Countdown />
         <LoveStory />
