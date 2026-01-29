@@ -111,6 +111,34 @@ export async function getRSVPResponses(projectId) {
   return { data: data || [], error };
 }
 
+export async function updateRSVPResponse(id, updates) {
+  const { data, error } = await supabase
+    .from('rsvp_responses')
+    .update({
+      name: updates.name,
+      email: updates.email,
+      persons: updates.persons,
+      attending: updates.attending,
+      dietary: updates.dietary,
+      allergies: updates.allergies,
+      message: updates.message,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  
+  return { data, error };
+}
+
+export async function deleteRSVPResponse(id) {
+  const { data, error } = await supabase
+    .from('rsvp_responses')
+    .delete()
+    .eq('id', id);
+  
+  return { data, error };
+}
+
 // ============================================
 // GUESTBOOK
 // ============================================
