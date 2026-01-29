@@ -135,6 +135,7 @@ function PhotosSection({ components: C }) {
               <C.PhotoCard 
                 key={photo.id} 
                 $selected={isSelected}
+                onClick={() => togglePhotoSelection(photo.id)}
                 style={{ 
                   cursor: 'pointer',
                   outline: isSelected ? '3px solid #4caf50' : '3px solid transparent',
@@ -146,23 +147,8 @@ function PhotosSection({ components: C }) {
               >
                 <C.PhotoImage $url={photo.cloudinary_url} />
                 
-                {/* Clickable Selection Overlay */}
+                {/* Selection Checkbox - oben links */}
                 <div 
-                  onClick={() => togglePhotoSelection(photo.id)}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    cursor: 'pointer',
-                    zIndex: 5
-                  }}
-                />
-                
-                {/* Selection Checkbox - immer sichtbar */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    togglePhotoSelection(photo.id);
-                  }}
                   style={{
                     position: 'absolute',
                     top: '8px',
@@ -180,14 +166,14 @@ function PhotosSection({ components: C }) {
                     fontSize: '16px',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
                     zIndex: 15,
-                    cursor: 'pointer',
+                    pointerEvents: 'none',
                     transition: 'all 0.15s ease'
                   }}
                 >
                   {isSelected ? '✓' : ''}
                 </div>
                 
-                {/* Delete Button */}
+                {/* Delete Button - Mitte */}
                 <div 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -195,26 +181,33 @@ function PhotosSection({ components: C }) {
                   }}
                   style={{
                     position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
                     background: 'rgba(196, 30, 58, 0.9)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
                     fontWeight: 'bold',
-                    fontSize: '18px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    fontSize: '24px',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.4)',
                     zIndex: 15,
                     cursor: 'pointer',
-                    opacity: 0.7,
-                    transition: 'opacity 0.15s ease'
+                    opacity: 0.8,
+                    transition: 'all 0.15s ease'
                   }}
-                  onMouseEnter={(e) => e.target.style.opacity = 1}
-                  onMouseLeave={(e) => e.target.style.opacity = 0.7}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                    e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '0.8';
+                    e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                  }}
                   title="Löschen"
                 >
                   ×
