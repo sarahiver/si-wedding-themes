@@ -12,8 +12,6 @@ const FixedBackground = styled.div`
   position: fixed;
   inset: 0;
   z-index: 0;
-  
-  /* S/W Filter */
   filter: grayscale(100%);
   
   video, img {
@@ -29,16 +27,11 @@ const BackgroundOverlay = styled.div`
   z-index: 1;
   background: rgba(10, 10, 10, 0.6);
   
-  /* Vignette */
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      ellipse at center,
-      transparent 0%,
-      rgba(10, 10, 10, 0.4) 100%
-    );
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 10, 10, 0.4) 100%);
   }
 `;
 
@@ -53,14 +46,10 @@ const Container = styled.div`
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   
-  /* Hide scrollbar but keep functionality */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  &::-webkit-scrollbar { display: none; }
   
-  /* Enable touch scrolling */
   -webkit-overflow-scrolling: touch;
 `;
 
@@ -75,7 +64,7 @@ const Navigation = styled.nav`
   align-items: center;
   justify-content: center;
   background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.7) 70%, transparent 100%);
-  padding: 0 2rem;
+  padding: 0 1rem;
   animation: ${fadeIn} 1s ease forwards;
   animation-delay: 0.5s;
   opacity: 0;
@@ -84,33 +73,46 @@ const Navigation = styled.nav`
 const NavList = styled.ul`
   display: flex;
   align-items: baseline;
-  gap: 2rem;
+  justify-content: center;
+  gap: 1rem;
   list-style: none;
-  max-width: 100%;
-  overflow-x: auto;
-  padding: 1rem 0;
+  flex-wrap: nowrap;
   
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar { display: none; }
+  /* NO separate scroll - all items visible or ellipsis */
+  overflow: hidden;
   
-  @media (max-width: 768px) { gap: 1.25rem; }
+  @media (max-width: 768px) {
+    gap: 0.6rem;
+  }
 `;
 
 const NavItem = styled.li`
-  position: relative;
   white-space: nowrap;
+  flex-shrink: 0;
+  
+  /* Hide less important items on mobile */
+  @media (max-width: 768px) {
+    &:nth-child(n+8) {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    &:nth-child(n+6) {
+      display: none;
+    }
+  }
 `;
 
 const NavButton = styled.button`
   font-family: var(--font-primary);
   font-weight: ${p => p.$active ? '600' : '400'};
-  font-size: ${p => p.$active ? '0.9rem' : '0.7rem'};
+  font-size: ${p => p.$active ? '0.75rem' : '0.6rem'};
   color: ${p => p.$active ? 'var(--video-white)' : 'var(--video-gray)'};
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   transition: all 0.4s var(--ease-smooth);
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.25rem;
   position: relative;
   
   &::after {
@@ -132,8 +134,9 @@ const NavButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    font-size: ${p => p.$active ? '0.75rem' : '0.6rem'};
-    letter-spacing: 0.1em;
+    font-size: ${p => p.$active ? '0.65rem' : '0.5rem'};
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.15rem;
   }
 `;
 
@@ -142,7 +145,7 @@ const ProgressBar = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: rgba(255, 255, 255, 0.1);
   z-index: 1001;
 `;
@@ -182,16 +185,12 @@ const Arrow = styled.span`
   `} 1.5s ease-in-out infinite;
 `;
 
-/**
- * HorizontalScroll - Container with FIXED background
- */
 function HorizontalScroll({ sections, background, children }) {
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showHint, setShowHint] = useState(true);
 
-  // Handle scroll to update active section and progress
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
     
@@ -216,7 +215,6 @@ function HorizontalScroll({ sections, background, children }) {
     }
   }, [handleScroll]);
 
-  // Navigate to section
   const scrollToSection = useCallback((index) => {
     if (!containerRef.current) return;
     const sectionWidth = containerRef.current.clientWidth;
@@ -240,31 +238,25 @@ function HorizontalScroll({ sections, background, children }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
-  // FIXED: Mouse wheel to horizontal scroll
+  // Mousewheel to horizontal scroll (Desktop only)
   useEffect(() => {
     const handleWheel = (e) => {
       if (!containerRef.current) return;
       
-      // Prevent default vertical scroll
+      // Only on desktop
+      if (window.innerWidth <= 768) return;
+      
       e.preventDefault();
-      
-      // Convert vertical scroll to horizontal
       const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      
-      containerRef.current.scrollBy({
-        left: delta,
-        behavior: 'auto'
-      });
+      containerRef.current.scrollBy({ left: delta, behavior: 'auto' });
     };
     
-    // Add to window to catch all wheel events
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
   }, []);
 
   return (
     <>
-      {/* Fixed Background */}
       <FixedBackground>
         {background?.url ? (
           background.type === 'video' ? (
