@@ -26,6 +26,7 @@ export function useRSVP() {
     allergies: '',
     songWish: '',
     message: '',
+    guests: [], // Array für zusätzliche Gäste mit {name, dietary, allergies}
     companionNames: '',
     childrenCount: 0,
     needsTransport: false,
@@ -87,15 +88,38 @@ export function useRSVP() {
     setError(null);
     
     try {
+      // Combine dietary/allergies info from all guests
+      let dietaryInfo = formData.dietary || '';
+      let allergiesInfo = formData.allergies || '';
+      
+      if (formData.guests && formData.guests.length > 0) {
+        const guestDetails = formData.guests
+          .filter((g, i) => i > 0 && (g.name || g.dietary || g.allergies))
+          .map((g, i) => {
+            const parts = [];
+            if (g.name) parts.push(g.name);
+            if (g.dietary) parts.push(`Ernährung: ${g.dietary}`);
+            if (g.allergies) parts.push(`Allergien: ${g.allergies}`);
+            return parts.join(', ');
+          })
+          .filter(Boolean);
+        
+        if (guestDetails.length > 0) {
+          const guestInfo = guestDetails.join(' | ');
+          dietaryInfo = dietaryInfo ? `${dietaryInfo} | Begleitung: ${guestInfo}` : `Begleitung: ${guestInfo}`;
+        }
+      }
+      
       const { data, error: submitError } = await submitRSVP(projectId, {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         persons: formData.persons,
         attending: formData.attending,
-        dietary: formData.dietary.trim(),
-        allergies: formData.allergies.trim(),
+        dietary: dietaryInfo.trim(),
+        allergies: allergiesInfo.trim(),
         songWish: formData.songWish.trim(),
         message: formData.message.trim(),
+        guests: formData.guests, // Store full guests array as JSONB
       });
       
       if (submitError) throw submitError;
@@ -130,6 +154,7 @@ export function useRSVP() {
       allergies: '',
       songWish: '',
       message: '',
+      guests: [],
       companionNames: '',
       childrenCount: 0,
       needsTransport: false,
