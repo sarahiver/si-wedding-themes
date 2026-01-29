@@ -135,27 +135,43 @@ function PhotosSection({ components: C }) {
               <C.PhotoCard 
                 key={photo.id} 
                 $selected={isSelected}
-                onClick={() => togglePhotoSelection(photo.id)}
                 style={{ 
                   cursor: 'pointer',
-                  outline: isSelected ? '3px solid #4caf50' : 'none',
+                  outline: isSelected ? '3px solid #4caf50' : '3px solid transparent',
                   outlineOffset: '-3px',
-                  transform: isSelected ? 'scale(0.97)' : 'scale(1)',
-                  transition: 'all 0.15s ease'
+                  transform: isSelected ? 'scale(0.95)' : 'scale(1)',
+                  transition: 'all 0.15s ease',
+                  position: 'relative'
                 }}
               >
                 <C.PhotoImage $url={photo.cloudinary_url} />
                 
-                {/* Selection Indicator */}
-                {isSelected && (
-                  <div style={{
+                {/* Clickable Selection Overlay */}
+                <div 
+                  onClick={() => togglePhotoSelection(photo.id)}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    cursor: 'pointer',
+                    zIndex: 5
+                  }}
+                />
+                
+                {/* Selection Checkbox - immer sichtbar */}
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePhotoSelection(photo.id);
+                  }}
+                  style={{
                     position: 'absolute',
                     top: '8px',
                     left: '8px',
                     width: '28px',
                     height: '28px',
-                    borderRadius: '50%',
-                    background: '#4caf50',
+                    borderRadius: '4px',
+                    background: isSelected ? '#4caf50' : 'rgba(0,0,0,0.5)',
+                    border: isSelected ? '2px solid #4caf50' : '2px solid rgba(255,255,255,0.7)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -163,24 +179,46 @@ function PhotosSection({ components: C }) {
                     fontWeight: 'bold',
                     fontSize: '16px',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                    zIndex: 10
-                  }}>
-                    ✓
-                  </div>
-                )}
+                    zIndex: 15,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {isSelected ? '✓' : ''}
+                </div>
                 
-                {/* Delete Button on Hover */}
-                <C.PhotoOverlay onClick={(e) => e.stopPropagation()}>
-                  <C.PhotoButton 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deletePhoto(photo.id);
-                    }}
-                    title="Löschen"
-                  >
-                    ×
-                  </C.PhotoButton>
-                </C.PhotoOverlay>
+                {/* Delete Button */}
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deletePhoto(photo.id);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '4px',
+                    background: 'rgba(196, 30, 58, 0.9)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    zIndex: 15,
+                    cursor: 'pointer',
+                    opacity: 0.7,
+                    transition: 'opacity 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = 1}
+                  onMouseLeave={(e) => e.target.style.opacity = 0.7}
+                  title="Löschen"
+                >
+                  ×
+                </div>
                 
                 {/* Uploader Name */}
                 {photo.uploaded_by && (
