@@ -1,17 +1,17 @@
 // Contemporary WeddingABC - Click Letters to Show Text
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
 const pop = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1) translate(2px, 2px); }
+  50% { transform: scale(1.1) translate(2px, 2px); }
+  100% { transform: scale(1) translate(2px, 2px); }
 `;
 
 const slideDown = keyframes`
-  from { opacity: 0; max-height: 0; padding: 0 2rem; }
-  to { opacity: 1; max-height: 300px; padding: 2rem; }
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 400px; }
 `;
 
 const Section = styled.section`
@@ -48,8 +48,6 @@ const Title = styled.h2`
   text-transform: uppercase;
 `;
 
-const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)', 'var(--black)'];
-
 const LettersGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -61,7 +59,7 @@ const LettersGrid = styled.div`
 const LetterButton = styled.button`
   width: clamp(45px, 8vw, 65px);
   height: clamp(45px, 8vw, 65px);
-  background: ${p => p.$active ? colors[p.$index % colors.length] : 'var(--white)'};
+  background: ${p => p.$active ? p.$color : 'var(--white)'};
   border: 4px solid var(--black);
   box-shadow: ${p => p.$active ? '0 0 0 var(--black)' : '4px 4px 0 var(--black)'};
   font-family: inherit;
@@ -72,21 +70,21 @@ const LetterButton = styled.button`
   transition: all 0.2s ease;
   position: relative;
   
-  ${p => p.$hasContent && !p.$active && `
+  ${p => p.$hasContent && !p.$active && css`
     &:hover {
       transform: translate(-2px, -2px);
       box-shadow: 6px 6px 0 var(--black);
-      background: ${colors[p.$index % colors.length]};
+      background: ${p.$color};
       color: var(--white);
     }
   `}
   
-  ${p => p.$active && `
+  ${p => p.$active && css`
     transform: translate(2px, 2px);
     animation: ${pop} 0.3s ease;
   `}
   
-  ${p => p.$hasContent && `
+  ${p => p.$hasContent && css`
     &::after {
       content: '';
       position: absolute;
@@ -95,7 +93,7 @@ const LetterButton = styled.button`
       transform: translateX(-50%);
       width: 6px;
       height: 6px;
-      background: ${p.$active ? 'var(--white)' : colors[p.$index % colors.length]};
+      background: ${p.$active ? 'var(--white)' : p.$color};
       border-radius: 50%;
     }
   `}
@@ -114,7 +112,7 @@ const ContentHeader = styled.div`
   align-items: center;
   gap: 1rem;
   padding: 1.5rem 2rem;
-  background: ${p => colors[p.$index % colors.length]};
+  background: ${p => p.$color};
   border-bottom: 4px solid var(--black);
 `;
 
@@ -129,6 +127,7 @@ const ContentLetter = styled.div`
   font-size: 2rem;
   font-weight: 700;
   color: var(--black);
+  flex-shrink: 0;
 `;
 
 const ContentTitle = styled.h3`
@@ -137,6 +136,25 @@ const ContentTitle = styled.h3`
   color: var(--white);
   text-transform: uppercase;
   text-shadow: 2px 2px 0 var(--black);
+  flex: 1;
+`;
+
+const CloseButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border: 3px solid var(--black);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: var(--black);
+    color: var(--white);
+    transform: rotate(90deg);
+  }
 `;
 
 const ContentBody = styled.div`
@@ -147,24 +165,6 @@ const ContentText = styled.p`
   font-size: 1.1rem;
   color: var(--gray-700);
   line-height: 1.7;
-`;
-
-const CloseButton = styled.button`
-  margin-left: auto;
-  width: 40px;
-  height: 40px;
-  background: var(--white);
-  border: 3px solid var(--black);
-  font-size: 1.25rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: var(--black);
-    color: var(--white);
-    transform: rotate(90deg);
-  }
 `;
 
 const Hint = styled.p`
@@ -189,6 +189,8 @@ const EmptyHint = styled.div`
     margin-bottom: 1rem;
   }
 `;
+
+const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)', 'var(--black)'];
 
 function WeddingABC() {
   const { content } = useWedding();
@@ -226,6 +228,7 @@ function WeddingABC() {
   };
 
   const activeContent = activeLetter ? letterMap[activeLetter] : null;
+  const getColor = (index) => colors[index % colors.length];
 
   return (
     <Section id="abc">
@@ -236,22 +239,26 @@ function WeddingABC() {
         </Header>
         
         <LettersGrid>
-          {alphabet.map((letter, i) => (
-            <LetterButton
-              key={letter}
-              $index={i}
-              $hasContent={!!letterMap[letter]}
-              $active={activeLetter === letter}
-              onClick={() => handleLetterClick(letter)}
-            >
-              {letter}
-            </LetterButton>
-          ))}
+          {alphabet.map((letter, i) => {
+            const hasContent = !!letterMap[letter];
+            const colorIndex = hasContent ? letterMap[letter].index : i;
+            return (
+              <LetterButton
+                key={letter}
+                $color={getColor(colorIndex)}
+                $hasContent={hasContent}
+                $active={activeLetter === letter}
+                onClick={() => handleLetterClick(letter)}
+              >
+                {letter}
+              </LetterButton>
+            );
+          })}
         </LettersGrid>
         
         {activeContent ? (
           <ContentPanel key={activeLetter}>
-            <ContentHeader $index={activeContent.index}>
+            <ContentHeader $color={getColor(activeContent.index)}>
               <ContentLetter>{activeLetter}</ContentLetter>
               <ContentTitle>{activeContent.title}</ContentTitle>
               <CloseButton onClick={() => setActiveLetter(null)}>×</CloseButton>
