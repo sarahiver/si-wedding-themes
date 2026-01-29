@@ -1,23 +1,19 @@
-// Botanical Hero - Animated Watercolor Forest Scene
+// Botanical Hero - Looking through a Knothole into Nature
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import { RoundTree, PineTree, BlobTree, TallTree, Bush, Sheep, Branch, Leaf } from './TreeIllustrations';
 
 // Animations
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
+const breathe = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 `;
 
-const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+const drift = keyframes`
+  0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-15px) translateX(8px) rotate(2deg); }
+  50% { transform: translateY(-8px) translateX(-5px) rotate(-1deg); }
+  75% { transform: translateY(-20px) translateX(3px) rotate(1deg); }
 `;
 
 const sway = keyframes`
@@ -25,336 +21,390 @@ const sway = keyframes`
   50% { transform: rotate(2deg); }
 `;
 
-const grow = keyframes`
-  from { transform: scale(0) translateY(20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 `;
 
-const drawPath = keyframes`
-  from { stroke-dashoffset: 500; }
-  to { stroke-dashoffset: 0; }
+const shimmer = keyframes`
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; }
 `;
 
-const leafDrop = keyframes`
-  0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+const morph = keyframes`
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50% { border-radius: 50% 60% 30% 60% / 30% 40% 70% 60%; }
+  75% { border-radius: 40% 30% 60% 50% / 60% 50% 40% 30%; }
 `;
 
-// Styled Components
+// Main Section
 const Section = styled.section`
-  position: relative;
   min-height: 100vh;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, 
-    var(--botanical-warm) 0%, 
-    var(--botanical-cream) 50%,
-    var(--botanical-mint) 100%
-  );
   overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--green-deep) 0%,
+    var(--green-forest) 30%,
+    var(--green-moss) 70%,
+    var(--green-fern) 100%
+  );
 `;
 
-const ForestBackground = styled.div`
+// The "Knothole" frame - organic opening
+const KnotholeFrame = styled.div`
   position: absolute;
   inset: 0;
   pointer-events: none;
-`;
-
-// Animated Trees positioned around the scene
-const TreeContainer = styled.div`
-  position: absolute;
-  bottom: ${p => p.$bottom || '0'};
-  left: ${p => p.$left || 'auto'};
-  right: ${p => p.$right || 'auto'};
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${grow} 1s var(--ease-organic) forwards` : 'none'};
-  animation-delay: ${p => p.$delay || '0s'};
-  z-index: ${p => p.$z || 1};
+  z-index: 3;
   
-  & > div {
-    animation: ${sway} ${p => p.$swayDuration || '4s'} ease-in-out infinite;
-    animation-delay: ${p => p.$swayDelay || '0s'};
+  /* Dark vignette edges like looking through wood */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 70% at 50% 50%,
+      transparent 30%,
+      rgba(44, 74, 40, 0.4) 60%,
+      rgba(44, 74, 40, 0.8) 80%,
+      rgba(29, 43, 26, 0.95) 100%
+    );
+  }
+  
+  /* Organic wood grain texture overlay */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -50px;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 100px,
+        rgba(92, 77, 60, 0.03) 100px,
+        rgba(92, 77, 60, 0.03) 102px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 80px,
+        rgba(92, 77, 60, 0.02) 80px,
+        rgba(92, 77, 60, 0.02) 81px
+      );
+    animation: ${drift} 30s ease-in-out infinite;
   }
 `;
 
-const FallingLeaf = styled.div`
+// Floating organic shapes (leaves, petals)
+const FloatingElement = styled.div`
   position: absolute;
-  top: -50px;
-  left: ${p => p.$left};
-  animation: ${leafDrop} ${p => p.$duration || '8s'} linear infinite;
+  width: ${p => p.$size || '60px'};
+  height: ${p => p.$size || '60px'};
+  background: ${p => p.$color || 'var(--green-sage)'};
+  opacity: ${p => p.$opacity || 0.4};
+  border-radius: ${p => p.$shape === 'leaf' 
+    ? '70% 30% 70% 30% / 30% 70% 30% 70%' 
+    : '60% 40% 50% 50% / 50% 50% 40% 60%'};
+  animation: ${drift} ${p => p.$duration || '15s'} ease-in-out infinite;
   animation-delay: ${p => p.$delay || '0s'};
-  opacity: 0.7;
+  z-index: 1;
+  filter: blur(${p => p.$blur || '0px'});
   
-  svg {
-    width: ${p => p.$size || '20px'};
-    fill: ${p => p.$color || 'var(--botanical-sage)'};
-  }
+  ${p => p.$shape === 'leaf' && css`
+    animation: ${sway} ${p.$duration || '10s'} ease-in-out infinite;
+  `}
 `;
 
+// Light rays through the canopy
+const LightRay = styled.div`
+  position: absolute;
+  width: ${p => p.$width || '150px'};
+  height: 120%;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 213, 163, 0.3) 0%,
+    rgba(232, 213, 163, 0.1) 50%,
+    transparent 100%
+  );
+  transform: rotate(${p => p.$angle || '15deg'});
+  transform-origin: top center;
+  top: -10%;
+  animation: ${shimmer} ${p => p.$duration || '8s'} ease-in-out infinite;
+  animation-delay: ${p => p.$delay || '0s'};
+  z-index: 2;
+  pointer-events: none;
+`;
+
+// Content Container - the view through the knothole
 const Content = styled.div`
   position: relative;
-  z-index: 10;
+  z-index: 4;
   text-align: center;
+  max-width: 900px;
   padding: 2rem;
 `;
 
-const Eyebrow = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--botanical-olive);
+// Tagline with handwritten style
+const Tagline = styled.div`
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--accent-sunlight);
   margin-bottom: 1rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
-  animation-delay: 0.5s;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s var(--ease-nature);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  
+  /* Decorative leaves */
+  &::before, &::after {
+    content: '🌿';
+    margin: 0 1rem;
+    display: inline-block;
+    animation: ${sway} 4s ease-in-out infinite;
+  }
+  
+  &::after {
+    animation-delay: -2s;
+    transform: scaleX(-1);
+  }
 `;
 
+// Names Container
 const NamesContainer = styled.div`
   margin-bottom: 2rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  animation: ${p => p.$visible ? fadeIn : 'none'} 1s var(--ease-nature) forwards;
+  animation-delay: 0.3s;
 `;
 
-const Names = styled.h1`
+const Name = styled.h1`
   font-family: var(--font-handwritten);
-  font-size: clamp(4rem, 12vw, 9rem);
+  font-size: clamp(4rem, 15vw, 10rem);
   font-weight: 600;
-  color: var(--botanical-forest);
-  line-height: 1;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${slideUp} 1s var(--ease-organic) forwards` : 'none'};
-  animation-delay: ${p => p.$delay || '0.6s'};
-  
-  /* Watercolor text effect */
+  color: var(--bg-cream);
+  line-height: 0.9;
   text-shadow: 
-    2px 2px 0 var(--botanical-mint),
-    -1px -1px 0 var(--botanical-sage);
+    0 4px 30px rgba(0,0,0,0.3),
+    0 0 60px rgba(168, 198, 159, 0.3);
+  animation: ${breathe} 8s ease-in-out infinite;
+  
+  &:first-child {
+    margin-bottom: -0.1em;
+  }
 `;
 
 const Ampersand = styled.span`
   display: block;
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(2rem, 6vw, 4rem);
   font-style: italic;
-  color: var(--botanical-sage);
+  color: var(--green-mint);
   margin: 0.5rem 0;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards, ${float} 3s ease-in-out infinite` : 'none'};
-  animation-delay: 0.8s, 0.8s;
+  opacity: 0.8;
 `;
 
-const Divider = styled.div`
+// Date & Location Badges
+const InfoRow = styled.div`
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards` : 'none'};
-  animation-delay: 1s;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s var(--ease-nature) 0.5s;
 `;
 
-const DividerLine = styled.div`
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--botanical-sage), transparent);
-`;
-
-const DividerLeaf = styled.div`
-  font-size: 1.5rem;
-  animation: ${float} 2s ease-in-out infinite;
-`;
-
-const DateText = styled.p`
-  font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-style: italic;
-  color: var(--botanical-olive);
-  margin-bottom: 0.5rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
-  animation-delay: 1.2s;
-`;
-
-const LocationText = styled.p`
+const InfoBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  background: rgba(250, 248, 243, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(250, 248, 243, 0.3);
+  border-radius: 50px;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--botanical-teal);
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
-  animation-delay: 1.4s;
+  color: var(--bg-cream);
+  transition: all 0.4s var(--ease-nature);
+  
+  &:hover {
+    background: rgba(250, 248, 243, 0.25);
+    transform: translateY(-3px);
+  }
+  
+  span {
+    font-size: 1.25rem;
+  }
 `;
 
+// CTA Buttons
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s var(--ease-nature) 0.7s;
+`;
+
+const PrimaryButton = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 2.5rem;
+  background: var(--bg-cream);
+  color: var(--green-forest);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.4s var(--ease-nature);
+  
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-deep), var(--shadow-glow);
+    background: var(--green-mint);
+  }
+`;
+
+const SecondaryButton = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 2.5rem;
+  background: transparent;
+  color: var(--bg-cream);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid rgba(250, 248, 243, 0.5);
+  border-radius: 50px;
+  transition: all 0.4s var(--ease-nature);
+  
+  &:hover {
+    background: rgba(250, 248, 243, 0.1);
+    border-color: var(--bg-cream);
+    transform: translateY(-3px);
+  }
+`;
+
+// Scroll Indicator
 const ScrollIndicator = styled.div`
   position: absolute;
-  bottom: 2rem;
+  bottom: 3rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards` : 'none'};
-  animation-delay: 2s;
-`;
-
-const ScrollText = styled.span`
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--botanical-olive);
-`;
-
-const ScrollLeaf = styled.div`
-  font-size: 1.5rem;
-  animation: ${float} 1.5s ease-in-out infinite;
-`;
-
-// Couple silhouette
-const CoupleWrapper = styled.div`
-  position: absolute;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 5;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeIn} 1.5s ease forwards` : 'none'};
-  animation-delay: 1.5s;
+  opacity: ${p => p.$visible ? 0.7 : 0};
+  transition: opacity 1s ease 1.5s;
+  
+  span {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--bg-cream);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
 `;
 
-const CoupleSVG = () => (
-  <svg width="80" height="60" viewBox="0 0 80 60" fill="none">
-    {/* Blanket */}
-    <ellipse cx="40" cy="55" rx="35" ry="8" fill="var(--botanical-sage)" opacity="0.6" />
-    {/* Person 1 */}
-    <circle cx="30" cy="30" r="8" fill="var(--botanical-charcoal)" />
-    <path d="M22 40 Q25 50 30 55 Q35 50 38 40" fill="var(--botanical-olive)" />
-    {/* Person 2 */}
-    <circle cx="50" cy="28" r="8" fill="var(--botanical-brown)" />
-    <path d="M42 38 Q45 50 50 55 Q55 50 58 38" fill="var(--botanical-terracotta)" />
-  </svg>
-);
+const ScrollLine = styled.div`
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--bg-cream), transparent);
+  animation: ${breathe} 2s ease-in-out infinite;
+`;
 
 function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
   const name1 = heroData.name1 || project?.partner1_name || 'Emma';
-  const name2 = heroData.name2 || project?.partner2_name || 'Noah';
+  const name2 = heroData.name2 || project?.partner2_name || 'Oliver';
+  const tagline = heroData.tagline || 'Wir heiraten';
   const date = heroData.date || project?.wedding_date;
-  const location = heroData.location || project?.location || 'Botanischer Garten, Berlin';
+  const location = heroData.location_short || heroData.location || project?.location || 'Im Grünen';
   
   const [visible, setVisible] = useState(false);
   
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 300);
+    const timer = setTimeout(() => setVisible(true), 200);
     return () => clearTimeout(timer);
   }, []);
 
-  const formattedDate = date 
-    ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
-    : '21. Juni 2025';
-
-  // Falling leaves
-  const leaves = Array.from({ length: 8 }, (_, i) => ({
-    left: `${10 + i * 12}%`,
-    delay: `${i * 1.5}s`,
-    duration: `${8 + Math.random() * 4}s`,
-    size: `${15 + Math.random() * 15}px`,
-    color: ['var(--botanical-sage)', 'var(--botanical-olive)', 'var(--botanical-lime)', 'var(--botanical-mint)'][i % 4]
-  }));
+  const formattedDate = date ? new Date(date).toLocaleDateString('de-DE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }) : '15. August 2025';
 
   return (
     <Section id="hero">
-      <ForestBackground>
-        {/* Back row trees */}
-        <TreeContainer $visible={visible} $left="5%" $bottom="10%" $delay="0.2s" $z={1} $swayDuration="5s">
-          <RoundTree color="var(--botanical-sage)" size="100px" $opacity={0.6} />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $left="15%" $bottom="5%" $delay="0.4s" $z={1} $swayDuration="6s" $swayDelay="0.5s">
-          <TallTree color="var(--botanical-teal)" size="70px" $opacity={0.7} />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="10%" $bottom="8%" $delay="0.3s" $z={1} $swayDuration="5.5s">
-          <BlobTree color="var(--botanical-mint)" color2="var(--botanical-sage)" size="90px" $opacity={0.6} />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="20%" $bottom="5%" $delay="0.5s" $z={1} $swayDuration="4.5s" $swayDelay="1s">
-          <PineTree color="var(--botanical-forest)" size="80px" $opacity={0.7} />
-        </TreeContainer>
-        
-        {/* Middle row */}
-        <TreeContainer $visible={visible} $left="2%" $bottom="0" $delay="0.6s" $z={2} $swayDuration="4s">
-          <RoundTree color="var(--botanical-olive)" size="140px" />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $left="25%" $bottom="0" $delay="0.8s" $z={2} $swayDuration="5s" $swayDelay="0.3s">
-          <BlobTree color="var(--botanical-lime)" color2="var(--botanical-sage)" size="110px" />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="5%" $bottom="0" $delay="0.7s" $z={2} $swayDuration="4.5s">
-          <RoundTree color="var(--botanical-teal)" size="130px" />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="25%" $bottom="0" $delay="0.9s" $z={2} $swayDuration="5.5s" $swayDelay="0.7s">
-          <TallTree color="var(--botanical-olive)" size="90px" />
-        </TreeContainer>
-        
-        {/* Front bushes */}
-        <TreeContainer $visible={visible} $left="10%" $bottom="-10px" $delay="1s" $z={3}>
-          <Bush color="var(--botanical-lime)" size="100px" />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="15%" $bottom="-10px" $delay="1.1s" $z={3}>
-          <Bush color="var(--botanical-mint)" size="80px" />
-        </TreeContainer>
-        
-        {/* Sheep */}
-        <TreeContainer $visible={visible} $left="35%" $bottom="5%" $delay="1.5s" $z={2}>
-          <Sheep size="35px" />
-        </TreeContainer>
-        <TreeContainer $visible={visible} $right="35%" $bottom="8%" $delay="1.7s" $z={1}>
-          <Sheep size="25px" />
-        </TreeContainer>
-        
-        {/* Falling leaves */}
-        {leaves.map((leaf, i) => (
-          <FallingLeaf key={i} $left={leaf.left} $delay={leaf.delay} $duration={leaf.duration} $size={leaf.size} $color={leaf.color}>
-            <svg viewBox="0 0 30 40">
-              <path d="M15 5 Q25 15 20 30 Q15 35 10 30 Q5 15 15 5" fill="currentColor" />
-            </svg>
-          </FallingLeaf>
-        ))}
-      </ForestBackground>
+      {/* Floating organic elements */}
+      <FloatingElement $color="var(--green-sage)" $size="80px" $opacity={0.3} style={{ top: '15%', left: '10%' }} $duration="18s" />
+      <FloatingElement $color="var(--green-mint)" $size="50px" $opacity={0.25} $shape="leaf" style={{ top: '25%', right: '15%' }} $duration="12s" $delay="-3s" />
+      <FloatingElement $color="var(--accent-sunlight)" $size="40px" $opacity={0.2} style={{ bottom: '30%', left: '8%' }} $duration="20s" $delay="-5s" />
+      <FloatingElement $color="var(--green-leaf)" $size="70px" $opacity={0.2} $shape="leaf" style={{ bottom: '20%', right: '12%' }} $duration="15s" $delay="-8s" />
+      <FloatingElement $color="var(--water-stream)" $size="35px" $opacity={0.15} $blur="2px" style={{ top: '60%', left: '20%' }} $duration="22s" $delay="-2s" />
       
-      {/* Couple */}
-      <CoupleWrapper $visible={visible}>
-        <CoupleSVG />
-      </CoupleWrapper>
+      {/* Light rays */}
+      <LightRay $width="200px" $angle="20deg" style={{ left: '10%' }} $duration="10s" />
+      <LightRay $width="150px" $angle="-15deg" style={{ right: '15%' }} $duration="12s" $delay="-4s" />
+      <LightRay $width="100px" $angle="5deg" style={{ left: '40%' }} $duration="8s" $delay="-2s" />
       
+      {/* Knothole vignette effect */}
+      <KnotholeFrame />
+      
+      {/* Main content */}
       <Content>
-        <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
-        <NamesContainer>
-          <Names $visible={visible} $delay="0.6s">{name1}</Names>
-          <Ampersand $visible={visible}>&</Ampersand>
-          <Names $visible={visible} $delay="0.8s">{name2}</Names>
+        <Tagline $visible={visible}>{tagline}</Tagline>
+        
+        <NamesContainer $visible={visible}>
+          <Name>{name1}</Name>
+          <Ampersand>&</Ampersand>
+          <Name>{name2}</Name>
         </NamesContainer>
         
-        <Divider $visible={visible}>
-          <DividerLine />
-          <DividerLeaf>🌿</DividerLeaf>
-          <DividerLine />
-        </Divider>
+        <InfoRow $visible={visible}>
+          <InfoBadge>
+            <span>📅</span>
+            {formattedDate}
+          </InfoBadge>
+          <InfoBadge>
+            <span>🌿</span>
+            {location}
+          </InfoBadge>
+        </InfoRow>
         
-        <DateText $visible={visible}>{formattedDate}</DateText>
-        <LocationText $visible={visible}>{location}</LocationText>
+        <ButtonRow $visible={visible}>
+          <PrimaryButton href="#rsvp">
+            Zusagen
+            <span>→</span>
+          </PrimaryButton>
+          <SecondaryButton href="#story">
+            Unsere Geschichte
+          </SecondaryButton>
+        </ButtonRow>
       </Content>
       
       <ScrollIndicator $visible={visible}>
-        <ScrollText>Entdecken</ScrollText>
-        <ScrollLeaf>🍃</ScrollLeaf>
+        <span>Entdecken</span>
+        <ScrollLine />
       </ScrollIndicator>
     </Section>
   );

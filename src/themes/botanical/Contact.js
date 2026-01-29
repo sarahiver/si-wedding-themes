@@ -1,41 +1,145 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+// Botanical Contact - Privacy Protected
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
+const sway = keyframes`
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--botanical-cream);`;
-const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
-const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
-const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
+const Section = styled.section`
+  padding: var(--section-padding) 2rem;
+  background: var(--green-fern);
+  position: relative;
+  overflow: hidden;
+`;
 
-const Links = styled.div`display: flex; flex-direction: column; gap: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.2s;`;
-const Link = styled.a`display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 1rem 2rem; font-family: var(--font-body); font-size: 1rem; color: var(--botanical-forest); background: white; border-radius: 50px; box-shadow: 0 4px 15px rgba(107, 127, 94, 0.1); transition: all 0.3s ease; &:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(107, 127, 94, 0.15); background: var(--botanical-mint); }`;
+const DecoLeaf = styled.div`
+  position: absolute;
+  width: ${p => p.$size || '100px'};
+  height: ${p => p.$size || '100px'};
+  background: ${p => p.$color || 'var(--green-mint)'};
+  opacity: ${p => p.$opacity || 0.15};
+  border-radius: 70% 30% 70% 30% / 30% 70% 30% 70%;
+  animation: ${sway} ${p => p.$duration || '10s'} ease-in-out infinite;
+  z-index: 0;
+`;
+
+const Container = styled.div`
+  max-width: var(--container-tight);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+`;
+
+const Eyebrow = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--green-mint);
+  margin-bottom: 1rem;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-handwritten);
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  color: var(--bg-cream);
+  margin-bottom: 1rem;
+`;
+
+const Subtitle = styled.p`
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--green-mint);
+  margin-bottom: 2rem;
+  opacity: 0.9;
+`;
+
+const Card = styled.div`
+  background: var(--bg-cream);
+  padding: 2rem;
+  border-radius: 35px;
+  box-shadow: var(--shadow-medium);
+  max-width: 400px;
+  margin: 0 auto;
+`;
+
+const ContactButton = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--bg-fog);
+  color: var(--green-forest);
+  border-radius: 25px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  transition: all 0.3s var(--ease-nature);
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    background: var(--green-mint);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-soft);
+  }
+  
+  span {
+    font-size: 1.25rem;
+  }
+`;
+
+const EmptyText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+`;
 
 function Contact() {
   const { project, content } = useWedding();
-  const title = content?.contact?.title || 'Kontakt';
-  const email = content?.contact?.email || project?.couple_email || 'hallo@hochzeit.de';
-  const phone = content?.contact?.phone || project?.couple_phone || '+49 170 1234567';
+  const contactData = content?.contact || {};
   
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const title = contactData.title || 'Kontakt';
+  const email = contactData.couple_email || project?.couple_email;
+  const phone = contactData.couple_phone || project?.couple_phone;
 
   return (
-    <Section ref={sectionRef} id="contact">
+    <Section id="contact">
+      <DecoLeaf $size="150px" $color="var(--green-mint)" $opacity={0.1} style={{ top: '10%', left: '-5%' }} />
+      <DecoLeaf $size="100px" $color="var(--green-sage)" $opacity={0.08} style={{ bottom: '15%', right: '-3%' }} $duration="12s" />
+      
       <Container>
-        <Eyebrow $visible={visible}>💬 Fragen?</Eyebrow>
-        <Title $visible={visible}>{title}</Title>
-        <Links $visible={visible}>
-          <Link href={`mailto:${email}`}>📧 {email}</Link>
-          <Link href={`tel:${phone.replace(/\s/g, '')}`}>📞 {phone}</Link>
-        </Links>
+        <Eyebrow>📞 Fragen?</Eyebrow>
+        <Title>{title}</Title>
+        <Subtitle>Bei Fragen sind wir jederzeit für euch da!</Subtitle>
+        
+        <Card>
+          {email && (
+            <ContactButton href={`mailto:${email}`}>
+              <span>✉️</span>
+              E-Mail schreiben
+            </ContactButton>
+          )}
+          {phone && (
+            <ContactButton href={`tel:${phone.replace(/\s/g, '')}`}>
+              <span>📱</span>
+              Anrufen
+            </ContactButton>
+          )}
+          {!email && !phone && (
+            <EmptyText>Kontaktdaten werden noch hinzugefügt</EmptyText>
+          )}
+        </Card>
       </Container>
     </Section>
   );

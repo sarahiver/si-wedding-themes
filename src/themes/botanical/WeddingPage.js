@@ -32,10 +32,10 @@ const LoadingScreen = styled.div`
   justify-content: center;
   flex-direction: column;
   gap: 1rem;
-  background: var(--botanical-cream);
+  background: var(--bg-cream);
   font-family: var(--font-handwritten);
   font-size: 2rem;
-  color: var(--botanical-sage);
+  color: var(--green-sage);
 `;
 
 const LoadingEmoji = styled.span`

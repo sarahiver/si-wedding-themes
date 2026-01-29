@@ -1,189 +1,230 @@
-// Botanical Countdown - Garden Style with Growing Plants
+// Botanical Countdown - Growing Organic Numbers
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
-const grow = keyframes`from { transform: scaleY(0); } to { transform: scaleY(1); }`;
-const sway = keyframes`0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); }`;
-const float = keyframes`0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); }`;
+const breathe = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+`;
+
+const sway = keyframes`
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+`;
 
 const Section = styled.section`
   padding: var(--section-padding) 2rem;
-  background: var(--botanical-paper);
+  background: linear-gradient(
+    180deg,
+    var(--bg-cream) 0%,
+    var(--bg-moss) 100%
+  );
   position: relative;
   overflow: hidden;
 `;
 
-const DecoLeaf = styled.div`
+// Floating organic shapes
+const FloatingShape = styled.div`
   position: absolute;
-  font-size: ${p => p.$size || '3rem'};
-  opacity: 0.15;
-  animation: ${sway} ${p => p.$duration || '4s'} ease-in-out infinite;
-  top: ${p => p.$top};
-  left: ${p => p.$left};
-  right: ${p => p.$right};
-  bottom: ${p => p.$bottom};
+  width: ${p => p.$size || '100px'};
+  height: ${p => p.$size || '100px'};
+  background: ${p => p.$color || 'var(--green-mint)'};
+  opacity: ${p => p.$opacity || 0.1};
+  border-radius: 60% 40% 50% 50% / 50% 50% 40% 60%;
+  animation: ${sway} ${p => p.$duration || '12s'} ease-in-out infinite;
+  z-index: 0;
 `;
 
-const Container = styled.div`max-width: 900px; margin: 0 auto; text-align: center; position: relative; z-index: 1;`;
+const Container = styled.div`
+  max-width: var(--container-max);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
 
-const Eyebrow = styled.p`
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const Eyebrow = styled.div`
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--botanical-olive);
-  margin-bottom: 0.5rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
+  color: var(--green-fern);
+  margin-bottom: 1rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '15px'});
+  transition: all 0.6s var(--ease-nature);
 `;
 
 const Title = styled.h2`
   font-family: var(--font-handwritten);
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
-  color: var(--botanical-forest);
-  margin-bottom: 3rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
-  animation-delay: 0.1s;
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: var(--green-forest);
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s var(--ease-nature) 0.1s;
 `;
 
-const Grid = styled.div`
+const CountdownGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-  margin-bottom: 3rem;
-  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  max-width: 800px;
+  margin: 0 auto;
+  
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 `;
 
-const Unit = styled.div`
-  background: var(--botanical-cream);
-  border-radius: 20px;
-  padding: 1.5rem 1rem;
-  box-shadow: 0 4px 20px rgba(107, 127, 94, 0.15);
-  position: relative;
-  overflow: hidden;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
-  animation-delay: ${p => 0.2 + p.$index * 0.1}s;
+// Organic pebble-shaped number containers
+const pebbleShapes = [
+  '60% 40% 50% 50% / 50% 50% 40% 60%',
+  '50% 50% 40% 60% / 60% 40% 50% 50%',
+  '55% 45% 45% 55% / 45% 55% 55% 45%',
+  '45% 55% 55% 45% / 55% 45% 45% 55%',
+];
+
+const TimeUnit = styled.div`
+  background: var(--bg-cream);
+  border-radius: ${p => pebbleShapes[p.$index % pebbleShapes.length]};
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: var(--shadow-medium);
+  text-align: center;
+  animation: ${breathe} ${p => 5 + p.$index}s ease-in-out infinite;
+  animation-delay: ${p => p.$index * 0.3}s;
+  transition: all 0.4s var(--ease-nature);
   
-  /* Growing plant decoration */
-  &::before {
-    content: '${p => ['🌱', '🌿', '🍃', '🌲'][p.$index]}';
-    position: absolute;
-    bottom: -5px;
-    right: 10px;
-    font-size: 2rem;
-    opacity: 0.2;
-    animation: ${float} 3s ease-in-out infinite;
-    animation-delay: ${p => p.$index * 0.3}s;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-deep);
   }
 `;
 
 const Number = styled.div`
   font-family: var(--font-handwritten);
-  font-size: clamp(3rem, 8vw, 5rem);
-  font-weight: 700;
-  color: var(--botanical-sage);
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 600;
+  color: var(--green-forest);
   line-height: 1;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Label = styled.div`
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: clamp(0.8rem, 2vw, 1rem);
   font-weight: 600;
-  letter-spacing: 0.2em;
+  color: var(--green-sage);
   text-transform: uppercase;
-  color: var(--botanical-olive);
+  letter-spacing: 0.1em;
 `;
 
 const DateDisplay = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--botanical-sage), var(--botanical-olive));
-  border-radius: 50px;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
-  animation-delay: 0.6s;
+  text-align: center;
+  margin-top: 3rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s var(--ease-nature) 0.3s;
 `;
 
 const DateText = styled.p`
   font-family: var(--font-serif);
-  font-size: 1.1rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-style: italic;
-  color: white;
+  color: var(--green-fern);
+  
+  span {
+    color: var(--accent-golden);
+  }
 `;
-
-const DateIcon = styled.span`font-size: 1.25rem;`;
 
 function Countdown() {
   const { content, project } = useWedding();
-  const data = content?.countdown || {};
-  const title = data.title || 'Bald ist es soweit';
-  const targetDate = data.target_date || project?.wedding_date || '2025-06-21';
+  const countdownData = content?.countdown || {};
+  
+  const title = countdownData.title || 'Noch';
+  const targetDate = countdownData.target_date || project?.wedding_date || '2025-08-15';
   
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const calc = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
+    const calculateTimeLeft = () => {
+      const target = new Date(targetDate).getTime();
+      const now = new Date().getTime();
+      const diff = target - now;
+      
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / (1000 * 60 * 60 * 24)),
           hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((diff % (1000 * 60)) / 1000)
+          seconds: Math.floor((diff % (1000 * 60)) / 1000),
         });
       }
     };
-    calc();
-    const timer = setInterval(calc, 1000);
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const units = [
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const timeUnits = [
     { value: timeLeft.days, label: 'Tage' },
     { value: timeLeft.hours, label: 'Stunden' },
     { value: timeLeft.minutes, label: 'Minuten' },
-    { value: timeLeft.seconds, label: 'Sekunden' }
+    { value: timeLeft.seconds, label: 'Sekunden' },
   ];
 
   return (
     <Section ref={sectionRef} id="countdown">
-      <DecoLeaf $top="10%" $left="5%" $size="4rem" $duration="5s">🌿</DecoLeaf>
-      <DecoLeaf $top="20%" $right="8%" $size="3rem" $duration="4s">🍃</DecoLeaf>
-      <DecoLeaf $bottom="15%" $left="10%" $size="3.5rem" $duration="6s">🌱</DecoLeaf>
-      <DecoLeaf $bottom="10%" $right="5%" $size="4rem" $duration="4.5s">🌲</DecoLeaf>
+      {/* Floating decorations */}
+      <FloatingShape $size="150px" $color="var(--green-mint)" $opacity={0.08} style={{ top: '10%', left: '5%' }} />
+      <FloatingShape $size="100px" $color="var(--green-sage)" $opacity={0.06} style={{ bottom: '15%', right: '8%' }} $duration="15s" />
+      <FloatingShape $size="80px" $color="var(--water-stream)" $opacity={0.05} style={{ top: '60%', left: '10%' }} $duration="18s" />
       
       <Container>
-        <Eyebrow $visible={visible}>Save the Date</Eyebrow>
-        <Title $visible={visible}>{title}</Title>
-        <Grid>
-          {units.map((unit, i) => (
-            <Unit key={unit.label} $visible={visible} $index={i}>
+        <Header>
+          <Eyebrow $visible={visible}>⏳ Es dauert nicht mehr lange</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+        </Header>
+        
+        <CountdownGrid>
+          {timeUnits.map((unit, index) => (
+            <TimeUnit key={unit.label} $index={index}>
               <Number>{String(unit.value).padStart(2, '0')}</Number>
               <Label>{unit.label}</Label>
-            </Unit>
+            </TimeUnit>
           ))}
-        </Grid>
+        </CountdownGrid>
+        
         <DateDisplay $visible={visible}>
-          <DateIcon>📅</DateIcon>
-          <DateText>{formattedDate}</DateText>
-          <DateIcon>🌿</DateIcon>
+          <DateText>
+            bis zum <span>{formattedDate}</span>
+          </DateText>
         </DateDisplay>
       </Container>
     </Section>

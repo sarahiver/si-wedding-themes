@@ -1,53 +1,191 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+// Botanical ContactWitnesses - Privacy Protected
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
+const sway = keyframes`
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+`;
 
-const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--botanical-mint);`;
-const Container = styled.div`max-width: 800px; margin: 0 auto;`;
-const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
-const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
-const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
+const Section = styled.section`
+  padding: var(--section-padding) 2rem;
+  background: var(--bg-moss);
+  position: relative;
+  overflow: hidden;
+`;
 
-const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem;`;
-const Card = styled.div`text-align: center; background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 20px rgba(107, 127, 94, 0.1); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
-const Avatar = styled.div`width: 80px; height: 80px; margin: 0 auto 1rem; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--botanical-sage)'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;`;
-const PersonName = styled.h3`font-family: var(--font-handwritten); font-size: 1.5rem; color: var(--botanical-forest); margin-bottom: 0.25rem;`;
-const Role = styled.p`font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--botanical-sage); margin-bottom: 1rem;`;
-const Link = styled.a`display: block; font-family: var(--font-body); font-size: 0.85rem; color: var(--botanical-brown); margin-bottom: 0.25rem; &:hover { color: var(--botanical-sage); }`;
+const DecoLeaf = styled.div`
+  position: absolute;
+  width: ${p => p.$size || '100px'};
+  height: ${p => p.$size || '100px'};
+  background: ${p => p.$color || 'var(--green-mint)'};
+  opacity: ${p => p.$opacity || 0.08};
+  border-radius: 70% 30% 70% 30% / 30% 70% 30% 70%;
+  animation: ${sway} ${p => p.$duration || '10s'} ease-in-out infinite;
+  z-index: 0;
+`;
+
+const Container = styled.div`
+  max-width: var(--container-max);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const Eyebrow = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--green-fern);
+  margin-bottom: 1rem;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-handwritten);
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  color: var(--green-forest);
+`;
+
+const Subtitle = styled.p`
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+`;
+
+const WitnessCard = styled.div`
+  background: var(--bg-cream);
+  padding: 2rem;
+  border-radius: 35px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  transition: all 0.4s var(--ease-nature);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+  }
+`;
+
+const Avatar = styled.div`
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  background: ${p => p.$image 
+    ? `url(${p.$image}) center/cover` 
+    : 'linear-gradient(135deg, var(--green-sage) 0%, var(--green-fern) 100%)'};
+  border-radius: 50% 50% 45% 55% / 55% 45% 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  box-shadow: var(--shadow-soft);
+`;
+
+const WitnessName = styled.h3`
+  font-family: var(--font-handwritten);
+  font-size: 1.5rem;
+  color: var(--green-forest);
+  margin-bottom: 0.25rem;
+`;
+
+const WitnessRole = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green-fern);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+`;
+
+const ContactButton = styled.a`
+  display: block;
+  padding: 0.75rem;
+  background: var(--bg-fog);
+  color: var(--green-forest);
+  border-radius: 20px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    background: var(--green-mint);
+    transform: translateX(5px);
+  }
+`;
 
 function ContactWitnesses() {
   const { content } = useWedding();
-  const data = content?.witnesses || {};
-  const title = data.title || 'Trauzeugen';
-  const persons = data.persons || [
-    { name: 'Lisa Mueller', role: 'Trauzeugin', email: 'lisa@example.de', phone: '+49 170 1111111', image: '' },
-    { name: 'Max Schmidt', role: 'Trauzeuge', email: 'max@example.de', phone: '+49 170 2222222', image: '' }
-  ];
+  const witnessesData = content?.witnesses || {};
   
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const title = witnessesData.title || 'Trauzeugen';
+  const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen könnt ihr euch an unsere Trauzeugen wenden';
+  const persons = witnessesData.persons || [];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const defaultPersons = [
+    { name: 'Lisa Müller', role: 'Trauzeugin der Braut', email: 'lisa@example.com', phone: '+49 170 1234567', image: '', emoji: '👩' },
+    { name: 'Thomas Schmidt', role: 'Trauzeuge des Bräutigams', email: 'thomas@example.com', phone: '+49 171 7654321', image: '', emoji: '👨' },
+  ];
+
+  const items = persons.length > 0 ? persons : defaultPersons;
 
   return (
-    <Section ref={sectionRef} id="witnesses">
+    <Section id="witnesses">
+      <DecoLeaf $size="150px" $color="var(--green-mint)" $opacity={0.06} style={{ top: '10%', left: '-4%' }} />
+      <DecoLeaf $size="100px" $color="var(--green-sage)" $opacity={0.05} style={{ bottom: '15%', right: '-3%' }} $duration="12s" />
+      
       <Container>
-        <Header><Eyebrow $visible={visible}>👫 Ansprechpartner</Eyebrow><Title $visible={visible}>{title}</Title></Header>
+        <Header>
+          <Eyebrow>🤝 Unsere Helfer</Eyebrow>
+          <Title>{title}</Title>
+          <Subtitle>{subtitle}</Subtitle>
+        </Header>
+        
         <Grid>
-          {persons.map((person, i) => (
-            <Card key={i} $visible={visible} $index={i}>
-              <Avatar $image={person.image}>{!person.image && '🌿'}</Avatar>
-              <PersonName>{person.name}</PersonName>
-              <Role>{person.role}</Role>
-              {person.email && <Link href={`mailto:${person.email}`}>📧 {person.email}</Link>}
-              {person.phone && <Link href={`tel:${person.phone.replace(/\s/g, '')}`}>📞 {person.phone}</Link>}
-            </Card>
+          {items.map((person, i) => (
+            <WitnessCard key={i}>
+              <Avatar $image={person.image}>
+                {!person.image && (person.emoji || (i === 0 ? '👩' : '👨'))}
+              </Avatar>
+              <WitnessName>{person.name}</WitnessName>
+              <WitnessRole>{person.role}</WitnessRole>
+              {person.email && (
+                <ContactButton href={`mailto:${person.email}`}>
+                  ✉️ E-Mail schreiben
+                </ContactButton>
+              )}
+              {person.phone && (
+                <ContactButton href={`tel:${person.phone.replace(/\s/g, '')}`}>
+                  📱 Anrufen
+                </ContactButton>
+              )}
+            </WitnessCard>
           ))}
         </Grid>
       </Container>
