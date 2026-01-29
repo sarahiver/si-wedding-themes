@@ -1,3 +1,3 @@
-// Video Theme - Uses Editorial Admin Style
-import { EditorialAdmin } from '../../components/admin';
-export default EditorialAdmin;
+// Video Theme - Admin Dashboard with Video Theme Styles
+import { VideoAdmin } from '../../components/admin';
+export default VideoAdmin;
