@@ -1,7 +1,7 @@
 // core/sections/RSVPSection.js - Mit Edit, Delete und Excel Export
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
-import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../lib/supabase';
+import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../../lib/supabase';
 
 function RSVPSection({ components: C }) {
   const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId } = useAdmin();
