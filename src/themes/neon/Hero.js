@@ -1,4 +1,3 @@
-import { useWedding } from '../../context/WeddingContext';
 // src/components/Hero.js - Neon Theme
 import React, { useEffect, useState, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';

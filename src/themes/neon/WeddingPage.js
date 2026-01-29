@@ -1,6 +1,8 @@
-// WeddingPage.js - neon Theme (Supabase integrated)
-import React from 'react';
+// Neon Theme - WeddingPage
+import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import NeonGlobalStyles from './GlobalStyles';
 
 import Navigation from './Navigation';
 import Hero from './Hero';
@@ -8,31 +10,106 @@ import Countdown from './Countdown';
 import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
-import Directions from './Directions';
-import Accommodations from './Accommodations';
 import RSVP from './RSVP';
+import Dresscode from './Dresscode';
+import Gifts from './Gifts';
+import Accommodations from './Accommodations';
+import Directions from './Directions';
 import Gallery from './Gallery';
+import FAQ from './FAQ';
+import WeddingABC from './WeddingABC';
 import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
-import Gifts from './Gifts';
-import Dresscode from './Dresscode';
-import FAQ from './FAQ';
-import WeddingABC from './WeddingABC';
 import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
+import AdminDashboard from './AdminDashboard';
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(0,255,255,0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 40px rgba(0,255,255,0.8); }
+`;
+
+const LoadingScreen = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: #0a0a0f;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+`;
+
+const LoadingText = styled.div`
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0,255,255,0.5);
+  animation: ${pulse} 2s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+  
+  &::before {
+    content: '>';
+    margin-right: 10px;
+    color: #ff00ff;
+  }
+`;
+
+const LoadingBar = styled.div`
+  width: 200px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, transparent, #00ffff, transparent);
+    animation: loading 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+  }
+`;
 
 function WeddingPage() {
   const { 
-    isComponentActive, 
+    project, 
     content, 
-    coupleNames, 
-    weddingDate, 
-    projectId, 
-    slug 
+    loading, 
+    isComponentActive,
+    coupleNames,
+    weddingDate,
+    projectId,
+    slug
   } = useWedding();
-  
+  const [showAdmin, setShowAdmin] = useState(false);
+
   // Parse couple names
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
   const name1 = names[0];
@@ -46,56 +123,82 @@ function WeddingPage() {
     });
   };
   const formattedDate = formatDate(weddingDate);
-  
-  // Props for components
-  const heroProps = {
-    name1, name2,
-    date: formattedDate,
-    location: content?.hero?.location_short || '',
-    tagline: content?.hero?.tagline || 'Wir heiraten',
-    backgroundImage: content?.hero?.background_image || null,
+
+  const handleAdminLogin = (username, password) => {
+    if (username && password) setShowAdmin(true);
   };
+
+  if (loading) {
+    return (
+      <>
+        <NeonGlobalStyles />
+        <LoadingScreen>
+          <LoadingText>System loading...</LoadingText>
+          <LoadingBar />
+        </LoadingScreen>
+      </>
+    );
+  }
+
+  if (showAdmin) {
+    return (
+      <>
+        <NeonGlobalStyles />
+        <AdminDashboard onClose={() => setShowAdmin(false)} />
+      </>
+    );
+  }
 
   return (
     <>
-      <Navigation name1={name1} name2={name2} date={formattedDate} />
+      <NeonGlobalStyles />
+      <Navigation 
+        name1={name1} 
+        name2={name2}
+      />
       <main>
-        <Hero {...heroProps} />
+        <Hero 
+          name1={name1}
+          name2={name2}
+          date={formattedDate}
+          location={content?.hero?.location_short || ''}
+          eyebrow={content?.hero?.tagline || 'The Wedding Of'}
+        />
         {isComponentActive('countdown') && (
           <Countdown 
-            targetDate={content?.countdown?.target_date || weddingDate} 
+            targetDate={content?.countdown?.target_date || weddingDate}
             title={content?.countdown?.title}
           />
         )}
         {isComponentActive('lovestory') && (
           <LoveStory 
-            events={content?.lovestory?.events || []} 
+            events={content?.lovestory?.events || []}
             title={content?.lovestory?.title}
           />
         )}
         {isComponentActive('timeline') && (
           <Timeline 
-            events={content?.timeline?.events || []} 
+            events={content?.timeline?.events || []}
             title={content?.timeline?.title}
           />
         )}
         {isComponentActive('locations') && (
           <Locations 
-            locations={content?.locations?.locations || []} 
+            locations={content?.locations?.locations || []}
             title={content?.locations?.title}
           />
         )}
-        {isComponentActive('directions') && (
-          <Directions 
-            options={content?.directions?.options || []}
-            title={content?.directions?.title}
-            address={content?.directions?.address}
+        {isComponentActive('gallery') && (
+          <Gallery 
+            images={content?.gallery?.images || []}
+            title={content?.gallery?.title}
           />
         )}
-        {isComponentActive('accommodations') && (
-          <Accommodations 
-            hotels={content?.accommodations?.hotels || []} 
-            title={content?.accommodations?.title}
+        {isComponentActive('rsvp') && (
+          <RSVP 
+            projectId={projectId}
+            title={content?.rsvp?.title}
+            deadline={content?.rsvp?.deadline}
           />
         )}
         {isComponentActive('dresscode') && (
@@ -106,24 +209,36 @@ function WeddingPage() {
             colors={content?.dresscode?.colors || []}
           />
         )}
-        {isComponentActive('rsvp') && (
-          <RSVP 
-            projectId={projectId}
-            title={content?.rsvp?.title}
-            deadline={content?.rsvp?.deadline}
+        {isComponentActive('gifts') && (
+          <Gifts 
+            items={content?.gifts?.items || []}
+            title={content?.gifts?.title}
+            description={content?.gifts?.description}
           />
         )}
-        {isComponentActive('gallery') && (
-          <Gallery 
-            images={content?.gallery?.images || []} 
-            title={content?.gallery?.title}
+        {isComponentActive('accommodations') && (
+          <Accommodations 
+            hotels={content?.accommodations?.hotels || []}
+            title={content?.accommodations?.title}
           />
         )}
-        {isComponentActive('photoupload') && (
-          <PhotoUpload 
-            projectId={projectId} 
-            slug={slug}
-            title={content?.photoupload?.title}
+        {isComponentActive('directions') && (
+          <Directions 
+            options={content?.directions?.options || []}
+            title={content?.directions?.title}
+            address={content?.directions?.address}
+          />
+        )}
+        {isComponentActive('faq') && (
+          <FAQ 
+            items={content?.faq?.items || []}
+            title={content?.faq?.title}
+          />
+        )}
+        {isComponentActive('weddingabc') && (
+          <WeddingABC 
+            entries={content?.weddingabc?.entries || []}
+            title={content?.weddingabc?.title}
           />
         )}
         {isComponentActive('guestbook') && (
@@ -138,23 +253,11 @@ function WeddingPage() {
             title={content?.musicwishes?.title}
           />
         )}
-        {isComponentActive('gifts') && (
-          <Gifts 
-            items={content?.gifts?.items || []}
-            title={content?.gifts?.title}
-            description={content?.gifts?.description}
-          />
-        )}
-        {isComponentActive('faq') && (
-          <FAQ 
-            items={content?.faq?.items || []} 
-            title={content?.faq?.title}
-          />
-        )}
-        {isComponentActive('weddingabc') && (
-          <WeddingABC 
-            entries={content?.weddingabc?.entries || []} 
-            title={content?.weddingabc?.title}
+        {isComponentActive('photoupload') && (
+          <PhotoUpload 
+            projectId={projectId}
+            slug={slug}
+            title={content?.photoupload?.title}
           />
         )}
         {isComponentActive('witnesses') && (
@@ -168,9 +271,10 @@ function WeddingPage() {
         )}
       </main>
       <Footer 
-        name1={name1} 
+        name1={name1}
         name2={name2}
         hashtag={content?.footer?.hashtag}
+        onAdminLogin={handleAdminLogin}
       />
     </>
   );
