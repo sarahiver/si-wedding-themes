@@ -246,17 +246,15 @@ export function AdminProvider({ children }) {
         showFeedback('error', 'Fehler beim Speichern: ' + error.message);
       } else {
         showFeedback('success', 'Gespeichert!');
-        // Trigger refetch so main page sees updated content
-        if (refetch) {
-          refetch();
-        }
+        // Note: refetch removed - it caused a full re-mount which reset activeTab
+        // The wedding frontend will load fresh data on next page load
       }
     } catch (e) {
       console.error('Save error:', e);
       showFeedback('error', 'Fehler beim Speichern');
     }
     setIsSaving(false);
-  }, [projectId, contentStates, showFeedback, refetch]);
+  }, [projectId, contentStates, showFeedback]);
 
   // EXPORT CSV
   const exportCSV = useCallback((data, filename) => {

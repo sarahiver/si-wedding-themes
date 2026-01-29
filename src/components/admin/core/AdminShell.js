@@ -154,11 +154,9 @@ function AdminShellInner({ components: C, LoginComponent }) {
       </C.Main>
 
       {feedback.show && (
-        <C.FeedbackModal
-          type={feedback.type}
-          message={feedback.message}
-          onClose={closeFeedback}
-        />
+        <C.FeedbackModal type={feedback.type}>
+          {feedback.message}
+        </C.FeedbackModal>
       )}
     </C.DashboardContainer>
   );
