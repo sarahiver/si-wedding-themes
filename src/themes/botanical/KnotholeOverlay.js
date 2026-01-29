@@ -1,32 +1,15 @@
-// KnotholeOverlay - Elegant wood frame with animated organic holes
-// SVG mask creates real transparent holes, CSS animations make them breathe
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+// KnotholeOverlay - Black & White Tree Cross-Section
+// Drawn style with growth rings, hard edges
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import styled from 'styled-components';
 
-// Breathing animation for the whole overlay
-const breathe = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.003); }
-`;
+// Context to share hole positions with components
+export const KnotholeContext = createContext({
+  holes: [],
+  currentSection: 'hero'
+});
 
-// Floating animation for secondary holes
-const float1 = keyframes`
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(0.5%, 0.3%); }
-  50% { transform: translate(0, 0.5%); }
-  75% { transform: translate(-0.3%, 0.2%); }
-`;
-
-const float2 = keyframes`
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(-0.4%, 0.4%); }
-  66% { transform: translate(0.3%, -0.2%); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { opacity: 0.12; }
-  50% { opacity: 0.18; }
-`;
+export const useKnotholes = () => useContext(KnotholeContext);
 
 const Overlay = styled.div`
   position: fixed;
@@ -36,157 +19,170 @@ const Overlay = styled.div`
   overflow: hidden;
 `;
 
-const AnimatedSVG = styled.svg`
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  animation: ${breathe} 8s ease-in-out infinite;
-`;
-
-// Menu button
 const MenuButton = styled.button`
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: rgba(250, 248, 245, 0.95);
+  background: #fff;
   border-radius: 50%;
   pointer-events: auto;
   cursor: pointer;
   z-index: 200;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.12);
-  border: none;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid #ddd;
   
   &:hover {
-    transform: scale(1.08);
-    box-shadow: 0 4px 25px rgba(0,0,0,0.18);
+    transform: scale(1.1);
   }
   
   span {
     width: 4px;
     height: 4px;
-    background: #4A4A4A;
+    background: #333;
     border-radius: 50%;
-    transition: background 0.3s ease;
-  }
-  
-  &:hover span {
-    background: #2D2D2D;
   }
 `;
 
-// Scroll indicator
 const ScrollHint = styled.div`
   position: fixed;
-  bottom: 2.5rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  color: rgba(250, 248, 245, 0.8);
+  gap: 0.5rem;
   font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: #666;
   opacity: ${p => p.$visible ? 1 : 0};
   transition: opacity 1s ease;
   pointer-events: none;
   z-index: 150;
-`;
-
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(180deg, rgba(250, 248, 245, 0.6), transparent);
-  position: relative;
-  overflow: hidden;
   
   &::after {
     content: '';
-    position: absolute;
-    top: -100%;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background: linear-gradient(180deg, transparent, rgba(250, 248, 245, 0.9), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-  
-  @keyframes scrollPulse {
-    0% { top: -50%; }
-    100% { top: 150%; }
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(180deg, #999, transparent);
   }
 `;
 
-// Hole configurations per section
+// Hole configurations - organic irregular shapes
 const sectionConfigs = {
   hero: {
-    main: { cx: 50, cy: 50, rx: 30, ry: 36 },
+    main: { cx: 50, cy: 50, points: generateOrganicShape(50, 50, 28, 34, 12) },
     holes: []
   },
   countdown: {
-    main: { cx: 50, cy: 48, rx: 26, ry: 28 },
+    main: { cx: 50, cy: 48, points: generateOrganicShape(50, 48, 24, 26, 10) },
     holes: [
-      { cx: 12, cy: 72, rx: 9, ry: 11, anim: 1 },
-      { cx: 86, cy: 22, rx: 7, ry: 9, anim: 2 },
+      { cx: 13, cy: 73, points: generateOrganicShape(13, 73, 8, 10, 8) },
+      { cx: 85, cy: 20, points: generateOrganicShape(85, 20, 6, 8, 6) },
     ]
   },
   story: {
-    main: { cx: 28, cy: 50, rx: 23, ry: 32 },
+    main: { cx: 28, cy: 50, points: generateOrganicShape(28, 50, 22, 30, 10) },
     holes: [
-      { cx: 72, cy: 52, rx: 20, ry: 26, anim: 1 },
+      { cx: 73, cy: 52, points: generateOrganicShape(73, 52, 18, 24, 10) },
     ]
   },
   timeline: {
-    main: { cx: 50, cy: 48, rx: 28, ry: 38 },
+    main: { cx: 50, cy: 48, points: generateOrganicShape(50, 48, 26, 36, 12) },
     holes: [
-      { cx: 10, cy: 78, rx: 6, ry: 7, anim: 2 },
-      { cx: 88, cy: 82, rx: 5, ry: 6, anim: 1 },
+      { cx: 11, cy: 78, points: generateOrganicShape(11, 78, 5, 6, 6) },
     ]
   },
   gallery: {
-    main: { cx: 26, cy: 35, rx: 18, ry: 22 },
+    main: { cx: 27, cy: 36, points: generateOrganicShape(27, 36, 17, 20, 10) },
     holes: [
-      { cx: 70, cy: 32, rx: 18, ry: 22, anim: 1 },
-      { cx: 48, cy: 74, rx: 20, ry: 16, anim: 2 },
+      { cx: 71, cy: 34, points: generateOrganicShape(71, 34, 16, 20, 10) },
+      { cx: 50, cy: 76, points: generateOrganicShape(50, 76, 18, 14, 8) },
     ]
   },
   rsvp: {
-    main: { cx: 50, cy: 50, rx: 26, ry: 36 },
+    main: { cx: 50, cy: 50, points: generateOrganicShape(50, 50, 24, 34, 12) },
     holes: []
   },
   default: {
-    main: { cx: 50, cy: 48, rx: 28, ry: 34 },
+    main: { cx: 50, cy: 48, points: generateOrganicShape(50, 48, 26, 32, 12) },
     holes: [
-      { cx: 10, cy: 75, rx: 8, ry: 10, anim: 1 },
-      { cx: 88, cy: 18, rx: 6, ry: 7, anim: 2 },
+      { cx: 12, cy: 75, points: generateOrganicShape(12, 75, 7, 9, 8) },
+      { cx: 86, cy: 18, points: generateOrganicShape(86, 18, 5, 6, 6) },
     ]
   },
 };
 
-function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
+// Generate organic irregular polygon points
+function generateOrganicShape(cx, cy, rx, ry, numPoints, seed = 1) {
+  const points = [];
+  for (let i = 0; i < numPoints; i++) {
+    const angle = (i / numPoints) * Math.PI * 2;
+    // Add organic variation
+    const variation = 0.85 + Math.sin(angle * 3 + seed) * 0.1 + Math.cos(angle * 2 + seed * 2) * 0.08;
+    const x = cx + Math.cos(angle) * rx * variation;
+    const y = cy + Math.sin(angle) * ry * variation;
+    points.push({ x, y });
+  }
+  return points;
+}
+
+// Convert points to smooth SVG path
+function pointsToPath(points) {
+  if (points.length < 3) return '';
+  
+  let path = `M ${points[0].x} ${points[0].y}`;
+  
+  for (let i = 0; i < points.length; i++) {
+    const p0 = points[(i - 1 + points.length) % points.length];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % points.length];
+    const p3 = points[(i + 2) % points.length];
+    
+    // Catmull-Rom to Bezier conversion for smooth curves
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    
+    path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+  
+  return path + ' Z';
+}
+
+// Generate growth rings path
+function generateRingsPath(cx, cy, rx, ry, numRings) {
+  let paths = [];
+  for (let i = 1; i <= numRings; i++) {
+    const scale = i / numRings;
+    const points = generateOrganicShape(
+      cx, cy, 
+      rx * scale, 
+      ry * scale, 
+      12, 
+      i * 0.5
+    );
+    paths.push(pointsToPath(points));
+  }
+  return paths;
+}
+
+function KnotholeOverlay({ currentSection = 'hero', onMenuClick, children }) {
   const [config, setConfig] = useState(sectionConfigs.hero);
   const [showScrollHint, setShowScrollHint] = useState(true);
-  const [time, setTime] = useState(0);
-
-  // Organic wobble animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(t => t + 0.02);
-    }, 50);
-    return () => clearInterval(interval);
-  }, []);
+  const [morphProgress, setMorphProgress] = useState(0);
 
   useEffect(() => {
     const newConfig = sectionConfigs[currentSection] || sectionConfigs.default;
@@ -197,206 +193,169 @@ function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
     }
   }, [currentSection]);
 
-  const { main, holes } = config;
+  // Slow morphing animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMorphProgress(p => (p + 0.002) % 1);
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Organic wobble for main hole
-  const wobbleX = Math.sin(time) * 0.4;
-  const wobbleY = Math.cos(time * 0.7) * 0.3;
-  const wobbleRX = Math.sin(time * 0.5) * 0.3;
-  const wobbleRY = Math.cos(time * 0.6) * 0.25;
+  const { main, holes } = config;
+  
+  // Generate ring paths for main hole
+  const mainRings = generateRingsPath(main.cx, main.cy, 
+    main.points[0] ? Math.abs(main.points[3]?.x - main.cx) || 26 : 26,
+    main.points[0] ? Math.abs(main.points[0]?.y - main.cy) || 32 : 32,
+    15
+  );
+
+  // Slight wobble based on morphProgress
+  const wobble = Math.sin(morphProgress * Math.PI * 2) * 0.3;
+
+  // Context value for child components
+  const contextValue = {
+    holes: [main, ...holes],
+    currentSection,
+    mainHole: {
+      x: `${main.cx - 28}%`,
+      y: `${main.cy - 34}%`,
+      width: '56%',
+      height: '68%',
+    }
+  };
 
   return (
-    <>
+    <KnotholeContext.Provider value={contextValue}>
       <Overlay>
-        <AnimatedSVG 
+        <svg 
           viewBox="0 0 100 100" 
           preserveAspectRatio="none"
+          style={{ 
+            position: 'absolute', 
+            inset: 0, 
+            width: '100%', 
+            height: '100%' 
+          }}
         >
           <defs>
-            {/* Mask with animated holes */}
+            {/* Mask for holes */}
             <mask id="holeMask">
               <rect x="0" y="0" width="100" height="100" fill="white" />
               
-              {/* Main hole with organic wobble */}
-              <ellipse 
-                cx={main.cx + wobbleX} 
-                cy={main.cy + wobbleY} 
-                rx={main.rx + wobbleRX}
-                ry={main.ry + wobbleRY}
+              {/* Main hole */}
+              <path 
+                d={pointsToPath(main.points)} 
                 fill="black"
-              >
-                <animate 
-                  attributeName="rx" 
-                  values={`${main.rx};${main.rx + 0.5};${main.rx}`}
-                  dur="6s" 
-                  repeatCount="indefinite"
-                />
-                <animate 
-                  attributeName="ry" 
-                  values={`${main.ry};${main.ry + 0.4};${main.ry}`}
-                  dur="7s" 
-                  repeatCount="indefinite"
-                />
-              </ellipse>
+                style={{ 
+                  transform: `translate(${wobble}px, ${wobble * 0.5}px)`,
+                  transition: 'all 2s ease-out'
+                }}
+              />
               
-              {/* Secondary holes with their own animations */}
+              {/* Secondary holes */}
               {holes.map((hole, i) => (
-                <ellipse
+                <path 
                   key={i}
-                  cx={hole.cx}
-                  cy={hole.cy}
-                  rx={hole.rx}
-                  ry={hole.ry}
+                  d={pointsToPath(hole.points)} 
                   fill="black"
-                >
-                  <animate 
-                    attributeName="cx" 
-                    values={`${hole.cx};${hole.cx + (hole.anim === 1 ? 0.8 : -0.6)};${hole.cx}`}
-                    dur={hole.anim === 1 ? "10s" : "12s"}
-                    repeatCount="indefinite"
-                  />
-                  <animate 
-                    attributeName="cy" 
-                    values={`${hole.cy};${hole.cy + (hole.anim === 1 ? 0.6 : 0.8)};${hole.cy}`}
-                    dur={hole.anim === 1 ? "8s" : "9s"}
-                    repeatCount="indefinite"
-                  />
-                  <animate 
-                    attributeName="rx" 
-                    values={`${hole.rx};${hole.rx * 1.08};${hole.rx}`}
-                    dur={hole.anim === 1 ? "5s" : "6s"}
-                    repeatCount="indefinite"
-                  />
-                  <animate 
-                    attributeName="ry" 
-                    values={`${hole.ry};${hole.ry * 1.06};${hole.ry}`}
-                    dur={hole.anim === 1 ? "7s" : "5s"}
-                    repeatCount="indefinite"
-                  />
-                </ellipse>
+                  style={{ 
+                    transform: `translate(${wobble * (i % 2 ? 1 : -1) * 0.5}px, ${wobble * 0.3}px)`,
+                    transition: 'all 2.5s ease-out'
+                  }}
+                />
               ))}
             </mask>
-            
-            {/* Elegant gradient - less brown, more sophisticated */}
-            <radialGradient id="frameGradient" cx="50%" cy="50%" r="80%">
-              <stop offset="0%" stopColor="#8B8578" />
-              <stop offset="40%" stopColor="#6B635A" />
-              <stop offset="70%" stopColor="#524B44" />
-              <stop offset="100%" stopColor="#3A3530" />
-            </radialGradient>
-            
-            {/* Subtle light spots */}
-            <radialGradient id="lightSpot1" cx="25%" cy="20%" r="30%">
-              <stop offset="0%" stopColor="#A09A90" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#A09A90" stopOpacity="0" />
-            </radialGradient>
-            
-            <radialGradient id="lightSpot2" cx="75%" cy="75%" r="35%">
-              <stop offset="0%" stopColor="#9A9488" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#9A9488" stopOpacity="0" />
-            </radialGradient>
-            
-            {/* Fine grain texture */}
-            <pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100">
-              <rect width="100" height="100" fill="transparent" />
-              <circle cx="10" cy="15" r="0.15" fill="#000" opacity="0.03" />
-              <circle cx="30" cy="45" r="0.1" fill="#000" opacity="0.02" />
-              <circle cx="55" cy="25" r="0.12" fill="#000" opacity="0.025" />
-              <circle cx="75" cy="65" r="0.1" fill="#000" opacity="0.02" />
-              <circle cx="90" cy="35" r="0.15" fill="#000" opacity="0.03" />
-              <circle cx="20" cy="80" r="0.1" fill="#000" opacity="0.02" />
-              <circle cx="60" cy="90" r="0.12" fill="#000" opacity="0.025" />
-              <circle cx="85" cy="10" r="0.1" fill="#000" opacity="0.02" />
-            </pattern>
           </defs>
           
-          {/* Base frame */}
+          {/* White background with mask */}
           <rect 
             x="0" y="0" width="100" height="100" 
-            fill="url(#frameGradient)"
+            fill="#f8f8f8"
             mask="url(#holeMask)"
           />
           
-          {/* Light accents */}
+          {/* Outer bark edge - rough */}
           <rect 
             x="0" y="0" width="100" height="100" 
-            fill="url(#lightSpot1)"
-            mask="url(#holeMask)"
-          />
-          <rect 
-            x="0" y="0" width="100" height="100" 
-            fill="url(#lightSpot2)"
-            mask="url(#holeMask)"
-          />
-          
-          {/* Subtle grain */}
-          <rect 
-            x="0" y="0" width="100" height="100" 
-            fill="url(#grain)"
-            mask="url(#holeMask)"
-            opacity="1"
-          />
-          
-          {/* Ring around main hole - animated */}
-          <ellipse 
-            cx={main.cx + wobbleX} 
-            cy={main.cy + wobbleY} 
-            rx={main.rx + wobbleRX + 1} 
-            ry={main.ry + wobbleRY + 1}
             fill="none"
-            stroke="rgba(0,0,0,0.12)"
-            strokeWidth="0.3"
-          />
-          <ellipse 
-            cx={main.cx + wobbleX} 
-            cy={main.cy + wobbleY} 
-            rx={main.rx + wobbleRX + 2} 
-            ry={main.ry + wobbleRY + 2}
-            fill="none"
-            stroke="rgba(0,0,0,0.06)"
-            strokeWidth="0.2"
+            stroke="#2a2a2a"
+            strokeWidth="8"
+            mask="url(#holeMask)"
+            style={{ 
+              filter: 'url(#roughEdge)',
+            }}
           />
           
-          {/* Rings around secondary holes */}
-          {holes.map((hole, i) => (
-            <g key={i}>
-              <ellipse 
-                cx={hole.cx}
-                cy={hole.cy}
-                rx={hole.rx + 0.8}
-                ry={hole.ry + 0.8}
-                fill="none"
-                stroke="rgba(0,0,0,0.1)"
-                strokeWidth="0.25"
-              >
-                <animate 
-                  attributeName="cx" 
-                  values={`${hole.cx};${hole.cx + (hole.anim === 1 ? 0.8 : -0.6)};${hole.cx}`}
-                  dur={hole.anim === 1 ? "10s" : "12s"}
-                  repeatCount="indefinite"
-                />
-                <animate 
-                  attributeName="cy" 
-                  values={`${hole.cy};${hole.cy + (hole.anim === 1 ? 0.6 : 0.8)};${hole.cy}`}
-                  dur={hole.anim === 1 ? "8s" : "9s"}
-                  repeatCount="indefinite"
-                />
-                <animate 
-                  attributeName="rx" 
-                  values={`${hole.rx + 0.8};${hole.rx * 1.08 + 0.8};${hole.rx + 0.8}`}
-                  dur={hole.anim === 1 ? "5s" : "6s"}
-                  repeatCount="indefinite"
-                />
-                <animate 
-                  attributeName="ry" 
-                  values={`${hole.ry + 0.8};${hole.ry * 1.06 + 0.8};${hole.ry + 0.8}`}
-                  dur={hole.anim === 1 ? "7s" : "5s"}
-                  repeatCount="indefinite"
-                />
-              </ellipse>
-            </g>
+          {/* Growth rings around main hole */}
+          {mainRings.map((ringPath, i) => (
+            <path 
+              key={i}
+              d={ringPath}
+              fill="none"
+              stroke="#333"
+              strokeWidth={i % 3 === 0 ? 0.15 : 0.08}
+              opacity={0.4 + (i / mainRings.length) * 0.3}
+              style={{ 
+                transform: `translate(${wobble}px, ${wobble * 0.5}px)`,
+                transition: 'all 2s ease-out'
+              }}
+            />
           ))}
-        </AnimatedSVG>
+          
+          {/* Inner edge of main hole */}
+          <path 
+            d={pointsToPath(main.points)} 
+            fill="none"
+            stroke="#1a1a1a"
+            strokeWidth="0.4"
+            style={{ 
+              transform: `translate(${wobble}px, ${wobble * 0.5}px)`,
+              transition: 'all 2s ease-out'
+            }}
+          />
+          
+          {/* Rings and edges for secondary holes */}
+          {holes.map((hole, i) => {
+            const holeRings = generateRingsPath(
+              hole.cx, hole.cy,
+              hole.points[0] ? Math.abs(hole.points[3]?.x - hole.cx) || 8 : 8,
+              hole.points[0] ? Math.abs(hole.points[0]?.y - hole.cy) || 10 : 10,
+              6
+            );
+            return (
+              <g key={i} style={{ 
+                transform: `translate(${wobble * (i % 2 ? 1 : -1) * 0.5}px, ${wobble * 0.3}px)`,
+                transition: 'all 2.5s ease-out'
+              }}>
+                {holeRings.map((ringPath, j) => (
+                  <path 
+                    key={j}
+                    d={ringPath}
+                    fill="none"
+                    stroke="#333"
+                    strokeWidth={j % 2 === 0 ? 0.12 : 0.06}
+                    opacity={0.3 + (j / holeRings.length) * 0.3}
+                  />
+                ))}
+                <path 
+                  d={pointsToPath(hole.points)} 
+                  fill="none"
+                  stroke="#1a1a1a"
+                  strokeWidth="0.3"
+                />
+              </g>
+            );
+          })}
+          
+          {/* Rough edge filter */}
+          <defs>
+            <filter id="roughEdge" x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </defs>
+        </svg>
       </Overlay>
       
       <MenuButton onClick={onMenuClick}>
@@ -407,9 +366,10 @@ function KnotholeOverlay({ currentSection = 'hero', onMenuClick }) {
       
       <ScrollHint $visible={showScrollHint}>
         Scroll
-        <ScrollLine />
       </ScrollHint>
-    </>
+      
+      {children}
+    </KnotholeContext.Provider>
   );
 }
 

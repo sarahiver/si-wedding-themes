@@ -1,10 +1,10 @@
-// Botanical Hero - Content visible through knothole overlay
+// Botanical Hero - Black & White Clean Design
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
@@ -13,68 +13,47 @@ const Section = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    180deg,
-    var(--forest-deep) 0%,
-    var(--forest-main) 50%,
-    var(--forest-light) 100%
-  );
+  background: var(--white);
   position: relative;
-  scroll-snap-align: start;
-`;
-
-// Subtle background texture
-const BackgroundTexture = styled.div`
-  position: absolute;
-  inset: 0;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.02) 0%, transparent 40%);
-  pointer-events: none;
 `;
 
 const Content = styled.div`
   text-align: center;
   padding: 2rem;
-  max-width: 700px;
-  animation: ${fadeIn} 1s var(--ease-out) forwards;
+  max-width: 600px;
 `;
 
 const Eyebrow = styled.p`
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--forest-mist);
-  margin-bottom: 1.5rem;
+  color: var(--light);
+  margin-bottom: 2rem;
   opacity: 0;
   animation: ${fadeIn} 0.8s var(--ease-out) 0.2s forwards;
 `;
 
 const Names = styled.h1`
   font-family: var(--font-serif);
-  font-size: clamp(3.5rem, 12vw, 8rem);
+  font-size: clamp(3rem, 12vw, 7rem);
   font-weight: 300;
-  color: var(--cream);
+  color: var(--black);
   line-height: 0.95;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.3em;
   letter-spacing: -0.03em;
   opacity: 0;
   animation: ${fadeIn} 1s var(--ease-out) 0.4s forwards;
-  
-  span {
-    display: block;
-  }
 `;
 
 const Ampersand = styled.span`
+  display: block;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 0.5em;
-  color: var(--gold-light);
-  display: block;
-  margin: 0.2em 0;
+  font-size: 0.4em;
+  color: var(--medium);
+  margin: 0.3em 0;
 `;
 
 const DateLocation = styled.div`
@@ -85,17 +64,18 @@ const DateLocation = styled.div`
 
 const WeddingDate = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
   font-weight: 400;
-  color: var(--cream);
-  margin-bottom: 0.5rem;
+  color: var(--dark);
+  margin-bottom: 0.4rem;
 `;
 
 const Location = styled.p`
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: var(--forest-mist);
+  color: var(--light);
+  letter-spacing: 0.05em;
 `;
 
 const CTAButton = styled.a`
@@ -103,21 +83,20 @@ const CTAButton = styled.a`
   margin-top: 3rem;
   padding: 1rem 2.5rem;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--forest-deep);
-  background: var(--cream);
-  border-radius: 2px;
+  color: var(--white);
+  background: var(--black);
+  border: 1px solid var(--black);
   transition: all 0.4s var(--ease-smooth);
   opacity: 0;
   animation: ${fadeIn} 0.8s var(--ease-out) 0.8s forwards;
   
   &:hover {
-    background: var(--gold-light);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    background: var(--white);
+    color: var(--black);
   }
 `;
 
@@ -138,14 +117,13 @@ function Hero() {
   }) : '15. August 2025';
 
   return (
-    <Section id="hero" data-section="hero">
-      <BackgroundTexture />
+    <Section data-section="hero">
       <Content>
         <Eyebrow>{tagline}</Eyebrow>
         <Names>
-          <span>{name1}</span>
+          {name1}
           <Ampersand>&</Ampersand>
-          <span>{name2}</span>
+          {name2}
         </Names>
         <DateLocation>
           <WeddingDate>{formattedDate}</WeddingDate>

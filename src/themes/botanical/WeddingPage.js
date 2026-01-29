@@ -1,5 +1,5 @@
-// Botanical WeddingPage - Knothole Overlay Concept
-// Fixed wood frame with organic holes, content scrolls behind
+// Botanical WeddingPage - S/W Tree Cross-Section Concept
+// Content renders inside the holes, overlay provides context
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -34,44 +34,22 @@ const LoadingScreen = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bark-dark);
+  background: #fafafa;
   
   span {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    color: var(--cream);
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 1.25rem;
+    color: #666;
     letter-spacing: 0.1em;
   }
 `;
 
-// Main scrollable content container
+// Scrollable content - sits behind the overlay
 const ContentScroller = styled.main`
   position: relative;
   z-index: 1;
+  background: #fff;
 `;
-
-// Map section IDs to knothole configurations
-const sectionMap = [
-  'hero',
-  'countdown', 
-  'story',
-  'timeline',
-  'locations',
-  'gallery',
-  'rsvp',
-  'dresscode',
-  'gifts',
-  'accommodations',
-  'directions',
-  'faq',
-  'abc',
-  'guestbook',
-  'music',
-  'photos',
-  'witnesses',
-  'contact',
-  'footer'
-];
 
 function WeddingPage() {
   const { project, loading } = useWedding();
@@ -82,6 +60,8 @@ function WeddingPage() {
 
   // Detect which section is in view
   useEffect(() => {
+    if (loading) return;
+    
     const options = {
       root: null,
       rootMargin: '-40% 0px -40% 0px',
@@ -91,7 +71,7 @@ function WeddingPage() {
     observerRef.current = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const sectionId = entry.target.id || entry.target.dataset.section;
+          const sectionId = entry.target.dataset.section || entry.target.id;
           if (sectionId) {
             setCurrentSection(sectionId);
           }
@@ -99,11 +79,13 @@ function WeddingPage() {
       });
     }, options);
 
-    // Observe all sections
-    const sections = document.querySelectorAll('section[id], section[data-section]');
-    sections.forEach(section => {
-      observerRef.current.observe(section);
-    });
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      const sections = document.querySelectorAll('section[data-section]');
+      sections.forEach(section => {
+        observerRef.current?.observe(section);
+      });
+    }, 100);
 
     return () => {
       if (observerRef.current) {
@@ -126,7 +108,7 @@ function WeddingPage() {
       <>
         <BotanicalGlobalStyles />
         <LoadingScreen>
-          <span>Wird geladen...</span>
+          <span>Laden...</span>
         </LoadingScreen>
       </>
     );
@@ -145,7 +127,7 @@ function WeddingPage() {
     <>
       <BotanicalGlobalStyles />
       
-      {/* Fixed knothole overlay */}
+      {/* Knothole overlay with context provider */}
       <KnotholeOverlay 
         currentSection={currentSection} 
         onMenuClick={handleMenuClick}
@@ -159,7 +141,7 @@ function WeddingPage() {
         />
       )}
       
-      {/* Scrollable content behind the overlay */}
+      {/* Scrollable content */}
       <ContentScroller>
         <Hero />
         <Countdown />
