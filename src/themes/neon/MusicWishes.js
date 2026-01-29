@@ -1,4 +1,3 @@
-import { useWedding } from '../../context/WeddingContext';
 // src/components/MusicWishes.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
@@ -335,22 +334,32 @@ const SuccessMessage = styled.div`
   }
 `;
 
-function MusicWishes({
-  existingWishes = [
-    { id: 1, title: 'Uptown Funk', artist: 'Bruno Mars', requester: 'Tom', color: '#ff00ff' },
-    { id: 2, title: "Don't Stop Me Now", artist: 'Queen', requester: 'Alex', color: '#00ffff' },
-    { id: 3, title: 'Dancing Queen', artist: 'ABBA', requester: 'Maria', color: '#00ff88' },
-    { id: 4, title: 'Mr. Brightside', artist: 'The Killers', requester: 'Alex', color: '#b347ff' },
-  ]
-}) {
+function MusicWishes({ projectId, title }) {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [wishes, setWishes] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     song: '',
     artist: ''
   });
+
+  // Fetch wishes from Supabase
+  useEffect(() => {
+    const fetchWishes = async () => {
+      if (!projectId) return;
+      try {
+        const { getMusicWishes } = await import('../../lib/supabase');
+        const data = await getMusicWishes(projectId);
+        if (data) setWishes(data);
+      } catch (err) {
+        console.error('Failed to fetch music wishes:', err);
+      }
+    };
+    fetchWishes();
+  }, [projectId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -361,13 +370,43 @@ function MusicWishes({
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name && formData.song) {
-      // TODO: Supabase Integration
+    if (!formData.name || !formData.song) return;
+    
+    setLoading(true);
+    try {
+      if (projectId) {
+        const { submitMusicWish } = await import('../../lib/supabase');
+        const newWish = await submitMusicWish(projectId, {
+          name: formData.name,
+          song_title: formData.song,
+          artist: formData.artist
+        });
+        if (newWish) {
+          setWishes(prev => [newWish, ...prev]);
+        }
+      }
       setSubmitted(true);
+      setFormData({ name: '', song: '', artist: '' });
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('Failed to submit music wish:', err);
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Assign colors to wishes
+  const colors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
+  const wishesWithColors = wishes.map((wish, i) => ({
+    id: wish.id,
+    title: wish.song_title,
+    artist: wish.artist,
+    requester: wish.name,
+    color: colors[i % colors.length]
+  }));
 
   return (
     <Section ref={sectionRef} id="music">
@@ -450,7 +489,7 @@ function MusicWishes({
           <WishlistSection>
             <SectionLabel>Aktuelle Playlist</SectionLabel>
             
-            {existingWishes.map((wish, i) => (
+            {wishesWithColors.map((wish, i) => (
               <SongItem key={wish.id} $color={wish.color} $delay={`${i * 0.1}s`}>
                 <SongNumber $color={wish.color}>
                   {String(i + 1).padStart(2, '0')}
@@ -462,6 +501,14 @@ function MusicWishes({
                 <SongRequester>{wish.requester}</SongRequester>
               </SongItem>
             ))}
+            {wishesWithColors.length === 0 && (
+              <SongItem $color="#00ffff" $delay="0s">
+                <SongInfo style={{ textAlign: 'center', width: '100%', opacity: 0.5 }}>
+                  <SongTitle>Noch keine Wünsche</SongTitle>
+                  <SongArtist>Sei der Erste!</SongArtist>
+                </SongInfo>
+              </SongItem>
+            )}
           </WishlistSection>
         </ContentGrid>
       </Container>

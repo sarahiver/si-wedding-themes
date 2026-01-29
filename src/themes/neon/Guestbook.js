@@ -1,4 +1,3 @@
-import { useWedding } from '../../context/WeddingContext';
 // src/components/Guestbook.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
@@ -351,18 +350,28 @@ const StatusLine = styled.div`
   }
 `;
 
-function Guestbook({
-  messages = [
-    { id: 1, name: 'Emma & Tom', message: 'Wir freuen uns so sehr auf eure Hochzeit! Es wird der beste Tag ever! 💜', date: '15.07.2025', color: '#00ffff' },
-    { id: 2, name: 'Julia', message: 'Endlich ist es soweit! Kann es kaum erwarten mit euch zu feiern. Alles Liebe!', date: '12.07.2025', color: '#ff00ff' },
-    { id: 3, name: 'Marcus & Familie', message: 'Von Herzen alles Gute für euren gemeinsamen Weg! Wir sind dabei! 🎉', date: '10.07.2025', color: '#00ff88' },
-    { id: 4, name: 'Lisa', message: 'Das wird die Party des Jahres! Freue mich riesig auf euch beide!', date: '08.07.2025', color: '#b347ff' },
-  ]
-}) {
+function Guestbook({ projectId, title }) {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [entries, setEntries] = useState([]);
   const [formData, setFormData] = useState({ name: '', message: '' });
+
+  // Fetch entries from Supabase
+  useEffect(() => {
+    const fetchEntries = async () => {
+      if (!projectId) return;
+      try {
+        const { getGuestbookEntries } = await import('../../lib/supabase');
+        const data = await getGuestbookEntries(projectId);
+        if (data) setEntries(data);
+      } catch (err) {
+        console.error('Failed to fetch guestbook entries:', err);
+      }
+    };
+    fetchEntries();
+  }, [projectId]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -373,13 +382,41 @@ function Guestbook({
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name && formData.message) {
-      // TODO: Supabase Integration
+    if (!formData.name || !formData.message) return;
+    
+    setLoading(true);
+    try {
+      if (projectId) {
+        const { submitGuestbookEntry } = await import('../../lib/supabase');
+        const newEntry = await submitGuestbookEntry(projectId, {
+          name: formData.name,
+          message: formData.message
+        });
+        if (newEntry) {
+          setEntries(prev => [newEntry, ...prev]);
+        }
+      }
       setSubmitted(true);
+      setFormData({ name: '', message: '' });
+      // Reset form after 3 seconds
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('Failed to submit guestbook entry:', err);
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Assign colors to entries
+  const colors = ['#00ffff', '#ff00ff', '#00ff88', '#b347ff'];
+  const entriesWithColors = entries.map((entry, i) => ({
+    ...entry,
+    color: colors[i % colors.length],
+    date: entry.created_at ? new Date(entry.created_at).toLocaleDateString('de-DE') : ''
+  }));
 
   return (
     <Section ref={sectionRef} id="guestbook">
@@ -444,7 +481,7 @@ function Guestbook({
           </FormCard>
           
           <MessagesSection>
-            {messages.map((msg, i) => (
+            {entriesWithColors.map((msg, i) => (
               <MessageCard key={msg.id} $color={msg.color} $delay={`${i * 0.15}s`}>
                 <MessageHeader>
                   <MessageAuthor $color={msg.color}>{msg.name}</MessageAuthor>
@@ -453,6 +490,13 @@ function Guestbook({
                 <MessageText>{msg.message}</MessageText>
               </MessageCard>
             ))}
+            {entriesWithColors.length === 0 && (
+              <MessageCard $color="#00ffff" $delay="0s">
+                <MessageText style={{ textAlign: 'center', opacity: 0.5 }}>
+                  Noch keine Einträge - sei der Erste!
+                </MessageText>
+              </MessageCard>
+            )}
           </MessagesSection>
         </FormSection>
       </Container>

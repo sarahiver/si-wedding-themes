@@ -1,4 +1,3 @@
-import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -388,15 +387,15 @@ const Cursor = styled.span`
   animation: ${blink} 1s infinite;
 `;
 
-const PhotoUpload = ({ config = {} }) => {
+const PhotoUpload = ({ projectId, slug, title }) => {
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [visible, setVisible] = useState(false);
   const inputRef = useRef(null);
   const sectionRef = useRef(null);
   
-  const maxFileSize = config.maxFileSize || 10 * 1024 * 1024; // 10MB
-  const maxFiles = config.maxFiles || 50;
+  const maxFileSize = 10 * 1024 * 1024; // 10MB
+  const maxFiles = 50;
   const acceptedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   
   useEffect(() => {
@@ -411,28 +410,39 @@ const PhotoUpload = ({ config = {} }) => {
     return () => observer.disconnect();
   }, []);
   
-  const simulateUpload = (file) => {
-    return new Promise((resolve) => {
-      const duration = 1000 + Math.random() * 2000;
-      const interval = 100;
-      let progress = 0;
+  const uploadFile = async (fileObj) => {
+    try {
+      // Dynamic import to avoid issues if cloudinary/supabase not configured
+      const { uploadToCloudinary } = await import('../../lib/cloudinary');
+      const { submitPhotoUpload } = await import('../../lib/supabase');
       
-      const timer = setInterval(() => {
-        progress += (100 / (duration / interval));
-        
-        setFiles(prev => prev.map(f => 
-          f.id === file.id ? { ...f, progress: Math.min(progress, 100) } : f
-        ));
-        
-        if (progress >= 100) {
-          clearInterval(timer);
+      // Upload to Cloudinary
+      const result = await uploadToCloudinary(fileObj.file, {
+        folder: slug ? `weddings/${slug}/photos` : 'weddings/photos',
+        onProgress: (progress) => {
           setFiles(prev => prev.map(f => 
-            f.id === file.id ? { ...f, uploading: false, uploaded: true } : f
+            f.id === fileObj.id ? { ...f, progress } : f
           ));
-          resolve();
         }
-      }, interval);
-    });
+      });
+      
+      // Save to Supabase
+      if (result.url && projectId) {
+        await submitPhotoUpload(projectId, {
+          url: result.url,
+          public_id: result.public_id
+        });
+      }
+      
+      setFiles(prev => prev.map(f => 
+        f.id === fileObj.id ? { ...f, uploading: false, uploaded: true, progress: 100 } : f
+      ));
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setFiles(prev => prev.map(f => 
+        f.id === fileObj.id ? { ...f, uploading: false, error: true } : f
+      ));
+    }
   };
   
   const handleFiles = useCallback((newFiles) => {
@@ -456,9 +466,9 @@ const PhotoUpload = ({ config = {} }) => {
     setFiles(prev => [...prev, ...validFiles]);
     
     validFiles.forEach(file => {
-      simulateUpload(file);
+      uploadFile(file);
     });
-  }, [files.length, maxFiles, maxFileSize]);
+  }, [files.length, maxFiles, maxFileSize, projectId, slug]);
   
   const handleDragOver = useCallback((e) => {
     e.preventDefault();

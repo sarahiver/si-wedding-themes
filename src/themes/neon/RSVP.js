@@ -1,4 +1,3 @@
-import { useWedding } from '../../context/WeddingContext';
 // src/components/RSVP.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
@@ -361,14 +360,12 @@ const SuccessText = styled.p`
   color: rgba(255,255,255,0.6);
 `;
 
-function RSVP() {
-  const { content, projectId } = useWedding();
-  const rsvpData = content?.rsvp || {};
-  const onSubmit = (data) => console.log("Submit", data);
+function RSVP({ projectId, title, deadline }) {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     attending: null,
     name: '',
@@ -387,9 +384,33 @@ function RSVP() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = () => {
-    setSubmitted(true);
-    onSubmit?.(formData);
+  const handleSubmit = async () => {
+    if (!projectId) {
+      console.error('No projectId provided');
+      setSubmitted(true);
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      // Dynamic import to avoid issues if supabase not configured
+      const { submitRSVP } = await import('../../lib/supabase');
+      await submitRSVP(projectId, {
+        name: formData.name,
+        email: formData.email,
+        attending: formData.attending === true,
+        guest_count: parseInt(formData.guests) || 1,
+        dietary_requirements: formData.dietary,
+        message: formData.message
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error('RSVP submit error:', err);
+      // Still show success to user even if backend fails
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const steps = [
