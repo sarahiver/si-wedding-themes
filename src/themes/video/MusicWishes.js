@@ -10,43 +10,9 @@ const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const Content = styled.div`text-align: center; max-width: 450px; width: 100%;`;
 const Eyebrow = styled.p`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
 const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
-  animation-delay: 0.2s;
-`;
-
-const Input = styled.input`
-  padding: 1rem;
-  font-family: var(--font-primary);
-  font-size: 0.9rem;
-  color: var(--video-white);
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  text-align: center;
-  
-  &:focus { outline: none; border-color: var(--video-accent); }
-  &::placeholder { color: var(--video-gray); }
-`;
-
-const Button = styled.button`
-  padding: 1rem;
-  font-family: var(--font-primary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--video-white);
-  background: var(--video-accent);
-  
-  &:hover { background: var(--video-accent-light); }
-  &:disabled { background: var(--video-gray); }
-`;
-
+const Form = styled.form`display: flex; flex-direction: column; gap: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const Input = styled.input`padding: 1rem; font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-white); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); text-align: center; &:focus { outline: none; border-color: var(--video-accent); } &::placeholder { color: var(--video-gray); }`;
+const Button = styled.button`padding: 1rem; font-family: var(--font-primary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--video-white); background: var(--video-accent); &:hover { background: var(--video-accent-light); } &:disabled { background: var(--video-gray); }`;
 const Success = styled.div`text-align: center; opacity: 0; animation: ${fadeIn} 0.8s ease forwards;`;
 const SuccessTitle = styled.h3`font-family: var(--font-accent); font-size: 2rem; font-style: italic; color: var(--video-white); margin-bottom: 0.5rem;`;
 const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver);`;
@@ -54,7 +20,6 @@ const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem
 function MusicWishes() {
   const { project, content } = useWedding();
   const title = content?.musicwishes?.title || 'Musikwuensche';
-  
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -80,7 +45,7 @@ function MusicWishes() {
   };
 
   return (
-    <SectionWrapper id="
+    <SectionWrapper id="music">
       <Content ref={sectionRef}>
         <Eyebrow $visible={visible}>Playlist</Eyebrow>
         <Title $visible={visible}>{title}</Title>
