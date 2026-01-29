@@ -1,387 +1,181 @@
-import { useWedding } from '../../context/WeddingContext';
+// Botanical LoveStory - Garden Path Style
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ANIMATIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
-const float = keyframes`
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(5deg); }
-`;
-
-const growIn = keyframes`
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
-`;
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-// ═══════════════════════════════════════════════════════════════════════════
-// STYLED COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════════
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const drawLine = keyframes`from { height: 0; } to { height: 100%; }`;
+const grow = keyframes`from { transform: scale(0); } to { transform: scale(1); }`;
+const sway = keyframes`0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); }`;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--cream);
+  padding: var(--section-padding) 2rem;
+  background: linear-gradient(180deg, var(--botanical-cream) 0%, var(--botanical-mint) 100%);
   position: relative;
-  overflow: hidden;
 `;
 
-const FloatingLeaf = styled.div`
+const Container = styled.div`max-width: 900px; margin: 0 auto;`;
+
+const Header = styled.div`text-align: center; margin-bottom: 4rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
+
+const Timeline = styled.div`position: relative; padding-left: 60px; @media (max-width: 600px) { padding-left: 40px; }`;
+
+const TimelineLine = styled.div`
   position: absolute;
-  width: ${p => p.$size}px;
-  height: ${p => p.$size}px;
-  opacity: ${p => p.$opacity || 0.15};
-  top: ${p => p.$top};
-  left: ${p => p.$left};
-  right: ${p => p.$right};
-  animation: ${float} ${p => p.$duration}s ease-in-out infinite;
-  animation-delay: ${p => p.$delay}s;
-  pointer-events: none;
+  left: 20px;
+  top: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--botanical-sage), var(--botanical-olive), var(--botanical-forest));
+  border-radius: 4px;
+  height: ${p => p.$visible ? '100%' : '0'};
+  transition: height 2s ease;
   
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: var(--sage);
-  }
+  @media (max-width: 600px) { left: 10px; width: 3px; }
 `;
 
-const Container = styled.div`
-  max-width: 1000px;
-  margin: 0 auto;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-`;
-
-const Eyebrow = styled.div`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--sage-dark);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: var(--forest);
-`;
-
-const Timeline = styled.div`
+const StoryItem = styled.div`
   position: relative;
+  padding-bottom: 3rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
+  animation-delay: ${p => 0.3 + p.$index * 0.2}s;
   
-  &::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, 
-      var(--sage-light) 0%, 
-      var(--sage) 30%, 
-      var(--sage) 70%, 
-      var(--sage-light) 100%
-    );
-    transform: translateX(-50%);
-    transform-origin: top;
-    animation: ${p => p.$visible ? growIn : 'none'} 1.5s ease forwards;
-    animation-delay: 0.3s;
-    border-radius: 10px;
-    
-    @media (max-width: 768px) {
-      left: 30px;
-    }
-  }
+  &:last-child { padding-bottom: 0; }
 `;
 
-const Milestone = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 100px 1fr;
-  gap: 2rem;
-  margin-bottom: 5rem;
-  position: relative;
-  
-  &:last-child { margin-bottom: 0; }
-  
-  &:nth-child(odd) {
-    .content { grid-column: 1; text-align: right; }
-    .marker { grid-column: 2; }
-    .image { grid-column: 3; }
-  }
-  
-  &:nth-child(even) {
-    .content { grid-column: 3; text-align: left; }
-    .marker { grid-column: 2; }
-    .image { grid-column: 1; grid-row: 1; }
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 60px 1fr;
-    gap: 1.5rem;
-    
-    &:nth-child(odd), &:nth-child(even) {
-      .marker { grid-column: 1; grid-row: 1 / 3; }
-      .content { grid-column: 2; grid-row: 1; text-align: left; }
-      .image { grid-column: 2; grid-row: 2; }
-    }
-  }
-`;
-
-const MilestoneMarker = styled.div`
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: scale(${p => p.$visible ? 1 : 0.5});
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-delay: ${p => p.$index * 0.15}s;
-`;
-
-const MarkerCircle = styled.div`
-  width: 70px;
-  height: 70px;
-  background: var(--cream);
-  border: 3px solid var(--sage);
+const Marker = styled.div`
+  position: absolute;
+  left: -52px;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  background: var(--botanical-cream);
+  border: 3px solid var(--botanical-sage);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25rem;
+  transform: scale(0);
+  animation: ${p => p.$visible ? css`${grow} 0.5s var(--ease-organic) forwards` : 'none'};
+  animation-delay: ${p => 0.2 + p.$index * 0.2}s;
+  
+  @media (max-width: 600px) { left: -35px; width: 30px; height: 30px; font-size: 1rem; }
+`;
+
+const Card = styled.div`
+  background: var(--botanical-cream);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(107, 127, 94, 0.15);
   position: relative;
-  box-shadow: 0 4px 20px rgba(139, 157, 131, 0.2);
   
   &::before {
     content: '';
     position: absolute;
-    inset: 6px;
-    border: 1px dashed var(--sage-light);
-    border-radius: 50%;
-  }
-  
-  span {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
-    font-style: italic;
-    color: var(--forest);
+    left: -15px;
+    top: 15px;
+    border: 10px solid transparent;
+    border-right-color: var(--botanical-cream);
   }
 `;
 
-const LeafOnMarker = styled.div`
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  animation: ${float} 3s ease-in-out infinite;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: var(--sage);
-  }
-`;
-
-const MilestoneContent = styled.div`
-  padding-top: 1rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateX(${p => p.$visible ? 0 : (p.$fromRight ? '40px' : '-40px')});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.1 + p.$index * 0.15}s;
-`;
-
-const MilestoneTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 400;
-  color: var(--forest);
+const Year = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: white;
+  background: var(--botanical-sage);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
   margin-bottom: 0.75rem;
 `;
 
-const MilestoneText = styled.p`
-  font-family: 'Lato', sans-serif;
+const ItemTitle = styled.h3`
+  font-family: var(--font-handwritten);
+  font-size: 1.75rem;
+  color: var(--botanical-forest);
+  margin-bottom: 0.75rem;
+`;
+
+const ItemText = styled.p`
+  font-family: var(--font-body);
   font-size: 0.95rem;
-  font-weight: 400;
-  color: var(--text-light);
-  line-height: 1.9;
+  line-height: 1.8;
+  color: var(--botanical-brown);
 `;
 
-const MilestoneImage = styled.div`
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-  transition-delay: ${p => 0.2 + p.$index * 0.15}s;
-`;
-
-const ImageFrame = styled.div`
-  position: relative;
-  border-radius: 100px 100px 20px 20px;
+const ImageWrapper = styled.div`
+  margin-top: 1rem;
+  border-radius: 15px;
   overflow: hidden;
-  background: var(--cream-dark);
-  aspect-ratio: 3/4;
-  max-width: 280px;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border: 1px solid rgba(139,157,131,0.3);
-    border-radius: 92px 92px 12px 12px;
-    pointer-events: none;
-    z-index: 2;
-    transition: all var(--transition-normal);
-  }
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-    
-    &::before {
-      inset: 12px;
-      border-color: var(--sage);
-    }
-    
-    img { transform: scale(1.08); }
-  }
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s ease;
-  }
-  
-  @media (max-width: 768px) {
-    max-width: 100%;
-    border-radius: 20px;
-    &::before { border-radius: 12px; }
-  }
+  aspect-ratio: 16/9;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--botanical-mint)'};
 `;
-
-const Placeholder = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--cream-dark), var(--cream));
-  gap: 0.5rem;
-  
-  .year {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-style: italic;
-    color: var(--sage-light);
-  }
-  
-  .icon { font-size: 2rem; opacity: 0.5; }
-`;
-
-const LeafSVG = () => (
-  <svg viewBox="0 0 100 100">
-    <path d="M50 5 C20 25 10 60 50 95 C90 60 80 25 50 5 Z" />
-  </svg>
-);
-
-const SmallLeafSVG = () => (
-  <svg viewBox="0 0 24 24">
-    <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.97C7.14 20.19 7.64 20.39 8.16 20.56L7.5 22.59L9.4 23.25L10.08 21.2C14.6 22.35 19.67 19.97 22 15.5C22 15.5 18 14 17 8Z"/>
-  </svg>
-);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
 
 function LoveStory() {
   const { content } = useWedding();
-  const lovestoryData = content?.lovestory || {};
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  const title = lovestoryData.title || 'Unsere Geschichte';
-  const subtitle = lovestoryData.subtitle || 'Wie alles begann';
-  
-  // Support both 'events' and 'milestones' field names
-  const events = lovestoryData.events || lovestoryData.milestones || [
-    { year: '2020', title: 'Der erste Blick', text: 'Zwischen blühenden Pfingstrosen im Botanischen Garten kreuzten sich unsere Wege zum ersten Mal.', image: null },
-    { year: '2021', title: 'Gemeinsam wachsen', text: 'Wie zwei Pflanzen, die ihre Wurzeln verschränken, wuchsen wir zusammen.', image: null },
-    { year: '2023', title: 'Ein neues Zuhause', text: 'Mit einem kleinen Garten voller Wildblumen fanden wir unseren Ort.', image: null },
-    { year: '2024', title: 'Die große Frage', text: 'Unter dem alten Apfelbaum, zwischen fallenden Blütenblättern, kniete er nieder.', image: null },
+  const data = content?.lovestory || {};
+  const title = data.title || 'Unsere Geschichte';
+  const items = data.items || [
+    { year: '2019', title: 'Der Anfang', text: 'Bei einem Picknick im Park trafen sich unsere Blicke zum ersten Mal...', icon: '🌱', image: '' },
+    { year: '2020', title: 'Das erste Date', text: 'Ein Spaziergang durch den botanischen Garten wurde zum Beginn von allem.', icon: '🌸', image: '' },
+    { year: '2023', title: 'Die Frage', text: 'Unter unserem Lieblingsbaum kniete er nieder und fragte...', icon: '💍', image: '' },
+    { year: '2025', title: 'Für immer', text: 'Wir sagen Ja! Und feiern unsere Liebe mit euch.', icon: '💒', image: '' }
   ];
+  
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [itemsVisible, setItemsVisible] = useState([]);
+  const headerRef = useRef(null);
+  const itemRefs = useRef([]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setHeaderVisible(true); }, { threshold: 0.3 });
+    if (headerRef.current) observer.observe(headerRef.current);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const observers = itemRefs.current.map((ref, i) => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) setItemsVisible(prev => [...new Set([...prev, i])]);
+      }, { threshold: 0.3 });
+      if (ref) observer.observe(ref);
+      return observer;
+    });
+    return () => observers.forEach(obs => obs.disconnect());
+  }, [items.length]);
+
   return (
-    <Section ref={sectionRef} id="story">
-      <FloatingLeaf $size={80} $top="5%" $left="3%" $duration={8} $delay={0}><LeafSVG /></FloatingLeaf>
-      <FloatingLeaf $size={60} $top="40%" $right="5%" $duration={10} $delay={2}><LeafSVG /></FloatingLeaf>
-      <FloatingLeaf $size={50} $top="70%" $left="8%" $duration={7} $delay={1}><LeafSVG /></FloatingLeaf>
-      
+    <Section id="story">
       <Container>
-        <Header $visible={visible}>
-          <Eyebrow>{subtitle}</Eyebrow>
-          <Title>{title}</Title>
+        <Header ref={headerRef}>
+          <Eyebrow $visible={headerVisible}>Unsere Reise 🌿</Eyebrow>
+          <Title $visible={headerVisible}>{title}</Title>
         </Header>
         
-        <Timeline $visible={visible}>
-          {events.map((m, i) => (
-            <Milestone key={i}>
-              <MilestoneContent 
-                className="content" 
-                $index={i} 
-                $visible={visible} 
-                $fromRight={i % 2 === 1}
-              >
-                <MilestoneTitle>{m.title}</MilestoneTitle>
-                <MilestoneText>{m.text || m.description || m.desc}</MilestoneText>
-              </MilestoneContent>
-              
-              <MilestoneMarker className="marker" $index={i} $visible={visible}>
-                <MarkerCircle>
-                  <span>{m.year || m.date}</span>
-                  <LeafOnMarker><SmallLeafSVG /></LeafOnMarker>
-                </MarkerCircle>
-              </MilestoneMarker>
-              
-              <MilestoneImage className="image" $index={i} $visible={visible}>
-                <ImageFrame>
-                  {m.image ? (
-                    <img src={m.image} alt={m.title} />
-                  ) : (
-                    <Placeholder>
-                      <span className="icon">🌸</span>
-                      <span className="year">{m.year || m.date}</span>
-                    </Placeholder>
-                  )}
-                </ImageFrame>
-              </MilestoneImage>
-            </Milestone>
-          ))}
+        <Timeline>
+          <TimelineLine $visible={headerVisible} />
+          {items.map((item, i) => {
+            const isVisible = itemsVisible.includes(i);
+            return (
+              <StoryItem key={i} ref={el => itemRefs.current[i] = el} $visible={isVisible} $index={i}>
+                <Marker $visible={isVisible} $index={i}>{item.icon}</Marker>
+                <Card>
+                  <Year>{item.year}</Year>
+                  <ItemTitle>{item.title}</ItemTitle>
+                  <ItemText>{item.text}</ItemText>
+                  {item.image && <ImageWrapper $image={item.image} />}
+                </Card>
+              </StoryItem>
+            );
+          })}
         </Timeline>
       </Container>
     </Section>

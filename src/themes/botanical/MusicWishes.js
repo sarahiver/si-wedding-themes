@@ -1,305 +1,65 @@
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useMusicWishes } from '../../components/shared/MusicWishesCore';
-import FeedbackModal from '../../components/shared/FeedbackModal';
+import { submitMusicWish } from '../../lib/supabase';
 
-const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--cream-dark);
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
+const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 
-const Container = styled.div`
-  max-width: 700px;
-  margin: 0 auto;
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: linear-gradient(180deg, var(--botanical-cream) 0%, var(--botanical-mint) 100%);`;
+const Container = styled.div`max-width: 500px; margin: 0 auto; text-align: center;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); margin-bottom: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-`;
+const Form = styled.form`background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(107, 127, 94, 0.15); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.2s;`;
+const Input = styled.input`width: 100%; padding: 0.875rem 1rem; font-family: var(--font-body); font-size: 1rem; color: var(--botanical-charcoal); background: var(--botanical-paper); border: 2px solid var(--botanical-mint); border-radius: 12px; margin-bottom: 1rem; text-align: center; &:focus { outline: none; border-color: var(--botanical-sage); }`;
+const Button = styled.button`padding: 1rem 2rem; font-family: var(--font-handwritten); font-size: 1.1rem; color: white; background: linear-gradient(135deg, var(--botanical-sage), var(--botanical-olive)); border-radius: 50px; cursor: pointer; &:hover { transform: translateY(-2px); }`;
 
-const Title = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 400;
-  color: var(--forest);
-  margin-bottom: 1rem;
-`;
-
-const Description = styled.p`
-  font-family: 'Lato', sans-serif;
-  font-size: 1rem;
-  color: var(--text-light);
-  line-height: 1.7;
-`;
-
-const Form = styled.form`
-  background: var(--cream-light);
-  border-radius: 16px;
-  padding: 2rem;
-  border: 1px solid var(--sage-light);
-  margin-bottom: 3rem;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-family: 'Lato', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 0.5rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  font-family: 'Lato', sans-serif;
-  font-size: 1rem;
-  padding: 1rem;
-  background: var(--cream);
-  border: 1px solid var(--sage-light);
-  border-radius: 10px;
-  color: var(--forest);
-  transition: all 0.3s ease;
-  
-  &:focus { 
-    outline: none; 
-    border-color: var(--sage);
-    box-shadow: 0 0 0 3px var(--sage-muted);
-  }
-`;
-
-const InputRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  
-  @media (max-width: 500px) { grid-template-columns: 1fr; }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  font-family: 'Lato', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 1rem 2rem;
-  background: var(--sage);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover:not(:disabled) { 
-    background: var(--sage-dark);
-    transform: translateY(-2px);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
-
-const ErrorMessage = styled.p`
-  color: var(--error);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(192, 57, 43, 0.1);
-  border-radius: 6px;
-`;
-
-const WishesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const WishCard = styled.div`
-  background: var(--cream-light);
-  border-radius: 12px;
-  padding: 1.25rem;
-  border: 1px solid var(--sage-light);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const WishIcon = styled.div`
-  width: 50px;
-  height: 50px;
-  background: var(--sage-muted);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-`;
-
-const WishContent = styled.div`
-  flex: 1;
-`;
-
-const WishSong = styled.div`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  color: var(--forest);
-  margin-bottom: 0.25rem;
-`;
-
-const WishArtist = styled.div`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.9rem;
-  color: var(--text-light);
-`;
-
-const WishFrom = styled.div`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-muted);
-  
-  .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-  p { font-family: 'Lato', sans-serif; }
-`;
-
-const SectionTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: var(--forest);
-  margin-bottom: 1.5rem;
-  text-align: center;
-`;
+const Success = styled.div`padding: 2rem; background: white; border-radius: 24px; opacity: 0; animation: ${fadeIn} 0.8s ease forwards;`;
+const SuccessIcon = styled.div`font-size: 3rem; margin-bottom: 1rem;`;
+const SuccessText = styled.p`font-family: var(--font-handwritten); font-size: 1.5rem; color: var(--botanical-forest);`;
 
 function MusicWishes() {
-  const { content } = useWedding();
-  const musicwishesData = content?.musicwishes || {};
-  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
-  
-  const {
-    wishes,
-    loading,
-    submitting,
-    error,
-    success,
-    formData,
-    updateField,
-    submitWish,
-  } = useMusicWishes();
+  const { project, content } = useWedding();
+  const title = content?.musicwishes?.title || 'Musikwuensche';
+  const [visible, setVisible] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState('');
+  const [song, setSong] = useState('');
+  const [artist, setArtist] = useState('');
+  const sectionRef = useRef(null);
 
-  const title = musicwishesData.title || 'Musikwünsche';
-  const description = musicwishesData.description || 'Welche Songs dürfen auf unserer Hochzeit nicht fehlen? Teilt uns eure Lieblingssongs mit!';
-
-  // Show modal on success
   useEffect(() => {
-    if (success) {
-      setModalState({
-        isOpen: true,
-        type: 'success',
-        message: 'Danke für deinen Musikwunsch! 🎵',
-      });
-    }
-  }, [success]);
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await submitWish();
+    if (!project?.id) return;
+    try {
+      await submitMusicWish(project.id, { name, song_title: song, artist });
+      setSubmitted(true);
+    } catch (err) { console.error(err); }
   };
 
   return (
-    <Section id="music">
+    <Section ref={sectionRef} id="music">
       <Container>
-        <Header>
-          <Title>{title}</Title>
-          <Description>{description}</Description>
-        </Header>
-        
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label>Dein Name</Label>
-            <Input 
-              type="text"
-              placeholder="Wie heißt du?"
-              value={formData.name}
-              onChange={e => updateField('name', e.target.value)}
-              required
-            />
-          </FormGroup>
-          
-          <InputRow>
-            <FormGroup>
-              <Label>Künstler / Band</Label>
-              <Input 
-                type="text"
-                placeholder="z.B. ABBA"
-                value={formData.artist}
-                onChange={e => updateField('artist', e.target.value)}
-                required
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label>Songtitel</Label>
-              <Input 
-                type="text"
-                placeholder="z.B. Dancing Queen"
-                value={formData.songTitle}
-                onChange={e => updateField('songTitle', e.target.value)}
-                required
-              />
-            </FormGroup>
-          </InputRow>
-          
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Wird gesendet...' : 'Musikwunsch absenden'}
-          </Button>
-        </Form>
-        
-        {wishes.length > 0 && (
-          <>
-            <SectionTitle>Eure Wünsche</SectionTitle>
-            <WishesList>
-              {wishes.map(wish => (
-                <WishCard key={wish.id}>
-                  <WishIcon>🎵</WishIcon>
-                  <WishContent>
-                    <WishSong>{wish.song_title}</WishSong>
-                    <WishArtist>{wish.artist}</WishArtist>
-                    <WishFrom>von {wish.name}</WishFrom>
-                  </WishContent>
-                </WishCard>
-              ))}
-            </WishesList>
-          </>
+        <Eyebrow $visible={visible}>🎵 Playlist</Eyebrow>
+        <Title $visible={visible}>{title}</Title>
+        {submitted ? (
+          <Success><SuccessIcon>🎶</SuccessIcon><SuccessText>Danke fuer euren Song!</SuccessText></Success>
+        ) : (
+          <Form onSubmit={handleSubmit} $visible={visible}>
+            <Input type="text" placeholder="Euer Name 🌿" value={name} onChange={e => setName(e.target.value)} required />
+            <Input type="text" placeholder="Songtitel 🎵" value={song} onChange={e => setSong(e.target.value)} required />
+            <Input type="text" placeholder="Kuenstler 🎤" value={artist} onChange={e => setArtist(e.target.value)} />
+            <Button type="submit">🎶 Vorschlagen</Button>
+          </Form>
         )}
       </Container>
-      
-      <FeedbackModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
-        type={modalState.type}
-        message={modalState.message}
-        autoClose={2500}
-      />
     </Section>
   );
 }

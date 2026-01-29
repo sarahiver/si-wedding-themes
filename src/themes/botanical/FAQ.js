@@ -1,133 +1,39 @@
-import { useWedding } from '../../context/WeddingContext';
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Section = styled.section`
-  padding: 8rem 2rem;
-  background: var(--cream-dark);
-`;
+const Section = styled.section`padding: var(--section-padding) 2rem; background: var(--botanical-cream);`;
+const Container = styled.div`max-width: 800px; margin: 0 auto;`;
+const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Container = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-`;
-
-const Eyebrow = styled.div`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--sage-dark);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: var(--forest);
-`;
-
-const FAQList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const FAQItem = styled.div`
-  background: var(--cream);
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid ${p => p.$isOpen ? 'var(--sage)' : 'transparent'};
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.6s ease;
-  transition-delay: ${p => p.$index * 0.08}s;
-`;
-
-const Question = styled.button`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  
-  h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--forest);
-    flex: 1;
-    padding-right: 1rem;
-  }
-`;
-
-const Icon = styled.span`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--sage-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  transform: rotate(${p => p.$isOpen ? '45deg' : '0'});
-  
-  &::before, &::after {
-    content: '';
-    position: absolute;
-    background: var(--sage);
-  }
-  &::before { width: 12px; height: 2px; }
-  &::after { width: 2px; height: 12px; }
-`;
-
-const Answer = styled.div`
-  max-height: ${p => p.$isOpen ? '500px' : '0'};
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-  
-  p {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.95rem;
-    color: var(--text-light);
-    line-height: 1.8;
-    padding: 0 1.5rem 1.5rem;
-  }
-`;
+const FAQList = styled.div`display: flex; flex-direction: column; gap: 1rem;`;
+const FAQItem = styled.div`background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(107, 127, 94, 0.1); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.1}s;`;
+const Question = styled.button`width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; font-family: var(--font-handwritten); font-size: 1.25rem; color: var(--botanical-forest); text-align: left; background: ${p => p.$open ? 'var(--botanical-mint)' : 'white'}; transition: all 0.3s ease; &:hover { background: var(--botanical-mint); }`;
+const Icon = styled.span`font-size: 1.5rem; transition: transform 0.3s ease; transform: rotate(${p => p.$open ? '45deg' : '0'});`;
+const Answer = styled.div`max-height: ${p => p.$open ? '500px' : '0'}; overflow: hidden; transition: max-height 0.5s ease;`;
+const AnswerText = styled.p`font-family: var(--font-body); font-size: 0.95rem; line-height: 1.8; color: var(--botanical-brown); padding: 0 1.5rem 1.5rem;`;
 
 function FAQ() {
   const { content } = useWedding();
-  const faqData = content?.faq || {};
+  const data = content?.faq || {};
+  const title = data.title || 'Haeufige Fragen';
+  const questions = Array.isArray(data.questions) ? data.questions : [
+    { question: 'Gibt es einen Dresscode?', answer: 'Gartenparty-Eleganz! Bequeme aber schicke Kleidung in hellen, natuerlichen Farben.' },
+    { question: 'Sind Kinder willkommen?', answer: 'Ja! Kinder sind herzlich willkommen. Wir haben einen Spielbereich vorbereitet. 🌻' },
+    { question: 'Wo kann ich parken?', answer: 'Kostenlose Parkplaetze stehen auf dem Gelaende zur Verfuegung.' },
+    { question: 'Gibt es vegetarisches Essen?', answer: 'Selbstverstaendlich! Bitte teilt uns eure Wuensche bei der Anmeldung mit.' }
+  ];
+  
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
-  const title = faqData.title || 'Häufige Fragen';
-  const questions = faqData.questions || [];
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -135,21 +41,12 @@ function FAQ() {
   return (
     <Section ref={sectionRef} id="faq">
       <Container>
-        <Header $visible={visible}>
-          <Eyebrow>Gut zu wissen</Eyebrow>
-          <Title>{title}</Title>
-        </Header>
-        
+        <Header><Eyebrow $visible={visible}>❓ Gut zu wissen</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <FAQList>
-          {questions.map((faq, i) => (
-            <FAQItem key={i} $visible={visible} $index={i} $isOpen={openIndex === i}>
-              <Question onClick={() => setOpenIndex(openIndex === i ? null : i)}>
-                <h4>{faq.question || faq.q}</h4>
-                <Icon $isOpen={openIndex === i} />
-              </Question>
-              <Answer $isOpen={openIndex === i}>
-                <p>{faq.answer || faq.a}</p>
-              </Answer>
+          {questions.map((item, i) => (
+            <FAQItem key={i} $visible={visible} $index={i}>
+              <Question onClick={() => setOpenIndex(openIndex === i ? null : i)} $open={openIndex === i}>🌿 {item.question}<Icon $open={openIndex === i}>+</Icon></Question>
+              <Answer $open={openIndex === i}><AnswerText>{item.answer}</AnswerText></Answer>
             </FAQItem>
           ))}
         </FAQList>

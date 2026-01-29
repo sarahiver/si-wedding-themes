@@ -1,213 +1,152 @@
-import { useWedding } from '../../context/WeddingContext';
+// Botanical Timeline - Garden Party Schedule
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(3deg); }
-`;
-
-const growIn = keyframes`
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
-`;
+const fadeUp = keyframes`from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); }`;
+const float = keyframes`0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(3deg); }`;
 
 const Section = styled.section`
-  padding: 8rem 2rem;
-  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
+  padding: var(--section-padding) 2rem;
+  background: var(--botanical-cream);
   position: relative;
   overflow: hidden;
 `;
 
-const FloatingLeaf = styled.div`
+const BgPattern = styled.div`
   position: absolute;
-  width: ${p => p.$size}px;
-  height: ${p => p.$size}px;
-  opacity: 0.12;
-  top: ${p => p.$top};
-  left: ${p => p.$left};
-  right: ${p => p.$right};
-  animation: ${float} ${p => p.$duration}s ease-in-out infinite;
-  pointer-events: none;
-  svg { width: 100%; height: 100%; fill: var(--sage); }
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q40 15 35 30 Q30 40 25 30 Q20 15 30 5' fill='%234A5D41'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
 `;
 
-const Container = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
+const Container = styled.div`max-width: 800px; margin: 0 auto; position: relative; z-index: 1;`;
+const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
+const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--botanical-olive); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};`;
+const Title = styled.h2`font-family: var(--font-handwritten); font-size: clamp(2.5rem, 7vw, 4.5rem); color: var(--botanical-forest); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'}; animation-delay: 0.1s;`;
+
+const TimelineGrid = styled.div`display: flex; flex-direction: column; gap: 1rem;`;
+
+const TimelineItem = styled.div`
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
+  animation-delay: ${p => 0.2 + p.$index * 0.1}s;
+  
+  @media (max-width: 500px) {
+    grid-template-columns: 80px 1fr;
+    gap: 1rem;
+  }
 `;
 
-const Header = styled.div`
+const TimeBox = styled.div`
+  background: linear-gradient(135deg, var(--botanical-sage), var(--botanical-olive));
+  border-radius: 15px;
+  padding: 1rem;
   text-align: center;
-  margin-bottom: 5rem;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '30px'});
-  transition: all 0.8s ease;
-`;
-
-const Eyebrow = styled.div`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--sage-dark);
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 400;
-  color: var(--forest);
-`;
-
-const TimelineContainer = styled.div`
   position: relative;
   
-  &::before {
-    content: '';
+  &::after {
+    content: '🌿';
     position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, var(--sage-light), var(--sage), var(--sage-light));
-    transform: translateX(-50%);
-    transform-origin: top;
-    animation: ${p => p.$visible ? growIn : 'none'} 1.5s ease forwards;
-    
-    @media (max-width: 768px) { left: 24px; }
+    top: -10px;
+    right: -10px;
+    font-size: 1.25rem;
+    animation: ${float} 3s ease-in-out infinite;
+    animation-delay: ${p => p.$index * 0.3}s;
   }
 `;
 
-const Event = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 3rem;
-  position: relative;
-  
-  &:nth-child(odd) {
-    flex-direction: row-reverse;
-    text-align: right;
-    .content { padding-right: 3rem; padding-left: 0; }
-  }
-  
-  &:nth-child(even) {
-    .content { padding-left: 3rem; }
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: row !important;
-    text-align: left !important;
-    .content { padding-left: 3rem !important; padding-right: 0 !important; }
-  }
+const Time = styled.span`
+  font-family: var(--font-handwritten);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  display: block;
 `;
 
-const EventMarker = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 50px;
-  background: var(--cream);
-  border: 2px solid var(--sage);
-  border-radius: 50%;
+const TimeLabel = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.8);
+`;
+
+const Content = styled.div`
+  background: white;
+  border-radius: 15px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(107, 127, 94, 0.1);
+  border-left: 4px solid var(--botanical-mint);
+`;
+
+const ItemTitle = styled.h3`
+  font-family: var(--font-handwritten);
+  font-size: 1.5rem;
+  color: var(--botanical-forest);
+  margin-bottom: 0.25rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 2;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transition: all 0.6s ease;
-  transition-delay: ${p => p.$index * 0.15}s;
-  
-  span { font-size: 1.2rem; }
-  
-  @media (max-width: 768px) { left: 24px; }
+  gap: 0.5rem;
 `;
 
-const EventContent = styled.div`
-  flex: 1;
-  max-width: calc(50% - 40px);
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.6s ease;
-  transition-delay: ${p => 0.1 + p.$index * 0.15}s;
-  
-  @media (max-width: 768px) { max-width: calc(100% - 60px); }
-`;
+const ItemIcon = styled.span`font-size: 1.25rem;`;
 
-const EventTime = styled.div`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  font-style: italic;
-  color: var(--sage);
-  margin-bottom: 0.5rem;
-`;
-
-const EventTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
-  font-weight: 400;
-  color: var(--forest);
-  margin-bottom: 0.5rem;
-`;
-
-const EventDesc = styled.p`
-  font-family: 'Lato', sans-serif;
+const ItemDesc = styled.p`
+  font-family: var(--font-body);
   font-size: 0.9rem;
-  color: var(--text-light);
-  line-height: 1.7;
+  color: var(--botanical-brown);
+  line-height: 1.6;
 `;
-
-const LeafSVG = () => (
-  <svg viewBox="0 0 100 100">
-    <path d="M50 5 C20 25 10 60 50 95 C90 60 80 25 50 5 Z" />
-  </svg>
-);
 
 function Timeline() {
   const { content } = useWedding();
-  const timelineData = content?.timeline || {};
+  const data = content?.timeline || {};
+  const title = data.title || 'Der grosse Tag';
+  const items = data.items || [
+    { time: '14:00', title: 'Empfang', description: 'Willkommensgetraenke im Garten', icon: '🥂' },
+    { time: '15:00', title: 'Trauung', description: 'Die Zeremonie unter freiem Himmel', icon: '💒' },
+    { time: '16:30', title: 'Aperitif', description: 'Haeppchen und Cocktails', icon: '🍸' },
+    { time: '18:00', title: 'Dinner', description: 'Festliches Abendessen im Pavillon', icon: '🍽️' },
+    { time: '21:00', title: 'Party', description: 'Tanzen unter den Sternen', icon: '💃' }
+  ];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const title = timelineData.title || 'Tagesablauf';
-  const events = timelineData.events || [];
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
+    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   return (
     <Section ref={sectionRef} id="timeline">
-      <FloatingLeaf $size={70} $top="10%" $left="5%" $duration={8}><LeafSVG /></FloatingLeaf>
-      <FloatingLeaf $size={50} $top="60%" $right="8%" $duration={10}><LeafSVG /></FloatingLeaf>
-      
+      <BgPattern />
       <Container>
-        <Header $visible={visible}>
-          <Eyebrow>Der große Tag</Eyebrow>
-          <Title>{title}</Title>
+        <Header>
+          <Eyebrow $visible={visible}><span>🌸</span> Ablauf <span>🌸</span></Eyebrow>
+          <Title $visible={visible}>{title}</Title>
         </Header>
-        
-        <TimelineContainer $visible={visible}>
-          {events.map((event, i) => (
-            <Event key={i}>
-              <EventMarker $visible={visible} $index={i}>
-                <span>{event.icon || '🌿'}</span>
-              </EventMarker>
-              <EventContent className="content" $visible={visible} $index={i}>
-                <EventTime>{event.time}</EventTime>
-                <EventTitle>{event.title}</EventTitle>
-                <EventDesc>{event.description || event.desc}</EventDesc>
-              </EventContent>
-            </Event>
+        <TimelineGrid>
+          {items.map((item, i) => (
+            <TimelineItem key={i} $visible={visible} $index={i}>
+              <TimeBox $index={i}>
+                <Time>{item.time}</Time>
+                <TimeLabel>Uhr</TimeLabel>
+              </TimeBox>
+              <Content>
+                <ItemTitle><ItemIcon>{item.icon}</ItemIcon>{item.title}</ItemTitle>
+                <ItemDesc>{item.description}</ItemDesc>
+              </Content>
+            </TimelineItem>
           ))}
-        </TimelineContainer>
+        </TimelineGrid>
       </Container>
     </Section>
   );

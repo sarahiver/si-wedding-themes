@@ -1,5 +1,14 @@
-// AdminDashboard.js - Botanical Theme
-// Uses the shared admin system with Botanical styling
-import { BotanicalAdmin } from '../../components/admin';
+import React from 'react';
+import { AdminProvider } from '../../components/admin/core/AdminContext';
+import AdminShell from '../../components/admin/core/AdminShell';
+import { BotanicalAdminComponents } from '../../components/admin/styles/BotanicalAdminStyles';
 
-export default BotanicalAdmin;
+function AdminDashboard({ onClose }) {
+  return (
+    <AdminProvider>
+      <AdminShell components={BotanicalAdminComponents} onClose={onClose} themeName="botanical" />
+    </AdminProvider>
+  );
+}
+
+export default AdminDashboard;

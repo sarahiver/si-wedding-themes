@@ -1,131 +1,95 @@
-import { useWedding } from '../../context/WeddingContext';
+// Botanical Hero - Animated Watercolor Forest Scene
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
+import { RoundTree, PineTree, BlobTree, TallTree, Bush, Sheep, Branch, Leaf } from './TreeIllustrations';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ANIMATIONS - Organic, flowing movements
-// ═══════════════════════════════════════════════════════════════════════════
-
-const floatSlow = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(15px, -20px) rotate(5deg); }
-  50% { transform: translate(-10px, -35px) rotate(-3deg); }
-  75% { transform: translate(-20px, -15px) rotate(2deg); }
+// Animations
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
 `;
 
-const floatMedium = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(-20px, -25px) rotate(-8deg); }
-  66% { transform: translate(15px, -40px) rotate(5deg); }
-`;
-
-const floatFast = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  50% { transform: translate(10px, -30px) rotate(10deg) scale(1.05); }
-`;
-
-const sway = keyframes`
-  0%, 100% { transform: rotate(-5deg); }
-  50% { transform: rotate(5deg); }
-`;
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(40px); }
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const growLine = keyframes`
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 `;
 
-const breathe = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+const sway = keyframes`
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
 `;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STYLED COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════════
+const grow = keyframes`
+  from { transform: scale(0) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+`;
 
+const drawPath = keyframes`
+  from { stroke-dashoffset: 500; }
+  to { stroke-dashoffset: 0; }
+`;
+
+const leafDrop = keyframes`
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+`;
+
+// Styled Components
 const Section = styled.section`
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  background: linear-gradient(180deg, 
+    var(--botanical-warm) 0%, 
+    var(--botanical-cream) 50%,
+    var(--botanical-mint) 100%
+  );
   overflow: hidden;
-  background: ${p => p.$backgroundImage 
-    ? `linear-gradient(rgba(245,241,235,0.85), rgba(245,241,235,0.85)), url(${p.$backgroundImage}) center/cover`
-    : `linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 50%, var(--cream) 100%)`
-  };
 `;
 
-const Leaf = styled.div`
+const ForestBackground = styled.div`
   position: absolute;
-  width: ${p => p.$size || 60}px;
-  height: ${p => p.$size || 60}px;
-  opacity: ${p => p.$opacity || 0.6};
-  top: ${p => p.$top};
-  left: ${p => p.$left};
-  right: ${p => p.$right};
-  bottom: ${p => p.$bottom};
-  animation: ${p => 
-    p.$animation === 'slow' ? floatSlow : 
-    p.$animation === 'fast' ? floatFast : 
-    floatMedium
-  } ${p => p.$duration || 8}s ease-in-out infinite;
-  animation-delay: ${p => p.$delay || 0}s;
+  inset: 0;
   pointer-events: none;
-  z-index: 1;
-  will-change: transform;
+`;
+
+// Animated Trees positioned around the scene
+const TreeContainer = styled.div`
+  position: absolute;
+  bottom: ${p => p.$bottom || '0'};
+  left: ${p => p.$left || 'auto'};
+  right: ${p => p.$right || 'auto'};
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${grow} 1s var(--ease-organic) forwards` : 'none'};
+  animation-delay: ${p => p.$delay || '0s'};
+  z-index: ${p => p.$z || 1};
   
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: ${p => p.$color || 'var(--sage)'};
-    filter: drop-shadow(0 4px 8px rgba(139, 157, 131, 0.2));
+  & > div {
+    animation: ${sway} ${p => p.$swayDuration || '4s'} ease-in-out infinite;
+    animation-delay: ${p => p.$swayDelay || '0s'};
   }
 `;
 
-const Flower = styled.div`
+const FallingLeaf = styled.div`
   position: absolute;
-  width: ${p => p.$size || 40}px;
-  height: ${p => p.$size || 40}px;
-  opacity: ${p => p.$opacity || 0.5};
-  top: ${p => p.$top};
+  top: -50px;
   left: ${p => p.$left};
-  right: ${p => p.$right};
-  animation: ${floatSlow} ${p => p.$duration || 10}s ease-in-out infinite;
-  animation-delay: ${p => p.$delay || 0}s;
-  pointer-events: none;
-  z-index: 1;
+  animation: ${leafDrop} ${p => p.$duration || '8s'} linear infinite;
+  animation-delay: ${p => p.$delay || '0s'};
+  opacity: 0.7;
   
   svg {
-    width: 100%;
-    height: 100%;
-    fill: ${p => p.$color || 'var(--blush)'};
-    filter: drop-shadow(0 4px 8px rgba(232, 213, 213, 0.3));
-  }
-`;
-
-const Branch = styled.div`
-  position: absolute;
-  width: ${p => p.$size || 200}px;
-  height: auto;
-  opacity: 0.1;
-  top: ${p => p.$top};
-  left: ${p => p.$left};
-  right: ${p => p.$right};
-  transform-origin: bottom center;
-  animation: ${sway} ${p => p.$duration || 6}s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-  
-  svg {
-    width: 100%;
-    height: auto;
-    fill: var(--sage-dark);
+    width: ${p => p.$size || '20px'};
+    fill: ${p => p.$color || 'var(--botanical-sage)'};
   }
 `;
 
@@ -133,299 +97,264 @@ const Content = styled.div`
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 0 2rem;
-  max-width: 900px;
-  animation: ${breathe} 8s ease-in-out infinite;
+  padding: 2rem;
 `;
 
-const Eyebrow = styled.div`
-  font-family: 'Lato', sans-serif;
+const Eyebrow = styled.p`
+  font-family: var(--font-body);
   font-size: 0.8rem;
-  font-weight: 400;
-  letter-spacing: 0.4em;
+  font-weight: 500;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--sage-dark);
-  margin-bottom: 1.5rem;
+  color: var(--botanical-olive);
+  margin-bottom: 1rem;
   opacity: 0;
-  animation: ${fadeInUp} 1s ease forwards;
-  animation-delay: 0.2s;
+  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
+  animation-delay: 0.5s;
+`;
+
+const NamesContainer = styled.div`
+  margin-bottom: 2rem;
 `;
 
 const Names = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(3.5rem, 12vw, 8rem);
-  font-weight: 400;
-  color: var(--forest);
-  line-height: 1.1;
-  margin-bottom: 2rem;
+  font-family: var(--font-handwritten);
+  font-size: clamp(4rem, 12vw, 9rem);
+  font-weight: 600;
+  color: var(--botanical-forest);
+  line-height: 1;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${slideUp} 1s var(--ease-organic) forwards` : 'none'};
+  animation-delay: ${p => p.$delay || '0.6s'};
   
-  .line {
-    display: block;
-    opacity: 0;
-    animation: ${fadeInUp} 1.2s ease forwards;
-  }
-  
-  .line-1 { animation-delay: 0.4s; }
-  
-  .ampersand { 
-    animation-delay: 0.6s;
-    font-style: italic;
-    color: var(--sage);
-    font-size: 0.5em;
-    display: inline-block;
-    margin: 0 0.3em;
-    vertical-align: middle;
-  }
-  
-  .line-2 { animation-delay: 0.8s; }
+  /* Watercolor text effect */
+  text-shadow: 
+    2px 2px 0 var(--botanical-mint),
+    -1px -1px 0 var(--botanical-sage);
 `;
 
-const Ornament = styled.div`
+const Ampersand = styled.span`
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-style: italic;
+  color: var(--botanical-sage);
+  margin: 0.5rem 0;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards, ${float} 3s ease-in-out infinite` : 'none'};
+  animation-delay: 0.8s, 0.8s;
+`;
+
+const Divider = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
   margin: 2rem 0;
   opacity: 0;
-  animation: ${fadeInUp} 1s ease forwards;
+  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards` : 'none'};
   animation-delay: 1s;
-  
-  .leaf {
-    width: 30px;
-    height: 30px;
-    fill: var(--sage);
-    animation: ${sway} 4s ease-in-out infinite;
-  }
-  
-  .line {
-    width: 60px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--sage), transparent);
-  }
+`;
+
+const DividerLine = styled.div`
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--botanical-sage), transparent);
+`;
+
+const DividerLeaf = styled.div`
+  font-size: 1.5rem;
+  animation: ${float} 2s ease-in-out infinite;
 `;
 
 const DateText = styled.p`
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-style: italic;
-  color: var(--text);
+  color: var(--botanical-olive);
   margin-bottom: 0.5rem;
   opacity: 0;
-  animation: ${fadeInUp} 1s ease forwards;
+  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
   animation-delay: 1.2s;
 `;
 
-const Location = styled.p`
-  font-family: 'Lato', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 400;
+const LocationText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-light);
+  color: var(--botanical-teal);
   opacity: 0;
-  animation: ${fadeInUp} 1s ease forwards;
+  animation: ${p => p.$visible ? css`${slideUp} 0.8s ease forwards` : 'none'};
   animation-delay: 1.4s;
 `;
 
 const ScrollIndicator = styled.div`
   position: absolute;
-  bottom: 3rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
   opacity: 0;
-  animation: ${fadeInUp} 1s ease forwards;
-  animation-delay: 1.8s;
-  cursor: pointer;
-  transition: transform var(--transition-normal);
-  
-  &:hover {
-    transform: translateX(-50%) translateY(-5px);
-  }
-  
-  span {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--sage-dark);
-    margin-bottom: 1rem;
-  }
-`;
-
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 50px;
-  background: linear-gradient(180deg, var(--sage), transparent);
-  transform-origin: top;
-  animation: ${growLine} 1s ease forwards;
+  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards` : 'none'};
   animation-delay: 2s;
 `;
 
-const ParallaxLayer = styled.div`
-  position: absolute;
-  inset: 0;
-  transform: translateY(${p => p.$offset}px);
-  transition: transform 0.1s ease-out;
-  pointer-events: none;
+const ScrollText = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--botanical-olive);
 `;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SVG COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════════
+const ScrollLeaf = styled.div`
+  font-size: 1.5rem;
+  animation: ${float} 1.5s ease-in-out infinite;
+`;
 
-const LeafSVG = () => (
-  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 5 C20 25 10 60 50 95 C90 60 80 25 50 5 Z M50 20 C50 20 50 80 50 80" 
-      strokeWidth="2" stroke="currentColor" fill="currentColor" opacity="0.3"/>
+// Couple silhouette
+const CoupleWrapper = styled.div`
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeIn} 1.5s ease forwards` : 'none'};
+  animation-delay: 1.5s;
+`;
+
+const CoupleSVG = () => (
+  <svg width="80" height="60" viewBox="0 0 80 60" fill="none">
+    {/* Blanket */}
+    <ellipse cx="40" cy="55" rx="35" ry="8" fill="var(--botanical-sage)" opacity="0.6" />
+    {/* Person 1 */}
+    <circle cx="30" cy="30" r="8" fill="var(--botanical-charcoal)" />
+    <path d="M22 40 Q25 50 30 55 Q35 50 38 40" fill="var(--botanical-olive)" />
+    {/* Person 2 */}
+    <circle cx="50" cy="28" r="8" fill="var(--botanical-brown)" />
+    <path d="M42 38 Q45 50 50 55 Q55 50 58 38" fill="var(--botanical-terracotta)" />
   </svg>
 );
 
-const FlowerSVG = () => (
-  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="15" />
-    <ellipse cx="50" cy="20" rx="12" ry="20" />
-    <ellipse cx="50" cy="80" rx="12" ry="20" />
-    <ellipse cx="20" cy="50" rx="20" ry="12" />
-    <ellipse cx="80" cy="50" rx="20" ry="12" />
-  </svg>
-);
-
-const SmallLeafSVG = () => (
-  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="leaf">
-    <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.97C7.14 20.19 7.64 20.39 8.16 20.56L7.5 22.59L9.4 23.25L10.08 21.2C14.6 22.35 19.67 19.97 22 15.5C22 15.5 18 14 17 8Z"/>
-  </svg>
-);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
-function Hero({
-  name1 = 'Olivia',
-  name2 = 'Benjamin',
-  date = '21. Juni 2025',
-  location = 'Botanischer Garten, München',
-  eyebrow = 'Wir heiraten',
-  backgroundImage = null,
-  showBadge = false,
-}) {
-  const [leaves, setLeaves] = useState([]);
-  const [flowers, setFlowers] = useState([]);
-  const [parallaxOffset, setParallaxOffset] = useState(0);
-
+function Hero() {
+  const { content, project } = useWedding();
+  const heroData = content?.hero || {};
+  
+  const name1 = heroData.name1 || project?.partner1_name || 'Emma';
+  const name2 = heroData.name2 || project?.partner2_name || 'Noah';
+  const date = heroData.date || project?.wedding_date;
+  const location = heroData.location || project?.location || 'Botanischer Garten, Berlin';
+  
+  const [visible, setVisible] = useState(false);
+  
   useEffect(() => {
-    const newLeaves = Array.from({ length: 10 }, (_, i) => ({
-      id: i,
-      size: 30 + Math.random() * 60,
-      top: `${Math.random() * 80}%`,
-      left: `${Math.random() * 90}%`,
-      duration: 8 + Math.random() * 8,
-      delay: Math.random() * 4,
-      opacity: 0.25 + Math.random() * 0.45,
-      animation: ['slow', 'medium', 'fast'][Math.floor(Math.random() * 3)],
-    }));
-    
-    const newFlowers = Array.from({ length: 6 }, (_, i) => ({
-      id: i,
-      size: 20 + Math.random() * 35,
-      top: `${Math.random() * 80}%`,
-      left: `${Math.random() * 90}%`,
-      duration: 10 + Math.random() * 6,
-      delay: Math.random() * 3,
-      opacity: 0.2 + Math.random() * 0.35,
-    }));
-    
-    setLeaves(newLeaves);
-    setFlowers(newFlowers);
+    const timer = setTimeout(() => setVisible(true), 300);
+    return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setParallaxOffset(scrollY * 0.3);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const formattedDate = date 
+    ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '21. Juni 2025';
 
-  const scrollToContent = () => {
-    const nextSection = document.getElementById('countdown');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Falling leaves
+  const leaves = Array.from({ length: 8 }, (_, i) => ({
+    left: `${10 + i * 12}%`,
+    delay: `${i * 1.5}s`,
+    duration: `${8 + Math.random() * 4}s`,
+    size: `${15 + Math.random() * 15}px`,
+    color: ['var(--botanical-sage)', 'var(--botanical-olive)', 'var(--botanical-lime)', 'var(--botanical-mint)'][i % 4]
+  }));
 
   return (
-    <Section id="top" $backgroundImage={backgroundImage}>
-      <ParallaxLayer $offset={parallaxOffset * 0.5}>
-        <Branch $size={280} $top="-8%" $left="-8%" $duration={8}>
-          <LeafSVG />
-        </Branch>
-        <Branch $size={220} $top="-5%" $right="-5%" $duration={7} style={{ transform: 'scaleX(-1)' }}>
-          <LeafSVG />
-        </Branch>
-      </ParallaxLayer>
-
-      <ParallaxLayer $offset={parallaxOffset * 0.2}>
-        {leaves.map(leaf => (
-          <Leaf 
-            key={`leaf-${leaf.id}`} 
-            $size={leaf.size}
-            $top={leaf.top}
-            $left={leaf.left}
-            $duration={leaf.duration}
-            $delay={leaf.delay}
-            $opacity={leaf.opacity}
-            $animation={leaf.animation}
-          >
-            <LeafSVG />
-          </Leaf>
+    <Section id="hero">
+      <ForestBackground>
+        {/* Back row trees */}
+        <TreeContainer $visible={visible} $left="5%" $bottom="10%" $delay="0.2s" $z={1} $swayDuration="5s">
+          <RoundTree color="var(--botanical-sage)" size="100px" $opacity={0.6} />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $left="15%" $bottom="5%" $delay="0.4s" $z={1} $swayDuration="6s" $swayDelay="0.5s">
+          <TallTree color="var(--botanical-teal)" size="70px" $opacity={0.7} />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="10%" $bottom="8%" $delay="0.3s" $z={1} $swayDuration="5.5s">
+          <BlobTree color="var(--botanical-mint)" color2="var(--botanical-sage)" size="90px" $opacity={0.6} />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="20%" $bottom="5%" $delay="0.5s" $z={1} $swayDuration="4.5s" $swayDelay="1s">
+          <PineTree color="var(--botanical-forest)" size="80px" $opacity={0.7} />
+        </TreeContainer>
+        
+        {/* Middle row */}
+        <TreeContainer $visible={visible} $left="2%" $bottom="0" $delay="0.6s" $z={2} $swayDuration="4s">
+          <RoundTree color="var(--botanical-olive)" size="140px" />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $left="25%" $bottom="0" $delay="0.8s" $z={2} $swayDuration="5s" $swayDelay="0.3s">
+          <BlobTree color="var(--botanical-lime)" color2="var(--botanical-sage)" size="110px" />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="5%" $bottom="0" $delay="0.7s" $z={2} $swayDuration="4.5s">
+          <RoundTree color="var(--botanical-teal)" size="130px" />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="25%" $bottom="0" $delay="0.9s" $z={2} $swayDuration="5.5s" $swayDelay="0.7s">
+          <TallTree color="var(--botanical-olive)" size="90px" />
+        </TreeContainer>
+        
+        {/* Front bushes */}
+        <TreeContainer $visible={visible} $left="10%" $bottom="-10px" $delay="1s" $z={3}>
+          <Bush color="var(--botanical-lime)" size="100px" />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="15%" $bottom="-10px" $delay="1.1s" $z={3}>
+          <Bush color="var(--botanical-mint)" size="80px" />
+        </TreeContainer>
+        
+        {/* Sheep */}
+        <TreeContainer $visible={visible} $left="35%" $bottom="5%" $delay="1.5s" $z={2}>
+          <Sheep size="35px" />
+        </TreeContainer>
+        <TreeContainer $visible={visible} $right="35%" $bottom="8%" $delay="1.7s" $z={1}>
+          <Sheep size="25px" />
+        </TreeContainer>
+        
+        {/* Falling leaves */}
+        {leaves.map((leaf, i) => (
+          <FallingLeaf key={i} $left={leaf.left} $delay={leaf.delay} $duration={leaf.duration} $size={leaf.size} $color={leaf.color}>
+            <svg viewBox="0 0 30 40">
+              <path d="M15 5 Q25 15 20 30 Q15 35 10 30 Q5 15 15 5" fill="currentColor" />
+            </svg>
+          </FallingLeaf>
         ))}
-      </ParallaxLayer>
+      </ForestBackground>
       
-      <ParallaxLayer $offset={parallaxOffset * 0.1}>
-        {flowers.map(flower => (
-          <Flower 
-            key={`flower-${flower.id}`} 
-            $size={flower.size}
-            $top={flower.top}
-            $left={flower.left}
-            $duration={flower.duration}
-            $delay={flower.delay}
-            $opacity={flower.opacity}
-            $color="var(--blush)"
-          >
-            <FlowerSVG />
-          </Flower>
-        ))}
-      </ParallaxLayer>
+      {/* Couple */}
+      <CoupleWrapper $visible={visible}>
+        <CoupleSVG />
+      </CoupleWrapper>
       
       <Content>
-        <Eyebrow>{eyebrow}</Eyebrow>
+        <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
+        <NamesContainer>
+          <Names $visible={visible} $delay="0.6s">{name1}</Names>
+          <Ampersand $visible={visible}>&</Ampersand>
+          <Names $visible={visible} $delay="0.8s">{name2}</Names>
+        </NamesContainer>
         
-        <Names>
-          <span className="line line-1">{name1}</span>
-          <span className="line ampersand">&</span>
-          <span className="line line-2">{name2}</span>
-        </Names>
+        <Divider $visible={visible}>
+          <DividerLine />
+          <DividerLeaf>🌿</DividerLeaf>
+          <DividerLine />
+        </Divider>
         
-        <Ornament>
-          <div className="line" />
-          <SmallLeafSVG />
-          <div className="line" />
-        </Ornament>
-        
-        <DateText>{date}</DateText>
-        <Location>{location}</Location>
+        <DateText $visible={visible}>{formattedDate}</DateText>
+        <LocationText $visible={visible}>{location}</LocationText>
       </Content>
       
-      <ScrollIndicator onClick={scrollToContent}>
-        <span>Entdecken</span>
-        <ScrollLine />
+      <ScrollIndicator $visible={visible}>
+        <ScrollText>Entdecken</ScrollText>
+        <ScrollLeaf>🍃</ScrollLeaf>
       </ScrollIndicator>
     </Section>
   );
