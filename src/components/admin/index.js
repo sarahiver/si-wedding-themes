@@ -12,6 +12,7 @@ import { EditorialAdminComponents } from './styles/EditorialAdminStyles';
 import { ContemporaryAdminComponents } from './styles/ContemporaryAdminStyles';
 import { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 import { NeonAdminComponents } from './styles/NeonAdminStyles';
+import { VideoAdminComponents } from './styles/VideoAdminStyles';
 
 // ============================================
 // Core exports (for creating custom themes)
@@ -48,8 +49,10 @@ export function NeonAdmin() {
   return <AdminShell components={NeonAdminComponents} />;
 }
 
-// Video theme uses Editorial style
-export const VideoAdmin = EditorialAdmin;
+// Video - Cinematic dark theme with dusty blue accents
+export function VideoAdmin() {
+  return <AdminShell components={VideoAdminComponents} />;
+}
 
 // ============================================
 // Style components exports (for customization)
@@ -59,3 +62,4 @@ export { EditorialAdminComponents } from './styles/EditorialAdminStyles';
 export { ContemporaryAdminComponents } from './styles/ContemporaryAdminStyles';
 export { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 export { NeonAdminComponents } from './styles/NeonAdminStyles';
+export { VideoAdminComponents } from './styles/VideoAdminStyles';
