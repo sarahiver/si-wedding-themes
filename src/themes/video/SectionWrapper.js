@@ -21,7 +21,7 @@ const Wrapper = styled.section`
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
   
-  /* On mobile, ensure touch scroll works */
+  /* Ensure touch scroll works */
   -webkit-overflow-scrolling: touch;
 `;
 
@@ -29,6 +29,7 @@ const ContentBox = styled.div`
   position: relative;
   z-index: 2;
   width: 100%;
+  max-width: 100%;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -44,10 +45,10 @@ const ContentBox = styled.div`
   transition: opacity 0.5s ease, transform 0.5s ease;
   
   @media (max-width: 768px) {
-    padding: 2rem 1rem;
-    padding-bottom: calc(var(--nav-height) + 1.5rem);
+    padding: 2rem 1.25rem;
+    padding-bottom: 4rem;
     padding-top: 1.5rem;
-    justify-content: flex-start;
+    box-sizing: border-box;
   }
 `;
 

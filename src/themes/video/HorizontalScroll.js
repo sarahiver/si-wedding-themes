@@ -59,16 +59,6 @@ const Container = styled.div`
   &::-webkit-scrollbar { display: none; }
   
   -webkit-overflow-scrolling: touch;
-  
-  @media (max-width: 768px) {
-    /* Mobile: vertical scroll */
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: visible;
-    flex-direction: column;
-    scroll-snap-type: none;
-  }
 `;
 
 const Navigation = styled.nav`
@@ -236,11 +226,23 @@ const Arrow = styled.span`
   `} 1.5s ease-in-out infinite;
 `;
 
-function HorizontalScroll({ sections, background, children }) {
+function HorizontalScroll({ sections, background, backgroundMobile, children }) {
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showHint, setShowHint] = useState(true);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Choose background based on device
+  const activeBackground = (isMobile && backgroundMobile?.url) ? backgroundMobile : background;
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
@@ -274,61 +276,6 @@ function HorizontalScroll({ sections, background, children }) {
       behavior: 'smooth'
     });
   }, []);
-
-  // Mobile: scroll to section by ID
-  const scrollToMobileSection = useCallback((index) => {
-    const sectionId = sections[index]?.id;
-    if (!sectionId) return;
-    
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [sections]);
-
-  // Mobile: track which section is visible
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth > 768) return;
-    
-    const handleMobileScroll = () => {
-      const scrollY = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      
-      // Find which section is most visible
-      let bestIndex = 0;
-      let bestVisibility = 0;
-      
-      sections.forEach((section, index) => {
-        const element = document.getElementById(section.id);
-        if (!element) return;
-        
-        const rect = element.getBoundingClientRect();
-        const elementTop = rect.top;
-        const elementBottom = rect.bottom;
-        
-        // Calculate how much of the element is in the viewport
-        const visibleTop = Math.max(0, elementTop);
-        const visibleBottom = Math.min(viewportHeight, elementBottom);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-        
-        // Weight by position (prefer elements near top of viewport)
-        const centerOffset = Math.abs((elementTop + elementBottom) / 2 - viewportHeight / 2);
-        const visibility = visibleHeight - centerOffset * 0.3;
-        
-        if (visibility > bestVisibility) {
-          bestVisibility = visibility;
-          bestIndex = index;
-        }
-      });
-      
-      setActiveIndex(bestIndex);
-    };
-    
-    window.addEventListener('scroll', handleMobileScroll, { passive: true });
-    handleMobileScroll(); // Initial check
-    
-    return () => window.removeEventListener('scroll', handleMobileScroll);
-  }, [sections]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -364,11 +311,11 @@ function HorizontalScroll({ sections, background, children }) {
   return (
     <>
       <FixedBackground>
-        {background?.url ? (
-          background.type === 'video' ? (
-            <video src={background.url} muted loop autoPlay playsInline />
+        {activeBackground?.url ? (
+          activeBackground.type === 'video' ? (
+            <video src={activeBackground.url} muted loop autoPlay playsInline />
           ) : (
-            <img src={background.url} alt="" />
+            <img src={activeBackground.url} alt="" />
           )
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1A1A1A, #0A0A0A)' }} />
@@ -406,7 +353,7 @@ function HorizontalScroll({ sections, background, children }) {
               key={section.id}
               $active={index === activeIndex}
               $distance={index - activeIndex}
-              onClick={() => scrollToMobileSection(index)}
+              onClick={() => scrollToSection(index)}
               aria-label={section.label}
             />
           ))}
