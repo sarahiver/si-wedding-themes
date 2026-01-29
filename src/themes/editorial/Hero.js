@@ -68,6 +68,11 @@ const BackgroundImage = styled.div`
   animation: ${fadeIn} 1.5s ease forwards;
   animation-delay: 0.2s;
   
+  /* Mobile image override */
+  @media (max-width: 768px) {
+    background-image: ${p => p.$mobileImage ? `url(${p.$mobileImage})` : (p.$image ? `url(${p.$image})` : 'none')};
+  }
+  
   /* Dark overlay for text readability */
   &::after {
     content: '';
@@ -277,10 +282,13 @@ function Hero() {
   // Default background image (Cloudinary)
   const backgroundImage = hero.background_image || 
     'https://res.cloudinary.com/si-weddings/image/upload/v1769537648/iverlasting/demo/hero/t4rsv6gjmwtow3k761d2.jpg';
+  
+  // Optional mobile background image
+  const mobileBackgroundImage = hero.background_image_mobile || null;
 
   return (
     <Section id="top">
-      <BackgroundImage $image={backgroundImage} />
+      <BackgroundImage $image={backgroundImage} $mobileImage={mobileBackgroundImage} />
       
       <Content>
         <Tagline>{hero.tagline || 'Wir sagen Ja'}</Tagline>
