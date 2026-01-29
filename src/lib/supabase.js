@@ -90,10 +90,10 @@ export async function submitRSVP(projectId, rsvpData) {
       email: rsvpData.email,
       persons: rsvpData.persons || 1,
       attending: rsvpData.attending,
-      dietary: rsvpData.dietary,
-      allergies: rsvpData.allergies,
-      song_wish: rsvpData.songWish,
-      message: rsvpData.message,
+      dietary: rsvpData.dietary || '',
+      allergies: rsvpData.allergies || '',
+      message: rsvpData.message || '',
+      guests: rsvpData.guests || null, // JSONB für Begleitpersonen
     })
     .select()
     .single();
