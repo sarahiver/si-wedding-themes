@@ -66,18 +66,6 @@ function RSVPEditor({ components: C }) {
           </label>
         </C.FormGroup>
         
-        <C.FormGroup>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={content.ask_song_wish || false}
-              onChange={(e) => update('ask_song_wish', e.target.checked)}
-              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
-            />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Musikwunsch abfragen</span>
-          </label>
-        </C.FormGroup>
-        
         <C.Divider />
         <C.Button onClick={() => saveContent('rsvp')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}
