@@ -376,7 +376,6 @@ function RSVP() {
   const deadline = rsvpData.deadline || '';
   const askDietary = rsvpData.ask_dietary !== false;
   const askAllergies = rsvpData.ask_allergies !== false;
-  const askSongWish = rsvpData.ask_song_wish || false;
   
   const {
     formData,
@@ -629,18 +628,6 @@ function RSVP() {
                         );
                       })}
                     </GuestSection>
-                  </FormGroup>
-                )}
-                
-                {askSongWish && (
-                  <FormGroup className="full-width">
-                    <Label>Musikwunsch</Label>
-                    <Input
-                      type="text"
-                      value={formData.songWish}
-                      onChange={(e) => updateField('songWish', e.target.value)}
-                      placeholder="Welcher Song bringt euch auf die Tanzfläche?"
-                    />
                   </FormGroup>
                 )}
               </>
