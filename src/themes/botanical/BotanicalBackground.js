@@ -1,26 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 // Forest background - optimized
 const FOREST_BG = 'https://res.cloudinary.com/si-weddings/image/upload/q_auto,f_auto/v1769793086/forest-6761846_1920_dumcnj.jpg';
 
-// Cloudinary leaf images - different sizes for mobile/desktop
+// Cloudinary leaf images - smaller for better performance
 const LEAVES_DESKTOP = [
-  'https://res.cloudinary.com/si-weddings/image/upload/w_600,q_auto,f_auto/v1769789868/pngwing.com_6_xo6v3t.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_600,q_auto,f_auto/v1769789866/pngwing.com_3_tz1fk6.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_600,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_600,q_auto,f_auto/v1769789865/pngwing.com_2_sxhekf.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789868/pngwing.com_6_xo6v3t.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789866/pngwing.com_3_tz1fk6.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789865/pngwing.com_2_sxhekf.png',
 ];
 
 const LEAVES_MOBILE = [
-  'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789868/pngwing.com_6_xo6v3t.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789866/pngwing.com_3_tz1fk6.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789865/pngwing.com_2_sxhekf.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_200,q_auto,f_auto/v1769789868/pngwing.com_6_xo6v3t.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_200,q_auto,f_auto/v1769789866/pngwing.com_3_tz1fk6.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_200,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png',
+  'https://res.cloudinary.com/si-weddings/image/upload/w_200,q_auto,f_auto/v1769789865/pngwing.com_2_sxhekf.png',
 ];
 
 // ===========================================
-// STYLED COMPONENTS
+// STYLED COMPONENTS - GPU OPTIMIZED
 // ===========================================
 
 const BackgroundLayer = styled.div`
@@ -29,6 +29,7 @@ const BackgroundLayer = styled.div`
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
+  transform: translateZ(0); /* Force GPU layer */
   
   &::before {
     content: '';
@@ -52,25 +53,24 @@ const BackgroundLayer = styled.div`
   }
 `;
 
-const BackLeavesLayer = styled.div`
+const LeafLayer = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: ${p => p.$zIndex || 2};
   overflow: hidden;
   pointer-events: none;
-`;
-
-const MidLeavesLayer = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  overflow: hidden;
-  pointer-events: none;
+  transform: translateZ(0);
+  contain: layout style paint; /* Performance optimization */
+  
+  @media (max-width: 768px) {
+    &.hide-mobile { display: none; }
+  }
 `;
 
 const Vignette = styled.div`
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 4;
   background: radial-gradient(
     ellipse 65% 65% at 50% 50%,
     transparent 5%,
@@ -78,338 +78,259 @@ const Vignette = styled.div`
     rgba(2, 8, 2, 0.85) 100%
   );
   pointer-events: none;
-`;
-
-const ForegroundLayer = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  overflow: hidden;
-  pointer-events: none;
-`;
-
-const HeroLeafLayer = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 500;
-  overflow: hidden;
-  pointer-events: none;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+  transform: translateZ(0);
 `;
 
 const AmbientLight = styled.div`
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
   pointer-events: none;
+  transform: translateZ(0);
+  /* Use box-shadow instead of filter blur for better performance */
   
   &.light1 {
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(30, 80, 45, 0.5) 0%, transparent 70%);
+    width: 400px;
+    height: 400px;
+    background: rgba(30, 80, 45, 0.3);
+    box-shadow: 0 0 150px 150px rgba(30, 80, 45, 0.2);
     top: -200px;
     left: -150px;
-    opacity: 0.6;
     
     @media (max-width: 768px) {
-      width: 300px;
-      height: 300px;
-      top: -100px;
-      left: -80px;
+      width: 200px;
+      height: 200px;
+      box-shadow: 0 0 80px 80px rgba(30, 80, 45, 0.15);
     }
   }
   
   &.light2 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(40, 90, 35, 0.4) 0%, transparent 70%);
-    bottom: -150px;
-    right: -100px;
-    opacity: 0.5;
-    
-    @media (max-width: 768px) {
-      width: 250px;
-      height: 250px;
-      bottom: -80px;
-      right: -60px;
-    }
-  }
-  
-  &.light3 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(25, 65, 35, 0.35) 0%, transparent 70%);
-    top: 35%;
-    left: 20%;
-    opacity: 0.4;
-    
-    @media (max-width: 768px) {
-      display: none;
-    }
-  }
-  
-  &.light4 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, rgba(35, 75, 40, 0.3) 0%, transparent 70%);
-    top: 60%;
-    right: 15%;
-    opacity: 0.4;
+    background: rgba(40, 90, 35, 0.25);
+    box-shadow: 0 0 120px 120px rgba(40, 90, 35, 0.15);
+    bottom: -150px;
+    right: -100px;
     
     @media (max-width: 768px) {
-      display: none;
+      width: 180px;
+      height: 180px;
+      box-shadow: 0 0 60px 60px rgba(40, 90, 35, 0.1);
     }
   }
 `;
 
+// Optimized leaf - uses translate3d for GPU acceleration
 const Leaf = styled.img`
   position: absolute;
   pointer-events: none;
-  will-change: transform;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Remove filter from here - apply via CSS variable */
 `;
 
 // ===========================================
-// LEAF CONFIGURATIONS
+// REDUCED LEAF CONFIGURATIONS - PERFORMANCE
 // ===========================================
 
-const BACK_LEAVES_DESKTOP = [
-  { src: 0, style: { top: '-15%', left: '-5%', width: '400px', transform: 'rotate(170deg) scaleX(-1)' }, blur: 6, brightness: 0.35, opacity: 0.5, speed: 0.006 },
-  { src: 1, style: { top: '-12%', right: '0%', width: '380px', transform: 'rotate(165deg)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.008 },
-  { src: 2, style: { top: '-8%', left: '30%', width: '320px', transform: 'rotate(175deg)' }, blur: 6, brightness: 0.35, opacity: 0.45, speed: 0.005 },
-  { src: 3, style: { top: '15%', left: '-15%', width: '420px', transform: 'rotate(100deg)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.007 },
-  { src: 0, style: { top: '45%', left: '-12%', width: '380px', transform: 'rotate(85deg) scaleY(-1)' }, blur: 6, brightness: 0.35, opacity: 0.45, speed: 0.006 },
-  { src: 1, style: { top: '75%', left: '-10%', width: '350px', transform: 'rotate(95deg)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.008 },
-  { src: 2, style: { top: '20%', right: '-15%', width: '400px', transform: 'rotate(-95deg)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.007 },
-  { src: 3, style: { top: '50%', right: '-12%', width: '370px', transform: 'rotate(-85deg) scaleY(-1)' }, blur: 6, brightness: 0.35, opacity: 0.45, speed: 0.006 },
-  { src: 0, style: { top: '80%', right: '-10%', width: '340px', transform: 'rotate(-90deg)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.008 },
-  { src: 1, style: { bottom: '-18%', left: '5%', width: '420px', transform: 'rotate(-10deg)' }, blur: 6, brightness: 0.35, opacity: 0.5, speed: 0.005 },
-  { src: 2, style: { bottom: '-15%', right: '0%', width: '400px', transform: 'rotate(12deg) scaleX(-1)' }, blur: 5, brightness: 0.4, opacity: 0.5, speed: 0.007 },
-  { src: 3, style: { bottom: '-12%', left: '40%', width: '350px', transform: 'rotate(-5deg)' }, blur: 6, brightness: 0.35, opacity: 0.45, speed: 0.006 },
+// Desktop: Reduced from 34 to 16 leaves
+const LEAVES_CONFIG_DESKTOP = [
+  // Back layer - 4 leaves (was 12)
+  { src: 0, layer: 2, style: { top: '-12%', left: '-5%', width: '350px' }, rotate: 170, scaleX: -1, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.008 },
+  { src: 1, layer: 2, style: { top: '-10%', right: '-5%', width: '330px' }, rotate: -170, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.01 },
+  { src: 2, layer: 2, style: { bottom: '-15%', left: '5%', width: '380px' }, rotate: -8, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.007 },
+  { src: 3, layer: 2, style: { bottom: '-12%', right: '0%', width: '350px' }, rotate: 10, scaleX: -1, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.009 },
+  
+  // Mid layer - 4 leaves (was 8)
+  { src: 0, layer: 3, style: { top: '25%', left: '-5%', width: '280px' }, rotate: 92, blur: 1, brightness: 0.55, opacity: 0.7, speed: 0.015 },
+  { src: 1, layer: 3, style: { top: '55%', right: '-5%', width: '270px' }, rotate: -92, blur: 1, brightness: 0.55, opacity: 0.7, speed: 0.016 },
+  { src: 2, layer: 3, style: { top: '70%', left: '-4%', width: '260px' }, rotate: 88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.014 },
+  { src: 3, layer: 3, style: { top: '35%', right: '-4%', width: '250px' }, rotate: -88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.017 },
+  
+  // Foreground corners - 8 leaves (was 14) - NO PARALLAX, just scale
+  { src: 2, layer: 100, style: { top: '-2%', left: '-2%', width: '400px' }, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top left', baseScale: 0.88, maxScale: 1.08 },
+  { src: 1, layer: 100, style: { top: '-2%', right: '-2%', width: '380px' }, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top right', baseScale: 0.88, maxScale: 1.08 },
+  { src: 0, layer: 100, style: { top: '40%', left: '-2%', width: '250px' }, rotate: 95, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'left center', baseScale: 0.92, maxScale: 1.04 },
+  { src: 3, layer: 100, style: { top: '45%', right: '-2%', width: '240px' }, rotate: -95, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'right center', baseScale: 0.92, maxScale: 1.04 },
+  { src: 3, layer: 100, style: { bottom: '-1%', left: '-2%', width: '350px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'bottom left', baseScale: 0.9, maxScale: 1.06 },
+  { src: 0, layer: 100, style: { bottom: '-1%', right: '-2%', width: '330px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'bottom right', baseScale: 0.9, maxScale: 1.06 },
 ];
 
-const BACK_LEAVES_MOBILE = [
-  { src: 0, style: { top: '-8%', left: '-8%', width: '180px', transform: 'rotate(140deg)' }, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.004 },
-  { src: 1, style: { top: '-8%', right: '-8%', width: '170px', transform: 'rotate(-140deg) scaleX(-1)' }, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.005 },
-  { src: 2, style: { bottom: '-10%', left: '-5%', width: '200px', transform: 'rotate(40deg)' }, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.004 },
-  { src: 3, style: { bottom: '-10%', right: '-5%', width: '190px', transform: 'rotate(-40deg) scaleX(-1)' }, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.005 },
+// Mobile: Only 6 leaves
+const LEAVES_CONFIG_MOBILE = [
+  // Corners only
+  { src: 2, layer: 100, style: { top: '-3%', left: '-3%', width: '180px' }, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top left', baseScale: 0.92, maxScale: 1.05 },
+  { src: 1, layer: 100, style: { top: '-3%', right: '-3%', width: '170px' }, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top right', baseScale: 0.92, maxScale: 1.05 },
+  { src: 3, layer: 100, style: { bottom: '-2%', left: '-3%', width: '160px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.85, origin: 'bottom left', baseScale: 0.94, maxScale: 1.04 },
+  { src: 0, layer: 100, style: { bottom: '-2%', right: '-3%', width: '150px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.85, origin: 'bottom right', baseScale: 0.94, maxScale: 1.04 },
+  // Sides
+  { src: 0, layer: 3, style: { top: '30%', left: '-5%', width: '140px' }, rotate: 95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.008 },
+  { src: 1, layer: 3, style: { top: '50%', right: '-5%', width: '130px' }, rotate: -95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.01 },
 ];
 
-const MID_LEAVES_DESKTOP = [
-  { src: 2, style: { top: '-6%', left: '15%', width: '300px', transform: 'rotate(175deg)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.014 },
-  { src: 3, style: { top: '-5%', right: '20%', width: '280px', transform: 'rotate(170deg) scaleX(-1)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.016 },
-  { src: 0, style: { top: '25%', left: '-5%', width: '320px', transform: 'rotate(92deg)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.015 },
-  { src: 1, style: { top: '55%', left: '-4%', width: '300px', transform: 'rotate(88deg) scaleY(-1)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.013 },
-  { src: 2, style: { top: '30%', right: '-5%', width: '310px', transform: 'rotate(-92deg)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.016 },
-  { src: 3, style: { top: '60%', right: '-4%', width: '290px', transform: 'rotate(-88deg) scaleY(-1)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.014 },
-  { src: 0, style: { bottom: '-6%', left: '25%', width: '320px', transform: 'rotate(8deg)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.015 },
-  { src: 1, style: { bottom: '-5%', right: '20%', width: '300px', transform: 'rotate(-8deg) scaleX(-1)' }, blur: 2, brightness: 0.55, opacity: 0.7, speed: 0.017 },
-];
-
-const MID_LEAVES_MOBILE = [
-  { src: 0, style: { top: '20%', left: '-6%', width: '160px', transform: 'rotate(95deg)' }, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.01 },
-  { src: 1, style: { top: '50%', right: '-6%', width: '150px', transform: 'rotate(-95deg)' }, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.012 },
-];
-
-const FOREGROUND_LEAVES_DESKTOP = [
-  { src: 2, style: { top: '-2%', left: '-2%', width: '450px', transform: 'rotate(130deg)' }, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top left', baseScale: 0.85, maxScale: 1.12 },
-  { src: 0, style: { top: '3%', left: '-4%', width: '320px', transform: 'rotate(110deg) scaleX(-1)' }, blur: 0, brightness: 0.75, opacity: 0.9, origin: 'top left', baseScale: 0.9, maxScale: 1.08 },
-  { src: 3, style: { top: '10%', left: '0%', width: '250px', transform: 'rotate(125deg)' }, blur: 0.5, brightness: 0.7, opacity: 0.85, origin: 'top left', baseScale: 0.92, maxScale: 1.05 },
-  { src: 1, style: { top: '-2%', right: '-2%', width: '430px', transform: 'rotate(-130deg) scaleX(-1)' }, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top right', baseScale: 0.85, maxScale: 1.12 },
-  { src: 3, style: { top: '5%', right: '-3%', width: '300px', transform: 'rotate(-115deg)' }, blur: 0, brightness: 0.75, opacity: 0.9, origin: 'top right', baseScale: 0.9, maxScale: 1.06 },
-  { src: 2, style: { top: '12%', right: '0%', width: '240px', transform: 'rotate(-120deg) scaleX(-1)' }, blur: 0.5, brightness: 0.7, opacity: 0.85, origin: 'top right', baseScale: 0.92, maxScale: 1.04 },
-  { src: 0, style: { top: '40%', left: '-2%', width: '280px', transform: 'rotate(95deg)' }, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'left center', baseScale: 0.9, maxScale: 1.06 },
-  { src: 1, style: { top: '65%', left: '-1%', width: '260px', transform: 'rotate(85deg) scaleY(-1)' }, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'left center', baseScale: 0.92, maxScale: 1.05 },
-  { src: 2, style: { top: '45%', right: '-2%', width: '270px', transform: 'rotate(-95deg)' }, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'right center', baseScale: 0.9, maxScale: 1.06 },
-  { src: 3, style: { top: '70%', right: '-1%', width: '250px', transform: 'rotate(-85deg) scaleY(-1)' }, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'right center', baseScale: 0.92, maxScale: 1.04 },
-  { src: 3, style: { bottom: '-1%', left: '-2%', width: '400px', transform: 'rotate(50deg)' }, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom left', baseScale: 0.88, maxScale: 1.1 },
-  { src: 1, style: { bottom: '5%', left: '-1%', width: '280px', transform: 'rotate(65deg) scaleY(-1)' }, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'bottom left', baseScale: 0.92, maxScale: 1.05 },
-  { src: 0, style: { bottom: '-1%', right: '-2%', width: '380px', transform: 'rotate(-50deg) scaleX(-1)' }, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom right', baseScale: 0.88, maxScale: 1.1 },
-  { src: 2, style: { bottom: '5%', right: '-1%', width: '260px', transform: 'rotate(-60deg)' }, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'bottom right', baseScale: 0.92, maxScale: 1.04 },
-];
-
-const FOREGROUND_LEAVES_MOBILE = [
-  { src: 2, style: { top: '-3%', left: '-3%', width: '200px', transform: 'rotate(130deg)' }, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top left', baseScale: 0.9, maxScale: 1.08 },
-  { src: 1, style: { top: '-3%', right: '-3%', width: '190px', transform: 'rotate(-130deg) scaleX(-1)' }, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top right', baseScale: 0.9, maxScale: 1.08 },
-  { src: 3, style: { bottom: '-2%', left: '-3%', width: '180px', transform: 'rotate(50deg)' }, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom left', baseScale: 0.92, maxScale: 1.06 },
-  { src: 0, style: { bottom: '-2%', right: '-3%', width: '170px', transform: 'rotate(-50deg) scaleX(-1)' }, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom right', baseScale: 0.92, maxScale: 1.06 },
-];
-
-// Hero leaf - higher position, slower fade
+// Hero leaf config
 const HERO_LEAF = {
   src: 2,
-  initialTop: -350, // Higher - mostly hidden
-  blur: 0,
+  initialTop: -350,
   brightness: 0.85,
   opacity: 0.92,
   speed: 0.12,
-  fadeStart: 200, // Start fading later
-  fadeEnd: 600,   // Fade out slower
+  fadeStart: 200,
+  fadeEnd: 600,
 };
 
 function BotanicalBackground() {
-  const [isMobile, setIsMobile] = useState(false);
-  const backLeafRefs = useRef([]);
-  const midLeafRefs = useRef([]);
-  const fgLeafRefs = useRef([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const leafRefs = useRef([]);
   const heroLeafRef = useRef(null);
-  const scrollY = useRef(0);
-  const ticking = useRef(false);
+  const rafId = useRef(null);
+  const lastScrollY = useRef(0);
 
+  // Memoize config
+  const LEAVES_CONFIG = useMemo(() => 
+    isMobile ? LEAVES_CONFIG_MOBILE : LEAVES_CONFIG_DESKTOP
+  , [isMobile]);
+  
+  const LEAVES = useMemo(() => 
+    isMobile ? LEAVES_MOBILE : LEAVES_DESKTOP
+  , [isMobile]);
+
+  // Resize handler with debounce
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    let timeout;
+    const handleResize = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsMobile(window.innerWidth <= 768);
+      }, 150);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeout);
+    };
   }, []);
 
-  const LEAVES = isMobile ? LEAVES_MOBILE : LEAVES_DESKTOP;
-  const BACK_LEAVES = isMobile ? BACK_LEAVES_MOBILE : BACK_LEAVES_DESKTOP;
-  const MID_LEAVES = isMobile ? MID_LEAVES_MOBILE : MID_LEAVES_DESKTOP;
-  const FOREGROUND_LEAVES = isMobile ? FOREGROUND_LEAVES_MOBILE : FOREGROUND_LEAVES_DESKTOP;
-
+  // Optimized scroll handler
   useEffect(() => {
-    const handleScroll = () => {
-      scrollY.current = window.scrollY;
+    const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+    
+    const updateLeaves = () => {
+      const scrollY = lastScrollY.current;
+      const scrollProgress = Math.min(scrollY / maxScroll, 1);
       
-      if (!ticking.current) {
-        requestAnimationFrame(() => {
-          const maxScroll = document.body.scrollHeight - window.innerHeight;
-          const scrollProgress = Math.min(scrollY.current / Math.max(maxScroll, 1), 1);
-          
-          backLeafRefs.current.forEach((leaf, index) => {
-            if (leaf && BACK_LEAVES[index]) {
-              const speed = BACK_LEAVES[index].speed;
-              const yOffset = scrollY.current * speed;
-              const baseTransform = BACK_LEAVES[index].style.transform || '';
-              leaf.style.transform = `${baseTransform} translateY(${yOffset}px)`;
-            }
-          });
-          
-          midLeafRefs.current.forEach((leaf, index) => {
-            if (leaf && MID_LEAVES[index]) {
-              const speed = MID_LEAVES[index].speed;
-              const yOffset = scrollY.current * speed;
-              const baseTransform = MID_LEAVES[index].style.transform || '';
-              leaf.style.transform = `${baseTransform} translateY(${yOffset}px)`;
-            }
-          });
-          
-          fgLeafRefs.current.forEach((leaf, index) => {
-            if (leaf && FOREGROUND_LEAVES[index]) {
-              const config = FOREGROUND_LEAVES[index];
-              const baseTransform = config.style.transform || '';
-              const scale = config.baseScale + (scrollProgress * (config.maxScale - config.baseScale));
-              leaf.style.transform = `${baseTransform} scale(${scale})`;
-            }
-          });
-          
-          // Hero leaf - scrolls UP and out, slower fade
-          if (heroLeafRef.current && !isMobile) {
-            const yOffset = scrollY.current * HERO_LEAF.speed;
-            const newTop = HERO_LEAF.initialTop - yOffset;
-            heroLeafRef.current.style.top = `${newTop}px`;
-            
-            // Slower fade out
-            let opacity = HERO_LEAF.opacity;
-            if (scrollY.current > HERO_LEAF.fadeStart) {
-              const fadeProgress = (scrollY.current - HERO_LEAF.fadeStart) / (HERO_LEAF.fadeEnd - HERO_LEAF.fadeStart);
-              opacity = Math.max(0, HERO_LEAF.opacity * (1 - fadeProgress));
-            }
-            heroLeafRef.current.style.opacity = opacity;
-          }
-          
-          ticking.current = false;
-        });
-        ticking.current = true;
+      leafRefs.current.forEach((leaf, index) => {
+        if (!leaf) return;
+        const config = LEAVES_CONFIG[index];
+        if (!config) return;
+        
+        if (config.speed) {
+          // Parallax leaves - only translate
+          const y = scrollY * config.speed;
+          leaf.style.transform = `translate3d(0, ${y}px, 0) rotate(${config.rotate}deg)${config.scaleX ? ' scaleX(-1)' : ''}${config.scaleY ? ' scaleY(-1)' : ''}`;
+        } else if (config.baseScale) {
+          // Corner leaves - only scale
+          const scale = config.baseScale + (scrollProgress * (config.maxScale - config.baseScale));
+          leaf.style.transform = `translate3d(0, 0, 0) rotate(${config.rotate}deg) scale(${scale})${config.scaleX ? ' scaleX(-1)' : ''}${config.scaleY ? ' scaleY(-1)' : ''}`;
+        }
+      });
+      
+      // Hero leaf
+      if (heroLeafRef.current && !isMobile) {
+        const y = -(scrollY * HERO_LEAF.speed);
+        heroLeafRef.current.style.transform = `translate3d(-50%, ${y}px, 0) rotate(180deg)`;
+        
+        let opacity = HERO_LEAF.opacity;
+        if (scrollY > HERO_LEAF.fadeStart) {
+          const fadeProgress = Math.min((scrollY - HERO_LEAF.fadeStart) / (HERO_LEAF.fadeEnd - HERO_LEAF.fadeStart), 1);
+          opacity = HERO_LEAF.opacity * (1 - fadeProgress);
+        }
+        heroLeafRef.current.style.opacity = opacity;
+      }
+      
+      rafId.current = null;
+    };
+    
+    const handleScroll = () => {
+      lastScrollY.current = window.scrollY;
+      if (!rafId.current) {
+        rafId.current = requestAnimationFrame(updateLeaves);
       }
     };
-
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile, BACK_LEAVES, MID_LEAVES, FOREGROUND_LEAVES]);
+    handleScroll(); // Initial
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
+  }, [isMobile, LEAVES_CONFIG]);
+
+  // Build initial transform string
+  const getInitialTransform = (config) => {
+    let transform = `translate3d(0, 0, 0) rotate(${config.rotate}deg)`;
+    if (config.baseScale) transform += ` scale(${config.baseScale})`;
+    if (config.scaleX) transform += ' scaleX(-1)';
+    if (config.scaleY) transform += ' scaleY(-1)';
+    return transform;
+  };
 
   return (
     <>
       <BackgroundLayer>
         <AmbientLight className="light1" />
         <AmbientLight className="light2" />
-        <AmbientLight className="light3" />
-        <AmbientLight className="light4" />
       </BackgroundLayer>
       
-      <BackLeavesLayer>
-        {BACK_LEAVES.map((config, index) => (
+      {/* All leaves in one render pass, grouped by z-index */}
+      {[2, 3, 100].map(zIndex => (
+        <LeafLayer key={zIndex} $zIndex={zIndex}>
+          {LEAVES_CONFIG.filter(c => c.layer === zIndex).map((config, i) => {
+            const globalIndex = LEAVES_CONFIG.findIndex(c => c === config);
+            return (
+              <Leaf
+                key={`${zIndex}-${i}`}
+                ref={el => leafRefs.current[globalIndex] = el}
+                src={LEAVES[config.src]}
+                style={{
+                  ...config.style,
+                  transform: getInitialTransform(config),
+                  transformOrigin: config.origin || 'center',
+                  filter: `blur(${config.blur || 0}px) brightness(${config.brightness})`,
+                  opacity: config.opacity,
+                }}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            );
+          })}
+        </LeafLayer>
+      ))}
+      
+      <Vignette />
+      
+      {/* Hero leaf - desktop only */}
+      {!isMobile && (
+        <LeafLayer $zIndex={500}>
           <Leaf
-            key={`back-${index}`}
-            ref={el => backLeafRefs.current[index] = el}
-            src={LEAVES[config.src]}
+            ref={heroLeafRef}
+            src={LEAVES_DESKTOP[HERO_LEAF.src]}
             style={{
-              ...config.style,
-              filter: `blur(${config.blur}px) brightness(${config.brightness})`,
-              opacity: config.opacity,
+              top: `${HERO_LEAF.initialTop}px`,
+              left: '50%',
+              width: '400px',
+              transform: 'translate3d(-50%, 0, 0) rotate(180deg)',
+              filter: `brightness(${HERO_LEAF.brightness})`,
+              opacity: HERO_LEAF.opacity,
             }}
             alt=""
-            loading="lazy"
+            loading="eager"
+            decoding="async"
           />
-        ))}
-      </BackLeavesLayer>
-      
-      <MidLeavesLayer>
-        {MID_LEAVES.map((config, index) => (
-          <Leaf
-            key={`mid-${index}`}
-            ref={el => midLeafRefs.current[index] = el}
-            src={LEAVES[config.src]}
-            style={{
-              ...config.style,
-              filter: `blur(${config.blur}px) brightness(${config.brightness})`,
-              opacity: config.opacity,
-            }}
-            alt=""
-            loading="lazy"
-          />
-        ))}
-        <Vignette />
-      </MidLeavesLayer>
-      
-      <ForegroundLayer>
-        {FOREGROUND_LEAVES.map((config, index) => (
-          <Leaf
-            key={`fg-${index}`}
-            ref={el => fgLeafRefs.current[index] = el}
-            src={LEAVES[config.src]}
-            style={{
-              ...config.style,
-              filter: `blur(${config.blur}px) brightness(${config.brightness})`,
-              opacity: config.opacity,
-              transformOrigin: config.origin,
-            }}
-            alt=""
-            loading="lazy"
-          />
-        ))}
-      </ForegroundLayer>
-      
-      <HeroLeafLayer>
-        <Leaf
-          ref={heroLeafRef}
-          src={LEAVES_DESKTOP[HERO_LEAF.src]}
-          style={{
-            top: `${HERO_LEAF.initialTop}px`,
-            left: '50%',
-            width: '450px',
-            transform: 'translateX(-50%) rotate(180deg)',
-            filter: `blur(${HERO_LEAF.blur}px) brightness(${HERO_LEAF.brightness})`,
-            opacity: HERO_LEAF.opacity,
-          }}
-          alt=""
-          loading="eager"
-        />
-      </HeroLeafLayer>
+        </LeafLayer>
+      )}
     </>
   );
 }
