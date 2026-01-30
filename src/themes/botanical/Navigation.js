@@ -6,208 +6,246 @@ import { useWedding } from '../../context/WeddingContext';
 // ANIMATIONS
 // ============================================
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+const fadeInDown = keyframes`
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 `;
 
-const slideDown = keyframes`
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+const menuSlideIn = keyframes`
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 `;
 
 // ============================================
 // STYLED COMPONENTS
 // ============================================
 
-const Nav = styled.nav`
+// Floating pill navigation - Apple Liquid Glass style
+const NavPill = styled.nav`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
-  padding: 1rem 2rem;
+  
+  /* Liquid Glass effect */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  
+  animation: ${fadeInDown} 0.8s ease;
   transition: all 0.4s ease;
-  animation: ${fadeIn} 0.8s ease forwards;
   
-  ${p => p.$scrolled && css`
-    background: rgba(4, 6, 4, 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.75rem 2rem;
-  `}
+  /* Hover glow effect */
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
   
-  @media (max-width: 768px) {
-    padding: 1rem;
+  @media (max-width: 900px) {
+    padding: 0.4rem;
+    gap: 0;
   }
 `;
 
-const NavContainer = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Logo = styled.a`
-  font-family: var(--font-display);
-  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-  font-weight: 400;
-  color: var(--text-light);
-  letter-spacing: 0.02em;
+const NavLink = styled.a`
+  padding: 0.6rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
   
-  span {
-    font-style: italic;
-    color: var(--text-muted);
-    margin: 0 0.3em;
-    font-size: 0.8em;
+  &:hover {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.1);
   }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  gap: 2rem;
-  align-items: center;
   
   @media (max-width: 900px) {
     display: none;
   }
 `;
 
-const NavLink = styled.a`
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  position: relative;
-  padding: 0.5rem 0;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--text-light);
-    transition: width 0.3s ease;
-  }
-  
-  &:hover {
-    color: var(--text-light);
-    
-    &::after {
-      width: 100%;
-    }
-  }
-`;
-
 const RSVPButton = styled.a`
+  padding: 0.6rem 1.25rem;
   font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bg-dark);
-  background: var(--text-light);
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 30px;
   transition: all 0.3s ease;
+  white-space: nowrap;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.02);
+  }
+  
+  @media (max-width: 900px) {
+    display: none;
   }
 `;
 
-// Mobile menu
-const MobileMenuButton = styled.button`
+// Mobile menu button
+const MenuButton = styled.button`
   display: none;
-  background: none;
+  width: 44px;
+  height: 44px;
+  background: transparent;
   border: none;
-  width: 32px;
-  height: 24px;
-  position: relative;
+  border-radius: 50%;
   cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
   
   @media (max-width: 900px) {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+`;
+
+const MenuIcon = styled.div`
+  width: 18px;
+  height: 14px;
+  position: relative;
   
   span {
     position: absolute;
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--text-light);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 1px;
     transition: all 0.3s ease;
     
     &:nth-child(1) {
-      top: ${p => p.$open ? '11px' : '0'};
-      transform: ${p => p.$open ? 'rotate(45deg)' : 'none'};
+      top: 0;
+      ${p => p.$open && css`
+        top: 6px;
+        transform: rotate(45deg);
+      `}
     }
     
     &:nth-child(2) {
-      top: 11px;
-      opacity: ${p => p.$open ? '0' : '1'};
+      top: 6px;
+      ${p => p.$open && css`
+        opacity: 0;
+      `}
     }
     
     &:nth-child(3) {
-      bottom: ${p => p.$open ? '11px' : '0'};
-      transform: ${p => p.$open ? 'rotate(-45deg)' : 'none'};
+      top: 12px;
+      ${p => p.$open && css`
+        top: 6px;
+        transform: rotate(-45deg);
+      `}
     }
   }
 `;
 
-const MobileMenu = styled.div`
+// Mobile full-screen menu
+const MobileMenuOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(4, 6, 4, 0.98);
-  backdrop-filter: blur(30px);
+  inset: 0;
   z-index: 999;
+  background: rgba(4, 6, 4, 0.95);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-  opacity: ${p => p.$open ? '1' : '0'};
-  visibility: ${p => p.$open ? 'visible' : 'hidden'};
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
   transition: all 0.4s ease;
-  padding: 2rem;
+  
+  ${p => p.$open && css`
+    opacity: 1;
+    visibility: visible;
+  `}
 `;
 
-const MobileNavLink = styled.a`
+const MobileMenuContent = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  /* Liquid Glass card for menu */
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 32px;
+  padding: 2.5rem;
+  min-width: 280px;
+  
+  animation: ${p => p.$open ? menuSlideIn : 'none'} 0.4s ease;
+`;
+
+const MobileMenuLinks = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const MobileMenuLink = styled.a`
+  padding: 1rem 1.5rem;
   font-family: var(--font-display);
-  font-size: 1.8rem;
-  font-weight: 300;
-  color: var(--text-light);
-  opacity: 0;
-  transform: translateY(20px);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  text-align: center;
   transition: all 0.3s ease;
   
-  ${p => p.$visible && css`
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: ${p.$index * 0.05}s;
-  `}
-  
   &:hover {
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.08);
   }
 `;
 
-const MobileRSVPButton = styled(RSVPButton)`
-  margin-top: 1rem;
-  font-size: 0.8rem;
-  padding: 1rem 2rem;
+const MobileRSVPButton = styled.a`
+  display: block;
+  margin-top: 1.5rem;
+  padding: 1.1rem 2rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--bg-dark);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+  }
 `;
 
 // ============================================
@@ -215,89 +253,83 @@ const MobileRSVPButton = styled(RSVPButton)`
 // ============================================
 
 function Navigation() {
-  const { coupleNames, isComponentActive } = useWedding();
-  const [scrolled, setScrolled] = useState(false);
+  const { isComponentActive, coupleNames } = useWedding();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Build navigation links based on active components
+  const navLinks = [];
   
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
+  if (isComponentActive('lovestory')) navLinks.push({ label: 'Story', href: '#lovestory' });
+  if (isComponentActive('timeline')) navLinks.push({ label: 'Ablauf', href: '#timeline' });
+  if (isComponentActive('locations')) navLinks.push({ label: 'Location', href: '#locations' });
+  if (isComponentActive('gallery')) navLinks.push({ label: 'Galerie', href: '#gallery' });
+  if (isComponentActive('faq')) navLinks.push({ label: 'FAQ', href: '#faq' });
+
+  // Prevent body scroll when menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
+    return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
 
-  const navItems = [
-    { id: 'lovestory', label: 'Geschichte', href: '#lovestory' },
-    { id: 'timeline', label: 'Ablauf', href: '#timeline' },
-    { id: 'locations', label: 'Location', href: '#locations' },
-    { id: 'gallery', label: 'Galerie', href: '#gallery' },
-  ].filter(item => isComponentActive(item.id));
-
-  const handleMobileLinkClick = () => {
+  const handleLinkClick = () => {
     setMobileMenuOpen(false);
   };
 
   return (
     <>
-      <Nav $scrolled={scrolled}>
-        <NavContainer>
-          <Logo href="#top">
-            {names[0]}<span>&</span>{names[1]}
-          </Logo>
-          
-          <NavLinks>
-            {navItems.map(item => (
-              <NavLink key={item.id} href={item.href}>
-                {item.label}
-              </NavLink>
-            ))}
-            {isComponentActive('rsvp') && (
-              <RSVPButton href="#rsvp">Zusagen</RSVPButton>
-            )}
-          </NavLinks>
-          
-          <MobileMenuButton 
-            $open={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menu"
-          >
-            <span />
-            <span />
-            <span />
-          </MobileMenuButton>
-        </NavContainer>
-      </Nav>
-      
-      <MobileMenu $open={mobileMenuOpen}>
-        {navItems.map((item, i) => (
-          <MobileNavLink 
-            key={item.id}
-            href={item.href}
-            $visible={mobileMenuOpen}
-            $index={i}
-            onClick={handleMobileLinkClick}
-          >
-            {item.label}
-          </MobileNavLink>
+      {/* Floating pill navigation */}
+      <NavPill>
+        {/* Desktop links */}
+        {navLinks.slice(0, 5).map((link, i) => (
+          <NavLink key={i} href={link.href}>
+            {link.label}
+          </NavLink>
         ))}
+        
+        {/* RSVP button - desktop */}
         {isComponentActive('rsvp') && (
-          <MobileRSVPButton href="#rsvp" onClick={handleMobileLinkClick}>
-            Zusagen
-          </MobileRSVPButton>
+          <RSVPButton href="#rsvp">RSVP</RSVPButton>
         )}
-      </MobileMenu>
+        
+        {/* Mobile menu button */}
+        <MenuButton 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Menü öffnen"
+        >
+          <MenuIcon $open={mobileMenuOpen}>
+            <span />
+            <span />
+            <span />
+          </MenuIcon>
+        </MenuButton>
+      </NavPill>
+      
+      {/* Mobile menu overlay */}
+      <MobileMenuOverlay $open={mobileMenuOpen} onClick={() => setMobileMenuOpen(false)}>
+        <MobileMenuContent $open={mobileMenuOpen} onClick={e => e.stopPropagation()}>
+          <MobileMenuLinks>
+            {navLinks.map((link, i) => (
+              <MobileMenuLink 
+                key={i} 
+                href={link.href}
+                onClick={handleLinkClick}
+              >
+                {link.label}
+              </MobileMenuLink>
+            ))}
+          </MobileMenuLinks>
+          
+          {isComponentActive('rsvp') && (
+            <MobileRSVPButton href="#rsvp" onClick={handleLinkClick}>
+              Jetzt zusagen
+            </MobileRSVPButton>
+          )}
+        </MobileMenuContent>
+      </MobileMenuOverlay>
     </>
   );
 }

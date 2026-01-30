@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-// Cloudinary leaf PNGs
-const LEAF_IMAGES = [
+// Cloudinary leaf images
+const LEAVES = [
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789868/pngwing.com_6_xo6v3t.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_3_tz1fk6.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_1_z9rvnp.png',
@@ -14,193 +14,162 @@ const LEAF_IMAGES = [
 const BackgroundContainer = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   overflow: hidden;
   background: var(--bg-gradient);
-  pointer-events: none;
 `;
 
+// Ambient lighting - subtle green glows
 const AmbientLight = styled.div`
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.5;
+  opacity: 0.4;
   pointer-events: none;
+  
+  &.light1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(34, 85, 51, 0.5) 0%, transparent 70%);
+    top: -200px;
+    left: -150px;
+  }
+  
+  &.light2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(45, 90, 39, 0.4) 0%, transparent 70%);
+    bottom: -100px;
+    right: -100px;
+  }
+  
+  &.light3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(28, 69, 39, 0.35) 0%, transparent 70%);
+    top: 40%;
+    left: 30%;
+  }
+  
+  &.light4 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(39, 78, 45, 0.3) 0%, transparent 70%);
+    top: 20%;
+    right: 20%;
+  }
 `;
 
-const Ambient1 = styled(AmbientLight)`
-  width: 700px;
-  height: 700px;
-  top: -250px;
-  left: -150px;
-  background: radial-gradient(circle, rgba(25, 60, 35, 0.6) 0%, transparent 70%);
-`;
-
-const Ambient2 = styled(AmbientLight)`
-  width: 600px;
-  height: 600px;
-  bottom: -150px;
-  right: -150px;
-  background: radial-gradient(circle, rgba(20, 55, 40, 0.5) 0%, transparent 70%);
-`;
-
-const Ambient3 = styled(AmbientLight)`
-  width: 500px;
-  height: 500px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(15, 45, 25, 0.3) 0%, transparent 70%);
-`;
-
-const Leaf = styled.div`
+// Individual leaf with parallax - positioned to hide stems
+const Leaf = styled.img`
   position: absolute;
   pointer-events: none;
   will-change: transform;
+  transition: transform 0.1s linear;
   
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  
-  /* Back layer - most blurred */
-  &.back img {
-    filter: blur(8px) brightness(0.25) saturate(0.7);
-  }
-  
-  /* Mid layer */
-  &.mid img {
-    filter: blur(3px) brightness(0.4) saturate(0.8);
-  }
-  
-  /* Front layer - sharpest */
-  &.front img {
-    filter: blur(0) brightness(0.6) saturate(0.9);
-  }
-`;
-
-const Leaf1 = styled(Leaf)`
-  width: 450px;
-  top: -50px;
-  left: -100px;
-  transform: rotate(-15deg);
-  z-index: 3;
+  /* Layer-based styling */
+  &.back { filter: blur(3px) brightness(0.5); opacity: 0.6; }
+  &.mid { filter: blur(1px) brightness(0.7); opacity: 0.75; }
+  &.front { filter: blur(0px) brightness(0.85); opacity: 0.9; }
   
   @media (max-width: 768px) {
-    width: 280px;
-    left: -80px;
+    &.hide-mobile { display: none; }
   }
 `;
 
-const Leaf2 = styled(Leaf)`
-  width: 400px;
-  top: 5%;
-  right: -80px;
-  transform: rotate(20deg) scaleX(-1);
-  z-index: 1;
-  
-  @media (max-width: 768px) {
-    width: 250px;
-    right: -60px;
-  }
-`;
-
-const Leaf3 = styled(Leaf)`
-  width: 500px;
-  bottom: -80px;
-  left: -120px;
-  transform: rotate(25deg);
-  z-index: 3;
-  
-  @media (max-width: 768px) {
-    width: 300px;
-    left: -100px;
-  }
-`;
-
-const Leaf4 = styled(Leaf)`
-  width: 380px;
-  bottom: 15%;
-  right: -70px;
-  transform: rotate(-30deg);
-  z-index: 2;
-  
-  @media (max-width: 768px) {
-    width: 230px;
-    right: -50px;
-  }
-`;
-
-const Leaf5 = styled(Leaf)`
-  width: 320px;
-  top: 35%;
-  left: -90px;
-  transform: rotate(5deg);
-  z-index: 2;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const Leaf6 = styled(Leaf)`
-  width: 360px;
-  top: 55%;
-  right: -100px;
-  transform: rotate(-20deg) scaleX(-1);
-  z-index: 1;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
+// Vignette overlay
 const Vignette = styled.div`
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
-  z-index: 4;
+  background: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    transparent 20%,
+    rgba(4, 6, 4, 0.4) 70%,
+    rgba(4, 6, 4, 0.85) 100%
+  );
   pointer-events: none;
 `;
 
-function BotanicalBackground() {
-  const leaf1Ref = useRef(null);
-  const leaf2Ref = useRef(null);
-  const leaf3Ref = useRef(null);
-  const leaf4Ref = useRef(null);
-  const leaf5Ref = useRef(null);
-  const leaf6Ref = useRef(null);
+// Leaf configurations - JUNGLE DENSITY with hidden stems (rotated to push stems outside viewport)
+const LEAF_CONFIG = [
+  // === TOP EDGE (stems rotated upward/outside) ===
+  { src: 0, className: 'back', style: { top: '-15%', left: '5%', width: '380px', transform: 'rotate(175deg) scaleX(-1)' }, speed: 0.015 },
+  { src: 1, className: 'mid', style: { top: '-12%', left: '25%', width: '320px', transform: 'rotate(160deg)' }, speed: 0.025 },
+  { src: 2, className: 'front', style: { top: '-18%', left: '45%', width: '400px', transform: 'rotate(185deg) scaleX(-1)' }, speed: 0.035 },
+  { src: 3, className: 'back', style: { top: '-10%', right: '20%', width: '350px', transform: 'rotate(170deg)' }, speed: 0.02 },
+  { src: 4, className: 'mid', style: { top: '-14%', right: '5%', width: '380px', transform: 'rotate(190deg) scaleX(-1)' }, speed: 0.028 },
+  { src: 5, className: 'front hide-mobile', style: { top: '-8%', left: '60%', width: '280px', transform: 'rotate(165deg)' }, speed: 0.032 },
   
+  // === LEFT EDGE (stems rotated left/outside) ===
+  { src: 0, className: 'front', style: { top: '10%', left: '-12%', width: '420px', transform: 'rotate(95deg)' }, speed: 0.04 },
+  { src: 2, className: 'mid', style: { top: '35%', left: '-15%', width: '380px', transform: 'rotate(85deg) scaleY(-1)' }, speed: 0.025 },
+  { src: 4, className: 'back', style: { top: '55%', left: '-10%', width: '350px', transform: 'rotate(100deg)' }, speed: 0.018 },
+  { src: 1, className: 'front', style: { top: '75%', left: '-14%', width: '400px', transform: 'rotate(80deg) scaleY(-1)' }, speed: 0.038 },
+  { src: 3, className: 'mid hide-mobile', style: { top: '20%', left: '-8%', width: '300px', transform: 'rotate(110deg)' }, speed: 0.022 },
+  
+  // === RIGHT EDGE (stems rotated right/outside) ===
+  { src: 1, className: 'front', style: { top: '5%', right: '-12%', width: '400px', transform: 'rotate(-95deg) scaleY(-1)' }, speed: 0.035 },
+  { src: 3, className: 'mid', style: { top: '30%', right: '-14%', width: '360px', transform: 'rotate(-85deg)' }, speed: 0.028 },
+  { src: 5, className: 'back', style: { top: '50%', right: '-10%', width: '380px', transform: 'rotate(-100deg) scaleY(-1)' }, speed: 0.02 },
+  { src: 0, className: 'front', style: { top: '70%', right: '-15%', width: '420px', transform: 'rotate(-80deg)' }, speed: 0.042 },
+  { src: 2, className: 'mid hide-mobile', style: { top: '15%', right: '-8%', width: '320px', transform: 'rotate(-110deg) scaleY(-1)' }, speed: 0.03 },
+  
+  // === BOTTOM EDGE (stems rotated downward/outside) ===
+  { src: 5, className: 'back', style: { bottom: '-18%', left: '10%', width: '400px', transform: 'rotate(-5deg)' }, speed: 0.015 },
+  { src: 0, className: 'mid', style: { bottom: '-15%', left: '35%', width: '350px', transform: 'rotate(10deg) scaleX(-1)' }, speed: 0.022 },
+  { src: 2, className: 'front', style: { bottom: '-20%', right: '25%', width: '420px', transform: 'rotate(-10deg)' }, speed: 0.032 },
+  { src: 4, className: 'back', style: { bottom: '-12%', right: '5%', width: '380px', transform: 'rotate(5deg) scaleX(-1)' }, speed: 0.018 },
+  { src: 1, className: 'mid hide-mobile', style: { bottom: '-16%', left: '55%', width: '300px', transform: 'rotate(15deg)' }, speed: 0.025 },
+  
+  // === CORNER CLUSTERS (extra density) ===
+  // Top-left corner
+  { src: 3, className: 'front', style: { top: '-5%', left: '-8%', width: '450px', transform: 'rotate(135deg)' }, speed: 0.038 },
+  { src: 5, className: 'mid', style: { top: '8%', left: '-5%', width: '320px', transform: 'rotate(120deg) scaleX(-1)' }, speed: 0.025 },
+  
+  // Top-right corner
+  { src: 4, className: 'front', style: { top: '-5%', right: '-8%', width: '430px', transform: 'rotate(-135deg) scaleX(-1)' }, speed: 0.04 },
+  { src: 2, className: 'mid', style: { top: '10%', right: '-3%', width: '300px', transform: 'rotate(-125deg)' }, speed: 0.028 },
+  
+  // Bottom-left corner
+  { src: 1, className: 'front', style: { bottom: '-8%', left: '-10%', width: '400px', transform: 'rotate(45deg) scaleY(-1)' }, speed: 0.035 },
+  { src: 0, className: 'mid', style: { bottom: '5%', left: '-6%', width: '280px', transform: 'rotate(60deg)' }, speed: 0.022 },
+  
+  // Bottom-right corner
+  { src: 3, className: 'front', style: { bottom: '-10%', right: '-10%', width: '420px', transform: 'rotate(-45deg)' }, speed: 0.038 },
+  { src: 5, className: 'mid', style: { bottom: '8%', right: '-5%', width: '300px', transform: 'rotate(-55deg) scaleY(-1)' }, speed: 0.025 },
+  
+  // === ADDITIONAL SCATTERED LEAVES (more jungle feel) ===
+  { src: 2, className: 'back hide-mobile', style: { top: '25%', left: '2%', width: '250px', transform: 'rotate(75deg)' }, speed: 0.015 },
+  { src: 4, className: 'back hide-mobile', style: { top: '45%', right: '3%', width: '280px', transform: 'rotate(-70deg)' }, speed: 0.018 },
+  { src: 0, className: 'back', style: { top: '65%', left: '1%', width: '300px', transform: 'rotate(85deg) scaleX(-1)' }, speed: 0.012 },
+  { src: 1, className: 'back', style: { top: '85%', right: '2%', width: '260px', transform: 'rotate(-80deg) scaleX(-1)' }, speed: 0.016 },
+];
+
+function BotanicalBackground() {
+  const leafRefs = useRef([]);
+  const scrollY = useRef(0);
+  const ticking = useRef(false);
+
   useEffect(() => {
-    const leaves = [
-      { ref: leaf1Ref, speed: 0.015, baseTransform: 'rotate(-15deg)' },
-      { ref: leaf2Ref, speed: 0.03, baseTransform: 'rotate(20deg) scaleX(-1)' },
-      { ref: leaf3Ref, speed: 0.045, baseTransform: 'rotate(25deg)' },
-      { ref: leaf4Ref, speed: 0.025, baseTransform: 'rotate(-30deg)' },
-      { ref: leaf5Ref, speed: 0.035, baseTransform: 'rotate(5deg)' },
-      { ref: leaf6Ref, speed: 0.02, baseTransform: 'rotate(-20deg) scaleX(-1)' },
-    ];
-    
-    let ticking = false;
-    
     const handleScroll = () => {
-      if (!ticking) {
+      scrollY.current = window.scrollY;
+      
+      if (!ticking.current) {
         requestAnimationFrame(() => {
-          const scrollY = window.scrollY;
-          
-          leaves.forEach(({ ref, speed, baseTransform }) => {
-            if (ref.current) {
-              ref.current.style.transform = `${baseTransform} translateY(${scrollY * speed}px)`;
+          leafRefs.current.forEach((leaf, index) => {
+            if (leaf && LEAF_CONFIG[index]) {
+              const speed = LEAF_CONFIG[index].speed;
+              const yOffset = scrollY.current * speed;
+              const baseTransform = LEAF_CONFIG[index].style.transform || '';
+              leaf.style.transform = `${baseTransform} translateY(${yOffset}px)`;
             }
           });
-          
-          ticking = false;
+          ticking.current = false;
         });
-        ticking = true;
+        ticking.current = true;
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -208,34 +177,25 @@ function BotanicalBackground() {
   return (
     <BackgroundContainer>
       {/* Ambient lighting */}
-      <Ambient1 />
-      <Ambient2 />
-      <Ambient3 />
+      <AmbientLight className="light1" />
+      <AmbientLight className="light2" />
+      <AmbientLight className="light3" />
+      <AmbientLight className="light4" />
       
-      {/* Back layer (most blurred) */}
-      <Leaf2 ref={leaf2Ref} className="back">
-        <img src={LEAF_IMAGES[1]} alt="" loading="lazy" />
-      </Leaf2>
-      <Leaf6 ref={leaf6Ref} className="back">
-        <img src={LEAF_IMAGES[5]} alt="" loading="lazy" />
-      </Leaf6>
+      {/* Parallax leaves - jungle density */}
+      {LEAF_CONFIG.map((config, index) => (
+        <Leaf
+          key={index}
+          ref={el => leafRefs.current[index] = el}
+          src={LEAVES[config.src]}
+          className={config.className}
+          style={config.style}
+          alt=""
+          loading="lazy"
+        />
+      ))}
       
-      {/* Mid layer */}
-      <Leaf4 ref={leaf4Ref} className="mid">
-        <img src={LEAF_IMAGES[3]} alt="" loading="lazy" />
-      </Leaf4>
-      <Leaf5 ref={leaf5Ref} className="mid">
-        <img src={LEAF_IMAGES[4]} alt="" loading="lazy" />
-      </Leaf5>
-      
-      {/* Front layer (sharpest) */}
-      <Leaf1 ref={leaf1Ref} className="front">
-        <img src={LEAF_IMAGES[0]} alt="" loading="lazy" />
-      </Leaf1>
-      <Leaf3 ref={leaf3Ref} className="front">
-        <img src={LEAF_IMAGES[2]} alt="" loading="lazy" />
-      </Leaf3>
-      
+      {/* Vignette overlay */}
       <Vignette />
     </BackgroundContainer>
   );
