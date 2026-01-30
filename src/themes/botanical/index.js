@@ -1,4 +1,4 @@
-// Zen Theme - Index (replacing Botanical)
+// Botanical Glass Theme - Index
 import GlobalStyles from './GlobalStyles';
 import WeddingPage from './WeddingPage';
 import AdminDashboard from './AdminDashboard';
@@ -6,6 +6,7 @@ import ArchivePage from './ArchivePage';
 import SaveTheDate from './SaveTheDate';
 
 // Individual components
+import BotanicalBackground from './BotanicalBackground';
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -33,6 +34,7 @@ export {
   AdminDashboard,
   ArchivePage,
   SaveTheDate,
+  BotanicalBackground,
   Navigation,
   Hero,
   Countdown,

@@ -1,130 +1,175 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
 const Section = styled.section`
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zen-bg);
+  position: relative;
+  z-index: 10;
   padding: var(--section-padding) 2rem;
 `;
 
-const Content = styled.div`
-  max-width: 600px;
-  width: 100%;
+const Container = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 300;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--zen-text);
+  color: var(--text-light);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.1s;`}
 `;
 
-const List = styled.div`
+const FAQList = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 `;
 
-const Item = styled.div`
-  border-bottom: 1px solid var(--zen-line-light);
+const FAQItem = styled.div`
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$delay}s;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: ${0.2 + p.$index * 0.08}s;`}
+  
+  &:hover {
+    background: var(--glass-bg-hover);
+  }
 `;
 
-const Question = styled.button`
+const FAQHeader = styled.button`
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 0;
-  text-align: left;
+  padding: 1.25rem 1.5rem;
   background: none;
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   cursor: pointer;
+  text-align: left;
 `;
 
-const QuestionText = styled.span`
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  color: var(--zen-text);
-  flex: 1;
-  padding-right: 1rem;
+const Question = styled.h3`
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
+  font-weight: 400;
+  color: var(--text-light);
+  margin: 0;
 `;
 
-const Icon = styled.span`
-  font-size: 1.2rem;
-  color: var(--zen-text-muted);
+const ToggleIcon = styled.span`
+  font-size: 1.5rem;
+  color: var(--text-muted);
   transition: transform 0.3s ease;
-  transform: rotate(${p => p.$open ? '45deg' : '0'});
+  flex-shrink: 0;
+  
+  ${p => p.$open && css`
+    transform: rotate(45deg);
+  `}
 `;
 
 const Answer = styled.div`
-  max-height: ${p => p.$open ? '200px' : '0'};
+  max-height: ${p => p.$open ? '500px' : '0'};
   overflow: hidden;
-  transition: max-height 0.4s ease;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: ${p => p.$open ? '0 1.5rem 1.25rem' : '0 1.5rem'};
 `;
 
 const AnswerText = styled.p`
-  font-size: 0.9rem;
-  color: var(--zen-text-light);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-muted);
   line-height: 1.7;
-  padding-bottom: 1.25rem;
   margin: 0;
 `;
 
 function FAQ() {
   const { content } = useWedding();
-  const data = content?.faq || {};
-  const sectionRef = useRef(null);
+  const faqData = content?.faq || {};
+  
+  const title = faqData.title || 'FAQ';
+  const items = faqData.items || [];
+  
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
-  
-  const title = data.title || 'FAQ';
-  const questions = data.questions?.length > 0 ? data.questions : [
-    { question: 'Kann ich eine Begleitung mitbringen?', answer: 'Bitte schaut auf eure Einladung.' },
-    { question: 'Gibt es Parkplätze?', answer: 'Ja, kostenlose Parkplätze sind vorhanden.' },
-    { question: 'Was ist der Dresscode?', answer: 'Festlich elegant in gedeckten Farben.' },
+  const sectionRef = useRef(null);
+
+  const defaultItems = [
+    { question: 'Dürfen wir unsere Kinder mitbringen?', answer: 'Wir feiern diesen besonderen Tag gerne nur mit Erwachsenen. Wir hoffen auf euer Verständnis.' },
+    { question: 'Gibt es einen Parkplatz?', answer: 'Ja, es stehen ausreichend kostenlose Parkplätze direkt an der Location zur Verfügung.' },
+    { question: 'Bis wann müssen wir zusagen?', answer: 'Bitte gebt uns bis spätestens 4 Wochen vor der Hochzeit Bescheid, damit wir entsprechend planen können.' },
+    { question: 'Gibt es vegetarisches Essen?', answer: 'Ja, bitte gebt bei der Zusage eure Ernährungswünsche an. Es wird vegetarische und vegane Optionen geben.' },
+    { question: 'Können wir vor Ort übernachten?', answer: 'Leider nicht direkt vor Ort, aber wir haben einige Hotels in der Nähe für euch herausgesucht.' },
   ];
+
+  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
+  const toggleItem = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <Section id="faq" ref={sectionRef}>
-      <Content>
-        <Title className={visible ? 'visible' : ''}>{title}</Title>
-        <List>
-          {questions.map((q, i) => (
-            <Item key={i} className={visible ? 'visible' : ''} $delay={0.1 + i * 0.05}>
-              <Question onClick={() => setOpenIndex(openIndex === i ? null : i)}>
-                <QuestionText>{q.question}</QuestionText>
-                <Icon $open={openIndex === i}>+</Icon>
-              </Question>
+      <Container>
+        <Header>
+          <Eyebrow $visible={visible}>Häufige Fragen</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+        </Header>
+        
+        <FAQList>
+          {displayItems.map((item, i) => (
+            <FAQItem key={i} $visible={visible} $index={i}>
+              <FAQHeader onClick={() => toggleItem(i)}>
+                <Question>{item.question}</Question>
+                <ToggleIcon $open={openIndex === i}>+</ToggleIcon>
+              </FAQHeader>
               <Answer $open={openIndex === i}>
-                <AnswerText>{q.answer}</AnswerText>
+                <AnswerText>{item.answer}</AnswerText>
               </Answer>
-            </Item>
+            </FAQItem>
           ))}
-        </List>
-      </Content>
+        </FAQList>
+      </Container>
     </Section>
   );
 }

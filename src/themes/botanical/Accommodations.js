@@ -1,109 +1,266 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  min-height: 60vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zen-bg);
+  position: relative;
+  z-index: 10;
   padding: var(--section-padding) 2rem;
 `;
 
-const Content = styled.div`
-  max-width: 800px;
-  width: 100%;
+const Container = styled.div`
+  max-width: 1000px;
+  margin: 0 auto;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 300;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--zen-text);
+  color: var(--text-light);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  &.visible { opacity: 1; transform: translateY(0); }
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.1s;
+  `}
 `;
 
-const Grid = styled.div`
+const Subtitle = styled.p`
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.2s;
+  `}
+`;
+
+const HotelsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 `;
 
-const Hotel = styled.div`
-  text-align: center;
-  padding: 2rem;
-  border: 1px solid var(--zen-line);
+const GlassCard = styled.div`
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s ease;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$delay}s;
-  &.visible { opacity: 1; transform: translateY(0); }
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: ${0.3 + p.$index * 0.1}s;
+  `}
+  
+  &:hover {
+    background: var(--glass-bg-hover);
+    transform: translateY(-5px);
+  }
+`;
+
+const CardImage = styled.div`
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.8);
+    transition: all 0.5s ease;
+  }
+  
+  ${GlassCard}:hover & img {
+    filter: brightness(0.9);
+    transform: scale(1.05);
+  }
+`;
+
+const CardContent = styled.div`
+  padding: 1.25rem;
 `;
 
 const HotelName = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
   font-weight: 400;
-  color: var(--zen-text);
+  color: var(--text-light);
   margin-bottom: 0.5rem;
 `;
 
-const HotelAddress = styled.p`
+const HotelDetails = styled.p`
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: var(--zen-text-light);
-  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  line-height: 1.5;
 `;
 
-const HotelLink = styled.a`
+const HotelPrice = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--zen-text);
-  border-bottom: 1px solid var(--zen-line);
-  &:hover { opacity: 1; border-color: var(--zen-text); }
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  margin-bottom: 1rem;
 `;
+
+const BookButton = styled.a`
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
+  }
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
 
 function Accommodations() {
   const { content } = useWedding();
-  const data = content?.accommodations || {};
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const accommodationsData = content?.accommodations || {};
   
-  const title = data.title || 'Unterkünfte';
-  const hotels = data.hotels || [];
+  const title = accommodationsData.title || 'Übernachtung';
+  const subtitle = accommodationsData.subtitle || 'Unterkünfte in der Nähe';
+  const hotels = accommodationsData.hotels || [];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  const defaultHotels = [
+    {
+      name: 'Hotel Louis C. Jacob',
+      details: '5-Sterne Luxushotel direkt an der Elbe',
+      price: 'ab 250€/Nacht',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
+      url: 'https://hotel-jacob.de',
+    },
+    {
+      name: 'Strandhotel Blankenese',
+      details: 'Gemütliches Hotel mit Elbblick',
+      price: 'ab 120€/Nacht',
+      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
+      url: 'https://booking.com',
+    },
+    {
+      name: 'Gastwerk Hotel',
+      details: 'Design-Hotel in altem Gaswerk',
+      price: 'ab 140€/Nacht',
+      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800',
+      url: 'https://booking.com',
+    },
+  ];
+
+  const displayHotels = hotels.length > 0 ? hotels : defaultHotels;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.1 }
     );
+    
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  if (hotels.length === 0) return null;
-
   return (
     <Section id="accommodations" ref={sectionRef}>
-      <Content>
-        <Title className={visible ? 'visible' : ''}>{title}</Title>
-        <Grid>
-          {hotels.map((hotel, i) => (
-            <Hotel key={i} className={visible ? 'visible' : ''} $delay={0.1 + i * 0.1}>
-              <HotelName>{hotel.name}</HotelName>
-              {hotel.address && <HotelAddress>{hotel.address}</HotelAddress>}
-              {hotel.url && <HotelLink href={hotel.url} target="_blank">Website →</HotelLink>}
-            </Hotel>
+      <Container>
+        <Header>
+          <Eyebrow $visible={visible}>Für Übernachtungsgäste</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          {subtitle && <Subtitle $visible={visible}>{subtitle}</Subtitle>}
+        </Header>
+        
+        <HotelsGrid>
+          {displayHotels.map((hotel, i) => (
+            <GlassCard key={i} $visible={visible} $index={i}>
+              {hotel.image && (
+                <CardImage>
+                  <img src={hotel.image} alt={hotel.name} loading="lazy" />
+                </CardImage>
+              )}
+              <CardContent>
+                <HotelName>{hotel.name}</HotelName>
+                {hotel.details && <HotelDetails>{hotel.details}</HotelDetails>}
+                {hotel.price && <HotelPrice>{hotel.price}</HotelPrice>}
+                {hotel.url && (
+                  <BookButton href={hotel.url} target="_blank" rel="noopener noreferrer">
+                    Zur Buchung
+                  </BookButton>
+                )}
+              </CardContent>
+            </GlassCard>
           ))}
-        </Grid>
-      </Content>
+        </HotelsGrid>
+      </Container>
     </Section>
   );
 }

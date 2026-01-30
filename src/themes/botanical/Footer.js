@@ -1,57 +1,128 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const FooterSection = styled.footer`
-  padding: 5rem 2rem;
-  background: var(--zen-bg);
-  text-align: center;
-  border-top: 1px solid var(--zen-line);
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
-const Names = styled.p`
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
+const FooterSection = styled.footer`
+  position: relative;
+  z-index: 10;
+  padding: 5rem 2rem;
+  text-align: center;
+`;
+
+const Names = styled.h2`
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 300;
-  color: var(--zen-text);
-  margin-bottom: 0.5rem;
+  color: var(--text-light);
+  animation: ${fadeIn} 0.8s ease;
+`;
+
+const Ampersand = styled.span`
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0 0.3em;
 `;
 
 const DateText = styled.p`
+  font-family: var(--font-body);
   font-size: 0.7rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.3em;
-  color: var(--zen-text-light);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.75rem;
+  animation: ${fadeIn} 0.8s ease;
+  animation-delay: 0.1s;
 `;
 
-const BackToTop = styled.a`
+const Divider = styled.div`
+  width: 60px;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin: 2rem auto;
+`;
+
+const Credits = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  
+  a {
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: var(--text-light);
+    }
+  }
+`;
+
+const ScrollTop = styled.button`
   display: inline-block;
   margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--zen-text-muted);
-  &:hover { color: var(--zen-text); opacity: 1; }
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-light);
+  }
 `;
 
 function Footer() {
   const { coupleNames, weddingDate } = useWedding();
   
+  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
+  
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day} · ${month} · ${year}`;
+    return date.toLocaleDateString('de-DE', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <FooterSection>
-      <Names>{coupleNames || 'Anna & Thomas'}</Names>
-      {weddingDate && <DateText>{formatDate(weddingDate)}</DateText>}
-      <BackToTop href="#top">↑ Nach oben</BackToTop>
+      <Names>
+        {names[0]}<Ampersand>&</Ampersand>{names[1]}
+      </Names>
+      
+      {weddingDate && (
+        <DateText>{formatDate(weddingDate)}</DateText>
+      )}
+      
+      <Divider />
+      
+      <Credits>
+        Made with ♥ by <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">SI Wedding</a>
+      </Credits>
+      
+      <ScrollTop onClick={scrollToTop}>
+        ↑ Nach oben
+      </ScrollTop>
     </FooterSection>
   );
 }

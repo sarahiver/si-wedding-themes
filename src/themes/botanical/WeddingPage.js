@@ -1,8 +1,9 @@
-// WeddingPage.js - Zen Theme (replacing Botanical)
+// WeddingPage.js - Botanical Glass Theme
 import React from 'react';
 import { useWedding } from '../../context/WeddingContext';
 
 // Import components
+import BotanicalBackground from './BotanicalBackground';
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -29,8 +30,14 @@ function WeddingPage() {
 
   return (
     <>
+      {/* Fixed botanical background with parallax leaves */}
+      <BotanicalBackground />
+      
+      {/* Glass navigation */}
       <Navigation />
-      <main>
+      
+      {/* Main content */}
+      <main style={{ position: 'relative', zIndex: 10 }}>
         <Hero />
         {isComponentActive('countdown') && <Countdown />}
         {isComponentActive('lovestory') && <LoveStory />}
@@ -50,6 +57,7 @@ function WeddingPage() {
         {isComponentActive('witnesses') && <ContactWitnesses />}
         {isComponentActive('contact') && <Contact />}
       </main>
+      
       <Footer />
     </>
   );

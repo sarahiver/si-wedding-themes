@@ -1,86 +1,132 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
 const Section = styled.section`
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zen-bg);
+  position: relative;
+  z-index: 10;
   padding: var(--section-padding) 2rem;
 `;
 
-const Content = styled.div`
-  max-width: 700px;
-  width: 100%;
+const Container = styled.div`
+  max-width: 1000px;
+  margin: 0 auto;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 300;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--zen-text);
+  color: var(--text-light);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.1s;`}
 `;
 
-const Grid = styled.div`
+const ABCGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 0;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-const Item = styled.div`
+const ABCCard = styled.div`
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 1.25rem;
   display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--zen-line-light);
+  gap: 1rem;
+  transition: all 0.3s ease;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$delay}s;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.6s ease forwards; animation-delay: ${0.2 + p.$index * 0.05}s;`}
+  
+  &:hover {
+    background: rgba(255,255,255,0.05);
+    transform: translateX(5px);
+  }
 `;
 
 const Letter = styled.span`
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 300;
-  color: var(--zen-text-muted);
-  min-width: 40px;
+  color: var(--text-light);
+  opacity: 0.3;
+  flex-shrink: 0;
+  width: 40px;
+  text-align: center;
 `;
 
-const ItemContent = styled.div`
+const Content = styled.div`
   flex: 1;
 `;
 
-const ItemTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1rem;
+const Word = styled.h4`
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   font-weight: 400;
-  color: var(--zen-text);
+  color: var(--text-light);
   margin-bottom: 0.25rem;
 `;
 
-const ItemText = styled.p`
+const Description = styled.p`
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: var(--zen-text-light);
+  color: var(--text-muted);
+  line-height: 1.6;
   margin: 0;
 `;
 
 function WeddingABC() {
   const { content } = useWedding();
-  const data = content?.weddingabc || {};
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const abcData = content?.weddingabc || {};
   
-  const title = data.title || 'Hochzeits-ABC';
-  const items = data.items || [];
+  const title = abcData.title || 'Hochzeits-ABC';
+  const items = abcData.items || [];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  const defaultItems = [
+    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze vorhanden. ÖPNV bis Haltestelle Blankenese.' },
+    { letter: 'B', word: 'Blumenmädchen', description: 'Die kleine Mia wird Blumen streuen.' },
+    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant in gedeckten Farben.' },
+    { letter: 'F', word: 'Fotos', description: 'Unser Fotograf Frank hält alles fest.' },
+    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das schönste Geschenk.' },
+    { letter: 'K', word: 'Kinder', description: 'Die Feier ist leider nur für Erwachsene.' },
+    { letter: 'M', word: 'Musik', description: 'DJ Max sorgt für die richtige Stimmung.' },
+    { letter: 'T', word: 'Trauung', description: 'Um 14:00 Uhr im Standesamt.' },
+    { letter: 'Ü', word: 'Überraschungen', description: 'Bitte sprecht euch mit den Trauzeugen ab.' },
+    { letter: 'W', word: 'Wetter', description: 'Wir feiern bei jedem Wetter!' },
+  ];
+
+  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -91,24 +137,26 @@ function WeddingABC() {
     return () => observer.disconnect();
   }, []);
 
-  if (items.length === 0) return null;
-
   return (
     <Section id="weddingabc" ref={sectionRef}>
-      <Content>
-        <Title className={visible ? 'visible' : ''}>{title}</Title>
-        <Grid>
-          {items.map((item, i) => (
-            <Item key={i} className={visible ? 'visible' : ''} $delay={0.03 * i}>
+      <Container>
+        <Header>
+          <Eyebrow $visible={visible}>Von A bis Z</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+        </Header>
+        
+        <ABCGrid>
+          {displayItems.map((item, i) => (
+            <ABCCard key={i} $visible={visible} $index={i}>
               <Letter>{item.letter}</Letter>
-              <ItemContent>
-                <ItemTitle>{item.title}</ItemTitle>
-                <ItemText>{item.text}</ItemText>
-              </ItemContent>
-            </Item>
+              <Content>
+                <Word>{item.word}</Word>
+                <Description>{item.description}</Description>
+              </Content>
+            </ABCCard>
           ))}
-        </Grid>
-      </Content>
+        </ABCGrid>
+      </Container>
     </Section>
   );
 }

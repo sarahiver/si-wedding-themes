@@ -1,133 +1,267 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+// ============================================
+// ANIMATIONS
+// ============================================
+
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const lineGrow = keyframes`
+  from { height: 0; }
+  to { height: 100%; }
+`;
+
+const dotPulse = keyframes`
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+  50% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+`;
+
+// ============================================
+// STYLED COMPONENTS
+// ============================================
+
 const Section = styled.section`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zen-bg);
+  position: relative;
+  z-index: 10;
   padding: var(--section-padding) 2rem;
 `;
 
-const Content = styled.div`
-  max-width: 600px;
-  width: 100%;
+const Container = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+  `}
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 300;
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--zen-text);
+  color: var(--text-light);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
   
-  &.visible {
-    opacity: 1;
-    transform: translateY(0);
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.1s;
+  `}
+`;
+
+const Subtitle = styled.p`
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.2s;
+  `}
+`;
+
+const TimelineContainer = styled.div`
+  position: relative;
+  padding-left: 3rem;
+  
+  @media (max-width: 768px) {
+    padding-left: 2rem;
   }
 `;
 
-const Timeline = styled.div`
-  position: relative;
-  padding-left: 2rem;
+const TimelineLine = styled.div`
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.1);
   
-  &::before {
+  &::after {
     content: '';
     position: absolute;
     left: 0;
     top: 0;
-    width: 1px;
-    height: 100%;
-    background: var(--zen-line);
+    width: 100%;
+    height: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
+    
+    ${p => p.$visible && css`
+      animation: ${lineGrow} 1.5s ease forwards;
+      animation-delay: 0.5s;
+    `}
   }
 `;
 
-const Item = styled.div`
+const TimelineItem = styled.div`
   position: relative;
-  padding: 1.5rem 0 1.5rem 2rem;
-  border-bottom: 1px solid var(--zen-line-light);
+  padding-bottom: 3rem;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$delay}s;
   
-  &.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: ${0.3 + p.$index * 0.15}s;
+  `}
   
   &:last-child {
-    border-bottom: none;
+    padding-bottom: 0;
   }
 `;
 
-const Dot = styled.div`
+const TimelineDot = styled.div`
   position: absolute;
-  left: -2rem;
-  top: 2rem;
-  width: 7px;
-  height: 7px;
-  background: var(--zen-bg);
-  border: 1px solid var(--zen-text-light);
+  left: -2.5rem;
+  top: 0.5rem;
+  width: 18px;
+  height: 18px;
+  background: var(--bg-dark);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
-  transform: translateX(-50%);
+  z-index: 2;
+  
+  ${TimelineItem}:hover & {
+    animation: ${dotPulse} 1.5s ease infinite;
+    border-color: var(--text-light);
+  }
+  
+  @media (max-width: 768px) {
+    left: -1.75rem;
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const GlassCard = styled.div`
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  position: relative;
+  overflow: hidden;
   transition: all 0.3s ease;
   
-  ${Item}:hover & {
-    background: var(--zen-text);
-    border-color: var(--zen-text);
-    transform: translateX(-50%) scale(1.3);
+  /* Top highlight */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255,255,255,0.15) 20%, 
+      rgba(255,255,255,0.25) 50%, 
+      rgba(255,255,255,0.15) 80%, 
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: var(--glass-bg-hover);
+    transform: translateX(5px);
   }
 `;
 
-const Year = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 500;
+const Year = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
   letter-spacing: 0.2em;
-  color: var(--zen-text-muted);
-  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
 `;
 
 const ItemTitle = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
   font-weight: 400;
-  color: var(--zen-text);
-  margin-bottom: 0.3rem;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
 `;
 
-const Description = styled.p`
-  font-size: 0.85rem;
-  color: var(--zen-text-light);
+const ItemDescription = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
   margin: 0;
 `;
 
+const ItemImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-top: 1rem;
+  filter: brightness(0.9);
+  transition: all 0.4s ease;
+  
+  ${GlassCard}:hover & {
+    filter: brightness(1);
+  }
+`;
+
+// ============================================
+// COMPONENT
+// ============================================
+
 function LoveStory() {
   const { content } = useWedding();
-  const data = content?.lovestory || {};
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const lovestoryData = content?.lovestory || {};
   
-  const title = data.title || 'Unsere Geschichte';
-  const events = data.events?.length > 0 ? data.events : [
-    { date: '2019', title: 'Das erste Treffen', description: 'Bei gemeinsamen Freunden' },
-    { date: '2021', title: 'Zusammengezogen', description: 'Unsere erste Wohnung' },
-    { date: '2024', title: 'Der Antrag', description: 'Sie hat Ja gesagt' },
+  const title = lovestoryData.title || 'Unsere Geschichte';
+  const subtitle = lovestoryData.subtitle || '';
+  const items = lovestoryData.items || [];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  const defaultItems = [
+    { year: '2019', title: 'Das erste Treffen', description: 'Bei gemeinsamen Freunden auf einer Sommerparty.' },
+    { year: '2021', title: 'Zusammengezogen', description: 'Endlich unter einem Dach – unsere erste gemeinsame Wohnung.' },
+    { year: '2024', title: 'Der Antrag', description: 'Bei Sonnenuntergang am Strand. Sie hat Ja gesagt!' },
   ];
+
+  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
     
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -136,24 +270,29 @@ function LoveStory() {
 
   return (
     <Section id="lovestory" ref={sectionRef}>
-      <Content>
-        <Title className={visible ? 'visible' : ''}>{title}</Title>
+      <Container>
+        <Header>
+          <Eyebrow $visible={visible}>Wie alles begann</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          {subtitle && <Subtitle $visible={visible}>{subtitle}</Subtitle>}
+        </Header>
         
-        <Timeline>
-          {events.map((event, i) => (
-            <Item 
-              key={i} 
-              className={visible ? 'visible' : ''} 
-              $delay={0.1 + i * 0.1}
-            >
-              <Dot />
-              <Year>{event.date}</Year>
-              <ItemTitle>{event.title}</ItemTitle>
-              {event.description && <Description>{event.description}</Description>}
-            </Item>
+        <TimelineContainer>
+          <TimelineLine $visible={visible} />
+          
+          {displayItems.map((item, i) => (
+            <TimelineItem key={i} $visible={visible} $index={i}>
+              <TimelineDot />
+              <GlassCard>
+                <Year>{item.year || item.date}</Year>
+                <ItemTitle>{item.title}</ItemTitle>
+                <ItemDescription>{item.description}</ItemDescription>
+                {item.image && <ItemImage src={item.image} alt={item.title} loading="lazy" />}
+              </GlassCard>
+            </TimelineItem>
           ))}
-        </Timeline>
-      </Content>
+        </TimelineContainer>
+      </Container>
     </Section>
   );
 }

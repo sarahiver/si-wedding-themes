@@ -1,107 +1,235 @@
-import React, { useRef, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
+const fadeInUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
 const Section = styled.section`
-  min-height: 50vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zen-bg-alt);
+  position: relative;
+  z-index: 10;
   padding: var(--section-padding) 2rem;
 `;
 
-const Content = styled.div`
-  max-width: 700px;
-  width: 100%;
+const Container = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+`;
+
+const Eyebrow = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 300;
-  text-align: center;
-  margin-bottom: 2.5rem;
-  color: var(--zen-text);
+  color: var(--text-light);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.1s;`}
 `;
 
-const Grid = styled.div`
+const Subtitle = styled.p`
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.2s;`}
+`;
+
+const WitnessGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 `;
 
-const Witness = styled.div`
+const GlassCard = styled.div`
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  padding: 1.5rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-  transition-delay: ${p => p.$delay}s;
-  &.visible { opacity: 1; transform: translateY(0); }
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: ${0.3 + p.$index * 0.1}s;`}
+  
+  &:hover {
+    background: var(--glass-bg-hover);
+    transform: translateY(-5px);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15) 50%, transparent);
+    pointer-events: none;
+  }
 `;
 
-const WitnessName = styled.h3`
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 400;
-  color: var(--zen-text);
-  margin-bottom: 0.3rem;
+const WitnessImage = styled.div`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.15);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
-const WitnessRole = styled.p`
-  font-size: 0.75rem;
+const WitnessPlaceholder = styled.div`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+`;
+
+const Role = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--zen-text-muted);
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.05);
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
   margin-bottom: 0.75rem;
 `;
 
-const WitnessContact = styled.a`
+const WitnessName = styled.h3`
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+`;
+
+const ContactInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ContactItem = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: var(--zen-text-light);
-  &:hover { color: var(--zen-text); opacity: 1; }
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: var(--text-light);
+  }
 `;
 
 function ContactWitnesses() {
   const { content } = useWedding();
-  const data = content?.witnesses || {};
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const witnessesData = content?.witnesses || {};
   
-  const title = data.title || 'Trauzeugen';
-  const witnesses = data.witnesses || [];
+  const title = witnessesData.title || 'Trauzeugen';
+  const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen & mehr';
+  const witnesses = witnessesData.items || [];
+  
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  const defaultWitnesses = [
+    { name: 'Lisa Müller', role: 'Trauzeugin', email: 'lisa@email.de', phone: '+49 123 456789', image: '' },
+    { name: 'Max Schmidt', role: 'Trauzeuge', email: 'max@email.de', phone: '+49 123 456789', image: '' },
+  ];
+
+  const displayWitnesses = witnesses.length > 0 ? witnesses : defaultWitnesses;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  if (witnesses.length === 0) return null;
-
   return (
     <Section id="witnesses" ref={sectionRef}>
-      <Content>
-        <Title className={visible ? 'visible' : ''}>{title}</Title>
-        <Grid>
-          {witnesses.map((w, i) => (
-            <Witness key={i} className={visible ? 'visible' : ''} $delay={0.1 + i * 0.1}>
-              <WitnessName>{w.name}</WitnessName>
-              {w.role && <WitnessRole>{w.role}</WitnessRole>}
-              {w.phone && <WitnessContact href={`tel:${w.phone}`}>{w.phone}</WitnessContact>}
-              {w.email && <WitnessContact href={`mailto:${w.email}`} style={{display:'block'}}>{w.email}</WitnessContact>}
-            </Witness>
+      <Container>
+        <Header>
+          <Eyebrow $visible={visible}>Ansprechpartner</Eyebrow>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+        </Header>
+        
+        <WitnessGrid>
+          {displayWitnesses.map((witness, i) => (
+            <GlassCard key={i} $visible={visible} $index={i}>
+              {witness.image ? (
+                <WitnessImage>
+                  <img src={witness.image} alt={witness.name} />
+                </WitnessImage>
+              ) : (
+                <WitnessPlaceholder>
+                  {witness.role?.toLowerCase().includes('zeugin') ? '👩' : '👨'}
+                </WitnessPlaceholder>
+              )}
+              
+              <Role>{witness.role}</Role>
+              <WitnessName>{witness.name}</WitnessName>
+              
+              <ContactInfo>
+                {witness.email && (
+                  <ContactItem href={`mailto:${witness.email}`}>
+                    📧 {witness.email}
+                  </ContactItem>
+                )}
+                {witness.phone && (
+                  <ContactItem href={`tel:${witness.phone.replace(/\s/g, '')}`}>
+                    📞 {witness.phone}
+                  </ContactItem>
+                )}
+              </ContactInfo>
+            </GlassCard>
           ))}
-        </Grid>
-      </Content>
+        </WitnessGrid>
+      </Container>
     </Section>
   );
 }
