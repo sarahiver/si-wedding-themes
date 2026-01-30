@@ -292,12 +292,14 @@ const FOREGROUND_LEAVES = [
   },
 ];
 
-// === HERO LEAF - behind nav, scrolls out very slowly ===
+// === HERO LEAF - starts just peeking in, scrolls UP and out ===
 const HERO_LEAF = {
-  src: 1,
-  style: { top: '-5%', left: '50%', width: '500px', transform: 'translateX(-50%) rotate(180deg)' },
-  blur: 0, brightness: 0.85, opacity: 0.9,
-  speed: 0.08, // Very slow scroll out
+  src: 2, // Monstera
+  initialTop: -280, // Starts mostly hidden, just tip visible
+  blur: 0,
+  brightness: 0.85,
+  opacity: 0.92,
+  speed: 0.15, // Scrolls UP (out of viewport)
 };
 
 function BotanicalBackground() {
@@ -347,12 +349,17 @@ function BotanicalBackground() {
             }
           });
           
-          // Hero leaf - scrolls out slowly upward
+          // Hero leaf - scrolls UP and out of viewport
           if (heroLeafRef.current) {
             const yOffset = scrollY.current * HERO_LEAF.speed;
-            heroLeafRef.current.style.transform = `translateX(-50%) rotate(180deg) translateY(-${yOffset}px)`;
-            // Fade out as it scrolls
-            const opacity = Math.max(0, HERO_LEAF.opacity - (scrollProgress * 1.5));
+            const newTop = HERO_LEAF.initialTop - yOffset; // Moves UP (more negative)
+            heroLeafRef.current.style.top = `${newTop}px`;
+            // Fade out as it leaves
+            const fadeStart = 100; // Start fading after 100px scroll
+            const fadeEnd = 400; // Fully faded by 400px scroll
+            const opacity = scrollY.current < fadeStart 
+              ? HERO_LEAF.opacity 
+              : Math.max(0, HERO_LEAF.opacity - ((scrollY.current - fadeStart) / (fadeEnd - fadeStart)) * HERO_LEAF.opacity);
             heroLeafRef.current.style.opacity = opacity;
           }
           
@@ -438,13 +445,16 @@ function BotanicalBackground() {
         ))}
       </ForegroundLayer>
       
-      {/* LAYER 6: Hero Leaf - behind Nav (z-index 500), over content */}
+      {/* LAYER 6: Hero Leaf - behind Nav, scrolls UP and out */}
       <HeroLeafLayer>
         <Leaf
           ref={heroLeafRef}
           src={LEAVES[HERO_LEAF.src]}
           style={{
-            ...HERO_LEAF.style,
+            top: `${HERO_LEAF.initialTop}px`,
+            left: '50%',
+            width: '450px',
+            transform: 'translateX(-50%) rotate(180deg)',
             filter: `blur(${HERO_LEAF.blur}px) brightness(${HERO_LEAF.brightness})`,
             opacity: HERO_LEAF.opacity,
           }}
