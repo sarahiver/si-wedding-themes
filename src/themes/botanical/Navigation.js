@@ -253,7 +253,7 @@ const MobileRSVPButton = styled.a`
 // ============================================
 
 function Navigation() {
-  const { isComponentActive, coupleNames } = useWedding();
+  const { isComponentActive } = useWedding();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Build navigation links based on active components
