@@ -1,8 +1,9 @@
 // WeddingPage.js - Botanical Glass Theme
-import React from 'react';
+import React, { useState } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 
 // Import components
+import LoadingScreen from './LoadingScreen';
 import BotanicalBackground from './BotanicalBackground';
 import Navigation from './Navigation';
 import Hero from './Hero';
@@ -27,9 +28,13 @@ import Footer from './Footer';
 
 function WeddingPage() {
   const { isComponentActive } = useWedding();
+  const [loading, setLoading] = useState(true);
 
   return (
     <>
+      {/* Loading Screen - minimum 2 seconds */}
+      {loading && <LoadingScreen onLoadComplete={() => setLoading(false)} />}
+      
       {/* Fixed botanical background with parallax leaves */}
       <BotanicalBackground />
       

@@ -4,6 +4,7 @@ import WeddingPage from './WeddingPage';
 import AdminDashboard from './AdminDashboard';
 import ArchivePage from './ArchivePage';
 import SaveTheDate from './SaveTheDate';
+import LoadingScreen from './LoadingScreen';
 
 // Individual components
 import BotanicalBackground from './BotanicalBackground';
@@ -34,6 +35,7 @@ export {
   AdminDashboard,
   ArchivePage,
   SaveTheDate,
+  LoadingScreen,
   BotanicalBackground,
   Navigation,
   Hero,
@@ -62,5 +64,6 @@ export default {
   WeddingPage,
   AdminDashboard,
   ArchivePage,
-  SaveTheDate
+  SaveTheDate,
+  LoadingScreen
 };

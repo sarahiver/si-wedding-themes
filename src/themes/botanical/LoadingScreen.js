@@ -20,32 +20,33 @@ const LoadingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.6s ease;
   
-  ${p => p.$loaded && `
-    animation: ${fadeOut} 0.6s ease forwards;
-    animation-delay: 0.3s;
-  `}
+  &.fade-out {
+    animation: ${fadeOut} 0.8s ease forwards;
+  }
 `;
 
 const MonsteraContainer = styled.div`
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   animation: ${pulse} 2s ease-in-out infinite;
+  
+  @media (max-width: 768px) {
+    width: 140px;
+    height: 140px;
+  }
 `;
 
-// Grayscale base layer
 const MonsteraGray = styled.img`
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: grayscale(100%) brightness(0.4);
+  filter: grayscale(100%) brightness(0.3);
 `;
 
-// Color layer with clip mask based on progress
 const MonsteraColor = styled.img`
   position: absolute;
   inset: 0;
@@ -53,66 +54,77 @@ const MonsteraColor = styled.img`
   height: 100%;
   object-fit: contain;
   filter: brightness(0.85) saturate(1.1);
-  clip-path: ${p => `inset(${100 - p.$progress}% 0 0 0)`};
+  clip-path: inset(${p => 100 - p.$progress}% 0 0 0);
   transition: clip-path 0.3s ease;
 `;
 
 const LoadingText = styled.p`
   margin-top: 2rem;
-  font-family: var(--font-body, 'Montserrat', sans-serif);
-  font-size: 0.65rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
   font-weight: 500;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
 `;
 
 const ProgressText = styled.span`
   display: block;
   margin-top: 0.5rem;
-  font-family: var(--font-display, 'Cormorant Garamond', serif);
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, ${p => 0.3 + (p.$progress / 100) * 0.5});
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, ${p => 0.25 + (p.$progress / 100) * 0.5});
   transition: color 0.3s ease;
 `;
 
 const MONSTERA_IMG = 'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png';
 
+const MIN_DISPLAY_TIME = 2000; // Minimum 2 seconds
+
 function LoadingScreen({ onLoadComplete }) {
   const [progress, setProgress] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [canHide, setCanHide] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [startTime] = useState(Date.now());
 
+  // Progress animation
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           return 100;
         }
-        // Accelerate towards the end
-        const increment = prev < 70 ? Math.random() * 15 + 5 : Math.random() * 8 + 2;
+        const increment = prev < 60 ? Math.random() * 12 + 5 : Math.random() * 6 + 2;
         return Math.min(prev + increment, 100);
       });
-    }, 150);
+    }, 120);
 
     return () => clearInterval(interval);
   }, []);
 
+  // Minimum display time
   useEffect(() => {
-    if (progress >= 100) {
+    const timer = setTimeout(() => {
+      setCanHide(true);
+    }, MIN_DISPLAY_TIME);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Trigger fade out when both conditions met
+  useEffect(() => {
+    if (progress >= 100 && canHide) {
+      setFadeOut(true);
       const timer = setTimeout(() => {
-        setLoaded(true);
-        if (onLoadComplete) {
-          setTimeout(onLoadComplete, 600);
-        }
-      }, 300);
+        if (onLoadComplete) onLoadComplete();
+      }, 800); // Match fade animation duration
       return () => clearTimeout(timer);
     }
-  }, [progress, onLoadComplete]);
+  }, [progress, canHide, onLoadComplete]);
 
   return (
-    <LoadingContainer $loaded={loaded}>
+    <LoadingContainer className={fadeOut ? 'fade-out' : ''}>
       <MonsteraContainer>
         <MonsteraGray src={MONSTERA_IMG} alt="" />
         <MonsteraColor src={MONSTERA_IMG} alt="" $progress={progress} />
