@@ -1,13 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-// Cloudinary leaf images (ohne pngwing.com_1)
+// Cloudinary leaf images (ohne pngwing.com_1 und pngwing.com_7)
 const LEAVES = [
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789868/pngwing.com_6_xo6v3t.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_3_tz1fk6.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_4_ugo8hl.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789865/pngwing.com_2_sxhekf.png',
-  'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_7_npj9xa.png',
 ];
 
 // Background layer (behind content)
@@ -20,7 +19,7 @@ const BackgroundContainer = styled.div`
   pointer-events: none;
 `;
 
-// Foreground layer (overlays glass elements in the middle)
+// Foreground layer - corner leaves that grow/scale on scroll
 const ForegroundContainer = styled.div`
   position: fixed;
   inset: 0;
@@ -34,7 +33,7 @@ const AmbientLight = styled.div`
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: 0.35;
   pointer-events: none;
   
   &.light1 {
@@ -54,24 +53,35 @@ const AmbientLight = styled.div`
   }
   
   &.light3 {
-    width: 350px;
-    height: 350px;
+    width: 300px;
+    height: 300px;
     background: radial-gradient(circle, rgba(28, 69, 39, 0.3) 0%, transparent 70%);
     top: 50%;
     left: 20%;
   }
 `;
 
-// Leaf styling
-const Leaf = styled.img`
+// Background leaf - subtle, blurred, minimal movement
+const BgLeaf = styled.img`
   position: absolute;
   pointer-events: none;
   will-change: transform;
+  filter: blur(${p => p.$blur || 2}px) brightness(0.45);
+  opacity: ${p => p.$opacity || 0.5};
   
-  &.back { filter: blur(2px) brightness(0.5); opacity: 0.5; }
-  &.mid { filter: blur(1px) brightness(0.65); opacity: 0.7; }
-  &.front { filter: blur(0px) brightness(0.8); opacity: 0.85; }
-  &.overlay { filter: blur(0.5px) brightness(0.75); opacity: 0.9; }
+  @media (max-width: 768px) {
+    &.hide-mobile { display: none; }
+  }
+`;
+
+// Foreground corner leaf - grows from corner on scroll
+const CornerLeaf = styled.img`
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  filter: brightness(0.7);
+  opacity: 0.85;
+  transform-origin: ${p => p.$origin || 'center center'};
   
   @media (max-width: 768px) {
     &.hide-mobile { display: none; }
@@ -91,48 +101,66 @@ const Vignette = styled.div`
   pointer-events: none;
 `;
 
-// BACKGROUND LEAVES - behind content (reduced count for performance)
+// BACKGROUND LEAVES - subtle, blurred, almost static
 const BG_LEAVES = [
-  // Top edge
-  { src: 0, className: 'back', style: { top: '-12%', left: '8%', width: '320px', transform: 'rotate(175deg) scaleX(-1)' }, speed: 0.012 },
-  { src: 1, className: 'mid', style: { top: '-10%', right: '15%', width: '300px', transform: 'rotate(170deg)' }, speed: 0.018 },
+  // Top - very blurred, far back
+  { src: 0, style: { top: '-10%', left: '5%', width: '300px', transform: 'rotate(175deg) scaleX(-1)' }, blur: 4, opacity: 0.35, speed: 0.005 },
+  { src: 1, style: { top: '-8%', right: '10%', width: '280px', transform: 'rotate(170deg)' }, blur: 3, opacity: 0.4, speed: 0.008 },
   
   // Left edge
-  { src: 2, className: 'mid', style: { top: '20%', left: '-10%', width: '340px', transform: 'rotate(95deg)' }, speed: 0.02 },
-  { src: 3, className: 'back', style: { top: '55%', left: '-8%', width: '300px', transform: 'rotate(85deg) scaleY(-1)' }, speed: 0.015 },
+  { src: 2, style: { top: '25%', left: '-8%', width: '320px', transform: 'rotate(95deg)' }, blur: 3, opacity: 0.45, speed: 0.006 },
+  { src: 3, className: 'hide-mobile', style: { top: '60%', left: '-6%', width: '280px', transform: 'rotate(85deg) scaleY(-1)' }, blur: 4, opacity: 0.35, speed: 0.004 },
   
   // Right edge
-  { src: 4, className: 'mid', style: { top: '25%', right: '-10%', width: '320px', transform: 'rotate(-90deg)' }, speed: 0.018 },
-  { src: 0, className: 'back', style: { top: '60%', right: '-8%', width: '280px', transform: 'rotate(-85deg) scaleY(-1)' }, speed: 0.014 },
+  { src: 0, style: { top: '30%', right: '-8%', width: '300px', transform: 'rotate(-90deg)' }, blur: 3, opacity: 0.45, speed: 0.007 },
+  { src: 1, className: 'hide-mobile', style: { top: '65%', right: '-6%', width: '260px', transform: 'rotate(-85deg) scaleY(-1)' }, blur: 4, opacity: 0.35, speed: 0.005 },
   
-  // Bottom edge
-  { src: 1, className: 'back', style: { bottom: '-15%', left: '20%', width: '350px', transform: 'rotate(-5deg)' }, speed: 0.012 },
-  { src: 3, className: 'mid', style: { bottom: '-12%', right: '15%', width: '320px', transform: 'rotate(8deg) scaleX(-1)' }, speed: 0.016 },
-  
-  // Corners
-  { src: 2, className: 'front', style: { top: '-5%', left: '-6%', width: '380px', transform: 'rotate(130deg)' }, speed: 0.022 },
-  { src: 4, className: 'front', style: { top: '-5%', right: '-6%', width: '360px', transform: 'rotate(-130deg) scaleX(-1)' }, speed: 0.024 },
-  { src: 0, className: 'mid', style: { bottom: '-8%', left: '-5%', width: '340px', transform: 'rotate(50deg)' }, speed: 0.018 },
-  { src: 1, className: 'mid', style: { bottom: '-8%', right: '-5%', width: '320px', transform: 'rotate(-50deg) scaleX(-1)' }, speed: 0.02 },
+  // Bottom
+  { src: 2, style: { bottom: '-12%', left: '15%', width: '320px', transform: 'rotate(-5deg)' }, blur: 3, opacity: 0.4, speed: 0.006 },
+  { src: 3, style: { bottom: '-10%', right: '10%', width: '300px', transform: 'rotate(8deg) scaleX(-1)' }, blur: 3, opacity: 0.4, speed: 0.008 },
 ];
 
-// FOREGROUND LEAVES - overlay glass elements in middle
-const FG_LEAVES = [
-  // Left side overlays
-  { src: 3, className: 'overlay', style: { top: '30%', left: '-3%', width: '280px', transform: 'rotate(100deg)' }, speed: 0.025 },
-  { src: 4, className: 'overlay hide-mobile', style: { top: '65%', left: '-2%', width: '240px', transform: 'rotate(80deg) scaleY(-1)' }, speed: 0.028 },
-  
-  // Right side overlays
-  { src: 2, className: 'overlay', style: { top: '35%', right: '-3%', width: '260px', transform: 'rotate(-95deg) scaleY(-1)' }, speed: 0.026 },
-  { src: 0, className: 'overlay hide-mobile', style: { top: '70%', right: '-2%', width: '220px', transform: 'rotate(-75deg)' }, speed: 0.03 },
-  
-  // Top overlay (subtle)
-  { src: 1, className: 'overlay hide-mobile', style: { top: '-8%', left: '40%', width: '200px', transform: 'rotate(180deg)' }, speed: 0.02 },
+// CORNER LEAVES - foreground, grow from corners on scroll
+const CORNER_LEAVES = [
+  // Top-left corner - grows diagonally into view
+  { 
+    src: 2, 
+    style: { top: '-5%', left: '-5%', width: '400px', transform: 'rotate(130deg)' },
+    origin: 'top left',
+    baseScale: 0.8,
+    maxScale: 1.15,
+  },
+  // Top-right corner
+  { 
+    src: 0, 
+    style: { top: '-5%', right: '-5%', width: '380px', transform: 'rotate(-130deg) scaleX(-1)' },
+    origin: 'top right',
+    baseScale: 0.8,
+    maxScale: 1.12,
+  },
+  // Bottom-left corner
+  { 
+    src: 1, 
+    className: 'hide-mobile',
+    style: { bottom: '-3%', left: '-4%', width: '350px', transform: 'rotate(45deg)' },
+    origin: 'bottom left',
+    baseScale: 0.85,
+    maxScale: 1.1,
+  },
+  // Bottom-right corner
+  { 
+    src: 3, 
+    className: 'hide-mobile',
+    style: { bottom: '-3%', right: '-4%', width: '340px', transform: 'rotate(-45deg) scaleX(-1)' },
+    origin: 'bottom right',
+    baseScale: 0.85,
+    maxScale: 1.08,
+  },
 ];
 
 function BotanicalBackground() {
   const bgLeafRefs = useRef([]);
-  const fgLeafRefs = useRef([]);
+  const cornerLeafRefs = useRef([]);
   const scrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -142,7 +170,10 @@ function BotanicalBackground() {
       
       if (!ticking.current) {
         requestAnimationFrame(() => {
-          // Animate background leaves
+          const maxScroll = document.body.scrollHeight - window.innerHeight;
+          const scrollProgress = Math.min(scrollY.current / Math.max(maxScroll, 1), 1);
+          
+          // Background leaves - very subtle vertical movement
           bgLeafRefs.current.forEach((leaf, index) => {
             if (leaf && BG_LEAVES[index]) {
               const speed = BG_LEAVES[index].speed;
@@ -152,13 +183,13 @@ function BotanicalBackground() {
             }
           });
           
-          // Animate foreground leaves
-          fgLeafRefs.current.forEach((leaf, index) => {
-            if (leaf && FG_LEAVES[index]) {
-              const speed = FG_LEAVES[index].speed;
-              const yOffset = scrollY.current * speed;
-              const baseTransform = FG_LEAVES[index].style.transform || '';
-              leaf.style.transform = `${baseTransform} translateY(${yOffset}px)`;
+          // Corner leaves - scale/grow from corners
+          cornerLeafRefs.current.forEach((leaf, index) => {
+            if (leaf && CORNER_LEAVES[index]) {
+              const config = CORNER_LEAVES[index];
+              const baseTransform = config.style.transform || '';
+              const scale = config.baseScale + (scrollProgress * (config.maxScale - config.baseScale));
+              leaf.style.transform = `${baseTransform} scale(${scale})`;
             }
           });
           
@@ -169,6 +200,7 @@ function BotanicalBackground() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -181,12 +213,14 @@ function BotanicalBackground() {
         <AmbientLight className="light3" />
         
         {BG_LEAVES.map((config, index) => (
-          <Leaf
+          <BgLeaf
             key={`bg-${index}`}
             ref={el => bgLeafRefs.current[index] = el}
             src={LEAVES[config.src]}
-            className={config.className}
+            className={config.className || ''}
             style={config.style}
+            $blur={config.blur}
+            $opacity={config.opacity}
             alt=""
             loading="lazy"
           />
@@ -195,15 +229,16 @@ function BotanicalBackground() {
         <Vignette />
       </BackgroundContainer>
       
-      {/* Foreground layer - overlays glass elements */}
+      {/* Foreground layer - corner leaves that grow */}
       <ForegroundContainer>
-        {FG_LEAVES.map((config, index) => (
-          <Leaf
-            key={`fg-${index}`}
-            ref={el => fgLeafRefs.current[index] = el}
+        {CORNER_LEAVES.map((config, index) => (
+          <CornerLeaf
+            key={`corner-${index}`}
+            ref={el => cornerLeafRefs.current[index] = el}
             src={LEAVES[config.src]}
-            className={config.className}
+            className={config.className || ''}
             style={config.style}
+            $origin={config.origin}
             alt=""
             loading="lazy"
           />
