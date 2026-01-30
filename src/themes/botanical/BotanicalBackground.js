@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-// Cloudinary leaf images (ohne pngwing.com_1)
+// Forest background
+const FOREST_BG = 'https://res.cloudinary.com/si-weddings/image/upload/v1769793086/forest-6761846_1920_dumcnj.jpg';
+
+// Cloudinary leaf images
 const LEAVES = [
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789868/pngwing.com_6_xo6v3t.png',
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789866/pngwing.com_3_tz1fk6.png',
@@ -9,17 +12,39 @@ const LEAVES = [
   'https://res.cloudinary.com/si-weddings/image/upload/v1769789865/pngwing.com_2_sxhekf.png',
 ];
 
-// Background layer (behind content)
+// Base background with forest image
 const BackgroundContainer = styled.div`
   position: fixed;
   inset: 0;
   z-index: 1;
   overflow: hidden;
-  background: var(--bg-gradient);
   pointer-events: none;
+  
+  /* Forest background image - darkened */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url(${FOREST_BG}) center/cover no-repeat;
+    filter: brightness(0.25) saturate(0.7);
+  }
+  
+  /* Dark gradient overlay for depth */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(to bottom,
+        rgba(2, 8, 2, 0.6) 0%,
+        rgba(2, 8, 2, 0.2) 30%,
+        rgba(2, 8, 2, 0.2) 70%,
+        rgba(2, 8, 2, 0.7) 100%
+      );
+  }
 `;
 
-// Foreground layer - corner leaves that grow on scroll
+// Foreground layer - corner leaves
 const ForegroundContainer = styled.div`
   position: fixed;
   inset: 0;
@@ -28,40 +53,43 @@ const ForegroundContainer = styled.div`
   pointer-events: none;
 `;
 
-// Ambient lighting
+// Ambient lighting - green glows
 const AmbientLight = styled.div`
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.4;
   pointer-events: none;
+  z-index: 2;
   
   &.light1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(34, 85, 51, 0.5) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(34, 85, 51, 0.4) 0%, transparent 70%);
     top: -150px;
     left: -100px;
+    opacity: 0.5;
   }
   
   &.light2 {
     width: 450px;
     height: 450px;
-    background: radial-gradient(circle, rgba(45, 90, 39, 0.4) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(45, 90, 39, 0.35) 0%, transparent 70%);
     bottom: -100px;
     right: -80px;
+    opacity: 0.5;
   }
   
   &.light3 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, rgba(28, 69, 39, 0.35) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(28, 69, 39, 0.3) 0%, transparent 70%);
     top: 40%;
     left: 25%;
+    opacity: 0.4;
   }
 `;
 
-// Leaf base styles
+// Leaf styles
 const Leaf = styled.img`
   position: absolute;
   pointer-events: none;
@@ -72,17 +100,18 @@ const Leaf = styled.img`
   }
 `;
 
-// Vignette
+// Vignette overlay
 const Vignette = styled.div`
   position: absolute;
   inset: 0;
   background: radial-gradient(
     ellipse 70% 70% at 50% 50%,
     transparent 10%,
-    rgba(4, 6, 4, 0.5) 60%,
-    rgba(4, 6, 4, 0.9) 100%
+    rgba(2, 8, 2, 0.5) 60%,
+    rgba(2, 8, 2, 0.85) 100%
   );
   pointer-events: none;
+  z-index: 3;
 `;
 
 // === LAYER 1: BACK - very blurred, slow, atmospheric ===
@@ -226,7 +255,7 @@ function BotanicalBackground() {
 
   return (
     <>
-      {/* Background layer */}
+      {/* Background layer with forest image */}
       <BackgroundContainer>
         <AmbientLight className="light1" />
         <AmbientLight className="light2" />
@@ -243,6 +272,7 @@ function BotanicalBackground() {
               ...config.style,
               filter: `blur(${config.blur}px) brightness(${config.brightness})`,
               opacity: config.opacity,
+              zIndex: 2,
             }}
             alt=""
             loading="lazy"
@@ -260,6 +290,7 @@ function BotanicalBackground() {
               ...config.style,
               filter: `blur(${config.blur}px) brightness(${config.brightness})`,
               opacity: config.opacity,
+              zIndex: 2,
             }}
             alt=""
             loading="lazy"
