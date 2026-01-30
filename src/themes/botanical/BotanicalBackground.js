@@ -93,6 +93,17 @@ const ForegroundLayer = styled.div`
   pointer-events: none;
 `;
 
+// ===========================================
+// LAYER 6: Hero Leaf - behind Nav, over content (z-index: 500)
+// ===========================================
+const HeroLeafLayer = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  overflow: hidden;
+  pointer-events: none;
+`;
+
 // Ambient lighting
 const AmbientLight = styled.div`
   position: absolute;
@@ -281,10 +292,19 @@ const FOREGROUND_LEAVES = [
   },
 ];
 
+// === HERO LEAF - behind nav, scrolls out very slowly ===
+const HERO_LEAF = {
+  src: 1,
+  style: { top: '-5%', left: '50%', width: '500px', transform: 'translateX(-50%) rotate(180deg)' },
+  blur: 0, brightness: 0.85, opacity: 0.9,
+  speed: 0.08, // Very slow scroll out
+};
+
 function BotanicalBackground() {
   const backLeafRefs = useRef([]);
   const midLeafRefs = useRef([]);
   const fgLeafRefs = useRef([]);
+  const heroLeafRef = useRef(null);
   const scrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -326,6 +346,15 @@ function BotanicalBackground() {
               leaf.style.transform = `${baseTransform} scale(${scale})`;
             }
           });
+          
+          // Hero leaf - scrolls out slowly upward
+          if (heroLeafRef.current) {
+            const yOffset = scrollY.current * HERO_LEAF.speed;
+            heroLeafRef.current.style.transform = `translateX(-50%) rotate(180deg) translateY(-${yOffset}px)`;
+            // Fade out as it scrolls
+            const opacity = Math.max(0, HERO_LEAF.opacity - (scrollProgress * 1.5));
+            heroLeafRef.current.style.opacity = opacity;
+          }
           
           ticking.current = false;
         });
@@ -408,6 +437,21 @@ function BotanicalBackground() {
           />
         ))}
       </ForegroundLayer>
+      
+      {/* LAYER 6: Hero Leaf - behind Nav (z-index 500), over content */}
+      <HeroLeafLayer>
+        <Leaf
+          ref={heroLeafRef}
+          src={LEAVES[HERO_LEAF.src]}
+          style={{
+            ...HERO_LEAF.style,
+            filter: `blur(${HERO_LEAF.blur}px) brightness(${HERO_LEAF.brightness})`,
+            opacity: HERO_LEAF.opacity,
+          }}
+          alt=""
+          loading="eager"
+        />
+      </HeroLeafLayer>
     </>
   );
 }
