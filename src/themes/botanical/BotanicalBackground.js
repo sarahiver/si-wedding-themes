@@ -29,7 +29,7 @@ const BackgroundLayer = styled.div`
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  transform: translateZ(0); /* Force GPU layer */
+  transform: translateZ(0);
   
   &::before {
     content: '';
@@ -60,7 +60,7 @@ const LeafLayer = styled.div`
   overflow: hidden;
   pointer-events: none;
   transform: translateZ(0);
-  contain: layout style paint; /* Performance optimization */
+  contain: layout style paint;
   
   @media (max-width: 768px) {
     &.hide-mobile { display: none; }
@@ -86,7 +86,6 @@ const AmbientLight = styled.div`
   border-radius: 50%;
   pointer-events: none;
   transform: translateZ(0);
-  /* Use box-shadow instead of filter blur for better performance */
   
   &.light1 {
     width: 400px;
@@ -119,50 +118,55 @@ const AmbientLight = styled.div`
   }
 `;
 
-// Optimized leaf - uses translate3d for GPU acceleration
 const Leaf = styled.img`
   position: absolute;
   pointer-events: none;
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Remove filter from here - apply via CSS variable */
 `;
 
 // ===========================================
-// REDUCED LEAF CONFIGURATIONS - PERFORMANCE
+// LEAF CONFIGURATIONS
 // ===========================================
 
-// Desktop: Reduced from 34 to 16 leaves
+// Desktop: 16 leaves
 const LEAVES_CONFIG_DESKTOP = [
-  // Back layer - 4 leaves (was 12)
+  // Back layer - 4 leaves
   { src: 0, layer: 2, style: { top: '-12%', left: '-5%', width: '350px' }, rotate: 170, scaleX: -1, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.008 },
   { src: 1, layer: 2, style: { top: '-10%', right: '-5%', width: '330px' }, rotate: -170, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.01 },
   { src: 2, layer: 2, style: { bottom: '-15%', left: '5%', width: '380px' }, rotate: -8, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.007 },
   { src: 3, layer: 2, style: { bottom: '-12%', right: '0%', width: '350px' }, rotate: 10, scaleX: -1, blur: 4, brightness: 0.4, opacity: 0.5, speed: 0.009 },
   
-  // Mid layer - 4 leaves (was 8)
+  // Mid layer - 4 leaves
   { src: 0, layer: 3, style: { top: '25%', left: '-5%', width: '280px' }, rotate: 92, blur: 1, brightness: 0.55, opacity: 0.7, speed: 0.015 },
   { src: 1, layer: 3, style: { top: '55%', right: '-5%', width: '270px' }, rotate: -92, blur: 1, brightness: 0.55, opacity: 0.7, speed: 0.016 },
   { src: 2, layer: 3, style: { top: '70%', left: '-4%', width: '260px' }, rotate: 88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.014 },
   { src: 3, layer: 3, style: { top: '35%', right: '-4%', width: '250px' }, rotate: -88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.017 },
   
-  // Foreground corners - 8 leaves (was 14) - NO PARALLAX, just scale
+  // Foreground corners - TOP (smaller, same as before)
   { src: 2, layer: 100, style: { top: '-2%', left: '-2%', width: '400px' }, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top left', baseScale: 0.88, maxScale: 1.08 },
   { src: 1, layer: 100, style: { top: '-2%', right: '-2%', width: '380px' }, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top right', baseScale: 0.88, maxScale: 1.08 },
-  { src: 0, layer: 100, style: { top: '40%', left: '-2%', width: '250px' }, rotate: 95, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'left center', baseScale: 0.92, maxScale: 1.04 },
-  { src: 3, layer: 100, style: { top: '45%', right: '-2%', width: '240px' }, rotate: -95, blur: 0, brightness: 0.75, opacity: 0.85, origin: 'right center', baseScale: 0.92, maxScale: 1.04 },
-  { src: 3, layer: 100, style: { bottom: '-1%', left: '-2%', width: '350px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'bottom left', baseScale: 0.9, maxScale: 1.06 },
-  { src: 0, layer: 100, style: { bottom: '-1%', right: '-2%', width: '330px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'bottom right', baseScale: 0.9, maxScale: 1.06 },
+  
+  // Foreground SIDES - BIGGER
+  { src: 0, layer: 100, style: { top: '35%', left: '-3%', width: '380px' }, rotate: 95, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'left center', baseScale: 0.85, maxScale: 1.06 },
+  { src: 3, layer: 100, style: { top: '40%', right: '-3%', width: '360px' }, rotate: -95, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'right center', baseScale: 0.85, maxScale: 1.06 },
+  
+  // Foreground BOTTOM - BIGGER
+  { src: 3, layer: 100, style: { bottom: '-2%', left: '-3%', width: '480px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom left', baseScale: 0.85, maxScale: 1.1 },
+  { src: 0, layer: 100, style: { bottom: '-2%', right: '-3%', width: '450px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom right', baseScale: 0.85, maxScale: 1.1 },
 ];
 
-// Mobile: Only 6 leaves
+// Mobile: 6 leaves - corners bigger (except top)
 const LEAVES_CONFIG_MOBILE = [
-  // Corners only
+  // Top corners - smaller
   { src: 2, layer: 100, style: { top: '-3%', left: '-3%', width: '180px' }, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top left', baseScale: 0.92, maxScale: 1.05 },
   { src: 1, layer: 100, style: { top: '-3%', right: '-3%', width: '170px' }, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top right', baseScale: 0.92, maxScale: 1.05 },
-  { src: 3, layer: 100, style: { bottom: '-2%', left: '-3%', width: '160px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.85, origin: 'bottom left', baseScale: 0.94, maxScale: 1.04 },
-  { src: 0, layer: 100, style: { bottom: '-2%', right: '-3%', width: '150px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.85, origin: 'bottom right', baseScale: 0.94, maxScale: 1.04 },
+  
+  // Bottom corners - BIGGER
+  { src: 3, layer: 100, style: { bottom: '-3%', left: '-4%', width: '220px' }, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom left', baseScale: 0.9, maxScale: 1.06 },
+  { src: 0, layer: 100, style: { bottom: '-3%', right: '-4%', width: '210px' }, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom right', baseScale: 0.9, maxScale: 1.06 },
+  
   // Sides
   { src: 0, layer: 3, style: { top: '30%', left: '-5%', width: '140px' }, rotate: 95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.008 },
   { src: 1, layer: 3, style: { top: '50%', right: '-5%', width: '130px' }, rotate: -95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.01 },
@@ -186,7 +190,6 @@ function BotanicalBackground() {
   const rafId = useRef(null);
   const lastScrollY = useRef(0);
 
-  // Memoize config
   const LEAVES_CONFIG = useMemo(() => 
     isMobile ? LEAVES_CONFIG_MOBILE : LEAVES_CONFIG_DESKTOP
   , [isMobile]);
@@ -195,7 +198,6 @@ function BotanicalBackground() {
     isMobile ? LEAVES_MOBILE : LEAVES_DESKTOP
   , [isMobile]);
 
-  // Resize handler with debounce
   useEffect(() => {
     let timeout;
     const handleResize = () => {
@@ -211,7 +213,6 @@ function BotanicalBackground() {
     };
   }, []);
 
-  // Optimized scroll handler
   useEffect(() => {
     const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
     
@@ -225,17 +226,14 @@ function BotanicalBackground() {
         if (!config) return;
         
         if (config.speed) {
-          // Parallax leaves - only translate
           const y = scrollY * config.speed;
           leaf.style.transform = `translate3d(0, ${y}px, 0) rotate(${config.rotate}deg)${config.scaleX ? ' scaleX(-1)' : ''}${config.scaleY ? ' scaleY(-1)' : ''}`;
         } else if (config.baseScale) {
-          // Corner leaves - only scale
           const scale = config.baseScale + (scrollProgress * (config.maxScale - config.baseScale));
           leaf.style.transform = `translate3d(0, 0, 0) rotate(${config.rotate}deg) scale(${scale})${config.scaleX ? ' scaleX(-1)' : ''}${config.scaleY ? ' scaleY(-1)' : ''}`;
         }
       });
       
-      // Hero leaf
       if (heroLeafRef.current && !isMobile) {
         const y = -(scrollY * HERO_LEAF.speed);
         heroLeafRef.current.style.transform = `translate3d(-50%, ${y}px, 0) rotate(180deg)`;
@@ -259,7 +257,7 @@ function BotanicalBackground() {
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial
+    handleScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -267,7 +265,6 @@ function BotanicalBackground() {
     };
   }, [isMobile, LEAVES_CONFIG]);
 
-  // Build initial transform string
   const getInitialTransform = (config) => {
     let transform = `translate3d(0, 0, 0) rotate(${config.rotate}deg)`;
     if (config.baseScale) transform += ` scale(${config.baseScale})`;
@@ -283,7 +280,6 @@ function BotanicalBackground() {
         <AmbientLight className="light2" />
       </BackgroundLayer>
       
-      {/* All leaves in one render pass, grouped by z-index */}
       {[2, 3, 100].map(zIndex => (
         <LeafLayer key={zIndex} $zIndex={zIndex}>
           {LEAVES_CONFIG.filter(c => c.layer === zIndex).map((config, i) => {
@@ -311,7 +307,6 @@ function BotanicalBackground() {
       
       <Vignette />
       
-      {/* Hero leaf - desktop only */}
       {!isMobile && (
         <LeafLayer $zIndex={500}>
           <Leaf
