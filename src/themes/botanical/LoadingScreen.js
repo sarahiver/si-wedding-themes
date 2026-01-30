@@ -1,3 +1,4 @@
+// LoadingScreen.js - Botanical Glass Theme
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -8,7 +9,7 @@ const fadeOut = keyframes`
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  50% { transform: scale(1.03); }
 `;
 
 const LoadingContainer = styled.div`
@@ -22,19 +23,19 @@ const LoadingContainer = styled.div`
   justify-content: center;
   
   &.fade-out {
-    animation: ${fadeOut} 0.8s ease forwards;
+    animation: ${fadeOut} 0.6s ease forwards;
   }
 `;
 
 const MonsteraContainer = styled.div`
   position: relative;
-  width: 180px;
-  height: 180px;
-  animation: ${pulse} 2s ease-in-out infinite;
+  width: 160px;
+  height: 160px;
+  animation: ${pulse} 2.5s ease-in-out infinite;
   
   @media (max-width: 768px) {
-    width: 140px;
-    height: 140px;
+    width: 120px;
+    height: 120px;
   }
 `;
 
@@ -44,7 +45,7 @@ const MonsteraGray = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: grayscale(100%) brightness(0.3);
+  filter: grayscale(100%) brightness(0.25);
 `;
 
 const MonsteraColor = styled.img`
@@ -53,41 +54,40 @@ const MonsteraColor = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: brightness(0.85) saturate(1.1);
+  filter: brightness(0.8) saturate(1.1);
   clip-path: inset(${p => 100 - p.$progress}% 0 0 0);
-  transition: clip-path 0.3s ease;
+  transition: clip-path 0.4s ease;
 `;
 
 const LoadingText = styled.p`
   margin-top: 2rem;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 500;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.3);
 `;
 
 const ProgressText = styled.span`
   display: block;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, ${p => 0.25 + (p.$progress / 100) * 0.5});
+  font-size: 1rem;
+  color: rgba(255, 255, 255, ${p => 0.2 + (p.$progress / 100) * 0.5});
   transition: color 0.3s ease;
 `;
 
-const MONSTERA_IMG = 'https://res.cloudinary.com/si-weddings/image/upload/w_400,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png';
+const MONSTERA_IMG = 'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png';
 
 const MIN_DISPLAY_TIME = 2000; // Minimum 2 seconds
 
-function LoadingScreen({ onLoadComplete }) {
+function LoadingScreen({ onLoadComplete, isDataReady = false }) {
   const [progress, setProgress] = useState(0);
-  const [canHide, setCanHide] = useState(false);
+  const [minTimeReached, setMinTimeReached] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
-  const [startTime] = useState(Date.now());
 
-  // Progress animation
+  // Progress animation - faster if data is ready
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -95,18 +95,23 @@ function LoadingScreen({ onLoadComplete }) {
           clearInterval(interval);
           return 100;
         }
-        const increment = prev < 60 ? Math.random() * 12 + 5 : Math.random() * 6 + 2;
+        // Speed up progress if data is already loaded
+        const baseIncrement = isDataReady ? 15 : 8;
+        const variance = isDataReady ? 10 : 6;
+        const increment = prev < 60 
+          ? Math.random() * baseIncrement + variance 
+          : Math.random() * (baseIncrement * 0.6) + (variance * 0.4);
         return Math.min(prev + increment, 100);
       });
-    }, 120);
+    }, 100);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isDataReady]);
 
-  // Minimum display time
+  // Minimum display time timer
   useEffect(() => {
     const timer = setTimeout(() => {
-      setCanHide(true);
+      setMinTimeReached(true);
     }, MIN_DISPLAY_TIME);
 
     return () => clearTimeout(timer);
@@ -114,14 +119,28 @@ function LoadingScreen({ onLoadComplete }) {
 
   // Trigger fade out when both conditions met
   useEffect(() => {
-    if (progress >= 100 && canHide) {
+    if (progress >= 100 && minTimeReached && isDataReady) {
       setFadeOut(true);
       const timer = setTimeout(() => {
         if (onLoadComplete) onLoadComplete();
-      }, 800); // Match fade animation duration
+      }, 600); // Match fade animation duration
       return () => clearTimeout(timer);
     }
-  }, [progress, canHide, onLoadComplete]);
+  }, [progress, minTimeReached, isDataReady, onLoadComplete]);
+
+  // Fallback: If data takes too long, complete anyway after extra time
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (!fadeOut) {
+        setFadeOut(true);
+        setTimeout(() => {
+          if (onLoadComplete) onLoadComplete();
+        }, 600);
+      }
+    }, 5000); // Max 5 seconds total
+
+    return () => clearTimeout(fallbackTimer);
+  }, [fadeOut, onLoadComplete]);
 
   return (
     <LoadingContainer className={fadeOut ? 'fade-out' : ''}>
