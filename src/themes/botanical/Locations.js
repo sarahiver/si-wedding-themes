@@ -1,79 +1,117 @@
-// Botanical Tree Locations
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import ContentBranch from './ContentBranch';
 
-const LocationCard = styled.div`
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--off-white);
-  &:last-child { border-bottom: none; }
-  &:first-child { padding-top: 0; }
+const Section = styled.section`
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zen-bg);
+  padding: var(--section-padding) 2rem;
 `;
 
-const LocationType = styled.p`
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--light);
-  margin-bottom: 0.25rem;
+const Content = styled.div`
+  max-width: 900px;
+  width: 100%;
 `;
 
-const LocationName = styled.h3`
+const Title = styled.h2`
   font-family: var(--font-serif);
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: var(--black);
-  margin-bottom: 0.25rem;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--zen-text);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  &.visible { opacity: 1; transform: translateY(0); }
 `;
 
-const Address = styled.p`
-  font-family: var(--font-sans);
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--zen-line);
+`;
+
+const Card = styled.div`
+  background: var(--zen-bg);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  transition-delay: ${p => p.$delay}s;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const CardTitle = styled.h3`
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: var(--zen-text);
+`;
+
+const CardText = styled.p`
   font-size: 0.85rem;
-  color: var(--medium);
-`;
-
-const Time = styled.p`
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  color: var(--light);
-  margin-top: 0.25rem;
+  color: var(--zen-text-light);
+  line-height: 1.8;
+  margin: 0;
 `;
 
 const MapLink = styled.a`
   display: inline-block;
-  margin-top: 0.5rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--dark);
-  border-bottom: 1px solid var(--dark);
-  &:hover { opacity: 0.6; }
+  margin-top: 1rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--zen-text);
+  border-bottom: 1px solid var(--zen-line);
+  padding-bottom: 2px;
+  &:hover { opacity: 1; border-color: var(--zen-text); }
 `;
 
-function Locations({ side = 'left' }) {
+function Locations() {
   const { content } = useWedding();
-  const locationsData = content?.locations || {};
-  const title = locationsData.title || 'Locations';
-  const locations = locationsData.locations || [
-    { type: 'Trauung', name: 'Standesamt Hamburg', address: 'Rathausmarkt 1', time: '14:00 Uhr' },
-    { type: 'Feier', name: 'Gut Karlshöhe', address: 'Karlshöhe 60d', time: 'ab 16:00 Uhr' },
+  const data = content?.locations || {};
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  
+  const title = data.title || 'Locations';
+  const locations = data.locations?.length > 0 ? data.locations : [
+    { name: 'Trauung', address: 'Standesamt Hamburg\nCaffamacherreihe 1-3', time: '14:00 Uhr' },
+    { name: 'Feier', address: 'Landhaus Walter\nElbchaussee 499', time: 'Ab 16:00 Uhr' },
   ];
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <ContentBranch side={side} eyebrow="Wo wir feiern" title={title}>
-      {locations.map((loc, i) => (
-        <LocationCard key={i}>
-          <LocationType>{loc.type}</LocationType>
-          <LocationName>{loc.name}</LocationName>
-          <Address>{loc.address}</Address>
-          {loc.time && <Time>{loc.time}</Time>}
-          {loc.maps_url && <MapLink href={loc.maps_url} target="_blank">Route →</MapLink>}
-        </LocationCard>
-      ))}
-    </ContentBranch>
+    <Section id="locations" ref={sectionRef}>
+      <Content>
+        <Title className={visible ? 'visible' : ''}>{title}</Title>
+        <Grid>
+          {locations.map((loc, i) => (
+            <Card key={i} className={visible ? 'visible' : ''} $delay={0.1 + i * 0.1}>
+              <CardTitle>{loc.name}</CardTitle>
+              <CardText>{loc.time}</CardText>
+              <CardText style={{whiteSpace: 'pre-line'}}>{loc.address}</CardText>
+              {loc.maps_url && <MapLink href={loc.maps_url} target="_blank">Karte →</MapLink>}
+            </Card>
+          ))}
+        </Grid>
+      </Content>
+    </Section>
   );
 }
 

@@ -1,26 +1,88 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import ContentBranch from './ContentBranch';
 
-const Subtitle = styled.p`font-size: 0.9rem; color: var(--medium); text-align: center; margin-bottom: 1.5rem;`;
-const BtnStack = styled.div`display: flex; flex-direction: column; gap: 0.5rem;`;
-const ContactBtn = styled.a`display: block; padding: 0.85rem; font-size: 0.9rem; font-weight: 600; background: var(--off-white); color: var(--dark); text-align: center; transition: background 0.2s; &:hover { background: var(--pale); }`;
+const Section = styled.section`
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zen-bg);
+  padding: var(--section-padding) 2rem;
+`;
 
-function Contact({ side = 'left' }) {
-  const { project, content } = useWedding();
-  const d = content?.contact || {};
-  const email = d.couple_email || project?.couple_email;
-  const phone = d.couple_phone || project?.couple_phone;
+const Content = styled.div`
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  color: var(--zen-text);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Text = styled.p`
+  font-size: 0.95rem;
+  color: var(--zen-text-light);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.1s;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const ContactLink = styled.a`
+  display: inline-block;
+  font-size: 0.9rem;
+  color: var(--zen-text);
+  border-bottom: 1px solid var(--zen-line);
+  padding-bottom: 2px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.2s;
+  &.visible { opacity: 1; transform: translateY(0); }
+  &:hover { opacity: 1; border-color: var(--zen-text); }
+`;
+
+function Contact() {
+  const { content } = useWedding();
+  const data = content?.contact || {};
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  
+  const title = data.title || 'Kontakt';
+  const text = data.text || 'Bei Fragen erreicht ihr uns unter:';
+  const email = data.email || '';
+  const phone = data.phone || '';
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <ContentBranch side={side} eyebrow="Fragen?" title={d.title || 'Kontakt'} align="center">
-      <Subtitle>Wir sind für euch da</Subtitle>
-      <BtnStack>
-        {email && <ContactBtn href={`mailto:${email}`}>E-Mail schreiben</ContactBtn>}
-        {phone && <ContactBtn href={`tel:${phone.replace(/\s/g, '')}`}>Anrufen</ContactBtn>}
-      </BtnStack>
-    </ContentBranch>
+    <Section id="contact" ref={sectionRef}>
+      <Content>
+        <Title className={visible ? 'visible' : ''}>{title}</Title>
+        <Text className={visible ? 'visible' : ''}>{text}</Text>
+        {email && <ContactLink className={visible ? 'visible' : ''} href={`mailto:${email}`}>{email}</ContactLink>}
+        {phone && <ContactLink className={visible ? 'visible' : ''} href={`tel:${phone}`} style={{display: 'block', marginTop: '0.5rem'}}>{phone}</ContactLink>}
+      </Content>
+    </Section>
   );
 }
+
 export default Contact;

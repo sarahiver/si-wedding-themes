@@ -1,29 +1,71 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import ContentBranch from './ContentBranch';
 
-const Grid = styled.div`display: flex; gap: 1rem; margin-bottom: 1rem;`;
-const Card = styled.div`flex: 1; background: ${p => p.$dark ? 'var(--dark)' : 'var(--off-white)'}; padding: 0.75rem;`;
-const CardTitle = styled.h4`font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: ${p => p.$dark ? 'var(--pale)' : 'var(--light)'}; margin-bottom: 0.3rem;`;
-const CardText = styled.p`font-size: 0.8rem; color: ${p => p.$dark ? 'var(--off-white)' : 'var(--medium)'}; line-height: 1.5;`;
-const Address = styled.p`font-size: 0.9rem; color: var(--medium); text-align: center; margin-bottom: 1rem;`;
-const MapsBtn = styled.a`display: block; text-align: center; padding: 0.75rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: var(--black); color: var(--white); &:hover { opacity: 0.8; }`;
+const Section = styled.section`
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zen-bg-alt);
+  padding: var(--section-padding) 2rem;
+`;
 
-function Directions({ side = 'right' }) {
+const Content = styled.div`
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
+  margin-bottom: 2rem;
+  color: var(--zen-text);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Text = styled.div`
+  font-size: 0.95rem;
+  color: var(--zen-text-light);
+  line-height: 1.8;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.1s;
+  &.visible { opacity: 1; transform: translateY(0); }
+  p { margin-bottom: 1rem; }
+`;
+
+function Directions() {
   const { content } = useWedding();
-  const d = content?.directions || {};
-  const address = d.address || 'Waldweg 12, 12345 Naturstadt';
+  const data = content?.directions || {};
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  
+  const title = data.title || 'Anfahrt';
+  const text = data.text || 'Weitere Informationen zur Anfahrt folgen.';
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <ContentBranch side={side} eyebrow="So kommt ihr hin" title={d.title || 'Anfahrt'}>
-      <Grid>
-        <Card $dark><CardTitle $dark>Auto</CardTitle><CardText $dark>{d.parking_info || 'Kostenlose Parkplätze vor Ort.'}</CardText></Card>
-        <Card><CardTitle>ÖPNV</CardTitle><CardText>{d.public_transport || 'Bus 123 bis Waldkapelle.'}</CardText></Card>
-      </Grid>
-      <Address>{address}</Address>
-      <MapsBtn href={`https://maps.google.com/?q=${encodeURIComponent(address)}`} target="_blank">Google Maps</MapsBtn>
-    </ContentBranch>
+    <Section id="directions" ref={sectionRef}>
+      <Content>
+        <Title className={visible ? 'visible' : ''}>{title}</Title>
+        <Text className={visible ? 'visible' : ''} dangerouslySetInnerHTML={{ __html: text.replace(/\n/g, '<br/>') }} />
+      </Content>
+    </Section>
   );
 }
+
 export default Directions;

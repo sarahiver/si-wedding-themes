@@ -1,29 +1,64 @@
-// Botanical Fruit Theme - Index
-export { default as WeddingPage } from './WeddingPage';
-export { default as GlobalStyles } from './GlobalStyles';
-export { default as TreeSVG } from './TreeSVG';
-export { default as ContentBox } from './ContentBox';
-export { default as AdminDashboard } from './AdminDashboard';
+// Zen Theme - Index (replacing Botanical)
+import GlobalStyles from './GlobalStyles';
+import WeddingPage from './WeddingPage';
+import AdminDashboard from './AdminDashboard';
+import ArchivePage from './ArchivePage';
+import SaveTheDate from './SaveTheDate';
 
-// Content exports
-export { default as HeroContent } from './contents/HeroContent';
-export { default as CountdownContent } from './contents/CountdownContent';
-export { default as StoryContent } from './contents/StoryContent';
-export { default as GalleryContent } from './contents/GalleryContent';
-export { default as TimelineContent } from './contents/TimelineContent';
-export { default as RSVPContent } from './contents/RSVPContent';
-export { default as FAQContent } from './contents/FAQContent';
-export { default as GiftsContent } from './contents/GiftsContent';
+// Individual components
+import Navigation from './Navigation';
+import Hero from './Hero';
+import Countdown from './Countdown';
+import LoveStory from './LoveStory';
+import Timeline from './Timeline';
+import Locations from './Locations';
+import Directions from './Directions';
+import Accommodations from './Accommodations';
+import RSVP from './RSVP';
+import Gallery from './Gallery';
+import Guestbook from './Guestbook';
+import MusicWishes from './MusicWishes';
+import PhotoUpload from './PhotoUpload';
+import Gifts from './Gifts';
+import Dresscode from './Dresscode';
+import FAQ from './FAQ';
+import WeddingABC from './WeddingABC';
+import Contact from './Contact';
+import ContactWitnesses from './ContactWitnesses';
+import Footer from './Footer';
 
-// Theme config
-export const themeConfig = {
-  id: 'botanical-fruit',
-  name: 'Botanical Fruit',
-  description: 'Ein architektonischer Baum mit Früchten als Navigation - klicke oder scrolle durch die Inhalte',
-  preview: '/previews/botanical-fruit.jpg',
-  colors: {
-    primary: '#1a1a1a',
-    secondary: '#666666',
-    background: '#faf9f7',
-  }
+export {
+  GlobalStyles,
+  WeddingPage,
+  AdminDashboard,
+  ArchivePage,
+  SaveTheDate,
+  Navigation,
+  Hero,
+  Countdown,
+  LoveStory,
+  Timeline,
+  Locations,
+  Directions,
+  Accommodations,
+  RSVP,
+  Gallery,
+  Guestbook,
+  MusicWishes,
+  PhotoUpload,
+  Gifts,
+  Dresscode,
+  FAQ,
+  WeddingABC,
+  Contact,
+  ContactWitnesses,
+  Footer
+};
+
+export default {
+  GlobalStyles,
+  WeddingPage,
+  AdminDashboard,
+  ArchivePage,
+  SaveTheDate
 };

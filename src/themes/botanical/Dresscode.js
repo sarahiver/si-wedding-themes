@@ -1,34 +1,95 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import ContentBranch from './ContentBranch';
 
-const Code = styled.h3`font-family: var(--font-serif); font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem;`;
-const Desc = styled.p`font-size: 0.9rem; color: var(--medium); text-align: center; margin-bottom: 1rem;`;
-const Colors = styled.div`display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;`;
-const ColorDot = styled.div`width: 28px; height: 28px; border-radius: 50%; background: ${p => p.$c}; border: 1px solid var(--pale);`;
-const TipsRow = styled.div`display: flex; gap: 1.5rem;`;
-const TipCol = styled.div`flex: 1;`;
-const TipTitle = styled.p`font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: ${p => p.$do ? 'var(--dark)' : 'var(--light)'}; margin-bottom: 0.4rem;`;
-const TipItem = styled.p`font-size: 0.8rem; color: var(--medium); padding: 0.15rem 0; &::before { content: '${p => p.$do ? '✓' : '✗'}'; margin-right: 0.4rem; }`;
+const Section = styled.section`
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zen-bg);
+  padding: var(--section-padding) 2rem;
+`;
 
-function Dresscode({ side = 'left' }) {
+const Content = styled.div`
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  color: var(--zen-text);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Description = styled.p`
+  font-size: 0.95rem;
+  color: var(--zen-text-light);
+  line-height: 1.8;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.1s;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Colors = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.2s;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const ColorSwatch = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: ${p => p.$color};
+  border: 1px solid var(--zen-line);
+`;
+
+function Dresscode() {
   const { content } = useWedding();
-  const d = content?.dresscode || {};
-  const colors = d.colors || ['#2d2d2d', '#666', '#999', '#ccc', '#f5f5f5'];
-  const dos = d.dos || ['Elegante Kleider', 'Anzüge', 'Naturtöne'];
-  const donts = d.donts || ['Komplett weiß', 'Jeans', 'Sneakers'];
+  const data = content?.dresscode || {};
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  
+  const title = data.title || 'Dresscode';
+  const description = data.description || 'Festlich elegant in gedeckten Farben.';
+  const colors = data.colors || ['#2d2a26', '#6d6860', '#a09890', '#d4cfc7', '#f5f4f0'];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <ContentBranch side={side} eyebrow="Was anziehen?" title={d.title || 'Dresscode'}>
-      <Code>{d.code || 'Festlich Elegant'}</Code>
-      <Desc>{d.description || 'Wir freuen uns, wenn ihr euch schick macht.'}</Desc>
-      <Colors>{colors.slice(0,5).map((c,i) => <ColorDot key={i} $c={c} />)}</Colors>
-      <TipsRow>
-        <TipCol><TipTitle $do>Gerne</TipTitle>{dos.slice(0,3).map((x,i) => <TipItem key={i} $do>{x}</TipItem>)}</TipCol>
-        <TipCol><TipTitle>Lieber nicht</TipTitle>{donts.slice(0,3).map((x,i) => <TipItem key={i}>{x}</TipItem>)}</TipCol>
-      </TipsRow>
-    </ContentBranch>
+    <Section id="dresscode" ref={sectionRef}>
+      <Content>
+        <Title className={visible ? 'visible' : ''}>{title}</Title>
+        <Description className={visible ? 'visible' : ''}>{description}</Description>
+        {colors?.length > 0 && (
+          <Colors className={visible ? 'visible' : ''}>
+            {colors.map((color, i) => <ColorSwatch key={i} $color={color} />)}
+          </Colors>
+        )}
+      </Content>
+    </Section>
   );
 }
+
 export default Dresscode;

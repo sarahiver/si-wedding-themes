@@ -1,45 +1,18 @@
-// AdminDashboard placeholder
+// AdminDashboard.js - Zen Theme
 import React from 'react';
-import styled from 'styled-components';
+import { AdminShell } from '../../components/admin/core';
+import { useWedding } from '../../context/WeddingContext';
 
-const Wrapper = styled.div`
-  min-height: 100vh;
-  padding: 2rem;
-  background: var(--cream);
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-family: var(--font-serif);
-  font-size: 2rem;
-`;
-
-const CloseBtn = styled.button`
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  background: var(--black);
-  color: var(--white);
-`;
-
-const Message = styled.p`
-  color: var(--medium);
-`;
-
-function AdminDashboard({ onClose }) {
+function AdminDashboard() {
+  const { weddingId, content, refreshData } = useWedding();
+  
   return (
-    <Wrapper>
-      <Header>
-        <Title>Admin</Title>
-        <CloseBtn onClick={onClose}>Schließen</CloseBtn>
-      </Header>
-      <Message>Admin Dashboard - wird vom bestehenden System übernommen.</Message>
-    </Wrapper>
+    <AdminShell
+      weddingId={weddingId}
+      content={content}
+      refreshData={refreshData}
+      theme="botanical"
+    />
   );
 }
 

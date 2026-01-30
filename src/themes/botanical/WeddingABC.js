@@ -1,47 +1,116 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
-import ContentBranch from './ContentBranch';
 
-const LetterGrid = styled.div`
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem; margin-bottom: 1rem;
+const Section = styled.section`
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--zen-bg);
+  padding: var(--section-padding) 2rem;
 `;
-const Letter = styled.button`
-  width: 26px; height: 26px; font-family: var(--font-serif); font-size: 0.85rem;
-  background: ${p => p.$active ? 'var(--black)' : p.$has ? 'var(--off-white)' : 'transparent'};
-  color: ${p => p.$active ? 'var(--white)' : p.$has ? 'var(--black)' : 'var(--pale)'};
-  border: 1px solid ${p => p.$has || p.$active ? 'var(--pale)' : 'transparent'};
-  cursor: ${p => p.$has ? 'pointer' : 'default'};
-`;
-const Panel = styled.div`background: var(--off-white); padding: 1rem; min-height: 100px;`;
-const ContentLetter = styled.span`font-family: var(--font-serif); font-size: 2rem; color: var(--black);`;
-const ContentWord = styled.h3`font-family: var(--font-serif); font-size: 1.1rem; margin: 0.25rem 0;`;
-const ContentText = styled.p`font-size: 0.85rem; color: var(--medium); line-height: 1.6;`;
 
-function WeddingABC({ side = 'right' }) {
+const Content = styled.div`
+  max-width: 700px;
+  width: 100%;
+`;
+
+const Title = styled.h2`
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--zen-text);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0;
+`;
+
+const Item = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--zen-line-light);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+  transition-delay: ${p => p.$delay}s;
+  &.visible { opacity: 1; transform: translateY(0); }
+`;
+
+const Letter = styled.span`
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--zen-text-muted);
+  min-width: 40px;
+`;
+
+const ItemContent = styled.div`
+  flex: 1;
+`;
+
+const ItemTitle = styled.h3`
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--zen-text);
+  margin-bottom: 0.25rem;
+`;
+
+const ItemText = styled.p`
+  font-size: 0.85rem;
+  color: var(--zen-text-light);
+  margin: 0;
+`;
+
+function WeddingABC() {
   const { content } = useWedding();
-  const abcData = content?.weddingabc || {};
-  const entries = abcData.entries || [
-    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze vorhanden.' },
-    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant.' },
-    { letter: 'F', word: 'Fotos', description: 'Während der Trauung bitte keine Handys.' },
-    { letter: 'K', word: 'Kinder', description: 'Kinder sind herzlich willkommen!' },
-  ];
-  const [active, setActive] = useState(null);
-  const letterMap = {}; entries.forEach(e => { letterMap[e.letter.toUpperCase()] = e; });
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const data = content?.weddingabc || {};
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  
+  const title = data.title || 'Hochzeits-ABC';
+  const items = data.items || [];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  if (items.length === 0) return null;
 
   return (
-    <ContentBranch side={side} eyebrow="Von A bis Z" title={abcData.title || 'Hochzeits-ABC'}>
-      <LetterGrid>
-        {alphabet.map(l => <Letter key={l} $has={!!letterMap[l]} $active={active === l} onClick={() => letterMap[l] && setActive(l)}>{l}</Letter>)}
-      </LetterGrid>
-      <Panel>
-        {active && letterMap[active] ? (
-          <><ContentLetter>{active}</ContentLetter><ContentWord>{letterMap[active].word}</ContentWord><ContentText>{letterMap[active].description}</ContentText></>
-        ) : <ContentText style={{textAlign:'center',color:'var(--light)'}}>Wähle einen Buchstaben</ContentText>}
-      </Panel>
-    </ContentBranch>
+    <Section id="weddingabc" ref={sectionRef}>
+      <Content>
+        <Title className={visible ? 'visible' : ''}>{title}</Title>
+        <Grid>
+          {items.map((item, i) => (
+            <Item key={i} className={visible ? 'visible' : ''} $delay={0.03 * i}>
+              <Letter>{item.letter}</Letter>
+              <ItemContent>
+                <ItemTitle>{item.title}</ItemTitle>
+                <ItemText>{item.text}</ItemText>
+              </ItemContent>
+            </Item>
+          ))}
+        </Grid>
+      </Content>
+    </Section>
   );
 }
+
 export default WeddingABC;
