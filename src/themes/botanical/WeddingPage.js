@@ -1,9 +1,10 @@
-// WeddingPage.js - Editorial Theme
+// WeddingPage.js - Botanical Glass Theme
 import React, { useState, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
-import LoadingScreen from './LoadingScreen';
 
-// Import components (same directory)
+// Import components
+import LoadingScreen from './LoadingScreen';
+import BotanicalBackground from './BotanicalBackground';
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -49,8 +50,14 @@ function WeddingPage() {
 
   return (
     <>
+      {/* Fixed botanical background with parallax leaves */}
+      <BotanicalBackground />
+      
+      {/* Glass navigation */}
       <Navigation />
-      <main>
+      
+      {/* Main content */}
+      <main style={{ position: 'relative', zIndex: 10 }}>
         <Hero />
         {isComponentActive('countdown') && <Countdown />}
         {isComponentActive('lovestory') && <LoveStory />}
@@ -70,6 +77,7 @@ function WeddingPage() {
         {isComponentActive('witnesses') && <ContactWitnesses />}
         {isComponentActive('contact') && <Contact />}
       </main>
+      
       <Footer />
     </>
   );
