@@ -1,59 +1,41 @@
-// Neon Theme - WeddingPage
+// Video Theme - WeddingPage with background from Hero section
 import React, { useState, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
-import NeonGlobalStyles from './GlobalStyles';
+import VideoGlobalStyles from './GlobalStyles';
+import HorizontalScroll from './HorizontalScroll';
 import LoadingScreen from './LoadingScreen';
 
-import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
 import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
+import Gallery from './Gallery';
 import RSVP from './RSVP';
 import Dresscode from './Dresscode';
 import Gifts from './Gifts';
 import Accommodations from './Accommodations';
 import Directions from './Directions';
-import Gallery from './Gallery';
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
 import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
-import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
+import Contact from './Contact';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
 
 function WeddingPage() {
-  const { 
-    project, 
-    content, 
-    isLoading, 
-    isComponentActive,
-    coupleNames,
-    weddingDate,
-    projectId,
-    slug
-  } = useWedding();
+  const { project, content, isLoading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
   const [contentReady, setContentReady] = useState(false);
 
-  // Parse couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
-  const name1 = names[0];
-  const name2 = names[1];
-  
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('de-DE', { 
-      day: 'numeric', month: 'long', year: 'numeric' 
-    });
-  };
-  const formattedDate = formatDate(weddingDate);
+  // Get background from hero section (set via HeroEditor)
+  const heroContent = content?.hero || {};
+  const background = heroContent.background_media || null;
+  const backgroundMobile = heroContent.background_media_mobile || null;
 
   const handleAdminLogin = (username, password) => {
     if (username && password) setShowAdmin(true);
@@ -70,7 +52,7 @@ function WeddingPage() {
   if (showLoading) {
     return (
       <>
-        <NeonGlobalStyles />
+        <VideoGlobalStyles />
         <LoadingScreen 
           onLoadComplete={() => setShowLoading(false)}
           isDataReady={contentReady}
@@ -82,139 +64,59 @@ function WeddingPage() {
   if (showAdmin) {
     return (
       <>
-        <NeonGlobalStyles />
+        <VideoGlobalStyles />
         <AdminDashboard onClose={() => setShowAdmin(false)} />
       </>
     );
   }
 
+  // Define all sections for navigation
+  const sections = [
+    { id: 'hero', label: 'Start' },
+    { id: 'countdown', label: 'Countdown' },
+    { id: 'story', label: 'Geschichte' },
+    { id: 'timeline', label: 'Ablauf' },
+    { id: 'locations', label: 'Location' },
+    { id: 'gallery', label: 'Galerie' },
+    { id: 'rsvp', label: 'RSVP' },
+    { id: 'dresscode', label: 'Dresscode' },
+    { id: 'gifts', label: 'Geschenke' },
+    { id: 'accommodations', label: 'Hotels' },
+    { id: 'directions', label: 'Anfahrt' },
+    { id: 'faq', label: 'FAQ' },
+    { id: 'abc', label: 'ABC' },
+    { id: 'guestbook', label: 'Gaestebuch' },
+    { id: 'music', label: 'Musik' },
+    { id: 'photos', label: 'Fotos' },
+    { id: 'witnesses', label: 'Trauzeugen' },
+    { id: 'contact', label: 'Kontakt' },
+    { id: 'footer', label: 'Ende' },
+  ];
+
   return (
     <>
-      <NeonGlobalStyles />
-      <Navigation 
-        name1={name1} 
-        name2={name2}
-      />
-      <main>
-        <Hero 
-          name1={name1}
-          name2={name2}
-          date={formattedDate}
-          location={content?.hero?.location_short || ''}
-          eyebrow={content?.hero?.tagline || 'The Wedding Of'}
-        />
-        {isComponentActive('countdown') && (
-          <Countdown 
-            targetDate={content?.countdown?.target_date || weddingDate}
-            title={content?.countdown?.title}
-          />
-        )}
-        {isComponentActive('lovestory') && (
-          <LoveStory 
-            events={content?.lovestory?.events || []}
-            title={content?.lovestory?.title}
-          />
-        )}
-        {isComponentActive('timeline') && (
-          <Timeline 
-            events={content?.timeline?.events || []}
-            title={content?.timeline?.title}
-          />
-        )}
-        {isComponentActive('locations') && (
-          <Locations 
-            locations={content?.locations?.locations || []}
-            title={content?.locations?.title}
-          />
-        )}
-        {isComponentActive('gallery') && (
-          <Gallery 
-            images={content?.gallery?.images || []}
-            title={content?.gallery?.title}
-          />
-        )}
-        {isComponentActive('rsvp') && (
-          <RSVP 
-            projectId={projectId}
-            title={content?.rsvp?.title}
-            deadline={content?.rsvp?.deadline}
-          />
-        )}
-        {isComponentActive('dresscode') && (
-          <Dresscode 
-            title={content?.dresscode?.title}
-            code={content?.dresscode?.code}
-            description={content?.dresscode?.description}
-            colors={content?.dresscode?.colors || []}
-          />
-        )}
-        {isComponentActive('gifts') && (
-          <Gifts 
-            items={content?.gifts?.items || []}
-            title={content?.gifts?.title}
-            description={content?.gifts?.description}
-          />
-        )}
-        {isComponentActive('accommodations') && (
-          <Accommodations 
-            hotels={content?.accommodations?.hotels || []}
-            title={content?.accommodations?.title}
-          />
-        )}
-        {isComponentActive('directions') && (
-          <Directions 
-            options={content?.directions?.options || []}
-            title={content?.directions?.title}
-            address={content?.directions?.address}
-          />
-        )}
-        {isComponentActive('faq') && (
-          <FAQ 
-            items={content?.faq?.items || []}
-            title={content?.faq?.title}
-          />
-        )}
-        {isComponentActive('weddingabc') && (
-          <WeddingABC 
-            entries={content?.weddingabc?.entries || []}
-            title={content?.weddingabc?.title}
-          />
-        )}
-        {isComponentActive('guestbook') && (
-          <Guestbook 
-            projectId={projectId}
-            title={content?.guestbook?.title}
-          />
-        )}
-        {isComponentActive('musicwishes') && (
-          <MusicWishes 
-            projectId={projectId}
-            title={content?.musicwishes?.title}
-          />
-        )}
-        {isComponentActive('photoupload') && (
-          <PhotoUpload 
-            projectId={projectId}
-            slug={slug}
-            title={content?.photoupload?.title}
-          />
-        )}
-        {isComponentActive('witnesses') && (
-          <ContactWitnesses 
-            witnesses={content?.witnesses?.witnesses || []}
-            title={content?.witnesses?.title}
-          />
-        )}
-        {isComponentActive('contact') && (
-          <Contact />
-        )}
-      </main>
-      <Footer 
-        name1={name1}
-        name2={name2}
-        hashtag={content?.footer?.hashtag}
-        onAdminLogin={handleAdminLogin}
-      />
+      <VideoGlobalStyles />
+      <HorizontalScroll sections={sections} background={background} backgroundMobile={backgroundMobile}>
+        <Hero />
+        <Countdown />
+        <LoveStory />
+        <Timeline />
+        <Locations />
+        <Gallery />
+        <RSVP />
+        <Dresscode />
+        <Gifts />
+        <Accommodations />
+        <Directions />
+        <FAQ />
+        <WeddingABC />
+        <Guestbook />
+        <MusicWishes />
+        <PhotoUpload />
+        <ContactWitnesses />
+        <Contact />
+        <Footer onAdminLogin={handleAdminLogin} />
+      </HorizontalScroll>
     </>
   );
 }
