@@ -1,5 +1,5 @@
 // WeddingPage.js - Video Theme
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import VideoGlobalStyles from './GlobalStyles';
@@ -31,18 +31,41 @@ const PageWrapper = styled.div`
   background: #0a0a0a;
 `;
 
+const LOADING_DELAY = 500;
+
 function WeddingPage() {
   const { isComponentActive, isLoading } = useWedding();
-  const [showLoading, setShowLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
   const [contentReady, setContentReady] = useState(false);
+  const loadingTimerRef = useRef(null);
+  const dataLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (!isLoading) {
-      setContentReady(true);
+    if (isLoading && !dataLoadedRef.current) {
+      loadingTimerRef.current = setTimeout(() => {
+        if (!dataLoadedRef.current) {
+          setShowLoading(true);
+        }
+      }, LOADING_DELAY);
     }
+
+    if (!isLoading) {
+      dataLoadedRef.current = true;
+      setContentReady(true);
+      
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    }
+
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
   }, [isLoading]);
 
-  if (showLoading) {
+  if (showLoading && !contentReady) {
     return (
       <>
         <VideoGlobalStyles />
@@ -50,6 +73,15 @@ function WeddingPage() {
           onLoadComplete={() => setShowLoading(false)}
           isDataReady={contentReady}
         />
+      </>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <>
+        <VideoGlobalStyles />
+        <PageWrapper style={{ opacity: 0 }} />
       </>
     );
   }
