@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import LuxeGlobalStyles from './GlobalStyles';
-import LoadingScreen from './LoadingScreen';
 
 import Navigation from './Navigation';
 import Hero from './Hero';
@@ -25,34 +25,28 @@ import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
 
+const LoadingScreen = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--luxe-void);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--luxe-slate);
+`;
+
 function WeddingPage() {
-  const { project, isLoading } = useWedding();
+  const { project, loading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
 
   const handleAdminLogin = (username, password) => {
     if (username && password) setShowAdmin(true);
   };
 
-  // Track when data is loaded
-  useEffect(() => {
-    if (!isLoading) {
-      setContentReady(true);
-    }
-  }, [isLoading]);
-
-  // Show loading screen
-  if (showLoading) {
-    return (
-      <>
-        <LuxeGlobalStyles />
-        <LoadingScreen 
-          onLoadComplete={() => setShowLoading(false)}
-          isDataReady={contentReady}
-        />
-      </>
-    );
+  if (loading) {
+    return (<><LuxeGlobalStyles /><LoadingScreen>Wird geladen...</LoadingScreen></>);
   }
 
   if (showAdmin) {

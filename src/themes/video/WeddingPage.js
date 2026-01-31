@@ -1,9 +1,9 @@
 // Video Theme - WeddingPage with background from Hero section
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import VideoGlobalStyles from './GlobalStyles';
 import HorizontalScroll from './HorizontalScroll';
-import LoadingScreen from './LoadingScreen';
 
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -26,11 +26,23 @@ import Contact from './Contact';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
 
+const LoadingScreen = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--video-black);
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--video-gray);
+`;
+
 function WeddingPage() {
-  const { project, content, isLoading } = useWedding();
+  const { project, content, loading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
 
   // Get background from hero section (set via HeroEditor)
   const heroContent = content?.hero || {};
@@ -41,22 +53,11 @@ function WeddingPage() {
     if (username && password) setShowAdmin(true);
   };
 
-  // Track when data is loaded
-  useEffect(() => {
-    if (!isLoading) {
-      setContentReady(true);
-    }
-  }, [isLoading]);
-
-  // Show loading screen
-  if (showLoading) {
+  if (loading) {
     return (
       <>
         <VideoGlobalStyles />
-        <LoadingScreen 
-          onLoadComplete={() => setShowLoading(false)}
-          isDataReady={contentReady}
-        />
+        <LoadingScreen>Laden...</LoadingScreen>
       </>
     );
   }

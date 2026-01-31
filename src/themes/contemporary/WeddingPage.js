@@ -1,7 +1,6 @@
 // Contemporary WeddingPage - Main Component
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ContemporaryGlobalStyles from './GlobalStyles';
-import LoadingScreen from './LoadingScreen';
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -26,27 +25,39 @@ import AdminDashboard from './AdminDashboard';
 import { useWedding } from '../../context/WeddingContext';
 
 function WeddingPage() {
-  const { project, isLoading } = useWedding();
+  const { project, loading } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
 
-  // Track when data is loaded
-  useEffect(() => {
-    if (!isLoading) {
-      setContentReady(true);
-    }
-  }, [isLoading]);
-
-  // Show loading screen
-  if (showLoading) {
+  if (loading) {
     return (
       <>
         <ContemporaryGlobalStyles />
-        <LoadingScreen 
-          onLoadComplete={() => setShowLoading(false)}
-          isDataReady={contentReady}
-        />
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--white)',
+          fontFamily: 'Space Grotesk, sans-serif'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            background: 'var(--coral)',
+            border: '4px solid var(--black)',
+            boxShadow: '8px 8px 0 var(--black)'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💍</div>
+            <div style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: '700', 
+              color: 'var(--white)',
+              textTransform: 'uppercase'
+            }}>
+              Loading...
+            </div>
+          </div>
+        </div>
       </>
     );
   }
