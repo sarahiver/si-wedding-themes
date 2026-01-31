@@ -1,6 +1,7 @@
 // WeddingPage.js - Editorial Theme
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
+import LoadingScreen from './LoadingScreen';
 
 // Import components (same directory)
 import Navigation from './Navigation';
@@ -25,7 +26,26 @@ import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 
 function WeddingPage() {
-  const { isComponentActive } = useWedding();
+  const { isComponentActive, isLoading } = useWedding();
+  const [showLoading, setShowLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
+
+  // Track when data is loaded
+  useEffect(() => {
+    if (!isLoading) {
+      setContentReady(true);
+    }
+  }, [isLoading]);
+
+  // Show loading screen
+  if (showLoading) {
+    return (
+      <LoadingScreen 
+        onLoadComplete={() => setShowLoading(false)}
+        isDataReady={contentReady}
+      />
+    );
+  }
 
   return (
     <>
