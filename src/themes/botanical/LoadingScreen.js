@@ -1,4 +1,5 @@
-// LoadingScreen.js - Botanical Glass Theme
+// Editorial Theme - LoadingScreen.js
+// Minimalist magazine/typography style loading animation
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -7,16 +8,37 @@ const fadeOut = keyframes`
   to { opacity: 0; visibility: hidden; }
 `;
 
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
 `;
 
-const LoadingContainer = styled.div`
+const slideUp = keyframes`
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+`;
+
+const expandLine = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+const typeReveal = keyframes`
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+`;
+
+const Container = styled.div`
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: #040604;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,67 +49,125 @@ const LoadingContainer = styled.div`
   }
 `;
 
-const MonsteraContainer = styled.div`
-  position: relative;
-  width: 160px;
-  height: 160px;
-  animation: ${pulse} 2.5s ease-in-out infinite;
+const Content = styled.div`
+  text-align: center;
+  max-width: 400px;
+  padding: 0 2rem;
+`;
+
+const Year = styled.div`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: #999;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 0.2s;
+`;
+
+const Title = styled.h1`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: #1a1a1a;
+  line-height: 1;
+  margin: 0;
+  animation: ${slideUp} 0.8s ease forwards;
   
-  @media (max-width: 768px) {
-    width: 120px;
-    height: 120px;
+  span {
+    display: inline-block;
+    animation: ${typeReveal} 0.8s ease forwards;
+    animation-delay: 0.3s;
   }
 `;
 
-const MonsteraGray = styled.img`
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: grayscale(100%) brightness(0.25);
+const Ampersand = styled.div`
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  color: #ccc;
+  margin: 0.5rem 0;
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 0.5s;
 `;
 
-const MonsteraColor = styled.img`
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: brightness(0.8) saturate(1.1);
-  clip-path: inset(${p => 100 - p.$progress}% 0 0 0);
-  transition: clip-path 0.4s ease;
+const Line = styled.div`
+  width: 60px;
+  height: 1px;
+  background: #1a1a1a;
+  margin: 2.5rem auto;
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: ${expandLine} 0.8s ease forwards;
+  animation-delay: 0.6s;
 `;
 
-const LoadingText = styled.p`
-  margin-top: 2rem;
+const ProgressContainer = styled.div`
+  margin-top: 0;
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 0.8s;
+`;
+
+const ProgressBar = styled.div`
+  width: 200px;
+  height: 1px;
+  background: #eee;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: ${p => p.$progress}%;
+  background: #1a1a1a;
+  transition: width 0.3s ease;
+`;
+
+const ProgressText = styled.p`
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #999;
+  margin-top: 1.5rem;
+`;
+
+const Issue = styled.div`
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'Montserrat', sans-serif;
   font-size: 0.55rem;
   font-weight: 500;
-  letter-spacing: 0.4em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: #ccc;
+  opacity: 0;
+  animation: ${fadeIn} 0.6s ease forwards;
+  animation-delay: 1s;
 `;
 
-const ProgressText = styled.span`
-  display: block;
-  margin-top: 0.75rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, ${p => 0.2 + (p.$progress / 100) * 0.5});
-  transition: color 0.3s ease;
-`;
-
-const MONSTERA_IMG = 'https://res.cloudinary.com/si-weddings/image/upload/w_300,q_auto,f_auto/v1769789866/pngwing.com_4_ugo8hl.png';
-
-const MIN_DISPLAY_TIME = 2000; // Minimum 2 seconds
+const MIN_DISPLAY_TIME = 2000;
 
 function LoadingScreen({ onLoadComplete, isDataReady = false }) {
   const [progress, setProgress] = useState(0);
   const [minTimeReached, setMinTimeReached] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
+  const [fadeOutActive, setFadeOutActive] = useState(false);
 
-  // Progress animation - faster if data is ready
+  const currentYear = new Date().getFullYear();
+
+  // Progress animation
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -95,62 +175,60 @@ function LoadingScreen({ onLoadComplete, isDataReady = false }) {
           clearInterval(interval);
           return 100;
         }
-        // Speed up progress if data is already loaded
-        const baseIncrement = isDataReady ? 15 : 8;
-        const variance = isDataReady ? 10 : 6;
-        const increment = prev < 60 
-          ? Math.random() * baseIncrement + variance 
-          : Math.random() * (baseIncrement * 0.6) + (variance * 0.4);
-        return Math.min(prev + increment, 100);
+        const increment = isDataReady ? 10 : 4;
+        return Math.min(prev + increment + Math.random() * 3, 100);
       });
     }, 100);
-
     return () => clearInterval(interval);
   }, [isDataReady]);
 
-  // Minimum display time timer
+  // Minimum display time
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMinTimeReached(true);
-    }, MIN_DISPLAY_TIME);
-
+    const timer = setTimeout(() => setMinTimeReached(true), MIN_DISPLAY_TIME);
     return () => clearTimeout(timer);
   }, []);
 
-  // Trigger fade out when both conditions met
+  // Complete
   useEffect(() => {
     if (progress >= 100 && minTimeReached && isDataReady) {
-      setFadeOut(true);
+      setFadeOutActive(true);
       const timer = setTimeout(() => {
         if (onLoadComplete) onLoadComplete();
-      }, 600); // Match fade animation duration
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [progress, minTimeReached, isDataReady, onLoadComplete]);
 
-  // Fallback: If data takes too long, complete anyway after extra time
+  // Fallback
   useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      if (!fadeOut) {
-        setFadeOut(true);
-        setTimeout(() => {
-          if (onLoadComplete) onLoadComplete();
-        }, 600);
+    const timer = setTimeout(() => {
+      if (!fadeOutActive) {
+        setFadeOutActive(true);
+        setTimeout(() => onLoadComplete?.(), 600);
       }
-    }, 5000); // Max 5 seconds total
-
-    return () => clearTimeout(fallbackTimer);
-  }, [fadeOut, onLoadComplete]);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [fadeOutActive, onLoadComplete]);
 
   return (
-    <LoadingContainer className={fadeOut ? 'fade-out' : ''}>
-      <MonsteraContainer>
-        <MonsteraGray src={MONSTERA_IMG} alt="" />
-        <MonsteraColor src={MONSTERA_IMG} alt="" $progress={progress} />
-      </MonsteraContainer>
-      <LoadingText>Wird geladen</LoadingText>
-      <ProgressText $progress={progress}>{Math.round(progress)}%</ProgressText>
-    </LoadingContainer>
+    <Container className={fadeOutActive ? 'fade-out' : ''}>
+      <Content>
+        <Year>{currentYear}</Year>
+        <Title><span>The</span></Title>
+        <Ampersand>&</Ampersand>
+        <Title><span>Wedding</span></Title>
+        <Line />
+        <ProgressContainer>
+          <ProgressBar>
+            <ProgressFill $progress={progress} />
+          </ProgressBar>
+          <ProgressText>
+            {progress < 100 ? 'Loading' : 'Welcome'}
+          </ProgressText>
+        </ProgressContainer>
+      </Content>
+      <Issue>Issue No. 01</Issue>
+    </Container>
   );
 }
 
