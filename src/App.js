@@ -51,28 +51,24 @@ const themes = {
   },
 };
 
-// Loading component
+// Loading component - invisible (black on black) until theme LoadingScreen takes over
 const Loading = () => (
   <div style={{ 
     display: 'flex', 
     alignItems: 'center', 
     justifyContent: 'center', 
     minHeight: '100vh',
-    fontFamily: 'system-ui, sans-serif'
+    background: '#0a0a0a'
   }}>
-    <div style={{ textAlign: 'center' }}>
-      <div style={{ 
-        width: 40, 
-        height: 40, 
-        border: '3px solid #eee', 
-        borderTopColor: '#333',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        margin: '0 auto 1rem'
-      }} />
-      <p>Laden...</p>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
+    <div style={{ 
+      width: 40, 
+      height: 40, 
+      border: '3px solid #0a0a0a', 
+      borderTopColor: '#0a0a0a',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
   </div>
 );
 
