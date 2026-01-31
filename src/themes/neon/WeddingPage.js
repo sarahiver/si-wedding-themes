@@ -1,8 +1,8 @@
 // Neon Theme - WeddingPage
-import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState, useEffect } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import NeonGlobalStyles from './GlobalStyles';
+import LoadingScreen from './LoadingScreen';
 
 import Navigation from './Navigation';
 import Hero from './Hero';
@@ -26,82 +26,11 @@ import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 import AdminDashboard from './AdminDashboard';
 
-const pulse = keyframes`
-  0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(0,255,255,0.5); }
-  50% { opacity: 0.7; box-shadow: 0 0 40px rgba(0,255,255,0.8); }
-`;
-
-const LoadingScreen = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 1.5rem;
-  background: #0a0a0f;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    pointer-events: none;
-  }
-`;
-
-const LoadingText = styled.div`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #00ffff;
-  text-shadow: 0 0 10px rgba(0,255,255,0.5);
-  animation: ${pulse} 2s ease-in-out infinite;
-  position: relative;
-  z-index: 1;
-  
-  &::before {
-    content: '>';
-    margin-right: 10px;
-    color: #ff00ff;
-  }
-`;
-
-const LoadingBar = styled.div`
-  width: 200px;
-  height: 2px;
-  background: rgba(255,255,255,0.1);
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 50%;
-    background: linear-gradient(90deg, transparent, #00ffff, transparent);
-    animation: loading 1.5s ease-in-out infinite;
-  }
-  
-  @keyframes loading {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(300%); }
-  }
-`;
-
 function WeddingPage() {
   const { 
     project, 
     content, 
-    loading, 
+    isLoading, 
     isComponentActive,
     coupleNames,
     weddingDate,
@@ -109,6 +38,8 @@ function WeddingPage() {
     slug
   } = useWedding();
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
 
   // Parse couple names
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
@@ -128,14 +59,22 @@ function WeddingPage() {
     if (username && password) setShowAdmin(true);
   };
 
-  if (loading) {
+  // Track when data is loaded
+  useEffect(() => {
+    if (!isLoading) {
+      setContentReady(true);
+    }
+  }, [isLoading]);
+
+  // Show loading screen
+  if (showLoading) {
     return (
       <>
         <NeonGlobalStyles />
-        <LoadingScreen>
-          <LoadingText>System loading...</LoadingText>
-          <LoadingBar />
-        </LoadingScreen>
+        <LoadingScreen 
+          onLoadComplete={() => setShowLoading(false)}
+          isDataReady={contentReady}
+        />
       </>
     );
   }
