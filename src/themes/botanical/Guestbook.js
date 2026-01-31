@@ -26,6 +26,12 @@ const Section = styled.section`
   position: relative;
   z-index: 10;
   padding: var(--section-padding) 2rem;
+  overflow-x: hidden;
+  
+  @media (max-width: 800px) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 `;
 
 const Container = styled.div`
@@ -291,9 +297,7 @@ const EntriesGrid = styled.div`
     scroll-snap-type: x mandatory;
     gap: 1rem;
     padding-bottom: 1rem;
-    padding-right: 0;
-    margin: 0 -1rem;
-    padding-left: 1rem;
+    padding-right: 1rem;
     
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
@@ -307,6 +311,7 @@ const EntryCard = styled.div`
   padding: 1.25rem;
   position: relative;
   opacity: 0;
+  box-sizing: border-box;
   
   ${p => p.$visible && css`
     animation: ${slideIn} 0.6s ease forwards;
@@ -325,9 +330,10 @@ const EntryCard = styled.div`
   }
   
   @media (max-width: 800px) {
-    flex-shrink: 0;
-    width: 80vw;
-    max-width: 300px;
+    flex: 0 0 auto;
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
     scroll-snap-align: start;
   }
 `;
