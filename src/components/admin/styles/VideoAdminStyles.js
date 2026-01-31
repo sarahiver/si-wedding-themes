@@ -151,6 +151,15 @@ export const SidebarTitle = styled.h2`
   }
 `;
 
+export const SidebarLogo = styled.div`
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
 export const SidebarSub = styled.p`
   font-size: 0.65rem;
   font-weight: 500;
@@ -217,7 +226,6 @@ export const NavDivider = styled.div`
   margin: 1rem 1.5rem;
 `;
 
-// Main Content Area - with scroll fix
 export const Main = styled.main`
   flex: 1;
   margin-left: 260px;
@@ -251,6 +259,15 @@ export const Header = styled.header`
     height: 2px;
     background: #6B8CAE;
   }
+`;
+
+export const PageTitle = styled.h1`
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: #FFF;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 `;
 
 export const MobileMenuToggle = styled.button`
@@ -301,7 +318,7 @@ export const PanelHeader = styled.div`
   align-items: center;
 `;
 
-export const PanelTitle = styled.h2`
+export const PanelTitle = styled.h3`
   font-family: 'Manrope', sans-serif;
   font-size: 1rem;
   font-weight: 600;
@@ -323,34 +340,35 @@ export const StatCard = styled.div`
   background: #252525;
   border: 1px solid rgba(255,255,255,0.1);
   padding: 1.5rem;
-  
-  h3 {
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    font-family: 'Manrope', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #FFF;
-  }
-  
-  span {
-    font-size: 0.75rem;
-    color: #6B8CAE;
-  }
+`;
+
+export const StatNumber = styled.div`
+  font-family: 'Manrope', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFF;
+`;
+
+export const StatLabel = styled.div`
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #888;
+  margin-top: 0.25rem;
 `;
 
 // ============================================
 // FORM ELEMENTS
 // ============================================
 export const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: ${p => p.$mb || '1.25rem'};
+`;
+
+export const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 `;
 
 export const Label = styled.label`
@@ -360,6 +378,15 @@ export const Label = styled.label`
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #888;
+  margin-bottom: 0.5rem;
+`;
+
+export const SectionLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6B8CAE;
   margin-bottom: 0.5rem;
 `;
 
@@ -419,20 +446,50 @@ export const Select = styled.select`
   option { background: #252525; }
 `;
 
-export const Checkbox = styled.input`
+export const Checkbox = styled.input.attrs({ type: 'checkbox' })`
   width: 18px;
   height: 18px;
   accent-color: #6B8CAE;
   cursor: pointer;
 `;
 
-export const SectionLabel = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6B8CAE;
-  margin-bottom: 0.5rem;
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #CCC;
+  cursor: pointer;
+`;
+
+export const HelpText = styled.p`
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.5rem;
+`;
+
+export const ErrorText = styled.p`
+  font-size: 0.75rem;
+  color: #E57373;
+  margin-top: 0.5rem;
+`;
+
+export const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  padding-left: 2.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #FFF;
+  
+  &:focus {
+    outline: none;
+    border-color: #6B8CAE;
+  }
+  
+  &::placeholder { color: #555; }
 `;
 
 // ============================================
@@ -486,6 +543,27 @@ export const SmallButton = styled.button`
   &:hover { border-color: #6B8CAE; color: #FFF; }
 `;
 
+export const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+export const ActionBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
+
+export const GridRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+`;
+
 export const Divider = styled.hr`
   border: none;
   height: 1px;
@@ -507,7 +585,6 @@ export const DropZone = styled.div`
   
   &:hover {
     border-color: #6B8CAE;
-    
     .overlay { opacity: 1; }
   }
 `;
@@ -570,12 +647,61 @@ export const ProgressBar = styled.div`
   }
 `;
 
+export const ImageGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+`;
+
+export const ImageItem = styled.div`
+  position: relative;
+  aspect-ratio: 1;
+  background: url(${p => p.$src}) center/cover;
+  border: 1px solid rgba(255,255,255,0.1);
+`;
+
+export const RemoveButton = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background: rgba(198,40,40,0.9);
+  color: #FFF;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const AddButton = styled.button`
+  aspect-ratio: 1;
+  background: rgba(255,255,255,0.03);
+  border: 2px dashed rgba(255,255,255,0.15);
+  color: #666;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #6B8CAE;
+    color: #6B8CAE;
+  }
+`;
+
 // ============================================
 // TABLE
 // ============================================
+export const TableWrapper = styled.div`
+  overflow-x: auto;
+`;
+
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.85rem;
 `;
 
 export const Th = styled.th`
@@ -609,6 +735,234 @@ export const Badge = styled.span`
   color: ${p => p.$variant === 'success' ? '#81C784' : p.$variant === 'error' ? '#E57373' : '#8BA5C1'};
 `;
 
+export const StatusBadge = styled.span`
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: ${p => p.$status === 'confirmed' ? 'rgba(76,175,80,0.2)' : p.$status === 'declined' ? 'rgba(244,67,54,0.2)' : 'rgba(255,193,7,0.2)'};
+  color: ${p => p.$status === 'confirmed' ? '#81C784' : p.$status === 'declined' ? '#E57373' : '#FFD54F'};
+`;
+
+// ============================================
+// ENTRY CARDS (Guestbook, etc.)
+// ============================================
+export const EntryCard = styled.div`
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+`;
+
+export const EntryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+`;
+
+export const EntryName = styled.h4`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFF;
+`;
+
+export const EntryContent = styled.p`
+  font-size: 0.9rem;
+  color: #AAA;
+  line-height: 1.6;
+`;
+
+export const EntryMeta = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #666;
+`;
+
+export const EntryActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+// ============================================
+// ITEM CARDS (Timeline, FAQ, etc.)
+// ============================================
+export const ItemCard = styled.div`
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+`;
+
+export const ItemHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+export const ItemNumber = styled.span`
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6B8CAE;
+`;
+
+export const ItemActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+// ============================================
+// PHOTOS
+// ============================================
+export const PhotoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+`;
+
+export const PhotoCard = styled.div`
+  position: relative;
+  aspect-ratio: 1;
+  background: #1A1A1A;
+  overflow: hidden;
+`;
+
+export const PhotoImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+export const PhotoOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  ${PhotoCard}:hover & {
+    opacity: 1;
+  }
+`;
+
+export const PhotoButton = styled.button`
+  padding: 0.5rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: ${p => p.$danger ? '#C62828' : '#6B8CAE'};
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+`;
+
+export const PhotoPending = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: #FF9800;
+  color: #FFF;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+export const PhotoCaption = styled.p`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.8);
+  font-size: 0.8rem;
+  color: #CCC;
+`;
+
+export const PhotoActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+export const PhotoCount = styled.span`
+  font-size: 0.85rem;
+  color: #888;
+`;
+
+// ============================================
+// COLOR PALETTE
+// ============================================
+export const ColorPalette = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+export const ColorItem = styled.button`
+  width: 40px;
+  height: 40px;
+  background: ${p => p.$color};
+  border: 2px solid ${p => p.$active ? '#FFF' : 'transparent'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover { transform: scale(1.1); }
+`;
+
+export const ColorInput = styled.input`
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+`;
+
+// ============================================
+// STATUS & INFO
+// ============================================
+export const StatusDescription = styled.p`
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+`;
+
+export const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+`;
+
+export const InfoLabel = styled.span`
+  font-size: 0.85rem;
+  color: #888;
+`;
+
+export const InfoValue = styled.span`
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #FFF;
+`;
+
+export const AlertBox = styled.div`
+  padding: 1rem 1.25rem;
+  background: ${p => p.$type === 'warning' ? 'rgba(255,152,0,0.1)' : p.$type === 'error' ? 'rgba(244,67,54,0.1)' : 'rgba(107,140,174,0.1)'};
+  border: 1px solid ${p => p.$type === 'warning' ? 'rgba(255,152,0,0.3)' : p.$type === 'error' ? 'rgba(244,67,54,0.3)' : 'rgba(107,140,174,0.3)'};
+  color: ${p => p.$type === 'warning' ? '#FFB74D' : p.$type === 'error' ? '#E57373' : '#8BA5C1'};
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+`;
+
 // ============================================
 // MISC
 // ============================================
@@ -638,21 +992,6 @@ export const EmptyState = styled.div`
   span { font-size: 3rem; display: block; margin-bottom: 1rem; }
 `;
 
-export const HelpText = styled.p`
-  font-size: 0.75rem;
-  color: #666;
-  margin-top: 0.5rem;
-`;
-
-export const PageTitle = styled.h1`
-  font-family: 'Manrope', sans-serif;
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  font-weight: 600;
-  color: #FFF;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-`;
-
 export const FeedbackModal = styled.div`
   position: fixed;
   bottom: 2rem;
@@ -670,76 +1009,67 @@ export const FeedbackModal = styled.div`
   cursor: pointer;
 `;
 
+export const LogoIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  background: #6B8CAE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #FFF;
+`;
+
 // ============================================
 // EXPORT ALL COMPONENTS
 // ============================================
 export const VideoAdminComponents = {
-  // Layout
-  DashboardContainer,
-  Sidebar,
-  SidebarHeader,
-  SidebarTitle,
-  SidebarLogo: SidebarTitle, // Alias
-  SidebarSub,
-  SidebarNav,
-  NavSection,
-  NavSectionTitle,
-  NavItem,
-  NavBadge,
-  NavDivider,
-  Main,
-  Header,
-  PageTitle,
-  MobileMenuToggle,
-  SidebarOverlay,
-  
   // Login
-  LoginContainer,
-  LoginBox,
-  LoginLogo,
-  LoginForm,
-  LoginError,
-  LoginButton,
-  BackLink,
+  LoginContainer, LoginBox, LoginLogo, LoginForm, LoginError, LoginButton, BackLink,
+  
+  // Layout
+  DashboardContainer, Sidebar, SidebarHeader, SidebarLogo, SidebarTitle, SidebarSub, SidebarNav,
+  NavSection, NavSectionTitle, NavItem, NavBadge, NavDivider,
+  Main, Header, PageTitle, MobileMenuToggle, SidebarOverlay,
+  
+  // Stats
+  StatsGrid, StatCard, StatNumber, StatLabel,
   
   // Panels
-  Panel,
-  PanelHeader,
-  PanelTitle,
-  PanelContent,
-  StatsGrid,
-  StatCard,
+  Panel, PanelHeader, PanelTitle, PanelContent,
+  
+  // Tables
+  TableWrapper, Table, Th, Td, StatusBadge, Badge,
   
   // Forms
-  FormGroup,
-  Label,
-  Input,
-  TextArea,
-  Select,
-  Checkbox,
-  SectionLabel,
-  HelpText,
+  FormGroup, FormRow, Label, SectionLabel, Input, TextArea, Select, 
+  Checkbox, CheckboxLabel, HelpText, ErrorText, SearchInput,
   
   // Buttons
-  Button,
-  SmallButton,
-  Divider,
+  Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
+  
+  // Entry Cards
+  EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
+  
+  // Item Cards
+  ItemCard, ItemHeader, ItemNumber, ItemActions,
+  
+  // Photos
+  PhotoGrid, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption, PhotoActions, PhotoCount,
   
   // Image Upload
-  DropZone,
-  DropOverlay,
-  DropPlaceholder,
-  DropButton,
-  ProgressBar,
+  DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
+  ImageGrid, ImageItem, RemoveButton, AddButton,
   
-  // Table
-  Table,
-  Th,
-  Td,
-  Badge,
+  // Color
+  ColorPalette, ColorItem, ColorInput,
+  
+  // Status
+  StatusDescription, InfoRow, InfoLabel, InfoValue, AlertBox,
   
   // Misc
-  LoadingSpinner,
-  EmptyState,
-  FeedbackModal,
+  LoadingSpinner, EmptyState, FeedbackModal, LogoIcon,
 };
+
+export default VideoAdminComponents;
