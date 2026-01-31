@@ -1,8 +1,10 @@
 // WeddingPage.js - Editorial Theme
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import EditorialGlobalStyles from './GlobalStyles';
+import LoadingScreen from './LoadingScreen';
 
-// Import components (same directory)
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -24,33 +26,61 @@ import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 
+const PageWrapper = styled.div`
+  min-height: 100vh;
+  background: #ffffff;
+`;
+
 function WeddingPage() {
-  const { isComponentActive } = useWedding();
+  const { isComponentActive, isLoading } = useWedding();
+  const [showLoading, setShowLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setContentReady(true);
+    }
+  }, [isLoading]);
+
+  if (showLoading) {
+    return (
+      <>
+        <EditorialGlobalStyles />
+        <LoadingScreen 
+          onLoadComplete={() => setShowLoading(false)}
+          isDataReady={contentReady}
+        />
+      </>
+    );
+  }
 
   return (
     <>
-      <Navigation />
-      <main>
-        <Hero />
-        {isComponentActive('countdown') && <Countdown />}
-        {isComponentActive('lovestory') && <LoveStory />}
-        {isComponentActive('timeline') && <Timeline />}
-        {isComponentActive('locations') && <Locations />}
-        {isComponentActive('directions') && <Directions />}
-        {isComponentActive('accommodations') && <Accommodations />}
-        {isComponentActive('dresscode') && <Dresscode />}
-        {isComponentActive('rsvp') && <RSVP />}
-        {isComponentActive('gallery') && <Gallery />}
-        {isComponentActive('photoupload') && <PhotoUpload />}
-        {isComponentActive('guestbook') && <Guestbook />}
-        {isComponentActive('musicwishes') && <MusicWishes />}
-        {isComponentActive('gifts') && <Gifts />}
-        {isComponentActive('faq') && <FAQ />}
-        {isComponentActive('weddingabc') && <WeddingABC />}
-        {isComponentActive('witnesses') && <ContactWitnesses />}
-        {isComponentActive('contact') && <Contact />}
-      </main>
-      <Footer />
+      <EditorialGlobalStyles />
+      <PageWrapper>
+        <Navigation />
+        <main>
+          <Hero />
+          {isComponentActive('countdown') && <Countdown />}
+          {isComponentActive('lovestory') && <LoveStory />}
+          {isComponentActive('timeline') && <Timeline />}
+          {isComponentActive('locations') && <Locations />}
+          {isComponentActive('directions') && <Directions />}
+          {isComponentActive('accommodations') && <Accommodations />}
+          {isComponentActive('dresscode') && <Dresscode />}
+          {isComponentActive('rsvp') && <RSVP />}
+          {isComponentActive('gallery') && <Gallery />}
+          {isComponentActive('photoupload') && <PhotoUpload />}
+          {isComponentActive('guestbook') && <Guestbook />}
+          {isComponentActive('musicwishes') && <MusicWishes />}
+          {isComponentActive('gifts') && <Gifts />}
+          {isComponentActive('faq') && <FAQ />}
+          {isComponentActive('weddingabc') && <WeddingABC />}
+          {isComponentActive('witnesses') && <ContactWitnesses />}
+          {isComponentActive('contact') && <Contact />}
+        </main>
+        <Footer />
+      </PageWrapper>
     </>
   );
 }

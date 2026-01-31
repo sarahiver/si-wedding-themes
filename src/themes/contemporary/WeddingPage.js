@@ -1,6 +1,10 @@
-// Contemporary WeddingPage - Main Component
-import React, { useState } from 'react';
+// WeddingPage.js - Contemporary Theme
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 import ContemporaryGlobalStyles from './GlobalStyles';
+import LoadingScreen from './LoadingScreen';
+
 import Navigation from './Navigation';
 import Hero from './Hero';
 import Countdown from './Countdown';
@@ -8,65 +12,44 @@ import LoveStory from './LoveStory';
 import Timeline from './Timeline';
 import Locations from './Locations';
 import Directions from './Directions';
-import RSVP from './RSVP';
-import Dresscode from './Dresscode';
-import Gifts from './Gifts';
 import Accommodations from './Accommodations';
+import RSVP from './RSVP';
 import Gallery from './Gallery';
 import Guestbook from './Guestbook';
 import MusicWishes from './MusicWishes';
 import PhotoUpload from './PhotoUpload';
+import Gifts from './Gifts';
+import Dresscode from './Dresscode';
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
 import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
-import AdminDashboard from './AdminDashboard';
-import { useWedding } from '../../context/WeddingContext';
+
+const PageWrapper = styled.div`
+  min-height: 100vh;
+  background: #faf8f5;
+`;
 
 function WeddingPage() {
-  const { project, loading } = useWedding();
-  const [showAdmin, setShowAdmin] = useState(false);
+  const { isComponentActive, isLoading } = useWedding();
+  const [showLoading, setShowLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    if (!isLoading) {
+      setContentReady(true);
+    }
+  }, [isLoading]);
+
+  if (showLoading) {
     return (
       <>
         <ContemporaryGlobalStyles />
-        <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--white)',
-          fontFamily: 'Space Grotesk, sans-serif'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            padding: '2rem',
-            background: 'var(--coral)',
-            border: '4px solid var(--black)',
-            boxShadow: '8px 8px 0 var(--black)'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💍</div>
-            <div style={{ 
-              fontSize: '1.5rem', 
-              fontWeight: '700', 
-              color: 'var(--white)',
-              textTransform: 'uppercase'
-            }}>
-              Loading...
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (showAdmin) {
-    return (
-      <>
-        <ContemporaryGlobalStyles />
-        <AdminDashboard onClose={() => setShowAdmin(false)} />
+        <LoadingScreen 
+          onLoadComplete={() => setShowLoading(false)}
+          isDataReady={contentReady}
+        />
       </>
     );
   }
@@ -74,28 +57,30 @@ function WeddingPage() {
   return (
     <>
       <ContemporaryGlobalStyles />
-      <Navigation />
-      <main>
-        <Hero />
-        <Countdown />
-        <LoveStory />
-        <Locations />
-        <Timeline />
-        <RSVP />
-        <Dresscode />
-        <Gifts />
-        <Accommodations />
-        <Directions />
-        <Gallery />
-        <FAQ />
-        <WeddingABC />
-        <Guestbook />
-        <MusicWishes />
-        <PhotoUpload />
-        <ContactWitnesses />
-        <Contact />
-      </main>
-      <Footer onAdminLogin={() => setShowAdmin(true)} />
+      <PageWrapper>
+        <Navigation />
+        <main>
+          <Hero />
+          {isComponentActive('countdown') && <Countdown />}
+          {isComponentActive('lovestory') && <LoveStory />}
+          {isComponentActive('timeline') && <Timeline />}
+          {isComponentActive('locations') && <Locations />}
+          {isComponentActive('directions') && <Directions />}
+          {isComponentActive('accommodations') && <Accommodations />}
+          {isComponentActive('dresscode') && <Dresscode />}
+          {isComponentActive('rsvp') && <RSVP />}
+          {isComponentActive('gallery') && <Gallery />}
+          {isComponentActive('photoupload') && <PhotoUpload />}
+          {isComponentActive('guestbook') && <Guestbook />}
+          {isComponentActive('musicwishes') && <MusicWishes />}
+          {isComponentActive('gifts') && <Gifts />}
+          {isComponentActive('faq') && <FAQ />}
+          {isComponentActive('weddingabc') && <WeddingABC />}
+          {isComponentActive('witnesses') && <ContactWitnesses />}
+          {isComponentActive('contact') && <Contact />}
+        </main>
+        <Footer />
+      </PageWrapper>
     </>
   );
 }
