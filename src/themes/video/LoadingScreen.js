@@ -1,5 +1,5 @@
 // LoadingScreen.js - Video Theme
-// Cinematic film countdown with dramatic reveal
+// TV static/flicker effect with blue numbers
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -9,31 +9,47 @@ const fadeOut = keyframes`
 `;
 
 const flicker = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-  75% { opacity: 0.95; }
+  0% { opacity: 1; }
+  5% { opacity: 0.8; }
+  10% { opacity: 1; }
+  15% { opacity: 0.9; }
+  20% { opacity: 1; }
+  50% { opacity: 1; }
+  55% { opacity: 0.7; }
+  60% { opacity: 1; }
+  80% { opacity: 1; }
+  85% { opacity: 0.85; }
+  90% { opacity: 1; }
 `;
 
-const countPulse = keyframes`
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+const scanline = keyframes`
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
 `;
 
-const filmGrain = keyframes`
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-1%, -1%); }
-  20% { transform: translate(1%, 1%); }
-  30% { transform: translate(-1%, 1%); }
-  40% { transform: translate(1%, -1%); }
-  50% { transform: translate(-1%, 0%); }
-  60% { transform: translate(1%, 0%); }
-  70% { transform: translate(0%, 1%); }
-  80% { transform: translate(0%, -1%); }
-  90% { transform: translate(1%, 1%); }
+const glitch = keyframes`
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
 `;
 
-const LoadingContainer = styled.div`
+const noise = keyframes`
+  0%, 100% { background-position: 0 0; }
+  10% { background-position: -5% -10%; }
+  20% { background-position: -15% 5%; }
+  30% { background-position: 7% -25%; }
+  40% { background-position: 20% 25%; }
+  50% { background-position: -25% 10%; }
+  60% { background-position: 15% 5%; }
+  70% { background-position: 0 15%; }
+  80% { background-position: 25% 35%; }
+  90% { background-position: -10% 10%; }
+`;
+
+const Container = styled.div`
   position: fixed;
   inset: 0;
   z-index: 10000;
@@ -43,128 +59,171 @@ const LoadingContainer = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  animation: ${flicker} 0.3s infinite;
   
   &.fade-out {
-    animation: ${fadeOut} 0.8s ease forwards;
+    animation: ${fadeOut} 0.5s ease forwards;
   }
 `;
 
-const FilmGrainOverlay = styled.div`
-  position: absolute;
-  inset: -50%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  animation: ${filmGrain} 0.5s steps(10) infinite;
-`;
-
-const VignetteOverlay = styled.div`
+const StaticOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.8) 100%
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  pointer-events: none;
+  animation: ${noise} 0.5s steps(10) infinite;
+`;
+
+const ScanLine = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  animation: ${scanline} 3s linear infinite;
+  pointer-events: none;
+`;
+
+const VHSLines = styled.div`
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
   );
   pointer-events: none;
 `;
 
-const CountdownWrapper = styled.div`
+const ContentWrapper = styled.div`
   position: relative;
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 10;
+  text-align: center;
+  animation: ${glitch} 0.3s infinite;
 `;
 
-const CircleRing = styled.svg`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-`;
-
-const CircleBackground = styled.circle`
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.1);
-  stroke-width: 2;
-`;
-
-const CircleProgress = styled.circle`
-  fill: none;
-  stroke: white;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: ${2 * Math.PI * 90};
-  stroke-dashoffset: ${p => 2 * Math.PI * 90 * (1 - p.$progress / 100)};
-  transition: stroke-dashoffset 0.3s ease;
-`;
-
-const CountdownNumber = styled.div`
-  font-family: 'Bebas Neue', 'Impact', sans-serif;
-  font-size: 6rem;
+const NumberDisplay = styled.div`
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: clamp(6rem, 20vw, 12rem);
   font-weight: 700;
-  color: white;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-  animation: ${countPulse} 0.5s ease forwards, ${flicker} 0.15s ease infinite;
+  color: #00a8ff;
+  text-shadow: 
+    0 0 20px rgba(0, 168, 255, 0.8),
+    0 0 40px rgba(0, 168, 255, 0.6),
+    0 0 60px rgba(0, 168, 255, 0.4),
+    2px 2px 0 #ff0040,
+    -2px -2px 0 #00ff88;
+  line-height: 1;
+  letter-spacing: -0.05em;
   
   @media (max-width: 768px) {
-    font-size: 4rem;
+    font-size: clamp(4rem, 15vw, 6rem);
   }
 `;
 
-const PlayIcon = styled.div`
-  font-size: 4rem;
-  color: white;
-  animation: ${countPulse} 0.5s ease forwards;
-  
-  @media (max-width: 768px) {
-    font-size: 3rem;
-  }
+const Percentage = styled.span`
+  font-size: 0.3em;
+  vertical-align: top;
+  margin-left: 0.1em;
+  opacity: 0.7;
 `;
 
-const LoadingText = styled.div`
-  margin-top: 2.5rem;
-  font-family: 'Inter', 'Montserrat', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.4em;
+const StatusText = styled.div`
+  margin-top: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.4);
-`;
-
-const FilmStrip = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
   
-  &.top { top: 0; }
-  &.bottom { bottom: 0; }
+  span {
+    color: #00a8ff;
+  }
 `;
 
-const FilmHole = styled.div`
+const ProgressBar = styled.div`
+  width: 250px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 1.5rem auto 0;
+  position: relative;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  height: 100%;
+  background: #00a8ff;
+  box-shadow: 0 0 10px #00a8ff;
+  width: ${p => p.$progress}%;
+  transition: width 0.15s ease;
+`;
+
+const CornerMarker = styled.div`
+  position: absolute;
   width: 30px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 3px;
-  margin-top: 20px;
+  height: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  
+  &.top-left {
+    top: 2rem;
+    left: 2rem;
+    border-right: none;
+    border-bottom: none;
+  }
+  
+  &.top-right {
+    top: 2rem;
+    right: 2rem;
+    border-left: none;
+    border-bottom: none;
+  }
+  
+  &.bottom-left {
+    bottom: 2rem;
+    left: 2rem;
+    border-right: none;
+    border-top: none;
+  }
+  
+  &.bottom-right {
+    bottom: 2rem;
+    right: 2rem;
+    border-left: none;
+    border-top: none;
+  }
 `;
 
-const MIN_DISPLAY_TIME = 2500;
+const RecIndicator = styled.div`
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #ff0040;
+    border-radius: 50%;
+    animation: ${flicker} 1s infinite;
+  }
+`;
+
+const MIN_DISPLAY_TIME = 2000;
 
 function LoadingScreen({ onLoadComplete, isDataReady = false }) {
   const [progress, setProgress] = useState(0);
-  const [countdown, setCountdown] = useState(3);
   const [minTimeReached, setMinTimeReached] = useState(false);
   const [fadeOutState, setFadeOutState] = useState(false);
 
-  // Progress animation
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -172,90 +231,70 @@ function LoadingScreen({ onLoadComplete, isDataReady = false }) {
           clearInterval(interval);
           return 100;
         }
-        const baseIncrement = isDataReady ? 10 : 5;
-        const variance = isDataReady ? 6 : 3;
-        const increment = Math.random() * baseIncrement + variance;
-        return Math.min(prev + increment, 100);
+        const increment = isDataReady ? 10 : 4;
+        return Math.min(prev + Math.random() * increment + 2, 100);
       });
-    }, 150);
-
+    }, 80);
     return () => clearInterval(interval);
   }, [isDataReady]);
 
-  // Countdown animation - goes 3, 2, 1, 0 (play)
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
-
-  // Minimum display time
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinTimeReached(true);
     }, MIN_DISPLAY_TIME);
-
     return () => clearTimeout(timer);
   }, []);
 
-  // Complete loading
   useEffect(() => {
-    if (progress >= 100 && minTimeReached && isDataReady && countdown === 0) {
+    if (progress >= 100 && minTimeReached && isDataReady) {
+      setFadeOutState(true);
       const timer = setTimeout(() => {
-        setFadeOutState(true);
-        setTimeout(() => {
-          if (onLoadComplete) onLoadComplete();
-        }, 800);
+        if (onLoadComplete) onLoadComplete();
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [progress, minTimeReached, isDataReady, countdown, onLoadComplete]);
+  }, [progress, minTimeReached, isDataReady, onLoadComplete]);
 
-  // Fallback
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (!fadeOutState) {
         setFadeOutState(true);
         setTimeout(() => {
           if (onLoadComplete) onLoadComplete();
-        }, 800);
+        }, 500);
       }
     }, 5000);
-
     return () => clearTimeout(fallbackTimer);
   }, [fadeOutState, onLoadComplete]);
 
   return (
-    <LoadingContainer className={fadeOutState ? 'fade-out' : ''}>
-      <FilmGrainOverlay />
-      <VignetteOverlay />
+    <Container className={fadeOutState ? 'fade-out' : ''}>
+      <StaticOverlay />
+      <ScanLine />
+      <VHSLines />
       
-      <FilmStrip className="top">
-        {[...Array(12)].map((_, i) => <FilmHole key={i} />)}
-      </FilmStrip>
+      <CornerMarker className="top-left" />
+      <CornerMarker className="top-right" />
+      <CornerMarker className="bottom-left" />
+      <CornerMarker className="bottom-right" />
       
-      <CountdownWrapper>
-        <CircleRing viewBox="0 0 200 200">
-          <CircleBackground cx="100" cy="100" r="90" />
-          <CircleProgress cx="100" cy="100" r="90" $progress={progress} />
-        </CircleRing>
+      <RecIndicator>LOADING</RecIndicator>
+      
+      <ContentWrapper>
+        <NumberDisplay>
+          {Math.round(progress).toString().padStart(2, '0')}
+          <Percentage>%</Percentage>
+        </NumberDisplay>
         
-        {countdown > 0 ? (
-          <CountdownNumber key={countdown}>{countdown}</CountdownNumber>
-        ) : (
-          <PlayIcon>▶</PlayIcon>
-        )}
-      </CountdownWrapper>
-      
-      <LoadingText>Film wird geladen</LoadingText>
-      
-      <FilmStrip className="bottom">
-        {[...Array(12)].map((_, i) => <FilmHole key={i} />)}
-      </FilmStrip>
-    </LoadingContainer>
+        <ProgressBar>
+          <ProgressFill $progress={progress} />
+        </ProgressBar>
+        
+        <StatusText>
+          <span>▶</span> Video wird geladen
+        </StatusText>
+      </ContentWrapper>
+    </Container>
   );
 }
 
