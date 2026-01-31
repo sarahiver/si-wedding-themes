@@ -48,7 +48,7 @@ export function AdminProvider({ children }) {
   const [contentStates, setContentStates] = useState({});
   
   // Config
-  const adminPassword = project?.password || 'admin123';
+  const adminPassword = project?.admin_password || project?.password || 'admin123';
   const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
   const baseFolder = `iverlasting/${slug || 'default'}`;
