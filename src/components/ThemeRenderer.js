@@ -1,5 +1,6 @@
 // src/components/ThemeRenderer.js
 // Dynamically renders the correct theme based on project.theme from Supabase
+// NEU: Nutzt component_order für dynamische Reihenfolge
 
 import React from 'react';
 import { useWedding } from '../context/WeddingContext';
@@ -135,7 +136,7 @@ import NeonSaveTheDate from '../themes/neon/SaveTheDate';
 import NeonArchivePage from '../themes/neon/ArchivePage';
 
 // ============================================
-// VIDEO THEME IMPORTS (Video has fewer components)
+// VIDEO THEME IMPORTS
 // ============================================
 import VideoGlobalStyles from '../themes/video/GlobalStyles';
 import VideoNavigation from '../themes/video/Navigation';
@@ -156,7 +157,6 @@ import VideoFAQ from '../themes/video/FAQ';
 import VideoWeddingABC from '../themes/video/WeddingABC';
 import VideoPhotoUpload from '../themes/video/PhotoUpload';
 import VideoFooter from '../themes/video/Footer';
-// Video theme doesn't have: Directions, AdminDashboard, SaveTheDate, ArchivePage
 
 // ============================================
 // THEME REGISTRY
@@ -207,9 +207,6 @@ const themes = {
     WeddingABC: BotanicalWeddingABC,
     PhotoUpload: BotanicalPhotoUpload,
     Footer: BotanicalFooter,
-    // Botanical doesn't have SaveTheDate/Archive yet - fallback to editorial
-    SaveTheDate: EditorialSaveTheDate,
-    ArchivePage: EditorialArchivePage,
   },
   contemporary: {
     GlobalStyles: ContemporaryGlobalStyles,
@@ -293,13 +290,11 @@ const themes = {
     LoveStory: VideoLoveStory,
     Timeline: VideoTimeline,
     Locations: VideoLocations,
-    Directions: null, // Video theme doesn't have Directions
     RSVP: VideoRSVP,
     Dresscode: VideoDresscode,
     Gifts: VideoGifts,
     Accommodations: VideoAccommodations,
     Contact: VideoContact,
-    ContactWitnesses: null, // Video theme doesn't have ContactWitnesses
     Gallery: VideoGallery,
     MusicWishes: VideoMusicWishes,
     Guestbook: VideoGuestbook,
@@ -307,111 +302,272 @@ const themes = {
     WeddingABC: VideoWeddingABC,
     PhotoUpload: VideoPhotoUpload,
     Footer: VideoFooter,
-    SaveTheDate: EditorialSaveTheDate, // Fallback to editorial
-    ArchivePage: EditorialArchivePage, // Fallback to editorial
   },
 };
 
 // ============================================
-// HELPER: Transform Supabase data to theme config format
+// DEFAULT COMPONENT ORDER (Fallback)
 // ============================================
-function createConfigFromWeddingData(weddingData) {
-  const { project, content, coupleNames, weddingDate, projectId, slug } = weddingData;
-  
-  const names = coupleNames.split('&').map(n => n.trim());
-  
-  // Format wedding date for display
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
-  };
-
-  return {
-    // Basic info
-    coupleName: coupleNames,
-    name1: names[0] || 'Name',
-    name2: names[1] || 'Name',
-    weddingDate: weddingDate,
-    weddingDateDisplay: formatDate(weddingDate),
-    weddingDateISO: `${weddingDate}T14:00:00`,
-    projectId: projectId,
-    slug: slug,
-    
-    // Hero content
-    heroImage: content.hero?.background_image || '',
-    heroVideo: content.hero?.background_video || '',
-    heroTagline: content.hero?.tagline || 'Wir heiraten',
-    location: content.hero?.location_short || '',
-    
-    // Countdown
-    countdownDate: content.countdown?.target_date || `${weddingDate}T14:00:00`,
-    
-    // RSVP
-    rsvpDeadline: content.rsvp?.deadline || '',
-    
-    // Contact
-    email: content.contact?.couple_email || '',
-    phone: content.contact?.couple_phone || '',
-    
-    // Footer
-    hashtag: content.footer?.hashtag || '',
-    
-    // Navigation items (based on active components)
-    navItems: buildNavItems(project?.active_components || []),
-    
-    // Full content object for components that need more data
-    content: content,
-    
-    // Project metadata
-    project: project,
-  };
-}
-
-function buildNavItems(activeComponents) {
-  const navMap = {
-    lovestory: { id: 'story', label: 'Unsere Geschichte' },
-    timeline: { id: 'timeline', label: 'Ablauf' },
-    locations: { id: 'location', label: 'Location' },
-    rsvp: { id: 'rsvp', label: 'RSVP' },
-    gallery: { id: 'gallery', label: 'Galerie' },
-    faq: { id: 'faq', label: 'FAQ' },
-    contact: { id: 'contact', label: 'Kontakt' },
-    witnesses: { id: 'contact', label: 'Kontakt' },
-  };
-
-  const items = [{ id: 'home', label: 'Home' }];
-  
-  activeComponents.forEach(comp => {
-    if (navMap[comp] && !items.find(i => i.id === navMap[comp].id)) {
-      items.push(navMap[comp]);
-    }
-  });
-
-  return items;
-}
+const DEFAULT_ORDER = [
+  'hero', 'countdown', 'lovestory', 'timeline', 'locations',
+  'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery',
+  'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses',
+  'faq', 'weddingabc', 'contact'
+];
 
 // ============================================
-// THEME RENDERER COMPONENT
+// COMPONENT RENDER MAP
+// Maps component IDs to their render functions
 // ============================================
-export function ThemeRenderer({ pageType = 'wedding' }) {
-  const weddingData = useWedding();
-  const { theme = 'editorial', isComponentActive, content } = weddingData;
-  
-  // Get theme components
-  const themeComponents = themes[theme] || themes.editorial;
-  const { GlobalStyles } = themeComponents;
-  
-  // Create config object from wedding data
-  const config = createConfigFromWeddingData(weddingData);
+const getComponentRenderer = (componentId, themeComponents, config, content, isComponentActive) => {
+  const {
+    Hero, Countdown, LoveStory, Timeline, Locations, Directions,
+    RSVP, Dresscode, Gifts, Accommodations, Contact, ContactWitnesses,
+    Gallery, MusicWishes, Guestbook, FAQ, WeddingABC, PhotoUpload
+  } = themeComponents;
 
-  // Render based on page type
-  if (pageType === 'savethedate') {
+  const renderers = {
+    hero: () => Hero && (
+      <Hero 
+        key="hero"
+        data={config} 
+        config={config} 
+        name1={config.name1}
+        name2={config.name2}
+        date={config.weddingDateDisplay}
+        location={config.location}
+        eyebrow={config.heroTagline}
+        backgroundImage={config.heroImage}
+      />
+    ),
+    
+    countdown: () => isComponentActive('countdown') && Countdown && (
+      <Countdown 
+        key="countdown"
+        config={config} 
+        data={config}
+        weddingDate={config.countdownDate}
+        title={content.countdown?.title}
+        showSeconds={content.countdown?.show_seconds}
+      />
+    ),
+    
+    lovestory: () => isComponentActive('lovestory') && LoveStory && (
+      <LoveStory 
+        key="lovestory"
+        config={config} 
+        data={config} 
+        content={content.lovestory}
+        title={content.lovestory?.title}
+        subtitle={content.lovestory?.subtitle}
+        milestones={content.lovestory?.events}
+        events={content.lovestory?.events}
+      />
+    ),
+    
+    timeline: () => isComponentActive('timeline') && Timeline && (
+      <Timeline 
+        key="timeline"
+        config={config} 
+        data={config} 
+        content={content.timeline}
+        title={content.timeline?.title}
+        events={content.timeline?.events}
+      />
+    ),
+    
+    locations: () => isComponentActive('locations') && Locations && (
+      <Locations 
+        key="locations"
+        config={config} 
+        data={config} 
+        content={content.locations}
+        title={content.locations?.title}
+        locations={content.locations?.locations}
+      />
+    ),
+    
+    directions: () => isComponentActive('directions') && Directions && (
+      <Directions 
+        key="directions"
+        config={config} 
+        data={config} 
+        content={content.directions}
+        title={content.directions?.title}
+        address={content.directions?.address}
+        options={content.directions?.options}
+      />
+    ),
+    
+    accommodations: () => isComponentActive('accommodations') && Accommodations && (
+      <Accommodations 
+        key="accommodations"
+        config={config} 
+        data={config} 
+        content={content.accommodations}
+        title={content.accommodations?.title}
+        description={content.accommodations?.description}
+        hotels={content.accommodations?.hotels}
+      />
+    ),
+    
+    dresscode: () => isComponentActive('dresscode') && Dresscode && (
+      <Dresscode 
+        key="dresscode"
+        config={config} 
+        data={config} 
+        content={content.dresscode}
+        title={content.dresscode?.title}
+        description={content.dresscode?.description}
+        code={content.dresscode?.code}
+        colors={content.dresscode?.colors}
+      />
+    ),
+    
+    rsvp: () => isComponentActive('rsvp') && RSVP && (
+      <RSVP 
+        key="rsvp"
+        config={config} 
+        data={config} 
+        content={content.rsvp}
+        title={content.rsvp?.title}
+        description={content.rsvp?.description}
+        deadline={content.rsvp?.deadline}
+      />
+    ),
+    
+    gallery: () => isComponentActive('gallery') && Gallery && (
+      <Gallery 
+        key="gallery"
+        config={config} 
+        data={config} 
+        content={content.gallery}
+        title={content.gallery?.title}
+        images={content.gallery?.images}
+      />
+    ),
+    
+    photoupload: () => isComponentActive('photoupload') && PhotoUpload && (
+      <PhotoUpload 
+        key="photoupload"
+        config={config} 
+        data={config} 
+        content={content.photoupload}
+        title={content.photoupload?.title}
+        description={content.photoupload?.description}
+      />
+    ),
+    
+    guestbook: () => isComponentActive('guestbook') && Guestbook && (
+      <Guestbook 
+        key="guestbook"
+        config={config} 
+        data={config} 
+        content={content.guestbook}
+        title={content.guestbook?.title}
+        description={content.guestbook?.description}
+      />
+    ),
+    
+    musicwishes: () => isComponentActive('musicwishes') && MusicWishes && (
+      <MusicWishes 
+        key="musicwishes"
+        config={config} 
+        data={config} 
+        content={content.musicwishes}
+        title={content.musicwishes?.title}
+        description={content.musicwishes?.description}
+      />
+    ),
+    
+    gifts: () => isComponentActive('gifts') && Gifts && (
+      <Gifts 
+        key="gifts"
+        config={config} 
+        data={config} 
+        content={content.gifts}
+        title={content.gifts?.title}
+        description={content.gifts?.description}
+        items={content.gifts?.items}
+      />
+    ),
+    
+    witnesses: () => isComponentActive('witnesses') && (ContactWitnesses || Contact) && (
+      ContactWitnesses 
+        ? <ContactWitnesses key="witnesses" config={config} data={config} content={content.witnesses} witnesses={content.witnesses?.persons} />
+        : <Contact key="witnesses" config={config} data={config} content={content.witnesses} />
+    ),
+    
+    faq: () => isComponentActive('faq') && FAQ && (
+      <FAQ 
+        key="faq"
+        config={config} 
+        data={config} 
+        content={content.faq}
+        title={content.faq?.title}
+        items={content.faq?.questions}
+        questions={content.faq?.questions}
+      />
+    ),
+    
+    weddingabc: () => isComponentActive('weddingabc') && WeddingABC && (
+      <WeddingABC 
+        key="weddingabc"
+        config={config} 
+        data={config} 
+        content={content.weddingabc}
+        title={content.weddingabc?.title}
+        entries={content.weddingabc?.entries}
+      />
+    ),
+    
+    contact: () => isComponentActive('contact') && Contact && (
+      <Contact key="contact" config={config} data={config} content={content.contact} />
+    ),
+  };
+
+  return renderers[componentId] || null;
+};
+
+// ============================================
+// MAIN THEME RENDERER
+// ============================================
+function ThemeRenderer({ pageType = 'main' }) {
+  const { project, content, isComponentActive } = useWedding();
+  
+  // Get theme name, fallback to editorial
+  const themeName = project?.theme || 'editorial';
+  const themeComponents = themes[themeName] || themes.editorial;
+  
+  // Extract GlobalStyles
+  const GlobalStyles = themeComponents.GlobalStyles;
+  
+  // Build config object from project data
+  const config = {
+    slug: project?.slug,
+    coupleName: project?.couple_names,
+    name1: project?.partner1_name,
+    name2: project?.partner2_name,
+    weddingDate: project?.wedding_date,
+    countdownDate: project?.wedding_date,
+    location: project?.location,
+    hashtag: project?.hashtag,
+    heroTagline: content?.hero?.tagline || 'Wir heiraten',
+    heroImage: content?.hero?.background_image,
+    weddingDateDisplay: project?.wedding_date 
+      ? new Date(project.wedding_date).toLocaleDateString('de-DE', { 
+          day: 'numeric', month: 'long', year: 'numeric' 
+        })
+      : 'Datum folgt',
+    navItems: project?.active_components || [],
+  };
+
+  // Handle Save The Date page
+  if (pageType === 'std') {
     const SaveTheDate = themeComponents.SaveTheDate;
+    if (!SaveTheDate) {
+      return <div>Save The Date nicht verfügbar für dieses Theme</div>;
+    }
     return (
       <>
         <GlobalStyles />
@@ -420,8 +576,12 @@ export function ThemeRenderer({ pageType = 'wedding' }) {
     );
   }
 
+  // Handle Archive page
   if (pageType === 'archive') {
     const ArchivePage = themeComponents.ArchivePage;
+    if (!ArchivePage) {
+      return <div>Archiv-Seite nicht verfügbar für dieses Theme</div>;
+    }
     return (
       <>
         <GlobalStyles />
@@ -431,28 +591,10 @@ export function ThemeRenderer({ pageType = 'wedding' }) {
   }
 
   // Main wedding page
-  const {
-    Navigation,
-    Hero,
-    Countdown,
-    LoveStory,
-    Timeline,
-    Locations,
-    Directions,
-    RSVP,
-    Dresscode,
-    Gifts,
-    Accommodations,
-    Contact,
-    ContactWitnesses,
-    Gallery,
-    MusicWishes,
-    Guestbook,
-    FAQ,
-    WeddingABC,
-    PhotoUpload,
-    Footer,
-  } = themeComponents;
+  const { Navigation, Footer } = themeComponents;
+  
+  // NEU: Hole component_order aus project, Fallback auf DEFAULT_ORDER
+  const componentOrder = project?.component_order || DEFAULT_ORDER;
 
   return (
     <>
@@ -460,185 +602,17 @@ export function ThemeRenderer({ pageType = 'wedding' }) {
       <Navigation sections={config.navItems} config={config} data={config} />
       
       <main>
-        <Hero data={config} config={config} 
-          name1={config.name1}
-          name2={config.name2}
-          date={config.weddingDateDisplay}
-          location={config.location}
-          eyebrow={config.heroTagline}
-          backgroundImage={config.heroImage}
-        />
-        
-        {isComponentActive('countdown') && Countdown && (
-          <Countdown 
-            config={config} 
-            data={config}
-            weddingDate={config.countdownDate}
-            title={content.countdown?.title}
-            showSeconds={content.countdown?.show_seconds}
-          />
-        )}
-        
-        {isComponentActive('lovestory') && LoveStory && (
-          <LoveStory 
-            config={config} 
-            data={config} 
-            content={content.lovestory}
-            // Spread content for themes that use direct props
-            title={content.lovestory?.title}
-            subtitle={content.lovestory?.subtitle}
-            milestones={content.lovestory?.events}
-            events={content.lovestory?.events}
-          />
-        )}
-        
-        {isComponentActive('timeline') && Timeline && (
-          <Timeline 
-            config={config} 
-            data={config} 
-            content={content.timeline}
-            title={content.timeline?.title}
-            events={content.timeline?.events}
-          />
-        )}
-        
-        {isComponentActive('locations') && Locations && (
-          <Locations 
-            config={config} 
-            data={config} 
-            content={content.locations}
-            title={content.locations?.title}
-            locations={content.locations?.locations}
-          />
-        )}
-        
-        {isComponentActive('directions') && Directions && (
-          <Directions 
-            config={config} 
-            data={config} 
-            content={content.directions}
-            title={content.directions?.title}
-            address={content.directions?.address}
-            options={content.directions?.options}
-          />
-        )}
-        
-        {isComponentActive('accommodations') && Accommodations && (
-          <Accommodations 
-            config={config} 
-            data={config} 
-            content={content.accommodations}
-            title={content.accommodations?.title}
-            description={content.accommodations?.description}
-            hotels={content.accommodations?.hotels}
-          />
-        )}
-        
-        {isComponentActive('dresscode') && Dresscode && (
-          <Dresscode 
-            config={config} 
-            data={config} 
-            content={content.dresscode}
-            title={content.dresscode?.title}
-            description={content.dresscode?.description}
-            code={content.dresscode?.code}
-            colors={content.dresscode?.colors}
-          />
-        )}
-        
-        {isComponentActive('rsvp') && RSVP && (
-          <RSVP 
-            config={config} 
-            data={config} 
-            content={content.rsvp}
-            title={content.rsvp?.title}
-            description={content.rsvp?.description}
-            deadline={content.rsvp?.deadline}
-          />
-        )}
-        
-        {isComponentActive('gallery') && Gallery && (
-          <Gallery 
-            config={config} 
-            data={config} 
-            content={content.gallery}
-            title={content.gallery?.title}
-            images={content.gallery?.images}
-          />
-        )}
-        
-        {isComponentActive('photoupload') && PhotoUpload && (
-          <PhotoUpload 
-            config={config} 
-            data={config} 
-            content={content.photoupload}
-            title={content.photoupload?.title}
-            description={content.photoupload?.description}
-          />
-        )}
-        
-        {isComponentActive('guestbook') && Guestbook && (
-          <Guestbook 
-            config={config} 
-            data={config} 
-            content={content.guestbook}
-            title={content.guestbook?.title}
-            description={content.guestbook?.description}
-          />
-        )}
-        
-        {isComponentActive('musicwishes') && MusicWishes && (
-          <MusicWishes 
-            config={config} 
-            data={config} 
-            content={content.musicwishes}
-            title={content.musicwishes?.title}
-            description={content.musicwishes?.description}
-          />
-        )}
-        
-        {isComponentActive('gifts') && Gifts && (
-          <Gifts 
-            config={config} 
-            data={config} 
-            content={content.gifts}
-            title={content.gifts?.title}
-            description={content.gifts?.description}
-            items={content.gifts?.items}
-          />
-        )}
-        
-        {/* Witnesses/Contact - some themes have ContactWitnesses, some have Contact */}
-        {isComponentActive('witnesses') && (ContactWitnesses || Contact) && (
-          ContactWitnesses 
-            ? <ContactWitnesses config={config} data={config} content={content.witnesses} witnesses={content.witnesses?.persons} />
-            : <Contact config={config} data={config} content={content.witnesses} />
-        )}
-        
-        {isComponentActive('faq') && FAQ && (
-          <FAQ 
-            config={config} 
-            data={config} 
-            content={content.faq}
-            title={content.faq?.title}
-            items={content.faq?.questions}
-            questions={content.faq?.questions}
-          />
-        )}
-        
-        {isComponentActive('weddingabc') && WeddingABC && (
-          <WeddingABC 
-            config={config} 
-            data={config} 
-            content={content.weddingabc}
-            title={content.weddingabc?.title}
-            entries={content.weddingabc?.entries}
-          />
-        )}
-        
-        {isComponentActive('contact') && Contact && (
-          <Contact config={config} data={config} content={content.contact} />
-        )}
+        {/* Render Komponenten in der Reihenfolge aus component_order */}
+        {componentOrder.map(componentId => {
+          const renderer = getComponentRenderer(
+            componentId, 
+            themeComponents, 
+            config, 
+            content, 
+            isComponentActive
+          );
+          return renderer ? renderer() : null;
+        })}
       </main>
       
       <Footer 
