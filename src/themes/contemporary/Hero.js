@@ -261,10 +261,11 @@ function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
-  const name1 = heroData.name1 || project?.partner1_name || 'Sophie';
-  const name2 = heroData.name2 || project?.partner2_name || 'Max';
-  const date = heroData.date || project?.wedding_date;
-  const location = heroData.location_short || heroData.location || project?.location || 'Berlin';
+  // NEU: project hat Priorität vor heroData
+  const name1 = project?.partner1_name || heroData.name1 || 'Sophie';
+  const name2 = project?.partner2_name || heroData.name2 || 'Max';
+  const date = project?.wedding_date || heroData.date;
+  const location = project?.location || heroData.location_short || heroData.location || 'Berlin';
   const tagline = heroData.tagline || 'Wir heiraten';
   const backgroundImage = heroData.background_image;
   

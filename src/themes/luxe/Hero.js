@@ -211,10 +211,11 @@ function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
-  const name1 = heroData.name1 || project?.partner1_name || 'Alexandra';
-  const name2 = heroData.name2 || project?.partner2_name || 'Benjamin';
-  const date = heroData.date || project?.wedding_date;
-  const location = heroData.location || project?.location || 'Villa Como, Italien';
+  // NEU: project hat Priorität vor heroData
+  const name1 = project?.partner1_name || heroData.name1 || 'Alexandra';
+  const name2 = project?.partner2_name || heroData.name2 || 'Benjamin';
+  const date = project?.wedding_date || heroData.date;
+  const location = project?.location || heroData.location || 'Villa Como, Italien';
   const backgroundImage = heroData.background_image;
   
   const [visible, setVisible] = useState(false);

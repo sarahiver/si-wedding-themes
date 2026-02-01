@@ -250,15 +250,18 @@ const ScrollArrow = styled.span`
 // ============================================
 
 function Hero() {
-  const { coupleNames, weddingDate, content, isComponentActive } = useWedding();
+  const { project, weddingDate, content, isComponentActive } = useWedding();
   const heroData = content?.hero || {};
   
   // Use provided image or default
   const heroImage = heroData.background_image || 'https://res.cloudinary.com/si-weddings/image/upload/v1769072318/si_cooming_soon_luxe_hero_wowu9v.jpg';
-  const locationShort = heroData.location_short || 'Hamburg';
   
-  // Split couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
+  // NEU: Namen direkt aus project lesen (mit Fallbacks)
+  const name1 = project?.partner1_name || heroData.name1 || 'Anna';
+  const name2 = project?.partner2_name || heroData.name2 || 'Thomas';
+  
+  // Location aus project oder heroData
+  const locationShort = heroData.location_short || project?.location || 'Hamburg';
   
   // Format date
   const formatDate = (dateStr) => {
@@ -279,9 +282,9 @@ function Hero() {
         <Eyebrow>Wir heiraten</Eyebrow>
         
         <Names>
-          {names[0]}
+          {name1}
           <Ampersand>&</Ampersand>
-          {names[1]}
+          {name2}
         </Names>
         
         <DateLocation>

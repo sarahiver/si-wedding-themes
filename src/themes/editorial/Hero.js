@@ -260,13 +260,15 @@ const AnimatedWord = ({ text, startDelay = 0, accent = false }) => {
 // ============================================
 
 function Hero() {
-  const { content, coupleNames, weddingDate } = useWedding();
+  const { content, project, weddingDate } = useWedding();
   const hero = content?.hero || {};
   
-  // Parse couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
-  const name1 = names[0]?.toUpperCase() || 'BRAUT';
-  const name2 = names[1]?.toUpperCase() || 'BRÄUTIGAM';
+  // NEU: Namen direkt aus project lesen (mit Fallbacks)
+  const name1 = (project?.partner1_name || hero.name1 || 'Braut').toUpperCase();
+  const name2 = (project?.partner2_name || hero.name2 || 'Bräutigam').toUpperCase();
+  
+  // Location aus project oder heroData
+  const locationShort = hero.location_short || project?.location || null;
   
   // Format date
   const formatDate = (dateStr) => {
@@ -306,8 +308,8 @@ function Hero() {
           <DateText>{formatDate(weddingDate)}</DateText>
         </DateLine>
         
-        {hero.location_short && (
-          <Location>{hero.location_short}</Location>
+        {locationShort && (
+          <Location>{locationShort}</Location>
         )}
       </Content>
       

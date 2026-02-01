@@ -89,10 +89,11 @@ function Hero() {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
   
-  const name1 = heroData.name1 || project?.partner1_name || 'Emma';
-  const name2 = heroData.name2 || project?.partner2_name || 'Noah';
-  const date = heroData.date || project?.wedding_date;
-  const location = heroData.location || project?.location || 'Berlin';
+  // NEU: project hat Priorität vor heroData
+  const name1 = project?.partner1_name || heroData.name1 || 'Emma';
+  const name2 = project?.partner2_name || heroData.name2 || 'Noah';
+  const date = project?.wedding_date || heroData.date;
+  const location = project?.location || heroData.location || 'Berlin';
   
   const [visible, setVisible] = useState(false);
   

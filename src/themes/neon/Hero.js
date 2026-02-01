@@ -1,6 +1,7 @@
 // src/components/Hero.js - Neon Theme
 import React, { useEffect, useState, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const glitchAnim = keyframes`
   0%, 100% { transform: translate(0); }
@@ -308,13 +309,24 @@ const CornerDecor = styled.div`
   }
 `;
 
-function Hero({
-  name1 = "Alex",
-  name2 = "Jordan",
-  date = "15.08.2025",
-  location = "Berlin, Germany",
-  eyebrow = "The Wedding Of"
-}) {
+function Hero() {
+  const { project, content, weddingDate } = useWedding();
+  const heroData = content?.hero || {};
+  
+  // NEU: Namen direkt aus project lesen (mit Fallbacks)
+  const name1 = project?.partner1_name || heroData.name1 || 'Alex';
+  const name2 = project?.partner2_name || heroData.name2 || 'Jordan';
+  const location = project?.location || heroData.location || 'Berlin, Germany';
+  const eyebrow = heroData.eyebrow || heroData.tagline || 'The Wedding Of';
+  
+  // Datum formatieren
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '15.08.2025';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+  const date = formatDate(weddingDate);
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
