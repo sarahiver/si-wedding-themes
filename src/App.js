@@ -1,49 +1,47 @@
 // App.js - SI Wedding Themes
 // All data comes from Supabase based on URL slug
+// REFACTORED: Uses central WeddingPage instead of theme-specific ones
 
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 
-// Lazy load themes for code splitting
-const themes = {
+// Central WeddingPage (handles all themes)
+import WeddingPage from './pages/WeddingPage';
+
+// Lazy load theme-specific pages that are still needed
+const themePages = {
   botanical: {
-    WeddingPage: lazy(() => import('./themes/botanical/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/botanical/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/botanical/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/botanical/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/botanical/SaveTheDate')),
   },
   luxe: {
-    WeddingPage: lazy(() => import('./themes/luxe/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/luxe/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/luxe/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/luxe/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/luxe/SaveTheDate')),
   },
   neon: {
-    WeddingPage: lazy(() => import('./themes/neon/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/neon/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/neon/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/neon/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/neon/SaveTheDate')),
   },
   contemporary: {
-    WeddingPage: lazy(() => import('./themes/contemporary/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/contemporary/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/contemporary/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/contemporary/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/contemporary/SaveTheDate')),
   },
   video: {
-    WeddingPage: lazy(() => import('./themes/video/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/video/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/video/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/video/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/video/SaveTheDate')),
   },
   editorial: {
-    WeddingPage: lazy(() => import('./themes/editorial/WeddingPage')),
     AdminDashboard: lazy(() => import('./themes/editorial/AdminDashboard')),
     GlobalStyles: lazy(() => import('./themes/editorial/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/editorial/ArchivePage')),
@@ -78,15 +76,14 @@ function ThemeRouter() {
   
   // Get theme from project (loaded from Supabase)
   const themeName = theme || 'botanical';
-  const themeComponents = themes[themeName] || themes.botanical;
+  const pages = themePages[themeName] || themePages.botanical;
   
   const { 
-    WeddingPage, 
     AdminDashboard, 
     GlobalStyles, 
     ArchivePage, 
     SaveTheDate 
-  } = themeComponents;
+  } = pages;
 
   if (isLoading) return <Loading />;
   
@@ -110,6 +107,7 @@ function ThemeRouter() {
         return <ArchivePage />;
       case 'live':
       default:
+        // Use central WeddingPage for all themes
         return <WeddingPage />;
     }
   };
