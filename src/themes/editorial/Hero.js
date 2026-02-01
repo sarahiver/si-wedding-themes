@@ -283,7 +283,7 @@ function Hero() {
 
   // Default background image (Cloudinary)
   const backgroundImage = hero.background_image || 
-    'https://res.cloudinary.com/si-weddings/image/upload/v1769537648/iverlasting/demo/hero/t4rsv6gjmwtow3k761d2.jpg';
+    'https://res.cloudinary.com/si-weddings/image/upload/v1769537648/siwedding/demo/hero/t4rsv6gjmwtow3k761d2.jpg';
   
   // Optional mobile background image
   const mobileBackgroundImage = hero.background_image_mobile || null;

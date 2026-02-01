@@ -48,10 +48,10 @@ export function AdminProvider({ children }) {
   const [contentStates, setContentStates] = useState({});
   
   // Config
-  const adminPassword = project?.admin_password || project?.password || 'admin123';
+  const adminPassword = project?.password || 'admin123';
   const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
-  const baseFolder = `iverlasting/${slug || 'default'}`;
+  const baseFolder = `siwedding/${slug || 'default'}`;
 
   // Initialize content from wedding context - Schema-compliant defaults
   useEffect(() => {
@@ -325,7 +325,8 @@ export function AdminProvider({ children }) {
       { id: 'edit-archive', label: 'Archiv', icon: '📦' },
     ]},
     { section: 'Einstellungen', items: [
-      { id: 'status', label: 'Status', icon: '⚙️' }
+      { id: 'settings', label: 'Einstellungen', icon: '⚙️' },
+      { id: 'status', label: 'Status', icon: '🔄' }
     ]},
   ].filter(s => s.items.length > 0);
 

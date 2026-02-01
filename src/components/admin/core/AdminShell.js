@@ -9,6 +9,7 @@ import GuestbookSection from './sections/GuestbookSection';
 import MusicSection from './sections/MusicSection';
 import PhotosSection from './sections/PhotosSection';
 import StatusSection from './sections/StatusSection';
+import SettingsSection from './sections/SettingsSection';
 
 // Import Editors
 import * as Editors from './editors';
@@ -101,6 +102,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'edit-footer': return <Editors.FooterEditor components={C} />;
       case 'edit-savethedate': return <Editors.SaveTheDateEditor components={C} />;
       case 'edit-archive': return <Editors.ArchiveEditor components={C} />;
+      case 'settings': return <SettingsSection components={C} />;
       case 'status': return <StatusSection components={C} />;
       default: return <C.EmptyState>Bereich nicht gefunden</C.EmptyState>;
     }
