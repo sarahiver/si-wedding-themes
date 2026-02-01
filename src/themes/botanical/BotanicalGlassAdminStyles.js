@@ -539,6 +539,14 @@ export const ErrorText = styled.span`
   display: block;
 `;
 
+export const HelpText = styled.span`
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  margin-top: 0.25rem;
+  display: block;
+  line-height: 1.4;
+`;
+
 // ============================================
 // BUTTONS
 // ============================================
@@ -1113,7 +1121,7 @@ export const BotanicalGlassAdminComponents = {
   // Tables
   TableWrapper, Table, Th, Td, StatusBadge,
   // Forms
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText,
   // Buttons
   Button, SmallButton, ButtonGroup,
   // Layout Helpers
