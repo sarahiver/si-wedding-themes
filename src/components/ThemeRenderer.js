@@ -473,6 +473,8 @@ const getComponentRenderer = (
         />
       ),
 
+EXTRA_FALSCHER_CODE
+
     rsvp: () =>
       isComponentActive("rsvp") &&
       RSVP && (
