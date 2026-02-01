@@ -253,8 +253,8 @@ function Hero() {
   const { project, weddingDate, content, isComponentActive } = useWedding();
   const heroData = content?.hero || {};
   
-  // Use provided image or default
-  const heroImage = heroData.background_image || 'https://res.cloudinary.com/si-weddings/image/upload/v1769072318/si_cooming_soon_luxe_hero_wowu9v.jpg';
+  // Use provided image or default (Dschungel/Forest für Botanical)
+  const heroImage = heroData.background_image || 'https://res.cloudinary.com/si-weddings/image/upload/q_auto,f_auto,w_1920/v1769793086/forest-6761846_1920_dumcnj.jpg';
   
   // NEU: Namen direkt aus project lesen (mit Fallbacks)
   const name1 = project?.partner1_name || heroData.name1 || 'Anna';
