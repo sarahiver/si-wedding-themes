@@ -257,17 +257,37 @@ const ScrollIndicator = styled.div`
   }
 `;
 
-function Hero() {
+function Hero({ isSaveTheDate = false, isArchive = false }) {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
+  const archiveData = content?.archive || {};
   
   // NEU: project hat Priorität vor heroData
   const name1 = project?.partner1_name || heroData.name1 || 'Sophie';
   const name2 = project?.partner2_name || heroData.name2 || 'Max';
   const date = project?.wedding_date || heroData.date;
   const location = project?.location || heroData.location_short || heroData.location || 'Berlin';
-  const tagline = heroData.tagline || 'Wir heiraten';
-  const backgroundImage = heroData.background_image;
+  
+  // Tagline je nach Modus
+  let tagline;
+  if (isArchive) {
+    tagline = archiveData.thank_you_title || 'Danke!';
+  } else if (isSaveTheDate) {
+    tagline = stdData.tagline || 'Save the Date';
+  } else {
+    tagline = heroData.tagline || 'Wir heiraten';
+  }
+  
+  // Background Image: STD/Archive haben eigenes Bild, sonst Hero-Bild
+  let backgroundImage;
+  if (isArchive && archiveData.hero_image) {
+    backgroundImage = archiveData.hero_image;
+  } else if (isSaveTheDate && stdData.hero_image) {
+    backgroundImage = stdData.hero_image;
+  } else {
+    backgroundImage = heroData.background_image;
+  }
   
   const [visible, setVisible] = useState(false);
   
@@ -310,14 +330,28 @@ function Hero() {
           </InfoBadge>
         </InfoContainer>
         
-        <CTAContainer>
-          <PrimaryButton href="#rsvp" $visible={visible}>
-            Jetzt zusagen →
-          </PrimaryButton>
-          <SecondaryButton href="#story" $visible={visible}>
-            Unsere Geschichte
-          </SecondaryButton>
-        </CTAContainer>
+        {isArchive ? (
+          <CTAContainer>
+            <InfoBadge $visible={visible} $delay="0.6s" $color="var(--coral)" style={{ fontSize: '1rem', padding: '1rem 2rem', maxWidth: '500px' }}>
+              {archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt!'}
+            </InfoBadge>
+          </CTAContainer>
+        ) : isSaveTheDate ? (
+          <CTAContainer>
+            <InfoBadge $visible={visible} $delay="0.6s" $color="var(--coral)" style={{ fontSize: '1rem', padding: '1rem 2rem' }}>
+              {stdData.message || 'Einladung folgt'}
+            </InfoBadge>
+          </CTAContainer>
+        ) : (
+          <CTAContainer>
+            <PrimaryButton href="#rsvp" $visible={visible}>
+              Jetzt zusagen →
+            </PrimaryButton>
+            <SecondaryButton href="#story" $visible={visible}>
+              Unsere Geschichte
+            </SecondaryButton>
+          </CTAContainer>
+        )}
       </LeftPanel>
       
       <RightPanel $image={backgroundImage}>
