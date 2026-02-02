@@ -85,15 +85,27 @@ const LocationText = styled.p`
   animation-delay: 1.4s;
 `;
 
-function Hero() {
+function Hero({ isSaveTheDate = false, isArchive = false }) {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
+  const archiveData = content?.archive || {};
   
   // NEU: project hat Priorität vor heroData
   const name1 = project?.partner1_name || heroData.name1 || 'Emma';
   const name2 = project?.partner2_name || heroData.name2 || 'Noah';
   const date = project?.wedding_date || heroData.date;
   const location = project?.location || heroData.location || 'Berlin';
+  
+  // Eyebrow-Text je nach Modus
+  let eyebrowText;
+  if (isArchive) {
+    eyebrowText = archiveData.thank_you_title || 'Danke!';
+  } else if (isSaveTheDate) {
+    eyebrowText = stdData.tagline || 'Save the Date';
+  } else {
+    eyebrowText = 'Wir heiraten';
+  }
   
   const [visible, setVisible] = useState(false);
   
@@ -106,16 +118,28 @@ function Hero() {
     ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '21. Juni 2025';
 
+  // Extra Message für STD/Archive
+  const extraMessage = isArchive 
+    ? (archiveData.thank_you_text || 'Danke, dass ihr dabei wart!')
+    : isSaveTheDate 
+      ? (stdData.message || 'Einladung folgt')
+      : null;
+
   return (
     <SectionWrapper id="hero">
       <Content>
-        <Eyebrow $visible={visible}>Wir heiraten</Eyebrow>
+        <Eyebrow $visible={visible}>{eyebrowText}</Eyebrow>
         <Names $visible={visible} $delay="0.5s">{name1}</Names>
         <Ampersand $visible={visible}>&</Ampersand>
         <Names $visible={visible} $delay="0.9s">{name2}</Names>
         <Divider $visible={visible} />
         <DateText $visible={visible}>{formattedDate}</DateText>
         <LocationText $visible={visible}>{location}</LocationText>
+        {extraMessage && (
+          <LocationText $visible={visible} style={{ marginTop: '2rem', maxWidth: '500px', margin: '2rem auto 0' }}>
+            {extraMessage}
+          </LocationText>
+        )}
       </Content>
     </SectionWrapper>
   );
