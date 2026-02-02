@@ -6,9 +6,13 @@ import { submitPhotoUpload, getPhotoUploads } from '../../lib/supabase';
 
 export function usePhotoUpload(options = {}) {
   const { maxFiles = 10, maxSizeMB = 10 } = options;
+  
+  // Always call useWedding - it will return null values if not in provider
   const weddingContext = useWedding();
-  const projectId = weddingContext?.projectId || weddingContext?.project?.id;
-  const slug = weddingContext?.slug;
+  
+  // Safe access with multiple fallbacks
+  const projectId = weddingContext?.projectId || weddingContext?.project?.id || null;
+  const slug = weddingContext?.slug || weddingContext?.project?.slug || null;
   
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
