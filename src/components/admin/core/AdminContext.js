@@ -1,5 +1,5 @@
 // core/AdminContext.js - Central State Management for Admin Dashboard
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useWedding } from '../../../context/WeddingContext';
 import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
@@ -9,6 +9,22 @@ import {
 } from '../../../lib/supabase';
 
 const AdminContext = createContext(null);
+
+// Paket-Definitionen (müssen mit SuperAdmin übereinstimmen)
+const PACKAGE_FEATURES = {
+  klassik: { save_the_date: false, archive: false },
+  signature: { save_the_date: true, archive: false },
+  couture: { save_the_date: true, archive: true },
+  individual: { save_the_date: true, archive: true }, // Custom - hat alles
+};
+
+// Prüft ob ein Feature im Paket oder in den Addons enthalten ist
+const isFeatureAvailable = (packageName, addons, feature) => {
+  const pkg = PACKAGE_FEATURES[packageName] || PACKAGE_FEATURES.klassik;
+  if (pkg[feature]) return true;
+  if (addons && addons.includes(feature)) return true;
+  return false;
+};
 
 export function AdminProvider({ children }) {
   const wedding = useWedding();
@@ -53,6 +69,16 @@ export function AdminProvider({ children }) {
   const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
   const baseFolder = `siwedding/${slug || 'default'}`;
+  
+  // Feature-Verfügbarkeit basierend auf Paket
+  const hasSaveTheDate = useMemo(() => 
+    isFeatureAvailable(project?.package, project?.addons, 'save_the_date'),
+    [project?.package, project?.addons]
+  );
+  const hasArchive = useMemo(() => 
+    isFeatureAvailable(project?.package, project?.addons, 'archive'),
+    [project?.package, project?.addons]
+  );
 
   // Initialize content from wedding context - Schema-compliant defaults
   useEffect(() => {
@@ -341,9 +367,9 @@ export function AdminProvider({ children }) {
       { id: 'edit-footer', label: 'Footer', icon: '📝' },
     ].filter(Boolean)},
     { section: 'Seiten-Varianten', items: [
-      { id: 'edit-savethedate', label: 'Save the Date', icon: '💌' },
-      { id: 'edit-archive', label: 'Archiv', icon: '📦' },
-    ]},
+      hasSaveTheDate && { id: 'edit-savethedate', label: 'Save the Date', icon: '💌' },
+      hasArchive && { id: 'edit-archive', label: 'Archiv', icon: '📦' },
+    ].filter(Boolean)},
     { section: 'Einstellungen', items: [
       { id: 'settings', label: 'Einstellungen', icon: '⚙️' },
       { id: 'status', label: 'Status', icon: '🔄' }
