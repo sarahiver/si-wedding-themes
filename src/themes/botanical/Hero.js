@@ -249,12 +249,22 @@ const ScrollArrow = styled.span`
 // COMPONENT
 // ============================================
 
-function Hero() {
+function Hero({ isSaveTheDate = false, isArchive = false }) {
   const { project, weddingDate, content, isComponentActive } = useWedding();
   const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
+  const archiveData = content?.archive || {};
   
-  // Use provided image or default (Dschungel/Forest für Botanical)
-  const heroImage = heroData.background_image || 'https://res.cloudinary.com/si-weddings/image/upload/q_auto,f_auto,w_1920/v1769793086/forest-6761846_1920_dumcnj.jpg';
+  // Background Image: STD/Archive haben eigenes Bild, sonst Hero-Bild
+  const defaultImage = 'https://res.cloudinary.com/si-weddings/image/upload/q_auto,f_auto,w_1920/v1769793086/forest-6761846_1920_dumcnj.jpg';
+  let heroImage;
+  if (isArchive && archiveData.hero_image) {
+    heroImage = archiveData.hero_image;
+  } else if (isSaveTheDate && stdData.hero_image) {
+    heroImage = stdData.hero_image;
+  } else {
+    heroImage = heroData.background_image || defaultImage;
+  }
   
   // NEU: Namen direkt aus project lesen (mit Fallbacks)
   const name1 = project?.partner1_name || heroData.name1 || 'Anna';
@@ -262,6 +272,16 @@ function Hero() {
   
   // Location aus project oder heroData
   const locationShort = heroData.location_short || project?.location || 'Hamburg';
+  
+  // Eyebrow-Text je nach Modus
+  let eyebrowText;
+  if (isArchive) {
+    eyebrowText = archiveData.thank_you_title || 'Danke!';
+  } else if (isSaveTheDate) {
+    eyebrowText = stdData.tagline || 'Save the Date';
+  } else {
+    eyebrowText = 'Wir heiraten';
+  }
   
   // Format date
   const formatDate = (dateStr) => {
@@ -274,12 +294,19 @@ function Hero() {
     });
   };
 
+  // Extra Message für STD/Archive
+  const extraMessage = isArchive 
+    ? (archiveData.thank_you_text || 'Danke, dass ihr dabei wart!')
+    : isSaveTheDate 
+      ? (stdData.message || 'Einladung folgt')
+      : null;
+
   return (
     <HeroSection id="hero">
       <HeroBackground $image={heroImage} />
       
       <GlassCard>
-        <Eyebrow>Wir heiraten</Eyebrow>
+        <Eyebrow>{eyebrowText}</Eyebrow>
         
         <Names>
           {name1}
@@ -292,17 +319,25 @@ function Hero() {
           <Location>{locationShort}</Location>
         </DateLocation>
         
-        {isComponentActive('rsvp') && (
+        {extraMessage && (
+          <Location style={{ marginTop: '1.5rem', fontStyle: 'italic', maxWidth: '400px', lineHeight: 1.6 }}>
+            {extraMessage}
+          </Location>
+        )}
+        
+        {!isSaveTheDate && !isArchive && isComponentActive('rsvp') && (
           <CTAButton href="#rsvp">
             Jetzt zusagen
           </CTAButton>
         )}
       </GlassCard>
       
-      <ScrollIndicator>
-        <ScrollText>Entdecken</ScrollText>
-        <ScrollArrow>↓</ScrollArrow>
-      </ScrollIndicator>
+      {!isSaveTheDate && !isArchive && (
+        <ScrollIndicator>
+          <ScrollText>Entdecken</ScrollText>
+          <ScrollArrow>↓</ScrollArrow>
+        </ScrollIndicator>
+      )}
     </HeroSection>
   );
 }
