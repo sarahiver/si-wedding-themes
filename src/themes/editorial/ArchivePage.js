@@ -1,9 +1,10 @@
 // Editorial ArchivePage - Magazine Style mit Dashboard-Daten
+// Zeigt: Hero + Danke, Archiv-Galerie (Paar-Fotos), PhotoUpload (Gäste laden hoch)
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import EditorialGlobalStyles from './GlobalStyles';
-import Gallery from './Gallery';
+import PhotoUpload from './PhotoUpload';
 import Footer from './Footer';
 
 // ============================================
@@ -39,7 +40,6 @@ const Page = styled.div`
   background: var(--editorial-black);
 `;
 
-// Hero Section
 const HeroSection = styled.section`
   min-height: 100vh;
   position: relative;
@@ -65,12 +65,7 @@ const HeroBackground = styled.div`
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.4) 0%,
-      rgba(0, 0, 0, 0.3) 50%,
-      rgba(0, 0, 0, 0.6) 100%
-    );
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
   }
 `;
 
@@ -138,7 +133,6 @@ const DateLocation = styled.p`
   animation-delay: 1.8s;
 `;
 
-// Section
 const Section = styled.section`
   padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
   background: ${p => p.$light ? 'var(--editorial-white)' : 'var(--editorial-black)'};
@@ -179,29 +173,48 @@ const SectionTitle = styled.h2`
   ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.15s;`}
 `;
 
-// Danke Section
-const ThankYouSection = styled.div`
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto;
+// Archiv-Galerie Grid (eigene Bilder vom Paar)
+const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
   opacity: 0;
-  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.3s;`}
+  
+  @media (max-width: 1000px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); }
 `;
 
-const ThankYouMessage = styled.p`
-  font-family: var(--font-serif);
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.8;
-  margin-bottom: 2rem;
-`;
-
-const Signature = styled.p`
-  font-family: var(--font-headline);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 700;
-  color: var(--editorial-white);
-  text-transform: uppercase;
+const GalleryItem = styled.div`
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  
+  &:nth-child(5n+1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: all 0.5s ease;
+  }
+  
+  &:hover img {
+    filter: grayscale(0%);
+    transform: scale(1.05);
+  }
 `;
 
 const Divider = styled.div`
@@ -222,37 +235,30 @@ function ArchivePage() {
   const heroData = content?.hero || {};
   const archiveData = content?.archive || {};
   
-  // Namen aus project
+  // Namen
   const name1 = project?.partner1_name || 'Braut';
   const name2 = project?.partner2_name || 'Bräutigam';
   const location = project?.location || heroData.location_short || '';
   
-  // Archive-spezifische Daten aus Dashboard
+  // Archive-Content
   const thankYouTitle = archiveData.thank_you_title || 'Danke!';
-  const thankYouText = archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt. Die Erinnerungen werden uns für immer begleiten.';
-  // Hero-Bild: Archive eigenes Bild, sonst normales Hero-Bild
+  const thankYouText = archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt.';
   const heroImage = archiveData.hero_image || heroData.background_image;
   
-  // Was wird angezeigt? (aus Dashboard Checkboxen)
-  const showGallery = archiveData.gallery_active !== false;
-  // Gästebuch und PhotoUpload werden hier NICHT angezeigt - nur im Admin als Download
+  // Archiv-Galerie Bilder (EIGENE, nicht normale gallery)
+  const archiveGalleryImages = archiveData.gallery_images || [];
   
   // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
   
   // Visibility states
   const [galleryVisible, setGalleryVisible] = useState(false);
-  const [thankYouVisible, setThankYouVisible] = useState(false);
+  const [uploadVisible, setUploadVisible] = useState(false);
   const galleryRef = useRef(null);
-  const thankYouRef = useRef(null);
+  const uploadRef = useRef(null);
 
   useEffect(() => {
     const observers = [];
@@ -266,12 +272,12 @@ function ArchivePage() {
       observers.push(obs);
     }
     
-    if (thankYouRef.current) {
+    if (uploadRef.current) {
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setThankYouVisible(true); },
-        { threshold: 0.2 }
+        ([entry]) => { if (entry.isIntersecting) setUploadVisible(true); },
+        { threshold: 0.1 }
       );
-      obs.observe(thankYouRef.current);
+      obs.observe(uploadRef.current);
       observers.push(obs);
     }
     
@@ -292,7 +298,7 @@ function ArchivePage() {
     <>
       <EditorialGlobalStyles />
       <Page>
-        {/* Hero mit Danke-Titel */}
+        {/* Hero mit Danke */}
         <HeroSection>
           <HeroBackground $image={heroImage} />
           <HeroContent>
@@ -309,29 +315,48 @@ function ArchivePage() {
           </HeroContent>
         </HeroSection>
         
-        {/* Galerie - Fotos vom Paar hochgeladen */}
-        {showGallery && (
+        {/* Archiv-Galerie (Paar-Fotos) */}
+        {archiveGalleryImages.length > 0 && (
           <Section $light ref={galleryRef}>
             <Container>
               <SectionHeader>
                 <SectionEyebrow $visible={galleryVisible}>Erinnerungen</SectionEyebrow>
                 <SectionTitle $visible={galleryVisible} $light>Galerie</SectionTitle>
               </SectionHeader>
-              <Gallery />
+              
+              <GalleryGrid $visible={galleryVisible}>
+                {archiveGalleryImages.map((img, i) => (
+                  <GalleryItem key={i}>
+                    <img 
+                      src={typeof img === 'string' ? img : img.url} 
+                      alt={`Hochzeitsfoto ${i + 1}`} 
+                      loading="lazy"
+                    />
+                  </GalleryItem>
+                ))}
+              </GalleryGrid>
             </Container>
           </Section>
         )}
         
-        {/* Danke Section am Ende */}
-        <Section ref={thankYouRef}>
+        {/* PhotoUpload für Gäste - Fotos werden NICHT angezeigt, nur hochgeladen */}
+        <Section ref={uploadRef}>
           <Container>
-            <ThankYouSection $visible={thankYouVisible}>
-              <SectionEyebrow $visible={thankYouVisible}>Von Herzen</SectionEyebrow>
-              <SectionTitle $visible={thankYouVisible}>Danke</SectionTitle>
-              <Divider $visible={thankYouVisible} />
-              <ThankYouMessage>{thankYouText}</ThankYouMessage>
-              <Signature>{name1} & {name2}</Signature>
-            </ThankYouSection>
+            <SectionHeader>
+              <SectionEyebrow $visible={uploadVisible}>Eure Momente</SectionEyebrow>
+              <SectionTitle $visible={uploadVisible}>Fotos teilen</SectionTitle>
+              <Divider $visible={uploadVisible} />
+              <ThankYouText style={{ 
+                opacity: uploadVisible ? 1 : 0, 
+                animation: uploadVisible ? `${fadeInUp} 0.8s ease forwards` : 'none',
+                animationDelay: '0.4s',
+                color: 'rgba(255,255,255,0.6)'
+              }}>
+                Habt ihr Fotos von unserer Hochzeit? Teilt sie mit uns!
+              </ThankYouText>
+            </SectionHeader>
+            
+            <PhotoUpload />
           </Container>
         </Section>
         
