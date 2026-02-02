@@ -1,248 +1,249 @@
+// Luxe SaveTheDate - Elegant Cinematic Style mit Supabase-Daten
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
+import LuxeGlobalStyles from './GlobalStyles';
 
+// Animations
 const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.5; height: 40px; }
-  50% { opacity: 1; height: 50px; }
+const revealText = keyframes`
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
 `;
 
+const expandLine = keyframes`
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+// Styled Components
 const Page = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--luxe-white, #FFFFFF);
-  padding: 2rem;
   position: relative;
+  overflow: hidden;
+  background: var(--luxe-void);
 `;
 
-const ImagePlaceholder = styled.div`
+const BackgroundImage = styled.div`
   position: absolute;
-  width: 180px;
-  height: 240px;
-  background: var(--luxe-cream, #FDFCFA);
-  border: 1px solid var(--luxe-border, #ECEAE6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
+  background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-void) 100%)'};
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
   
   &::after {
-    content: 'Photo';
-    font-family: var(--font-sans, 'Montserrat', sans-serif);
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--luxe-text-muted, #9A9A9A);
-  }
-  
-  @media (max-width: 1024px) {
-    display: none;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0.7) 100%);
   }
 `;
 
-const ImageLeft = styled(ImagePlaceholder)`
-  top: 15%;
-  left: 8%;
-  transform: rotate(-3deg);
-  animation: ${fadeIn} 1s ease 0.8s both;
-`;
-
-const ImageRight = styled(ImagePlaceholder)`
-  bottom: 15%;
-  right: 8%;
-  transform: rotate(3deg);
-  animation: ${fadeIn} 1s ease 1s both;
-`;
-
-const Card = styled.div`
-  max-width: 480px;
-  width: 100%;
-  padding: 3.5rem 3rem;
-  background: var(--luxe-cream, #FDFCFA);
-  text-align: center;
-  animation: ${fadeIn} 1s ease forwards;
+const Content = styled.div`
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+  max-width: 800px;
 `;
 
-const GoldLine = styled.div`
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--luxe-gold, #C8B88A), transparent);
-  margin: 0 auto 2rem;
+const Eyebrow = styled.div`
+  overflow: hidden;
+  margin-bottom: 2rem;
 `;
 
-const Eyebrow = styled.p`
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
-  font-size: 0.55rem;
-  font-weight: 500;
-  letter-spacing: 0.35em;
+const EyebrowText = styled.span`
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--luxe-text-muted, #9A9A9A);
-  margin-bottom: 1.5rem;
+  color: var(--luxe-gold);
+  opacity: 0;
+  animation: ${slideUp} 0.8s var(--ease-out-expo) forwards;
+  animation-delay: 0.3s;
 `;
 
-const Names = styled.h1`
-  font-family: var(--font-serif, 'Cormorant Garamond', serif);
-  font-size: clamp(2rem, 6vw, 3rem);
+const NamesContainer = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const NameLine = styled.div`
+  overflow: hidden;
+`;
+
+const NameText = styled.h1`
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12vw, 8rem);
   font-weight: 300;
   font-style: italic;
-  color: var(--luxe-text-heading, #4A4A4A);
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-  
-  span {
-    display: block;
-  }
-  
-  .ampersand {
-    font-size: 0.5em;
-    color: var(--luxe-gold, #C8B88A);
-  }
+  color: var(--luxe-cream);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  transform: translateY(110%);
+  animation: ${revealText} 1.2s var(--ease-out-expo) forwards;
+  animation-delay: ${p => p.$delay || '0.5s'};
+`;
+
+const Ampersand = styled.div`
+  overflow: hidden;
+  margin: 0.5rem 0;
+`;
+
+const AmpersandText = styled.span`
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-style: italic;
+  color: var(--luxe-gold);
+  transform: translateY(110%);
+  animation: ${revealText} 1s var(--ease-out-expo) forwards;
+  animation-delay: 0.8s;
+`;
+
+const Divider = styled.div`
+  width: 80px;
+  height: 1px;
+  background: var(--luxe-gold);
+  margin: 2rem auto;
+  transform-origin: center;
+  transform: scaleX(0);
+  animation: ${expandLine} 1s var(--ease-out-expo) forwards;
+  animation-delay: 1.2s;
+`;
+
+const InfoBox = styled.div`
+  opacity: 0;
+  animation: ${fadeIn} 1s ease forwards;
+  animation-delay: 1.4s;
 `;
 
 const DateText = styled.p`
-  font-family: var(--font-serif, 'Cormorant Garamond', serif);
-  font-size: 1.2rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
   font-style: italic;
-  color: var(--luxe-text, #5A5A5A);
+  color: var(--luxe-cream);
   margin-bottom: 0.5rem;
 `;
 
-const Location = styled.p`
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
+const LocationText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-text-muted, #9A9A9A);
-  margin-bottom: 2.5rem;
+  color: var(--luxe-pearl);
+  margin-bottom: 2rem;
+`;
+
+const Message = styled.p`
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: var(--luxe-pearl);
+  line-height: 1.8;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  opacity: 0;
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 1.6s;
 `;
 
 const CountdownGrid = styled.div`
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 2.5rem;
+  gap: clamp(1rem, 4vw, 3rem);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: ${fadeIn} 1s ease forwards;
+  animation-delay: 1.8s;
 `;
 
-const CountdownItem = styled.div``;
+const CountdownItem = styled.div`
+  text-align: center;
+`;
 
-const CountdownNumber = styled.span`
-  display: block;
-  font-family: var(--font-serif, 'Cormorant Garamond', serif);
-  font-size: 2rem;
-  font-style: italic;
-  color: var(--luxe-text-heading, #4A4A4A);
+const CountdownNumber = styled.div`
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 300;
+  color: var(--luxe-cream);
   line-height: 1;
-  margin-bottom: 0.25rem;
 `;
 
-const CountdownLabel = styled.span`
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
-  font-size: 0.5rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--luxe-text-muted, #9A9A9A);
-`;
-
-const Message = styled.p`
-  font-family: var(--font-serif, 'Cormorant Garamond', serif);
-  font-size: 1rem;
-  font-style: italic;
-  color: var(--luxe-text-light, #7A7A7A);
-  margin-bottom: 2.5rem;
-  line-height: 1.8;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-`;
-
-const PrimaryButton = styled.a`
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
+const CountdownLabel = styled.div`
+  font-family: var(--font-body);
   font-size: 0.6rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--luxe-white, #FFFFFF);
-  background: var(--luxe-text-heading, #4A4A4A);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: var(--luxe-gold, #C8B88A);
-  }
+  color: var(--luxe-gold);
+  margin-top: 0.5rem;
 `;
 
-const SecondaryButton = styled.button`
-  padding: 0.8rem 1.5rem;
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--luxe-text-light, #7A7A7A);
-  background: transparent;
-  border: 1px solid var(--luxe-border, #ECEAE6);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--luxe-gold, #C8B88A);
-    color: var(--luxe-gold, #C8B88A);
-  }
-`;
-
-const ScrollIndicator = styled.div`
+const Footer = styled.div`
   position: absolute;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  animation: ${fadeIn} 1s ease 1.2s both;
+  text-align: center;
+  opacity: 0;
+  animation: ${fadeIn} 1s ease forwards, ${float} 3s ease-in-out infinite;
+  animation-delay: 2s, 2s;
 `;
 
-const ScrollText = styled.span`
-  font-family: var(--font-sans, 'Montserrat', sans-serif);
-  font-size: 0.5rem;
-  letter-spacing: 0.2em;
+const FooterText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--luxe-text-muted, #9A9A9A);
+  color: var(--luxe-pearl);
 `;
 
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--luxe-gold, #C8B88A), transparent);
-  animation: ${pulse} 2s ease-in-out infinite;
-`;
-
-function SaveTheDate({ config = {} }) {
+// Component
+function SaveTheDate() {
+  const { content, project, weddingDate } = useWedding();
+  const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
+  
+  // Namen aus project
+  const name1 = project?.partner1_name || 'Alexandra';
+  const name2 = project?.partner2_name || 'Benjamin';
+  const location = project?.location || heroData.location || '';
+  
+  // STD-spezifische Daten
+  const tagline = stdData.tagline || 'Save the Date';
+  const message = stdData.message || 'Wir freuen uns, diesen besonderen Tag mit euch zu feiern. Einladung folgt.';
+  const backgroundImage = stdData.hero_image || heroData.background_image;
+  const showCountdown = stdData.countdown_active !== false;
+  
+  // Countdown
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
-  const {
-    name1 = "Dave",
-    name2 = "Kalle",
-    weddingDateDisplay = "October 20, 2026",
-    weddingDateISO = "2026-10-20T14:00:00",
-    location = "Château de Lumière",
-  } = config;
-  
   useEffect(() => {
-    const targetDate = new Date(weddingDateISO);
+    if (!weddingDate) return;
     
+    const targetDate = new Date(weddingDate);
     const calculate = () => {
       const now = new Date();
       const diff = targetDate - now;
@@ -260,80 +261,78 @@ function SaveTheDate({ config = {} }) {
     calculate();
     const timer = setInterval(calculate, 1000);
     return () => clearInterval(timer);
-  }, [weddingDateISO]);
+  }, [weddingDate]);
   
-  const downloadCalendar = () => {
-    const ics = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:${weddingDateISO.replace(/[-:]/g, '').split('.')[0]}Z
-SUMMARY:Wedding ${name1} & ${name2}
-LOCATION:${location}
-END:VEVENT
-END:VCALENDAR`;
-    
-    const blob = new Blob([ics], { type: 'text/calendar' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'save-the-date.ics';
-    link.click();
-  };
+  // Format date
+  const formattedDate = weddingDate 
+    ? new Date(weddingDate).toLocaleDateString('de-DE', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      })
+    : 'Datum folgt';
   
   const pad = n => String(n).padStart(2, '0');
-  
+
   return (
-    <Page>
-      <ImageLeft />
-      <ImageRight />
-      
-      <Card>
-        <GoldLine />
-        <Eyebrow>Save the Date</Eyebrow>
+    <>
+      <LuxeGlobalStyles />
+      <Page>
+        <BackgroundImage $image={backgroundImage} />
         
-        <Names>
-          <span>{name1}</span>
-          <span className="ampersand">&</span>
-          <span>{name2}</span>
-        </Names>
+        <Content>
+          <Eyebrow>
+            <EyebrowText>{tagline}</EyebrowText>
+          </Eyebrow>
+          
+          <NamesContainer>
+            <NameLine>
+              <NameText $delay="0.5s">{name1}</NameText>
+            </NameLine>
+            <Ampersand>
+              <AmpersandText>&</AmpersandText>
+            </Ampersand>
+            <NameLine>
+              <NameText $delay="0.7s">{name2}</NameText>
+            </NameLine>
+          </NamesContainer>
+          
+          <Divider />
+          
+          <InfoBox>
+            <DateText>{formattedDate}</DateText>
+            {location && <LocationText>{location}</LocationText>}
+          </InfoBox>
+          
+          {showCountdown && weddingDate && (
+            <CountdownGrid>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.days)}</CountdownNumber>
+                <CountdownLabel>Tage</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.hours)}</CountdownNumber>
+                <CountdownLabel>Stunden</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.minutes)}</CountdownNumber>
+                <CountdownLabel>Minuten</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.seconds)}</CountdownNumber>
+                <CountdownLabel>Sekunden</CountdownLabel>
+              </CountdownItem>
+            </CountdownGrid>
+          )}
+          
+          <Message>{message}</Message>
+        </Content>
         
-        <DateText>{weddingDateDisplay}</DateText>
-        <Location>{location}</Location>
-        
-        <CountdownGrid>
-          <CountdownItem>
-            <CountdownNumber>{pad(timeLeft.days)}</CountdownNumber>
-            <CountdownLabel>Days</CountdownLabel>
-          </CountdownItem>
-          <CountdownItem>
-            <CountdownNumber>{pad(timeLeft.hours)}</CountdownNumber>
-            <CountdownLabel>Hours</CountdownLabel>
-          </CountdownItem>
-          <CountdownItem>
-            <CountdownNumber>{pad(timeLeft.minutes)}</CountdownNumber>
-            <CountdownLabel>Minutes</CountdownLabel>
-          </CountdownItem>
-          <CountdownItem>
-            <CountdownNumber>{pad(timeLeft.seconds)}</CountdownNumber>
-            <CountdownLabel>Seconds</CountdownLabel>
-          </CountdownItem>
-        </CountdownGrid>
-        
-        <Message>
-          We are delighted to share our special day with you.<br />
-          Formal invitation to follow.
-        </Message>
-        
-        <ButtonGroup>
-          <PrimaryButton href="/">View Website</PrimaryButton>
-          <SecondaryButton onClick={downloadCalendar}>Add to Calendar</SecondaryButton>
-        </ButtonGroup>
-      </Card>
-      
-      <ScrollIndicator>
-        <ScrollText>Scroll</ScrollText>
-        <ScrollLine />
-      </ScrollIndicator>
-    </Page>
+        <Footer>
+          <FooterText>Einladung folgt</FooterText>
+        </Footer>
+      </Page>
+    </>
   );
 }
 

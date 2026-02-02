@@ -207,16 +207,37 @@ const ScrollLine = styled.div`
 `;
 
 // Component
-function Hero() {
+function Hero({ isSaveTheDate = false, isArchive = false }) {
   const { content, project } = useWedding();
   const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
+  const archiveData = content?.archive || {};
   
   // NEU: project hat Priorität vor heroData
   const name1 = project?.partner1_name || heroData.name1 || 'Alexandra';
   const name2 = project?.partner2_name || heroData.name2 || 'Benjamin';
   const date = project?.wedding_date || heroData.date;
-  const location = project?.location || heroData.location || 'Villa Como, Italien';
-  const backgroundImage = heroData.background_image;
+  const location = project?.location || heroData.location || '';
+  
+  // Eyebrow je nach Modus
+  let eyebrowText;
+  if (isArchive) {
+    eyebrowText = archiveData.thank_you_title || 'Danke!';
+  } else if (isSaveTheDate) {
+    eyebrowText = stdData.tagline || 'Save the Date';
+  } else {
+    eyebrowText = 'Wir heiraten';
+  }
+  
+  // Background Image je nach Modus
+  let backgroundImage;
+  if (isArchive && archiveData.hero_image) {
+    backgroundImage = archiveData.hero_image;
+  } else if (isSaveTheDate && stdData.hero_image) {
+    backgroundImage = stdData.hero_image;
+  } else {
+    backgroundImage = heroData.background_image;
+  }
   
   const [visible, setVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -245,7 +266,7 @@ function Hero() {
       
       <Content>
         <Eyebrow>
-          <EyebrowText $visible={visible}>Wir heiraten</EyebrowText>
+          <EyebrowText $visible={visible}>{eyebrowText}</EyebrowText>
         </Eyebrow>
         
         <NamesContainer>
