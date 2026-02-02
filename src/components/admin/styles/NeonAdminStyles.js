@@ -189,6 +189,15 @@ export const LoadingSpinner = styled.div`display: flex; justify-content: center;
 export const EmptyState = styled.p`text-align: center; color: #555; padding: 2rem; font-family: 'Inter', sans-serif;`;
 export const FeedbackModal = styled.div`position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: ${p => p.type === 'success' ? '#00D4FF' : p.type === 'error' ? '#FF3366' : '#64B5F6'}; color: ${p => p.type === 'success' ? '#000' : '#FFF'}; box-shadow: 0 0 30px ${p => p.type === 'success' ? 'rgba(0, 212, 255, 0.5)' : 'rgba(255, 51, 102, 0.5)'}; animation: ${fadeIn} 0.3s ease; z-index: 1000;`;
 
+// MODAL
+export const ModalOverlay = styled.div`position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: ${fadeIn} 0.2s ease; padding: 1rem;`;
+export const ModalContent = styled.div`background: #0D0D0D; max-width: 450px; width: 100%; border: 2px solid rgba(255, 51, 102, 0.5); box-shadow: 0 0 40px rgba(255, 51, 102, 0.3); animation: ${fadeIn} 0.3s ease;`;
+export const ModalHeader = styled.div`padding: 1.5rem; border-bottom: 1px solid rgba(255, 51, 102, 0.3);`;
+export const ModalTitle = styled.h3`font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #FF3366; margin: 0; text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);`;
+export const ModalBody = styled.div`padding: 1.5rem; color: rgba(255,255,255,0.8); line-height: 1.6; p { margin: 0; }`;
+export const ModalFooter = styled.div`padding: 1.5rem; border-top: 1px solid rgba(255, 51, 102, 0.2); display: flex; justify-content: flex-end; gap: 1rem;`;
+export const ActionButton = styled.button`padding: 0.75rem 1.5rem; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; border: 2px solid; ${p => p.$primary ? css`background: #FF3366; border-color: #FF3366; color: #FFF; box-shadow: 0 0 20px rgba(255, 51, 102, 0.4); &:hover:not(:disabled) { box-shadow: 0 0 30px rgba(255, 51, 102, 0.6); transform: translateY(-2px); }` : css`background: transparent; border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); &:hover:not(:disabled) { border-color: #00D4FF; color: #00D4FF; }`} &:disabled { opacity: 0.5; cursor: not-allowed; }`;
+
 // Neon bolt icon
 export const LogoIcon = () => (
   <svg viewBox="0 0 24 24" style={{ width: 20, height: 20, fill: '#FF3366', filter: 'drop-shadow(0 0 3px rgba(255, 51, 102, 0.8))' }}>
@@ -208,7 +217,8 @@ export const NeonAdminComponents = {
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,

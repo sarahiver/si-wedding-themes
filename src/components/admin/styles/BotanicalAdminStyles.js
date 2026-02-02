@@ -1148,6 +1148,101 @@ export const EmptyState = styled.div`
 `;
 
 // ============================================
+// MODAL
+// ============================================
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ${fadeIn} 0.2s ease;
+  padding: 1rem;
+`;
+
+export const ModalContent = styled.div`
+  background: var(--admin-bg-secondary);
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid var(--admin-glass-border);
+  border-radius: 16px;
+  animation: ${fadeIn} 0.3s ease;
+  backdrop-filter: blur(20px);
+`;
+
+export const ModalHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--admin-glass-border);
+`;
+
+export const ModalTitle = styled.h3`
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+`;
+
+export const ModalBody = styled.div`
+  padding: 1.5rem;
+  color: var(--admin-text-secondary);
+  line-height: 1.6;
+  
+  p { margin: 0; }
+`;
+
+export const ModalFooter = styled.div`
+  padding: 1.5rem;
+  border-top: 1px solid var(--admin-glass-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+// ============================================
+// ACTION BUTTON (für wichtige Aktionen)
+// ============================================
+export const ActionButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid;
+  border-radius: 8px;
+  
+  ${p => p.$primary ? css`
+    background: var(--admin-accent);
+    border-color: var(--admin-accent);
+    color: #0a0f0a;
+    
+    &:hover:not(:disabled) {
+      background: rgba(139, 180, 120, 1);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--admin-accent-light);
+    }
+  ` : css`
+    background: transparent;
+    border-color: var(--admin-glass-border);
+    color: var(--admin-text-secondary);
+    
+    &:hover:not(:disabled) {
+      border-color: var(--admin-glass-border-hover);
+      color: var(--admin-text);
+    }
+  `}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// ============================================
 // FEEDBACK MODAL
 // ============================================
 export const FeedbackModal = styled.div`
@@ -1236,7 +1331,10 @@ export const BotanicalAdminComponents = {
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   
   // Alerts & Search
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  
+  // Modal
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   
   // Photos
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,

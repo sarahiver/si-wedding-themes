@@ -698,6 +698,100 @@ export const LoadingSpinner = styled.div`display: flex; justify-content: center;
 export const EmptyState = styled.p`text-align: center; color: rgba(255, 255, 255, 0.4); padding: 3rem; font-size: 0.9rem;`;
 
 // ============================================
+// MODAL
+// ============================================
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ${fadeIn} 0.2s ease;
+  padding: 1rem;
+`;
+
+export const ModalContent = styled.div`
+  background: #1A1A1A;
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: ${fadeIn} 0.3s ease;
+`;
+
+export const ModalHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+export const ModalTitle = styled.h3`
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FAFAFA;
+  margin: 0;
+`;
+
+export const ModalBody = styled.div`
+  padding: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  
+  p { margin: 0; }
+`;
+
+export const ModalFooter = styled.div`
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+// ============================================
+// ACTION BUTTON (für wichtige Aktionen)
+// ============================================
+export const ActionButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid;
+  
+  ${p => p.$primary ? css`
+    background: #C41E3A;
+    border-color: #C41E3A;
+    color: #FFFFFF;
+    
+    &:hover:not(:disabled) {
+      background: #A01830;
+      border-color: #A01830;
+    }
+  ` : css`
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #FFFFFF;
+    }
+  `}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// ============================================
 // FEEDBACK - Toast oben rechts
 // ============================================
 export const FeedbackModal = styled.div`
@@ -742,7 +836,8 @@ export const EditorialAdminComponents = {
   ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,

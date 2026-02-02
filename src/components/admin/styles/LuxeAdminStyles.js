@@ -184,6 +184,15 @@ export const LoadingSpinner = styled.div`display: flex; justify-content: center;
 export const EmptyState = styled.p`text-align: center; color: #666; padding: 2rem; font-family: 'Montserrat', sans-serif;`;
 export const FeedbackModal = styled.div`position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: ${p => p.type === 'success' ? '#4CAF50' : p.type === 'error' ? '#FF6B6B' : '#64B5F6'}; color: ${p => p.type === 'success' || p.type === 'error' ? '#FFF' : '#1A1A1A'}; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: ${fadeIn} 0.3s ease; z-index: 1000;`;
 
+// MODAL
+export const ModalOverlay = styled.div`position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: ${fadeIn} 0.2s ease; padding: 1rem;`;
+export const ModalContent = styled.div`background: #1A1A1A; max-width: 450px; width: 100%; border: 1px solid rgba(201, 168, 108, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.6); animation: ${fadeIn} 0.3s ease;`;
+export const ModalHeader = styled.div`padding: 1.5rem; border-bottom: 1px solid rgba(201, 168, 108, 0.2);`;
+export const ModalTitle = styled.h3`font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: #C9A86C; margin: 0;`;
+export const ModalBody = styled.div`padding: 1.5rem; color: rgba(255,255,255,0.8); line-height: 1.6; p { margin: 0; }`;
+export const ModalFooter = styled.div`padding: 1.5rem; border-top: 1px solid rgba(201, 168, 108, 0.1); display: flex; justify-content: flex-end; gap: 1rem;`;
+export const ActionButton = styled.button`padding: 0.75rem 1.5rem; font-family: 'Montserrat', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; border: 1px solid; ${p => p.$primary ? css`background: linear-gradient(135deg, #C9A86C, #B8956A); border-color: #C9A86C; color: #1A1A1A; &:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(201, 168, 108, 0.4); }` : css`background: transparent; border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); &:hover:not(:disabled) { border-color: rgba(255,255,255,0.4); color: #FFF; }`} &:disabled { opacity: 0.5; cursor: not-allowed; }`;
+
 // Gold diamond icon for Luxe
 export const LogoIcon = () => (
   <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#C9A86C' }}>
@@ -203,7 +212,8 @@ export const LuxeAdminComponents = {
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,

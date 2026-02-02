@@ -1009,6 +1009,94 @@ export const FeedbackModal = styled.div`
   cursor: pointer;
 `;
 
+// MODAL
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: ${fadeIn} 0.2s ease;
+  padding: 1rem;
+`;
+
+export const ModalContent = styled.div`
+  background: #0A0A0A;
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid rgba(107, 140, 174, 0.3);
+  animation: ${fadeIn} 0.3s ease;
+`;
+
+export const ModalHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(107, 140, 174, 0.2);
+`;
+
+export const ModalTitle = styled.h3`
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6B8CAE;
+  margin: 0;
+`;
+
+export const ModalBody = styled.div`
+  padding: 1.5rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+  
+  p { margin: 0; }
+`;
+
+export const ModalFooter = styled.div`
+  padding: 1.5rem;
+  border-top: 1px solid rgba(107, 140, 174, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+export const ActionButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+  
+  ${p => p.$primary ? css`
+    background: #6B8CAE;
+    border-color: #6B8CAE;
+    color: #FFF;
+    
+    &:hover:not(:disabled) {
+      background: #7A9BBD;
+    }
+  ` : css`
+    background: transparent;
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    
+    &:hover:not(:disabled) {
+      border-color: rgba(255,255,255,0.4);
+      color: #FFF;
+    }
+  `}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 export const LogoIcon = styled.div`
   width: 32px;
   height: 32px;
@@ -1066,7 +1154,10 @@ export const VideoAdminComponents = {
   ColorPalette, ColorItem, ColorInput,
   
   // Status
-  StatusDescription, InfoRow, InfoLabel, InfoValue, AlertBox,
+  StatusDescription, InfoRow, InfoLabel, InfoValue, AlertBox, ActionButton,
+  
+  // Modal
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   
   // Misc
   LoadingSpinner, EmptyState, FeedbackModal, LogoIcon,

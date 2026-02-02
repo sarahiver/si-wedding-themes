@@ -155,6 +155,16 @@ export const InfoValue = styled.span`font-size: 0.95rem; color: #0D0D0D;`;
 export const LoadingSpinner = styled.div`display: flex; justify-content: center; padding: 3rem; &::after { content: ''; width: 40px; height: 40px; border: 4px solid #E5E5E5; border-top-color: #FF6B6B; border-radius: 50%; animation: ${spin} 0.8s linear infinite; }`;
 export const EmptyState = styled.p`text-align: center; color: #737373; padding: 3rem; font-size: 0.95rem;`;
 export const FeedbackModal = styled.div`position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; font-size: 0.9rem; font-weight: 600; border: 3px solid #0D0D0D; box-shadow: 6px 6px 0 #0D0D0D; background: ${p => p.type === 'success' ? '#4ECDC4' : p.type === 'error' ? '#FF6B6B' : '#FFE66D'}; color: ${p => p.type === 'success' || p.type === 'error' ? '#FAFAFA' : '#0D0D0D'}; z-index: 1000;`;
+
+// MODAL
+export const ModalOverlay = styled.div`position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: ${fadeIn} 0.2s ease; padding: 1rem;`;
+export const ModalContent = styled.div`background: #FAFAFA; max-width: 450px; width: 100%; border: 4px solid #0D0D0D; box-shadow: 12px 12px 0 #0D0D0D; animation: ${fadeIn} 0.3s ease;`;
+export const ModalHeader = styled.div`padding: 1.5rem; border-bottom: 3px solid #0D0D0D;`;
+export const ModalTitle = styled.h3`font-size: 1.25rem; font-weight: 700; text-transform: uppercase; color: #0D0D0D; margin: 0;`;
+export const ModalBody = styled.div`padding: 1.5rem; color: #525252; line-height: 1.6; p { margin: 0; }`;
+export const ModalFooter = styled.div`padding: 1.5rem; border-top: 3px solid #E5E5E5; display: flex; justify-content: flex-end; gap: 1rem;`;
+export const ActionButton = styled.button`padding: 0.75rem 1.5rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease; border: 3px solid #0D0D0D; ${p => p.$primary ? css`background: #FF6B6B; color: #FAFAFA; box-shadow: 4px 4px 0 #0D0D0D; &:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #0D0D0D; }` : css`background: #FAFAFA; color: #0D0D0D; &:hover:not(:disabled) { background: #F5F5F5; }`} &:disabled { opacity: 0.5; cursor: not-allowed; }`;
+
 export const LogoIcon = null;
 
 // EXPORT ALL
@@ -170,7 +180,8 @@ const ContemporaryAdminComponents = {
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,
