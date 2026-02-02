@@ -113,17 +113,8 @@ function ThemeRouter() {
     }
   }, [projectId]);
   
-  const themeName = theme || 'botanical';
-  const pages = themePages[themeName] || themePages.botanical;
-  
-  const { 
-    AdminDashboard, 
-    GlobalStyles, 
-    ArchivePage, 
-    SaveTheDate 
-  } = pages;
-
-  if (isLoading) return <Loading />;
+  // WICHTIG: Warte bis project UND theme geladen sind
+  if (isLoading || !project) return <Loading />;
   
   if (error) {
     return (
@@ -144,6 +135,17 @@ function ThemeRouter() {
       </div>
     );
   }
+
+  // Theme aus project direkt verwenden (nicht aus hook mit fallback)
+  const themeName = project.theme || 'botanical';
+  const pages = themePages[themeName] || themePages.botanical;
+  
+  const { 
+    AdminDashboard, 
+    GlobalStyles, 
+    ArchivePage, 
+    SaveTheDate 
+  } = pages;
 
   // Status-basierte Sichtbarkeit
   // Öffentlich: live, std, archive
