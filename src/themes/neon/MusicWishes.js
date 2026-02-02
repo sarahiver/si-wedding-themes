@@ -1,6 +1,7 @@
 // src/components/MusicWishes.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const pulseGlow = keyframes`
   0%, 100% { box-shadow: 0 0 20px rgba(255,0,255,0.3); }
@@ -334,7 +335,13 @@ const SuccessMessage = styled.div`
   }
 `;
 
-function MusicWishes({ projectId, title }) {
+function MusicWishes() {
+  const { content, project } = useWedding();
+  const musicData = content?.musicwishes || {};
+  
+  const projectId = project?.id;
+  const title = musicData.title || 'Musikwünsche';
+  
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);

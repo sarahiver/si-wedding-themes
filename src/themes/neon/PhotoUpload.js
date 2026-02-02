@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const glowPulse = keyframes`
   0%, 100% { 
@@ -387,7 +388,14 @@ const Cursor = styled.span`
   animation: ${blink} 1s infinite;
 `;
 
-const PhotoUpload = ({ projectId, slug, title }) => {
+const PhotoUpload = () => {
+  const { content, project } = useWedding();
+  const photoData = content?.photoupload || {};
+  
+  const projectId = project?.id;
+  const slug = project?.slug;
+  const title = photoData.title || 'Fotos hochladen';
+  
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -429,8 +437,9 @@ const PhotoUpload = ({ projectId, slug, title }) => {
       // Save to Supabase
       if (result.url && projectId) {
         await submitPhotoUpload(projectId, {
-          url: result.url,
-          public_id: result.public_id
+          cloudinaryUrl: result.url,
+          cloudinaryPublicId: result.public_id,
+          uploadedBy: 'Guest'
         });
       }
       

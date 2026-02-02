@@ -46,7 +46,7 @@ function PhotoUpload() {
     for (let i = 0; i < files.length; i++) {
       try {
         const result = await uploadToCloudinary(files[i]);
-        if (result.url) await submitPhotoUpload(project.id, { url: result.url, public_id: result.public_id });
+        if (result.url && project?.id) await submitPhotoUpload(project.id, { cloudinaryUrl: result.url, cloudinaryPublicId: result.public_id, uploadedBy: 'Guest' });
         setProgress(Math.round(((i + 1) / files.length) * 100));
       } catch (err) { console.error(err); }
     }

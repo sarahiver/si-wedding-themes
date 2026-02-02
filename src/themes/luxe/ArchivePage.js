@@ -1,11 +1,10 @@
 // Luxe ArchivePage - Elegant Archive mit Supabase-Daten
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
+// Zeigt: Hero + Danke, Archiv-Galerie (Paar-Fotos), PhotoUpload (Gäste laden hoch)
+import React, { useState, useRef, useEffect } from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import LuxeGlobalStyles from './GlobalStyles';
-import Gallery from './Gallery';
 import PhotoUpload from './PhotoUpload';
-import Guestbook from './Guestbook';
 import Footer from './Footer';
 
 // Animations
@@ -151,6 +150,8 @@ const SectionTitle = styled.h2`
   font-style: italic;
   color: var(--luxe-cream);
   margin-bottom: 1rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${slideUp} 0.8s ease forwards;`}
 `;
 
 const SectionSubtitle = styled.p`
@@ -160,6 +161,51 @@ const SectionSubtitle = styled.p`
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--luxe-gold);
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${slideUp} 0.8s ease forwards; animation-delay: 0.15s;`}
+`;
+
+// Archiv-Galerie (eigene Bilder)
+const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeIn} 1s ease forwards; animation-delay: 0.3s;`}
+  
+  @media (max-width: 1000px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); }
+`;
+
+const GalleryItem = styled.div`
+  position: relative;
+  overflow: hidden;
+  
+  &:nth-child(5n+1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
+  }
 `;
 
 // Component
@@ -168,29 +214,53 @@ function ArchivePage() {
   const heroData = content?.hero || {};
   const archiveData = content?.archive || {};
   
-  // Namen aus project
+  // Namen
   const name1 = project?.partner1_name || 'Alexandra';
   const name2 = project?.partner2_name || 'Benjamin';
   const location = project?.location || heroData.location || '';
   
-  // Archive-spezifische Daten
+  // Archive-Content
   const thankYouTitle = archiveData.thank_you_title || 'Danke!';
-  const thankYouText = archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt. Die Erinnerungen werden uns für immer begleiten.';
+  const thankYouText = archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt.';
   const backgroundImage = archiveData.hero_image || heroData.background_image;
   
-  // Was wird angezeigt?
-  const showGallery = archiveData.gallery_active !== false;
-  const showGuestbook = archiveData.guestbook_active !== false;
-  const showPhotoUpload = archiveData.photoupload_active !== false;
+  // Archiv-Galerie Bilder (EIGENE, nicht normale gallery)
+  const archiveGalleryImages = archiveData.gallery_images || [];
   
   // Format date
   const formattedDate = weddingDate 
-    ? new Date(weddingDate).toLocaleDateString('de-DE', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      })
+    ? new Date(weddingDate).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
+  
+  // Visibility states
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [uploadVisible, setUploadVisible] = useState(false);
+  const galleryRef = useRef(null);
+  const uploadRef = useRef(null);
+
+  useEffect(() => {
+    const observers = [];
+    
+    if (galleryRef.current) {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setGalleryVisible(true); },
+        { threshold: 0.1 }
+      );
+      obs.observe(galleryRef.current);
+      observers.push(obs);
+    }
+    
+    if (uploadRef.current) {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setUploadVisible(true); },
+        { threshold: 0.1 }
+      );
+      obs.observe(uploadRef.current);
+      observers.push(obs);
+    }
+    
+    return () => observers.forEach(obs => obs.disconnect());
+  }, []);
 
   return (
     <>
@@ -212,38 +282,35 @@ function ArchivePage() {
           </HeroContent>
         </HeroSection>
 
-        {/* Gallery */}
-        {showGallery && (
-          <Section>
+        {/* Archiv-Galerie (Paar-Fotos) */}
+        {archiveGalleryImages.length > 0 && (
+          <Section ref={galleryRef}>
             <SectionHeader>
-              <SectionTitle>Unsere Erinnerungen</SectionTitle>
-              <SectionSubtitle>Momente unserer Feier</SectionSubtitle>
+              <SectionTitle $visible={galleryVisible}>Unsere Erinnerungen</SectionTitle>
+              <SectionSubtitle $visible={galleryVisible}>Momente unserer Feier</SectionSubtitle>
             </SectionHeader>
-            <Gallery />
+            <GalleryGrid $visible={galleryVisible}>
+              {archiveGalleryImages.map((img, i) => (
+                <GalleryItem key={i}>
+                  <img 
+                    src={typeof img === 'string' ? img : img.url} 
+                    alt={`Hochzeitsfoto ${i + 1}`} 
+                    loading="lazy"
+                  />
+                </GalleryItem>
+              ))}
+            </GalleryGrid>
           </Section>
         )}
 
-        {/* Photo Upload */}
-        {showPhotoUpload && (
-          <Section $alt>
-            <SectionHeader>
-              <SectionTitle>Eure Fotos</SectionTitle>
-              <SectionSubtitle>Teilt eure Erinnerungen mit uns</SectionSubtitle>
-            </SectionHeader>
-            <PhotoUpload />
-          </Section>
-        )}
-
-        {/* Guestbook */}
-        {showGuestbook && (
-          <Section>
-            <SectionHeader>
-              <SectionTitle>Gästebuch</SectionTitle>
-              <SectionSubtitle>Eure Wünsche und Grüße</SectionSubtitle>
-            </SectionHeader>
-            <Guestbook />
-          </Section>
-        )}
+        {/* PhotoUpload für Gäste */}
+        <Section $alt ref={uploadRef}>
+          <SectionHeader>
+            <SectionTitle $visible={uploadVisible}>Eure Fotos</SectionTitle>
+            <SectionSubtitle $visible={uploadVisible}>Teilt eure Erinnerungen mit uns</SectionSubtitle>
+          </SectionHeader>
+          <PhotoUpload />
+        </Section>
 
         <Footer />
       </Page>

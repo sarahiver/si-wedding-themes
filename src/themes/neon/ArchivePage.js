@@ -1,13 +1,24 @@
+// Neon ArchivePage - Cyberpunk Archive mit Supabase-Daten
 import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css, createGlobalStyle } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
+import PhotoUpload from './PhotoUpload';
+import Footer from './Footer';
 
+const NeonGlobalStyles = createGlobalStyle`
+  :root {
+    --neon-cyan: #00ffff;
+    --neon-pink: #ff00ff;
+    --neon-green: #00ff88;
+    --neon-purple: #b347ff;
+    --neon-bg: #0a0a0f;
+  }
+`;
+
+// Animations
 const glowPulse = keyframes`
-  0%, 100% { 
-    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-  }
-  50% { 
-    text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
-  }
+  0%, 100% { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+  50% { text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor; }
 `;
 
 const flicker = keyframes`
@@ -29,6 +40,12 @@ const float = keyframes`
   50% { transform: translateY(-20px); }
 `;
 
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+// Styled Components
 const Page = styled.div`
   min-height: 100vh;
   background: var(--neon-bg);
@@ -38,10 +55,7 @@ const Page = styled.div`
 
 const GridOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-image: 
     linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
@@ -56,15 +70,22 @@ const Scanline = styled.div`
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.1), transparent);
   animation: ${scanline} 8s linear infinite;
   pointer-events: none;
   z-index: 1;
+`;
+
+const FloatingHeart = styled.div`
+  position: fixed;
+  font-size: 2rem;
+  color: var(--neon-pink);
+  opacity: 0.3;
+  animation: ${float} ${p => p.$duration || '4s'} ease-in-out infinite;
+  animation-delay: ${p => p.$delay || '0s'};
+  text-shadow: 0 0 20px var(--neon-pink);
+  z-index: 0;
+  pointer-events: none;
 `;
 
 // Hero Section
@@ -93,442 +114,249 @@ const Badge = styled.div`
   font-size: 0.85rem;
   margin-bottom: 30px;
   animation: ${glowPulse} 2s infinite;
-  
-  &::before {
-    content: '✓ ';
-  }
+  &::before { content: '✓ '; }
 `;
 
 const HeroTitle = styled.h1`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(3rem, 10vw, 6rem);
   font-weight: 700;
   color: white;
   margin-bottom: 20px;
-  text-shadow: 
-    0 0 10px rgba(0, 255, 255, 0.8),
-    0 0 30px rgba(0, 255, 255, 0.4);
   animation: ${flicker} 4s infinite;
   
   span {
-    color: var(--neon-pink);
-    text-shadow: 
-      0 0 10px rgba(255, 0, 255, 0.8),
-      0 0 30px rgba(255, 0, 255, 0.4);
+    color: var(--neon-cyan);
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
   }
-`;
-
-const HeroSubtitle = styled.p`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 40px;
-`;
-
-const WeddingDate = styled.div`
-  font-family: 'Space Grotesk', monospace;
-  font-size: 1.1rem;
-  color: var(--neon-cyan);
-  padding: 15px 30px;
-  border: 1px solid rgba(0, 255, 255, 0.3);
-  display: inline-block;
-  
-  &::before {
-    content: '// ';
-    opacity: 0.5;
-  }
-`;
-
-const FloatingHeart = styled.div`
-  position: absolute;
-  font-size: 2rem;
-  color: var(--neon-pink);
-  animation: ${float} ${props => props.duration || '3s'} ease-in-out infinite;
-  animation-delay: ${props => props.delay || '0s'};
-  opacity: 0.3;
-  text-shadow: 0 0 20px var(--neon-pink);
-`;
-
-// Thank You Section
-const ThankYouSection = styled.section`
-  padding: 100px 5vw;
-  position: relative;
-  z-index: 2;
-`;
-
-const SectionContainer = styled.div`
-  max-width: 1000px;
-  margin: 0 auto;
-`;
-
-const ThankYouCard = styled.div`
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  padding: 60px;
-  text-align: center;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 30%;
-    right: 30%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  }
-`;
-
-const ThankYouTitle = styled.h2`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: white;
-  margin-bottom: 30px;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 `;
 
 const ThankYouText = styled.p`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.9;
+  line-height: 1.8;
   max-width: 700px;
   margin: 0 auto 30px;
 `;
 
-const Signature = styled.div`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
-  color: var(--neon-pink);
-  margin-top: 40px;
-  text-shadow: 0 0 10px var(--neon-pink);
-`;
-
-// Stats Section
-const StatsSection = styled.section`
-  padding: 80px 5vw;
-  position: relative;
-  z-index: 2;
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 500px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const StatCard = styled.div`
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid ${props => props.color || 'rgba(255, 255, 255, 0.1)'};
-  padding: 40px 30px;
-  text-align: center;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: ${props => props.color};
-    box-shadow: 0 0 10px ${props => props.color};
-  }
-`;
-
-const StatNumber = styled.div`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: ${props => props.color};
-  margin-bottom: 10px;
-  text-shadow: 0 0 20px ${props => props.color};
-`;
-
-const StatLabel = styled.div`
+const DateLocation = styled.p`
   font-family: 'Space Grotesk', monospace;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--neon-pink);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 `;
 
-// Gallery Section
-const GallerySection = styled.section`
-  padding: 100px 5vw;
+// Section
+const Section = styled.section`
+  padding: clamp(4rem, 8vw, 8rem) 5vw;
   position: relative;
   z-index: 2;
 `;
 
-const GalleryHeader = styled.div`
+const SectionHeader = styled.div`
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 3rem;
 `;
 
-const GalleryTitle = styled.h2`
+const SectionTitle = styled.h2`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
   color: white;
-  margin-bottom: 15px;
-  text-shadow: 
-    0 0 10px rgba(0, 255, 255, 0.8),
-    0 0 30px rgba(0, 255, 255, 0.4);
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeUp} 0.8s ease forwards;`}
+  
+  span {
+    color: var(--neon-cyan);
+    text-shadow: 0 0 15px var(--neon-cyan);
+  }
 `;
 
-const GallerySubtitle = styled.p`
+const SectionSubtitle = styled.p`
   font-family: 'Space Grotesk', monospace;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 1rem;
+  font-size: 0.85rem;
+  color: var(--neon-pink);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeUp} 0.8s ease forwards; animation-delay: 0.1s;`}
 `;
 
+// Gallery Grid
 const GalleryGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  max-width: 1400px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
   margin: 0 auto;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeUp} 0.8s ease forwards; animation-delay: 0.2s;`}
+  
+  @media (max-width: 900px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); }
 `;
 
 const GalleryItem = styled.div`
-  aspect-ratio: ${props => props.tall ? '3/4' : props.wide ? '4/3' : '1'};
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
   
-  &:hover {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-    transform: scale(1.02);
+  &:nth-child(5n+1) {
+    grid-column: span 2;
+    grid-row: span 2;
   }
   
   &::before {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent 70%,
-      rgba(10, 10, 15, 0.8)
-    );
-    z-index: 1;
+    display: block;
+    padding-top: 100%;
   }
-`;
-
-const GalleryImage = styled.div`
-  width: 100%;
-  height: 100%;
-  background: ${props => props.gradient || 'linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2))'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.3);
-  font-family: 'Space Grotesk', monospace;
-  font-size: 0.9rem;
-`;
-
-const GalleryCaption = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px;
-  z-index: 2;
-  font-family: 'Space Grotesk', sans-serif;
-  color: white;
-  font-size: 0.9rem;
-`;
-
-// Call to Action
-const CTASection = styled.section`
-  padding: 100px 5vw;
-  text-align: center;
-  position: relative;
-  z-index: 2;
-`;
-
-const CTATitle = styled.h2`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  color: white;
-  margin-bottom: 20px;
-`;
-
-const CTAText = styled.p`
-  font-family: 'Space Grotesk', sans-serif;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.1rem;
-  margin-bottom: 40px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const CTAButton = styled.a`
-  display: inline-block;
-  padding: 18px 50px;
-  background: transparent;
-  border: 2px solid var(--neon-cyan);
-  color: var(--neon-cyan);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: all 0.3s ease;
+  
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s ease;
+    filter: saturate(0.8);
+  }
   
   &:hover {
-    background: var(--neon-cyan);
-    color: var(--neon-bg);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    
+    img {
+      transform: scale(1.05);
+      filter: saturate(1.2);
+    }
   }
 `;
 
-const ArchivePage = ({ config = {} }) => {
-  const [visible, setVisible] = useState(false);
-  const pageRef = useRef(null);
+// Component
+function ArchivePage() {
+  const { content, project, weddingDate } = useWedding();
+  const archiveData = content?.archive || {};
+  const heroData = content?.hero || {};
   
-  const {
-    coupleName = "Alex & Jordan",
-    weddingDate = "15. August 2025",
-    thankYouMessage = "Ein herzliches Dankeschön an alle, die diesen besonderen Tag mit uns gefeiert haben! Eure Anwesenheit, eure Wünsche und eure Freude haben diesen Tag unvergesslich gemacht. Wir sind überwältigt von so viel Liebe und Unterstützung.",
-    stats = {
-      guests: 120,
-      photos: 2847,
-      danceHours: 6,
-      champagneBottles: 48
-    },
-    hashtag = "#AlexAndJordan2026"
-  } = config;
+  // Daten aus Supabase
+  const name1 = project?.partner1_name || 'Alex';
+  const name2 = project?.partner2_name || 'Jordan';
+  const location = project?.location || heroData.location_short || '';
+  const thankYouTitle = archiveData.thank_you_title || 'Danke!';
+  const thankYouText = archiveData.thank_you_text || 'Ein herzliches Dankeschön an alle, die diesen besonderen Tag mit uns gefeiert haben!';
   
+  // Archiv-Galerie Bilder
+  const archiveGalleryImages = archiveData.gallery_images || [];
+  
+  // Format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  
+  // Visibility
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [uploadVisible, setUploadVisible] = useState(false);
+  const galleryRef = useRef(null);
+  const uploadRef = useRef(null);
+
   useEffect(() => {
-    setVisible(true);
+    const observers = [];
+    
+    if (galleryRef.current) {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setGalleryVisible(true); },
+        { threshold: 0.1 }
+      );
+      obs.observe(galleryRef.current);
+      observers.push(obs);
+    }
+    
+    if (uploadRef.current) {
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setUploadVisible(true); },
+        { threshold: 0.1 }
+      );
+      obs.observe(uploadRef.current);
+      observers.push(obs);
+    }
+    
+    return () => observers.forEach(obs => obs.disconnect());
   }, []);
-  
-  const galleryItems = [
-    { caption: 'Die Zeremonie', gradient: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 100, 150, 0.3))' },
-    { caption: 'Der erste Tanz', tall: true, gradient: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3), rgba(150, 0, 100, 0.3))' },
-    { caption: 'Die Feier', gradient: 'linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 150, 80, 0.3))' },
-    { caption: 'Mit Familie', wide: true, gradient: 'linear-gradient(135deg, rgba(179, 71, 255, 0.3), rgba(100, 0, 150, 0.3))' },
-    { caption: 'Der Sektempfang', gradient: 'linear-gradient(135deg, rgba(255, 200, 0, 0.3), rgba(150, 100, 0, 0.3))' },
-    { caption: 'Das Brautpaar', tall: true, gradient: 'linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(150, 50, 50, 0.3))' },
-    { caption: 'Die Torte', gradient: 'linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 255, 0.3))' },
-    { caption: 'Auf der Tanzfläche', gradient: 'linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(255, 0, 255, 0.3))' },
-  ];
-  
+
   return (
-    <Page ref={pageRef}>
-      <GridOverlay />
-      <Scanline />
-      
-      {/* Floating Hearts */}
-      <FloatingHeart style={{ top: '20%', left: '10%' }} duration="4s" delay="0s">♥</FloatingHeart>
-      <FloatingHeart style={{ top: '30%', right: '15%' }} duration="5s" delay="1s">♥</FloatingHeart>
-      <FloatingHeart style={{ top: '60%', left: '5%' }} duration="3.5s" delay="0.5s">♥</FloatingHeart>
-      <FloatingHeart style={{ top: '70%', right: '8%' }} duration="4.5s" delay="1.5s">♥</FloatingHeart>
-      
-      {/* Hero */}
-      <HeroSection>
-        <HeroContent>
-          <Badge>Wedding Complete</Badge>
-          <HeroTitle>
-            {coupleName.split(' & ')[0]} <span>&</span> {coupleName.split(' & ')[1]}
-          </HeroTitle>
-          <HeroSubtitle>Wir haben Ja gesagt!</HeroSubtitle>
-          <WeddingDate>{weddingDate}</WeddingDate>
-        </HeroContent>
-      </HeroSection>
-      
-      {/* Thank You */}
-      <ThankYouSection>
-        <SectionContainer>
-          <ThankYouCard>
-            <ThankYouTitle>Danke!</ThankYouTitle>
-            <ThankYouText>{thankYouMessage}</ThankYouText>
-            <Signature>In Liebe, {coupleName}</Signature>
-          </ThankYouCard>
-        </SectionContainer>
-      </ThankYouSection>
-      
-      {/* Stats */}
-      <StatsSection>
-        <StatsGrid>
-          <StatCard color="var(--neon-cyan)">
-            <StatNumber color="var(--neon-cyan)">{stats.guests}</StatNumber>
-            <StatLabel>Gäste</StatLabel>
-          </StatCard>
-          <StatCard color="var(--neon-pink)">
-            <StatNumber color="var(--neon-pink)">{stats.photos.toLocaleString()}</StatNumber>
-            <StatLabel>Fotos</StatLabel>
-          </StatCard>
-          <StatCard color="var(--neon-green)">
-            <StatNumber color="var(--neon-green)">{stats.danceHours}</StatNumber>
-            <StatLabel>Stunden getanzt</StatLabel>
-          </StatCard>
-          <StatCard color="var(--neon-purple)">
-            <StatNumber color="var(--neon-purple)">{stats.champagneBottles}</StatNumber>
-            <StatLabel>Flaschen Champagner</StatLabel>
-          </StatCard>
-        </StatsGrid>
-      </StatsSection>
-      
-      {/* Gallery */}
-      <GallerySection>
-        <GalleryHeader>
-          <GalleryTitle>Unsere Highlights</GalleryTitle>
-          <GallerySubtitle>{hashtag}</GallerySubtitle>
-        </GalleryHeader>
+    <>
+      <NeonGlobalStyles />
+      <Page>
+        <GridOverlay />
+        <Scanline />
         
-        <GalleryGrid>
-          {galleryItems.map((item, index) => (
-            <GalleryItem 
-              key={index}
-              tall={item.tall}
-              wide={item.wide}
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(30px)',
-                transition: `all 0.6s ease ${index * 0.1}s`
-              }}
-            >
-              <GalleryImage gradient={item.gradient}>
-                [Foto {index + 1}]
-              </GalleryImage>
-              <GalleryCaption>{item.caption}</GalleryCaption>
-            </GalleryItem>
-          ))}
-        </GalleryGrid>
-      </GallerySection>
-      
-      {/* CTA */}
-      <CTASection>
-        <CTATitle>Habt ihr auch Fotos?</CTATitle>
-        <CTAText>
-          Teilt eure Erinnerungen mit uns! Ladet eure Fotos hoch 
-          oder nutzt unseren Hashtag {hashtag}
-        </CTAText>
-        <CTAButton href="#photo-upload">
-          Fotos Hochladen →
-        </CTAButton>
-      </CTASection>
-    </Page>
+        {/* Floating Hearts */}
+        <FloatingHeart style={{ top: '20%', left: '10%' }} $duration="4s" $delay="0s">♥</FloatingHeart>
+        <FloatingHeart style={{ top: '30%', right: '15%' }} $duration="5s" $delay="1s">♥</FloatingHeart>
+        <FloatingHeart style={{ top: '60%', left: '5%' }} $duration="3.5s" $delay="0.5s">♥</FloatingHeart>
+        <FloatingHeart style={{ top: '70%', right: '8%' }} $duration="4.5s" $delay="1.5s">♥</FloatingHeart>
+        
+        {/* Hero */}
+        <HeroSection>
+          <HeroContent>
+            <Badge>{thankYouTitle}</Badge>
+            <HeroTitle>
+              <span>{name1}</span> & <span>{name2}</span>
+            </HeroTitle>
+            <ThankYouText>{thankYouText}</ThankYouText>
+            {(formatDate(weddingDate) || location) && (
+              <DateLocation>
+                {formatDate(weddingDate)}{formatDate(weddingDate) && location && ' • '}{location}
+              </DateLocation>
+            )}
+          </HeroContent>
+        </HeroSection>
+        
+        {/* Archiv-Galerie */}
+        {archiveGalleryImages.length > 0 && (
+          <Section ref={galleryRef}>
+            <SectionHeader>
+              <SectionTitle $visible={galleryVisible}>
+                <span>//</span> Galerie
+              </SectionTitle>
+              <SectionSubtitle $visible={galleryVisible}>Unsere schönsten Momente</SectionSubtitle>
+            </SectionHeader>
+            
+            <GalleryGrid $visible={galleryVisible}>
+              {archiveGalleryImages.map((img, i) => (
+                <GalleryItem key={i}>
+                  <img 
+                    src={typeof img === 'string' ? img : img.url} 
+                    alt={`Hochzeitsfoto ${i + 1}`} 
+                    loading="lazy"
+                  />
+                </GalleryItem>
+              ))}
+            </GalleryGrid>
+          </Section>
+        )}
+        
+        {/* PhotoUpload für Gäste */}
+        <Section ref={uploadRef} style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
+          <SectionHeader>
+            <SectionTitle $visible={uploadVisible}>
+              <span>//</span> Eure Fotos
+            </SectionTitle>
+            <SectionSubtitle $visible={uploadVisible}>Teilt eure Erinnerungen mit uns</SectionSubtitle>
+          </SectionHeader>
+          <PhotoUpload />
+        </Section>
+        
+        <Footer />
+      </Page>
+    </>
   );
-};
+}
 
 export default ArchivePage;

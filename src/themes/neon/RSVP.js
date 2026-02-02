@@ -1,6 +1,7 @@
 // src/components/RSVP.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const glowPulse = keyframes`
   0%, 100% { box-shadow: 0 0 20px rgba(0,255,255,0.3); }
@@ -360,7 +361,14 @@ const SuccessText = styled.p`
   color: rgba(255,255,255,0.6);
 `;
 
-function RSVP({ projectId, title, deadline }) {
+function RSVP() {
+  const { content, project } = useWedding();
+  const rsvpData = content?.rsvp || {};
+  
+  const projectId = project?.id;
+  const title = rsvpData.title || 'RSVP';
+  const deadline = rsvpData.deadline || project?.rsvp_deadline;
+  
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);

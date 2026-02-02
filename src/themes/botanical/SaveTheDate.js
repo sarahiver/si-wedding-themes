@@ -131,12 +131,19 @@ const Note = styled.p`
 `;
 
 function SaveTheDate() {
-  const { coupleNames, weddingDate, content } = useWedding();
+  const { project, weddingDate, content } = useWedding();
   
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
-  const saveTheDate = content?.savethedate || {};
-  const location = saveTheDate.location || content?.hero?.location_short || '';
-  const message = saveTheDate.message || 'Wir heiraten und möchten diesen besonderen Tag mit euch feiern.';
+  // Namen aus project
+  const name1 = project?.partner1_name || 'Anna';
+  const name2 = project?.partner2_name || 'Thomas';
+  
+  // SaveTheDate Daten
+  const stdData = content?.savethedate || {};
+  const heroData = content?.hero || {};
+  
+  const tagline = stdData.tagline || 'Save the Date';
+  const message = stdData.message || 'Wir heiraten und möchten diesen besonderen Tag mit euch feiern.';
+  const location = project?.location || heroData.location_short || '';
   
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Datum folgt';
@@ -154,12 +161,12 @@ function SaveTheDate() {
       <BotanicalBackground />
       <Container>
         <GlassCard>
-          <Eyebrow>Save the Date</Eyebrow>
+          <Eyebrow>{tagline}</Eyebrow>
           
           <Names>
-            {names[0]}
+            {name1}
             <Ampersand>&</Ampersand>
-            {names[1]}
+            {name2}
           </Names>
           
           <DateDisplay>

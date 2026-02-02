@@ -1,6 +1,7 @@
 // src/components/Guestbook.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const scanlineAnim = keyframes`
   0% { transform: translateY(-100%); }
@@ -350,7 +351,13 @@ const StatusLine = styled.div`
   }
 `;
 
-function Guestbook({ projectId, title }) {
+function Guestbook() {
+  const { content, project } = useWedding();
+  const guestbookData = content?.guestbook || {};
+  
+  const projectId = project?.id;
+  const title = guestbookData.title || 'Gästebuch';
+  
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);

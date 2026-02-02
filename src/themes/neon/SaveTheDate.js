@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+// Neon SaveTheDate - Cyberpunk Style mit Supabase-Daten
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes, createGlobalStyle, css } from 'styled-components';
+import { useWedding } from '../../context/WeddingContext';
 
 const NeonGlobalStyles = createGlobalStyle`
   :root {
@@ -29,26 +31,13 @@ const flicker = keyframes`
 `;
 
 const glowPulse = keyframes`
-  0%, 100% { 
-    box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
-  }
-  50% { 
-    box-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan), 0 0 120px var(--neon-cyan);
-  }
+  0%, 100% { box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan); }
+  50% { box-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan), 0 0 120px var(--neon-cyan); }
 `;
 
 const neonFlicker = keyframes`
-  0%, 100% { 
-    text-shadow: 
-      0 0 10px var(--neon-cyan),
-      0 0 20px var(--neon-cyan),
-      0 0 40px var(--neon-cyan);
-  }
-  50% { 
-    text-shadow: 
-      0 0 5px var(--neon-cyan),
-      0 0 10px var(--neon-cyan);
-  }
+  0%, 100% { text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan); }
+  50% { text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan); }
 `;
 
 const scanline = keyframes`
@@ -81,10 +70,7 @@ const Page = styled.div`
 
 const GridOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-image: 
     linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
@@ -98,12 +84,7 @@ const Scanline = styled.div`
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0, 255, 255, 0.15),
-    transparent
-  );
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.15), transparent);
   animation: ${scanline} 6s linear infinite;
   pointer-events: none;
   z-index: 10;
@@ -111,51 +92,27 @@ const Scanline = styled.div`
 
 const GlowOrb = styled.div`
   position: fixed;
-  width: ${props => props.size || '300px'};
-  height: ${props => props.size || '300px'};
+  width: ${p => p.$size || '300px'};
+  height: ${p => p.$size || '300px'};
   border-radius: 50%;
-  background: ${props => props.color || 'var(--neon-cyan)'};
+  background: ${p => p.$color || 'var(--neon-cyan)'};
   filter: blur(100px);
   opacity: 0.15;
-  animation: ${float} ${props => props.duration || '8s'} ease-in-out infinite;
-  animation-delay: ${props => props.delay || '0s'};
+  animation: ${float} ${p => p.$duration || '8s'} ease-in-out infinite;
+  animation-delay: ${p => p.$delay || '0s'};
 `;
 
 const CornerDecor = styled.div`
   position: fixed;
   width: 100px;
   height: 100px;
-  border: 2px solid;
-  border-color: ${props => props.color || 'var(--neon-cyan)'};
+  border: 2px solid ${p => p.$color || 'var(--neon-cyan)'};
   opacity: 0.3;
   
-  ${props => props.position === 'top-left' && css`
-    top: 30px;
-    left: 30px;
-    border-right: none;
-    border-bottom: none;
-  `}
-  
-  ${props => props.position === 'top-right' && css`
-    top: 30px;
-    right: 30px;
-    border-left: none;
-    border-bottom: none;
-  `}
-  
-  ${props => props.position === 'bottom-left' && css`
-    bottom: 30px;
-    left: 30px;
-    border-right: none;
-    border-top: none;
-  `}
-  
-  ${props => props.position === 'bottom-right' && css`
-    bottom: 30px;
-    right: 30px;
-    border-left: none;
-    border-top: none;
-  `}
+  ${p => p.$position === 'top-left' && css`top: 30px; left: 30px; border-right: none; border-bottom: none;`}
+  ${p => p.$position === 'top-right' && css`top: 30px; right: 30px; border-left: none; border-bottom: none;`}
+  ${p => p.$position === 'bottom-left' && css`bottom: 30px; left: 30px; border-right: none; border-top: none;`}
+  ${p => p.$position === 'bottom-right' && css`bottom: 30px; right: 30px; border-left: none; border-top: none;`}
 `;
 
 const Card = styled.div`
@@ -171,9 +128,7 @@ const Terminal = styled.div`
   border: 1px solid var(--neon-cyan);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 
-    0 0 50px rgba(0, 255, 255, 0.2),
-    inset 0 0 50px rgba(0, 255, 255, 0.03);
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.2), inset 0 0 50px rgba(0, 255, 255, 0.03);
 `;
 
 const TerminalHeader = styled.div`
@@ -189,8 +144,8 @@ const Dot = styled.div`
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: ${props => props.color};
-  box-shadow: 0 0 10px ${props => props.color};
+  background: ${p => p.$color};
+  box-shadow: 0 0 10px ${p => p.$color};
 `;
 
 const TerminalTitle = styled.span`
@@ -203,10 +158,7 @@ const TerminalTitle = styled.span`
 
 const TerminalBody = styled.div`
   padding: 50px 40px;
-  
-  @media (max-width: 600px) {
-    padding: 40px 25px;
-  }
+  @media (max-width: 600px) { padding: 40px 25px; }
 `;
 
 const Badge = styled.div`
@@ -228,11 +180,7 @@ const PreTitle = styled.div`
   font-size: 1rem;
   color: var(--neon-green);
   margin-bottom: 20px;
-  
-  &::before {
-    content: '$ ';
-    color: var(--neon-cyan);
-  }
+  &::before { content: '$ '; color: var(--neon-cyan); }
 `;
 
 const MainTitle = styled.h1`
@@ -245,15 +193,11 @@ const MainTitle = styled.h1`
   display: inline-block;
   animation: ${flicker} 4s infinite;
   
-  /* Glitch effect layers */
-  &::before,
-  &::after {
+  &::before, &::after {
     content: attr(data-text);
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
   }
   
   &::before {
@@ -279,10 +223,7 @@ const Ampersand = styled.span`
   color: var(--neon-pink);
   margin: 15px 0;
   animation: ${neonFlicker} 2s infinite, ${colorShift} 6s infinite;
-  text-shadow: 
-    0 0 10px currentColor,
-    0 0 20px currentColor,
-    0 0 40px currentColor;
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
 `;
 
 const DateDisplay = styled.div`
@@ -296,8 +237,7 @@ const DateDisplay = styled.div`
     content: '';
     position: absolute;
     top: -1px;
-    left: 20%;
-    right: 20%;
+    left: 20%; right: 20%;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
   }
@@ -317,9 +257,7 @@ const DateValue = styled.div`
   font-size: clamp(1.8rem, 5vw, 2.5rem);
   font-weight: 600;
   color: var(--neon-pink);
-  text-shadow: 
-    0 0 10px var(--neon-pink),
-    0 0 20px var(--neon-pink);
+  text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
 `;
 
 const Location = styled.div`
@@ -327,10 +265,7 @@ const Location = styled.div`
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.6);
   margin-bottom: 40px;
-  
-  &::before {
-    content: '📍 ';
-  }
+  &::before { content: '📍 '; }
 `;
 
 const Countdown = styled.div`
@@ -338,10 +273,7 @@ const Countdown = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
   margin-bottom: 40px;
-  
-  @media (max-width: 500px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  @media (max-width: 500px) { grid-template-columns: repeat(2, 1fr); }
 `;
 
 const CountdownUnit = styled.div`
@@ -353,12 +285,10 @@ const CountdownUnit = styled.div`
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-    background: ${props => props.color};
-    box-shadow: 0 0 10px ${props => props.color};
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: ${p => p.$color};
+    box-shadow: 0 0 10px ${p => p.$color};
   }
 `;
 
@@ -366,8 +296,8 @@ const CountdownNumber = styled.div`
   font-family: 'Space Grotesk', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: ${props => props.color};
-  text-shadow: 0 0 15px ${props => props.color};
+  color: ${p => p.$color};
+  text-shadow: 0 0 15px ${p => p.$color};
   margin-bottom: 5px;
 `;
 
@@ -379,49 +309,13 @@ const CountdownLabel = styled.div`
   letter-spacing: 1px;
 `;
 
-const CTAButton = styled.a`
-  display: inline-block;
-  padding: 18px 50px;
-  background: transparent;
-  border: 2px solid var(--neon-cyan);
-  color: var(--neon-cyan);
+const Message = styled.p`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(0, 255, 255, 0.3),
-      transparent
-    );
-    transition: left 0.5s ease;
-  }
-  
-  &:hover {
-    background: var(--neon-cyan);
-    color: var(--neon-bg);
-    box-shadow: 
-      0 0 30px rgba(0, 255, 255, 0.5),
-      0 0 60px rgba(0, 255, 255, 0.3);
-    
-    &::before {
-      left: 100%;
-    }
-  }
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto 30px;
 `;
 
 const StatusLine = styled.div`
@@ -431,25 +325,27 @@ const StatusLine = styled.div`
   font-family: 'Space Grotesk', monospace;
   font-size: 0.85rem;
   color: var(--neon-green);
-  
-  span {
-    color: var(--neon-cyan);
-  }
+  span { color: var(--neon-cyan); }
 `;
 
-const SaveTheDate = ({ config = {} }) => {
+function SaveTheDate() {
+  const { content, project, weddingDate } = useWedding();
+  const stdData = content?.savethedate || {};
+  const heroData = content?.hero || {};
+  
+  // Daten aus Supabase
+  const name1 = project?.partner1_name || 'Alex';
+  const name2 = project?.partner2_name || 'Jordan';
+  const location = project?.location || heroData.location_short || 'Berlin';
+  const tagline = stdData.tagline || 'Save the Date';
+  const message = stdData.message || 'Wir freuen uns, diesen besonderen Tag mit euch zu feiern.';
+  const showCountdown = stdData.countdown_active !== false;
+  
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   
-  const {
-    name1 = "Alex",
-    name2 = "Jordan",
-    weddingDate = "2025-08-15",
-    location = "Berlin, Deutschland",
-    ctaLink = "/rsvp",
-    ctaText = "Zur Einladung"
-  } = config;
-  
   useEffect(() => {
+    if (!weddingDate || !showCountdown) return;
+    
     const targetDate = new Date(weddingDate).getTime();
     
     const updateCountdown = () => {
@@ -468,14 +364,12 @@ const SaveTheDate = ({ config = {} }) => {
     
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
-    
     return () => clearInterval(interval);
-  }, [weddingDate]);
+  }, [weddingDate, showCountdown]);
   
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    return date.toLocaleDateString('de-DE', options);
+    if (!dateStr) return 'Datum folgt';
+    return new Date(dateStr).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
   
   return (
@@ -485,45 +379,26 @@ const SaveTheDate = ({ config = {} }) => {
         <GridOverlay />
         <Scanline />
         
-        {/* Glow Orbs */}
-        <GlowOrb 
-          color="var(--neon-cyan)" 
-          size="400px" 
-          style={{ top: '-10%', left: '-10%' }}
-          duration="10s"
-        />
-        <GlowOrb 
-          color="var(--neon-pink)" 
-          size="350px" 
-          style={{ bottom: '-10%', right: '-10%' }}
-          duration="12s"
-          delay="2s"
-        />
-        <GlowOrb 
-          color="var(--neon-purple)" 
-          size="250px" 
-          style={{ top: '50%', right: '10%' }}
-          duration="8s"
-          delay="1s"
-        />
+        <GlowOrb $color="var(--neon-cyan)" $size="400px" style={{ top: '-10%', left: '-10%' }} $duration="10s" />
+        <GlowOrb $color="var(--neon-pink)" $size="350px" style={{ bottom: '-10%', right: '-10%' }} $duration="12s" $delay="2s" />
+        <GlowOrb $color="var(--neon-purple)" $size="250px" style={{ top: '50%', right: '10%' }} $duration="8s" $delay="1s" />
         
-        {/* Corner Decorations */}
-        <CornerDecor position="top-left" color="var(--neon-cyan)" />
-        <CornerDecor position="top-right" color="var(--neon-pink)" />
-        <CornerDecor position="bottom-left" color="var(--neon-pink)" />
-        <CornerDecor position="bottom-right" color="var(--neon-cyan)" />
+        <CornerDecor $position="top-left" $color="var(--neon-cyan)" />
+        <CornerDecor $position="top-right" $color="var(--neon-pink)" />
+        <CornerDecor $position="bottom-left" $color="var(--neon-pink)" />
+        <CornerDecor $position="bottom-right" $color="var(--neon-cyan)" />
         
         <Card>
           <Terminal>
             <TerminalHeader>
-              <Dot color="#ff5f56" />
-              <Dot color="#ffbd2e" />
-              <Dot color="#27ca40" />
+              <Dot $color="#ff5f56" />
+              <Dot $color="#ffbd2e" />
+              <Dot $color="#27ca40" />
               <TerminalTitle>save_the_date.exe</TerminalTitle>
             </TerminalHeader>
             
             <TerminalBody>
-              <Badge>Save The Date</Badge>
+              <Badge>{tagline}</Badge>
               
               <PreTitle>initializing wedding_sequence...</PreTitle>
               
@@ -538,31 +413,31 @@ const SaveTheDate = ({ config = {} }) => {
               
               <Location>{location}</Location>
               
-              <Countdown>
-                <CountdownUnit color="var(--neon-cyan)">
-                  <CountdownNumber color="var(--neon-cyan)">{timeLeft.days}</CountdownNumber>
-                  <CountdownLabel>Tage</CountdownLabel>
-                </CountdownUnit>
-                <CountdownUnit color="var(--neon-pink)">
-                  <CountdownNumber color="var(--neon-pink)">{timeLeft.hours}</CountdownNumber>
-                  <CountdownLabel>Stunden</CountdownLabel>
-                </CountdownUnit>
-                <CountdownUnit color="var(--neon-green)">
-                  <CountdownNumber color="var(--neon-green)">{timeLeft.minutes}</CountdownNumber>
-                  <CountdownLabel>Minuten</CountdownLabel>
-                </CountdownUnit>
-                <CountdownUnit color="var(--neon-purple)">
-                  <CountdownNumber color="var(--neon-purple)">{timeLeft.seconds}</CountdownNumber>
-                  <CountdownLabel>Sekunden</CountdownLabel>
-                </CountdownUnit>
-              </Countdown>
+              {message && <Message>{message}</Message>}
               
-              <CTAButton href={ctaLink}>
-                {ctaText} →
-              </CTAButton>
+              {showCountdown && (
+                <Countdown>
+                  <CountdownUnit $color="var(--neon-cyan)">
+                    <CountdownNumber $color="var(--neon-cyan)">{timeLeft.days}</CountdownNumber>
+                    <CountdownLabel>Tage</CountdownLabel>
+                  </CountdownUnit>
+                  <CountdownUnit $color="var(--neon-pink)">
+                    <CountdownNumber $color="var(--neon-pink)">{timeLeft.hours}</CountdownNumber>
+                    <CountdownLabel>Stunden</CountdownLabel>
+                  </CountdownUnit>
+                  <CountdownUnit $color="var(--neon-green)">
+                    <CountdownNumber $color="var(--neon-green)">{timeLeft.minutes}</CountdownNumber>
+                    <CountdownLabel>Minuten</CountdownLabel>
+                  </CountdownUnit>
+                  <CountdownUnit $color="var(--neon-purple)">
+                    <CountdownNumber $color="var(--neon-purple)">{timeLeft.seconds}</CountdownNumber>
+                    <CountdownLabel>Sekunden</CountdownLabel>
+                  </CountdownUnit>
+                </Countdown>
+              )}
               
               <StatusLine>
-                Status: <span>Counting down to happiness...</span>
+                Status: <span>Einladung folgt...</span>
               </StatusLine>
             </TerminalBody>
           </Terminal>
@@ -570,6 +445,6 @@ const SaveTheDate = ({ config = {} }) => {
       </Page>
     </>
   );
-};
+}
 
 export default SaveTheDate;
