@@ -173,6 +173,16 @@ const SectionTitle = styled.h2`
   ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.15s;`}
 `;
 
+const SectionSubtitle = styled.p`
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 500px;
+  margin: 0 auto;
+  opacity: 0;
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.4s;`}
+`;
+
 // Archiv-Galerie Grid (eigene Bilder vom Paar)
 const GalleryGrid = styled.div`
   display: grid;
@@ -346,14 +356,9 @@ function ArchivePage() {
               <SectionEyebrow $visible={uploadVisible}>Eure Momente</SectionEyebrow>
               <SectionTitle $visible={uploadVisible}>Fotos teilen</SectionTitle>
               <Divider $visible={uploadVisible} />
-              <ThankYouText style={{ 
-                opacity: uploadVisible ? 1 : 0, 
-                animation: uploadVisible ? `${fadeInUp} 0.8s ease forwards` : 'none',
-                animationDelay: '0.4s',
-                color: 'rgba(255,255,255,0.6)'
-              }}>
+              <SectionSubtitle $visible={uploadVisible}>
                 Habt ihr Fotos von unserer Hochzeit? Teilt sie mit uns!
-              </ThankYouText>
+              </SectionSubtitle>
             </SectionHeader>
             
             <PhotoUpload />
