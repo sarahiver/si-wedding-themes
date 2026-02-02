@@ -371,8 +371,8 @@ function Guestbook() {
       if (!projectId) return;
       try {
         const { getGuestbookEntries } = await import('../../lib/supabase');
-        const data = await getGuestbookEntries(projectId);
-        if (data) setEntries(data);
+        const result = await getGuestbookEntries(projectId);
+        if (result?.data) setEntries(result.data);
       } catch (err) {
         console.error('Failed to fetch guestbook entries:', err);
       }

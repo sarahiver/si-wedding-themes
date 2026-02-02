@@ -359,8 +359,8 @@ function MusicWishes() {
       if (!projectId) return;
       try {
         const { getMusicWishes } = await import('../../lib/supabase');
-        const data = await getMusicWishes(projectId);
-        if (data) setWishes(data);
+        const result = await getMusicWishes(projectId);
+        if (result?.data) setWishes(result.data);
       } catch (err) {
         console.error('Failed to fetch music wishes:', err);
       }
