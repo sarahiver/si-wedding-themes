@@ -5,6 +5,7 @@ import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
   updateProjectStatus, approveGuestbookEntry, deleteGuestbookEntry,
   deleteMusicWish, updateProjectContent, approvePhotoUpload, deletePhotoUpload,
+  submitDataReady,
 } from '../../../lib/supabase';
 
 const AdminContext = createContext(null);
@@ -154,6 +155,25 @@ export function AdminProvider({ children }) {
       showFeedback('success', `Status auf "${newStatus}" geändert`);
     } catch (e) {
       showFeedback('error', 'Status konnte nicht geändert werden');
+    }
+  }, [projectId, showFeedback]);
+
+  // "Alle Daten eingetragen" - Status auf ready_for_review setzen
+  const markAsDataReady = useCallback(async () => {
+    try {
+      const result = await submitDataReady(projectId);
+      if (result.success) {
+        setCurrentStatus('ready_for_review');
+        showFeedback('success', 'Vielen Dank! Wir wurden benachrichtigt und werden eure Seite finalisieren.');
+        return true;
+      } else {
+        showFeedback('error', 'Fehler beim Absenden. Bitte versuche es erneut.');
+        return false;
+      }
+    } catch (e) {
+      console.error('markAsDataReady error:', e);
+      showFeedback('error', 'Fehler beim Absenden');
+      return false;
     }
   }, [projectId, showFeedback]);
 
@@ -352,7 +372,7 @@ export function AdminProvider({ children }) {
     stats,
     
     // Status
-    currentStatus, changeStatus,
+    currentStatus, changeStatus, markAsDataReady,
     
     // Actions
     approveGuestbook, deleteGuestbook,
