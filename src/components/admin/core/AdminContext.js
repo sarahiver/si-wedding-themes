@@ -105,6 +105,7 @@ export function AdminProvider({ children }) {
         footer: content.footer || { hashtag: '', impressum_url: '', datenschutz_url: '' },
         savethedate: content.savethedate || { hero_image: '', tagline: '', message: '', countdown_active: true },
         archive: content.archive || { hero_image: '', thank_you_title: '', thank_you_text: '', gallery_active: true, guestbook_active: true, photoupload_active: true },
+        status: content.status || { std_until: '', archive_from: '' },
       });
     }
   }, [content]);
