@@ -103,27 +103,109 @@ function LoginModal({ show, onClose, onSubmit, accent, error, isLoading }) {
     onSubmit(password);
   };
   
+  // Inline styles als Fallback falls styled-components nicht laden
+  const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.9)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
+  };
+  
+  const boxStyle = {
+    background: '#1a1a1a',
+    border: `1px solid ${accent}`,
+    padding: '2.5rem',
+    width: '90%',
+    maxWidth: '340px',
+    position: 'relative',
+  };
+  
+  const titleStyle = {
+    fontFamily: "'Inter', -apple-system, sans-serif",
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.15em',
+    color: accent,
+    margin: '0 0 1.5rem 0',
+    textAlign: 'center',
+  };
+  
+  const inputStyle = {
+    width: '100%',
+    padding: '1rem',
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    color: '#FFFFFF',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+    fontSize: '1rem',
+    marginBottom: '1rem',
+    boxSizing: 'border-box',
+    outline: 'none',
+  };
+  
+  const buttonStyle = {
+    width: '100%',
+    padding: '1rem',
+    background: accent,
+    border: 'none',
+    color: '#FFFFFF',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
+  };
+  
+  const closeStyle = {
+    position: 'absolute',
+    top: '0.75rem',
+    right: '0.75rem',
+    background: 'none',
+    border: 'none',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: '1.5rem',
+    cursor: 'pointer',
+    padding: '0.25rem',
+    lineHeight: 1,
+  };
+  
+  const errorStyle = {
+    color: '#ef4444',
+    fontSize: '0.85rem',
+    marginBottom: '1rem',
+    textAlign: 'center',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  };
+  
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalBox $accent={accent} onClick={e => e.stopPropagation()}>
-        <ModalClose onClick={onClose}>×</ModalClose>
-        <ModalTitle $accent={accent}>Admin Vorschau</ModalTitle>
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={boxStyle} onClick={e => e.stopPropagation()}>
+        <button style={closeStyle} onClick={onClose}>×</button>
+        <h3 style={titleStyle}>Admin Vorschau</h3>
         <form onSubmit={handleSubmit}>
-          {error && <ModalError>{error}</ModalError>}
-          <ModalInput
-            $accent={accent}
+          {error && <div style={errorStyle}>{error}</div>}
+          <input
+            style={inputStyle}
             type="password"
             placeholder="Passwort"
             value={password}
             onChange={e => setPassword(e.target.value)}
             autoFocus
           />
-          <ModalButton $accent={accent} type="submit" disabled={isLoading}>
+          <button style={buttonStyle} type="submit" disabled={isLoading}>
             {isLoading ? '...' : 'Vorschau öffnen'}
-          </ModalButton>
+          </button>
         </form>
-      </ModalBox>
-    </ModalOverlay>
+      </div>
+    </div>
   );
 }
 
