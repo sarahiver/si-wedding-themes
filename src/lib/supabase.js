@@ -371,3 +371,52 @@ export async function submitContactRequest(requestData) {
   
   return { data, error };
 }
+
+// ============================================
+// DATA READY NOTIFICATION (Kunde -> Admin)
+// ============================================
+
+export async function submitDataReady(projectId) {
+  // 1. Status auf ready_for_review setzen
+  const { data: project, error: statusError } = await supabase
+    .from('projects')
+    .update({ 
+      status: 'ready_for_review',
+      data_submitted_at: new Date().toISOString()
+    })
+    .eq('id', projectId)
+    .select()
+    .single();
+  
+  if (statusError) {
+    console.error('Error updating status:', statusError);
+    return { success: false, error: statusError };
+  }
+  
+  // 2. Admin-Benachrichtigung senden (via Edge Function oder direkt)
+  // Da wir von Frontend aus keine E-Mails senden können, 
+  // nutzen wir eine Supabase Edge Function oder einen separaten API-Call
+  try {
+    // Option A: Wir speichern in eine notifications-Tabelle und ein Trigger/Cron sendet die E-Mail
+    // Option B: Direkter Aufruf einer serverless function
+    // Hier: Wir erstellen einen Eintrag in einer neuen Tabelle für pending notifications
+    
+    const { error: notifyError } = await supabase
+      .from('admin_notifications')
+      .insert({
+        project_id: projectId,
+        type: 'data_ready',
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      });
+    
+    if (notifyError) {
+      console.warn('Could not create notification entry:', notifyError);
+      // Nicht fatal - Status wurde trotzdem aktualisiert
+    }
+  } catch (e) {
+    console.warn('Notification error:', e);
+  }
+  
+  return { success: true, data: project };
+}
