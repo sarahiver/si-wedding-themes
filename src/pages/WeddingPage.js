@@ -401,6 +401,32 @@ function StandardWeddingPage() {
   const loadingTimerRef = useRef(null)
   const dataLoadedRef = useRef(false)
 
+  // Loading logic - MUSS vor early return sein (React Hooks Regel)
+  useEffect(() => {
+    if (isLoading && !dataLoadedRef.current) {
+      loadingTimerRef.current = setTimeout(() => {
+        if (!dataLoadedRef.current) {
+          setShowLoading(true)
+        }
+      }, LOADING_DELAY)
+    }
+
+    if (!isLoading) {
+      dataLoadedRef.current = true
+      setContentReady(true)
+
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current)
+      }
+    }
+
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current)
+      }
+    }
+  }, [isLoading])
+
   // WICHTIG: Warte bis project geladen ist bevor Theme-Komponenten geladen werden
   // Sonst wird falsches Theme kurz angezeigt
   if (!project || isLoading) {
@@ -437,32 +463,6 @@ function StandardWeddingPage() {
 
   // Get component order from Supabase, fallback to default
   const componentOrder = project?.component_order || DEFAULT_ORDER
-
-  // Loading logic
-  useEffect(() => {
-    if (isLoading && !dataLoadedRef.current) {
-      loadingTimerRef.current = setTimeout(() => {
-        if (!dataLoadedRef.current) {
-          setShowLoading(true)
-        }
-      }, LOADING_DELAY)
-    }
-
-    if (!isLoading) {
-      dataLoadedRef.current = true
-      setContentReady(true)
-
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current)
-      }
-    }
-
-    return () => {
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current)
-      }
-    }
-  }, [isLoading])
 
   // Show loading screen
   if (showLoading && !contentReady && LoadingScreen) {
