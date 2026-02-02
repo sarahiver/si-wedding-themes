@@ -1,7 +1,10 @@
+// Editorial ArchivePage - Magazine Style mit Dashboard-Daten
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import EditorialGlobalStyles from './GlobalStyles';
+import Gallery from './Gallery';
+import Footer from './Footer';
 
 // ============================================
 // ANIMATIONS
@@ -18,30 +21,13 @@ const fadeInUp = keyframes`
 `;
 
 const letterReveal = keyframes`
-  0% { 
-    opacity: 0; 
-    transform: translateY(100%);
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
 `;
 
 const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
-`;
-
-const imageReveal = keyframes`
-  from { 
-    opacity: 0;
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-  }
-  to { 
-    opacity: 1;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
 `;
 
 // ============================================
@@ -50,7 +36,7 @@ const imageReveal = keyframes`
 
 const Page = styled.div`
   min-height: 100vh;
-  background: var(--editorial-white);
+  background: var(--editorial-black);
 `;
 
 // Hero Section
@@ -59,8 +45,9 @@ const HeroSection = styled.section`
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  background: var(--editorial-black);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   overflow: hidden;
 `;
 
@@ -80,9 +67,9 @@ const HeroBackground = styled.div`
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0.1) 50%,
-      rgba(0, 0, 0, 0.7) 100%
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.6) 100%
     );
   }
 `;
@@ -91,7 +78,7 @@ const HeroContent = styled.div`
   position: relative;
   z-index: 10;
   padding: 4rem clamp(1.5rem, 5vw, 4rem);
-  max-width: 1400px;
+  max-width: 900px;
 `;
 
 const Eyebrow = styled.span`
@@ -126,21 +113,35 @@ const HeroTitle = styled.h1`
   }
 `;
 
-const HeroSubtitle = styled.p`
+const ThankYouText = styled.p`
   font-family: var(--font-serif);
-  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   font-style: italic;
-  color: rgba(255, 255, 255, 0.6);
-  max-width: 500px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
   opacity: 0;
   animation: ${fadeInUp} 0.8s ease forwards;
   animation-delay: 1.5s;
 `;
 
-// Content Sections
+const DateLocation = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: ${fadeInUp} 0.8s ease forwards;
+  animation-delay: 1.8s;
+`;
+
+// Section
 const Section = styled.section`
-  padding: var(--section-padding) clamp(1.5rem, 5vw, 4rem);
-  background: ${p => p.$dark ? 'var(--editorial-black)' : 'var(--editorial-white)'};
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+  background: ${p => p.$light ? 'var(--editorial-white)' : 'var(--editorial-black)'};
 `;
 
 const Container = styled.div`
@@ -149,8 +150,8 @@ const Container = styled.div`
 `;
 
 const SectionHeader = styled.div`
+  text-align: center;
   margin-bottom: clamp(3rem, 6vw, 5rem);
-  ${p => p.$centered && 'text-align: center;'}
 `;
 
 const SectionEyebrow = styled.span`
@@ -163,94 +164,31 @@ const SectionEyebrow = styled.span`
   color: var(--editorial-red);
   margin-bottom: 1rem;
   opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-  `}
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
 `;
 
 const SectionTitle = styled.h2`
   font-family: var(--font-headline);
-  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 700;
-  color: ${p => p.$light ? 'var(--editorial-white)' : 'var(--editorial-black)'};
+  color: ${p => p.$light ? 'var(--editorial-black)' : 'var(--editorial-white)'};
   text-transform: uppercase;
   letter-spacing: -0.02em;
   line-height: 0.9;
   opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.15s;
-  `}
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards; animation-delay: 0.15s;`}
 `;
 
-// Photo Gallery
-const GalleryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-    animation-delay: 0.3s;
-  `}
-  
-  @media (max-width: 1000px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  @media (max-width: 600px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-`;
-
-const GalleryItem = styled.div`
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  
-  &:nth-child(5n+1) {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-  
-  &::before {
-    content: '';
-    display: block;
-    padding-top: 100%;
-  }
-  
-  img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(100%);
-    transition: all 0.5s ease;
-  }
-  
-  &:hover img {
-    filter: grayscale(0%);
-    transform: scale(1.05);
-  }
-`;
-
-// Thank You Message
+// Danke Section
 const ThankYouSection = styled.div`
   text-align: center;
   max-width: 700px;
   margin: 0 auto;
   opacity: 0;
-  
-  ${p => p.$visible && css`
-    animation: ${fadeInUp} 0.8s ease forwards;
-  `}
+  ${p => p.$visible && css`animation: ${fadeInUp} 0.8s ease forwards;`}
 `;
 
-const ThankYouText = styled.p`
+const ThankYouMessage = styled.p`
   font-family: var(--font-serif);
   font-size: clamp(1.1rem, 2vw, 1.4rem);
   color: rgba(255, 255, 255, 0.7);
@@ -272,28 +210,7 @@ const Divider = styled.div`
   background: var(--editorial-red);
   margin: 2rem auto;
   transform: scaleX(0);
-  
-  ${p => p.$visible && css`
-    animation: ${lineGrow} 0.6s ease forwards;
-    animation-delay: 0.3s;
-  `}
-`;
-
-// Footer
-const FooterSection = styled.footer`
-  padding: 3rem clamp(1.5rem, 5vw, 4rem);
-  background: var(--editorial-black);
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-`;
-
-const FooterText = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  ${p => p.$visible && css`animation: ${lineGrow} 0.6s ease forwards; animation-delay: 0.3s;`}
 `;
 
 // ============================================
@@ -301,20 +218,24 @@ const FooterText = styled.p`
 // ============================================
 
 function ArchivePage() {
-  const { content, coupleNames, weddingDate } = useWedding();
+  const { content, project, weddingDate } = useWedding();
+  const heroData = content?.hero || {};
   const archiveData = content?.archive || {};
-  const galleryData = content?.gallery || {};
   
-  const heroImage = archiveData.hero_image || 
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600';
-  const thankYouMessage = archiveData.thank_you_message || 
-    'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt. Die Erinnerungen an diesen Tag werden uns für immer begleiten.';
-  const photos = galleryData.images || [];
+  // Namen aus project
+  const name1 = project?.partner1_name || 'Braut';
+  const name2 = project?.partner2_name || 'Bräutigam';
+  const location = project?.location || heroData.location_short || '';
   
-  // Parse couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
-  const name1 = names[0] || 'Braut';
-  const name2 = names[1] || 'Bräutigam';
+  // Archive-spezifische Daten aus Dashboard
+  const thankYouTitle = archiveData.thank_you_title || 'Danke!';
+  const thankYouText = archiveData.thank_you_text || 'Danke, dass ihr diesen besonderen Tag mit uns gefeiert habt. Die Erinnerungen werden uns für immer begleiten.';
+  // Hero-Bild: Archive eigenes Bild, sonst normales Hero-Bild
+  const heroImage = archiveData.hero_image || heroData.background_image;
+  
+  // Was wird angezeigt? (aus Dashboard Checkboxen)
+  const showGallery = archiveData.gallery_active !== false;
+  // Gästebuch und PhotoUpload werden hier NICHT angezeigt - nur im Admin als Download
   
   // Format date
   const formatDate = (dateStr) => {
@@ -327,6 +248,7 @@ function ArchivePage() {
     });
   };
   
+  // Visibility states
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [thankYouVisible, setThankYouVisible] = useState(false);
   const galleryRef = useRef(null);
@@ -336,21 +258,21 @@ function ArchivePage() {
     const observers = [];
     
     if (galleryRef.current) {
-      const galleryObserver = new IntersectionObserver(
+      const obs = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setGalleryVisible(true); },
         { threshold: 0.1 }
       );
-      galleryObserver.observe(galleryRef.current);
-      observers.push(galleryObserver);
+      obs.observe(galleryRef.current);
+      observers.push(obs);
     }
     
     if (thankYouRef.current) {
-      const thankYouObserver = new IntersectionObserver(
+      const obs = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setThankYouVisible(true); },
         { threshold: 0.2 }
       );
-      thankYouObserver.observe(thankYouRef.current);
-      observers.push(thankYouObserver);
+      obs.observe(thankYouRef.current);
+      observers.push(obs);
     }
     
     return () => observers.forEach(obs => obs.disconnect());
@@ -359,77 +281,61 @@ function ArchivePage() {
   // Animate title letters
   const renderAnimatedTitle = (text) => {
     let delay = 0.8;
-    return text.split('').map((letter, i) => {
-      const style = { animationDelay: `${delay + i * 0.04}s` };
-      return (
-        <span key={i} className="letter" style={style}>
-          {letter === ' ' ? '\u00A0' : letter}
-        </span>
-      );
-    });
+    return text.split('').map((letter, i) => (
+      <span key={i} className="letter" style={{ animationDelay: `${delay + i * 0.04}s` }}>
+        {letter === ' ' ? '\u00A0' : letter}
+      </span>
+    ));
   };
 
   return (
     <>
       <EditorialGlobalStyles />
       <Page>
-        {/* Hero */}
+        {/* Hero mit Danke-Titel */}
         <HeroSection>
           <HeroBackground $image={heroImage} />
           <HeroContent>
-            <Eyebrow>Rückblick</Eyebrow>
+            <Eyebrow>{thankYouTitle}</Eyebrow>
             <HeroTitle>
               {renderAnimatedTitle(`${name1} & ${name2}`)}
             </HeroTitle>
-            <HeroSubtitle>
-              {formatDate(weddingDate)} — Der schönste Tag unseres Lebens
-            </HeroSubtitle>
+            <ThankYouText>{thankYouText}</ThankYouText>
+            {(formatDate(weddingDate) || location) && (
+              <DateLocation>
+                {formatDate(weddingDate)}{formatDate(weddingDate) && location && ' · '}{location}
+              </DateLocation>
+            )}
           </HeroContent>
         </HeroSection>
         
-        {/* Gallery */}
-        {photos.length > 0 && (
-          <Section ref={galleryRef}>
+        {/* Galerie - Fotos vom Paar hochgeladen */}
+        {showGallery && (
+          <Section $light ref={galleryRef}>
             <Container>
-              <SectionHeader $centered>
+              <SectionHeader>
                 <SectionEyebrow $visible={galleryVisible}>Erinnerungen</SectionEyebrow>
-                <SectionTitle $visible={galleryVisible}>Galerie</SectionTitle>
+                <SectionTitle $visible={galleryVisible} $light>Galerie</SectionTitle>
               </SectionHeader>
-              
-              <GalleryGrid $visible={galleryVisible}>
-                {photos.slice(0, 12).map((photo, i) => (
-                  <GalleryItem key={i}>
-                    <img 
-                      src={photo.url || photo} 
-                      alt={`Hochzeitsfoto ${i + 1}`} 
-                      loading="lazy"
-                    />
-                  </GalleryItem>
-                ))}
-              </GalleryGrid>
+              <Gallery />
             </Container>
           </Section>
         )}
         
-        {/* Thank You */}
-        <Section $dark ref={thankYouRef}>
+        {/* Danke Section am Ende */}
+        <Section ref={thankYouRef}>
           <Container>
             <ThankYouSection $visible={thankYouVisible}>
               <SectionEyebrow $visible={thankYouVisible}>Von Herzen</SectionEyebrow>
-              <SectionTitle $visible={thankYouVisible} $light>Danke</SectionTitle>
+              <SectionTitle $visible={thankYouVisible}>Danke</SectionTitle>
               <Divider $visible={thankYouVisible} />
-              <ThankYouText>{thankYouMessage}</ThankYouText>
+              <ThankYouMessage>{thankYouText}</ThankYouMessage>
               <Signature>{name1} & {name2}</Signature>
             </ThankYouSection>
           </Container>
         </Section>
         
-        {/* Footer */}
-        <FooterSection>
-          <FooterText>
-            © {new Date().getFullYear()} {name1} & {name2} — Powered by IverLasting
-          </FooterText>
-        </FooterSection>
+        <Footer />
       </Page>
     </>
   );

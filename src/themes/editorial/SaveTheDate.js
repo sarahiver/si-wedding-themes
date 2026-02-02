@@ -1,3 +1,4 @@
+// Editorial SaveTheDate - Magazine Style mit Dashboard-Daten
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -8,14 +9,8 @@ import EditorialGlobalStyles from './GlobalStyles';
 // ============================================
 
 const letterReveal = keyframes`
-  0% { 
-    opacity: 0; 
-    transform: translateY(100%) rotateX(-90deg);
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0) rotateX(0);
-  }
+  0% { opacity: 0; transform: translateY(100%) rotateX(-90deg); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0); }
 `;
 
 const fadeIn = keyframes`
@@ -24,24 +19,13 @@ const fadeIn = keyframes`
 `;
 
 const slideUp = keyframes`
-  from { 
-    opacity: 0; 
-    transform: translateY(40px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const lineGrow = keyframes`
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
 `;
 
 // ============================================
@@ -115,7 +99,6 @@ const Headline = styled.h1`
   letter-spacing: -0.03em;
   line-height: 0.85;
   margin-bottom: 2rem;
-  
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,10 +116,7 @@ const Letter = styled.span`
   transform-origin: bottom center;
   animation: ${letterReveal} 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
   animation-delay: ${p => p.$delay}s;
-  
-  ${p => p.$accent && css`
-    color: var(--editorial-red);
-  `}
+  ${p => p.$accent && css`color: var(--editorial-red);`}
 `;
 
 const Ampersand = styled.span`
@@ -181,31 +161,52 @@ const LocationText = styled.p`
   font-size: clamp(1rem, 2vw, 1.4rem);
   font-style: italic;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `;
 
-const CTAButton = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 3rem;
-  background: var(--editorial-red);
-  color: var(--editorial-white);
-  font-family: var(--font-headline);
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-decoration: none;
+const Message = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  max-width: 500px;
+  margin: 0 auto 2rem;
   opacity: 0;
-  animation: ${slideUp} 0.8s ease forwards, ${pulse} 2s ease-in-out infinite;
-  animation-delay: 2.5s, 3.5s;
-  transition: background 0.3s ease, transform 0.3s ease;
-  
-  &:hover {
-    background: #e01a38;
-    transform: translateY(-3px);
-  }
+  animation: ${slideUp} 0.8s ease forwards;
+  animation-delay: 2.4s;
+`;
+
+const CountdownGrid = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: clamp(1.5rem, 5vw, 3rem);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: ${fadeIn} 1s ease forwards;
+  animation-delay: 2.6s;
+`;
+
+const CountdownItem = styled.div`
+  text-align: center;
+`;
+
+const CountdownNumber = styled.div`
+  font-family: var(--font-headline);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  line-height: 1;
+`;
+
+const CountdownLabel = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--editorial-red);
+  margin-top: 0.5rem;
 `;
 
 const Footer = styled.footer`
@@ -228,40 +229,60 @@ const FooterText = styled.p`
 // HELPER
 // ============================================
 
-const AnimatedText = ({ text, startDelay = 0, accent = false }) => {
-  return (
-    <HeadlineLine>
-      {text.split('').map((letter, i) => (
-        <Letter 
-          key={i} 
-          $delay={startDelay + i * 0.05}
-          $accent={accent}
-        >
-          {letter === ' ' ? '\u00A0' : letter}
-        </Letter>
-      ))}
-    </HeadlineLine>
-  );
-};
+const AnimatedText = ({ text, startDelay = 0, accent = false }) => (
+  <HeadlineLine>
+    {text.split('').map((letter, i) => (
+      <Letter key={i} $delay={startDelay + i * 0.05} $accent={accent}>
+        {letter === ' ' ? '\u00A0' : letter}
+      </Letter>
+    ))}
+  </HeadlineLine>
+);
 
 // ============================================
 // COMPONENT
 // ============================================
 
 function SaveTheDate() {
-  const { content, coupleNames, weddingDate, projectSlug } = useWedding();
-  const saveTheDateData = content?.savethedate || {};
+  const { content, project, weddingDate } = useWedding();
+  const heroData = content?.hero || {};
+  const stdData = content?.savethedate || {};
   
-  const backgroundImage = saveTheDateData.background_image || 
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600';
-  const location = saveTheDateData.location || '';
-  const ctaText = saveTheDateData.cta_text || 'Zur Einladung';
-  const ctaUrl = saveTheDateData.cta_url || `/${projectSlug}`;
+  // Namen aus project
+  const name1 = (project?.partner1_name || 'Braut').toUpperCase();
+  const name2 = (project?.partner2_name || 'Bräutigam').toUpperCase();
+  const location = project?.location || heroData.location_short || '';
   
-  // Parse couple names
-  const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
-  const name1 = names[0]?.toUpperCase() || 'BRAUT';
-  const name2 = names[1]?.toUpperCase() || 'BRÄUTIGAM';
+  // STD-spezifische Daten aus Dashboard
+  const tagline = stdData.tagline || 'Save the Date';
+  const message = stdData.message || '';
+  const showCountdown = stdData.countdown_active !== false;
+  // Hero-Bild: STD eigenes Bild, sonst normales Hero-Bild
+  const backgroundImage = stdData.hero_image || heroData.background_image;
+  
+  // Countdown State
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  
+  useEffect(() => {
+    if (!weddingDate) return;
+    const targetDate = new Date(weddingDate);
+    
+    const calculate = () => {
+      const diff = targetDate - new Date();
+      if (diff > 0) {
+        setTimeLeft({
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((diff / 1000 / 60) % 60),
+          seconds: Math.floor((diff / 1000) % 60),
+        });
+      }
+    };
+    
+    calculate();
+    const timer = setInterval(calculate, 1000);
+    return () => clearInterval(timer);
+  }, [weddingDate]);
   
   // Format date
   const formatDate = (dateStr) => {
@@ -272,6 +293,8 @@ function SaveTheDate() {
     const year = date.getFullYear();
     return `${day}. ${month} ${year}`;
   };
+  
+  const pad = n => String(n).padStart(2, '0');
 
   return (
     <>
@@ -280,7 +303,7 @@ function SaveTheDate() {
         <BackgroundImage $image={backgroundImage} />
         
         <Content>
-          <Eyebrow>Save the Date</Eyebrow>
+          <Eyebrow>{tagline}</Eyebrow>
           
           <Headline>
             <AnimatedText text={name1} startDelay={0.8} />
@@ -292,11 +315,30 @@ function SaveTheDate() {
             <Line />
             <DateDisplay>{formatDate(weddingDate)}</DateDisplay>
             {location && <LocationText>{location}</LocationText>}
-            
-            <CTAButton href={ctaUrl}>
-              {ctaText} →
-            </CTAButton>
           </DateSection>
+          
+          {message && <Message>{message}</Message>}
+          
+          {showCountdown && weddingDate && (
+            <CountdownGrid>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.days)}</CountdownNumber>
+                <CountdownLabel>Tage</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.hours)}</CountdownNumber>
+                <CountdownLabel>Stunden</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.minutes)}</CountdownNumber>
+                <CountdownLabel>Minuten</CountdownLabel>
+              </CountdownItem>
+              <CountdownItem>
+                <CountdownNumber>{pad(timeLeft.seconds)}</CountdownNumber>
+                <CountdownLabel>Sekunden</CountdownLabel>
+              </CountdownItem>
+            </CountdownGrid>
+          )}
         </Content>
         
         <Footer>
