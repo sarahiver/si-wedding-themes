@@ -401,7 +401,32 @@ function StandardWeddingPage() {
   const loadingTimerRef = useRef(null)
   const dataLoadedRef = useRef(false)
 
-  const themeName = theme || "botanical"
+  // WICHTIG: Warte bis project geladen ist bevor Theme-Komponenten geladen werden
+  // Sonst wird falsches Theme kurz angezeigt
+  if (!project || isLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#0a0a0a',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          width: 40, 
+          height: 40, 
+          border: '2px solid rgba(255,255,255,0.1)', 
+          borderTopColor: 'rgba(255,255,255,0.4)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  // Jetzt ist project garantiert geladen - Theme ist korrekt
+  const themeName = project.theme || "botanical"
   const config = themeConfig[themeName] || themeConfig.botanical
   const components = themeComponents[themeName] || themeComponents.botanical
 
@@ -448,16 +473,6 @@ function StandardWeddingPage() {
           onLoadComplete={() => setShowLoading(false)}
           isDataReady={contentReady}
         />
-      </>
-    )
-  }
-
-  // Initial invisible state while loading
-  if (isLoading) {
-    return (
-      <>
-        <GlobalStyles />
-        <PageWrapper $background={background} style={{ opacity: 0 }} />
       </>
     )
   }
