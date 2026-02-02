@@ -4,6 +4,9 @@
 // Feedback/UI
 export { default as FeedbackModal, useFeedbackModal } from './FeedbackModal';
 
+// Coming Soon Page
+export { default as ComingSoon } from './ComingSoon';
+
 // Core hooks for interactive features
 export { usePhotoUpload, HiddenFileInput } from './PhotoUploadCore';
 export { useGuestbook } from './GuestbookCore';
