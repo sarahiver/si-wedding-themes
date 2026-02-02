@@ -12,41 +12,52 @@ import WeddingPage from './pages/WeddingPage';
 // Shared Components
 import ComingSoon from './components/shared/ComingSoon';
 
-// Lazy load theme-specific pages
+// GlobalStyles direkt importieren (nicht lazy) - verhindert Flash of unstyled content
+import BotanicalGlobalStyles from './themes/botanical/GlobalStyles';
+import LuxeGlobalStyles from './themes/luxe/GlobalStyles';
+import NeonGlobalStyles from './themes/neon/GlobalStyles';
+import ContemporaryGlobalStyles from './themes/contemporary/GlobalStyles';
+import VideoGlobalStyles from './themes/video/GlobalStyles';
+import EditorialGlobalStyles from './themes/editorial/GlobalStyles';
+
+const globalStylesMap = {
+  botanical: BotanicalGlobalStyles,
+  luxe: LuxeGlobalStyles,
+  neon: NeonGlobalStyles,
+  contemporary: ContemporaryGlobalStyles,
+  video: VideoGlobalStyles,
+  editorial: EditorialGlobalStyles,
+};
+
+// Lazy load theme-specific pages (aber nicht GlobalStyles)
 const themePages = {
   botanical: {
     AdminDashboard: lazy(() => import('./themes/botanical/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/botanical/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/botanical/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/botanical/SaveTheDate')),
   },
   luxe: {
     AdminDashboard: lazy(() => import('./themes/luxe/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/luxe/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/luxe/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/luxe/SaveTheDate')),
   },
   neon: {
     AdminDashboard: lazy(() => import('./themes/neon/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/neon/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/neon/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/neon/SaveTheDate')),
   },
   contemporary: {
     AdminDashboard: lazy(() => import('./themes/contemporary/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/contemporary/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/contemporary/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/contemporary/SaveTheDate')),
   },
   video: {
     AdminDashboard: lazy(() => import('./themes/video/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/video/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/video/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/video/SaveTheDate')),
   },
   editorial: {
     AdminDashboard: lazy(() => import('./themes/editorial/AdminDashboard')),
-    GlobalStyles: lazy(() => import('./themes/editorial/GlobalStyles')),
     ArchivePage: lazy(() => import('./themes/editorial/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/editorial/SaveTheDate')),
   },
@@ -139,10 +150,10 @@ function ThemeRouter() {
   // Theme aus project direkt verwenden (nicht aus hook mit fallback)
   const themeName = project.theme || 'botanical';
   const pages = themePages[themeName] || themePages.botanical;
+  const GlobalStyles = globalStylesMap[themeName] || globalStylesMap.botanical;
   
   const { 
     AdminDashboard, 
-    GlobalStyles, 
     ArchivePage, 
     SaveTheDate 
   } = pages;
