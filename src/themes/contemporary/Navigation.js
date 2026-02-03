@@ -254,7 +254,6 @@ function Navigation() {
     { id: 'faq', label: 'FAQ', href: '#faq' },
     { id: 'weddingabc', label: 'ABC', href: '#abc' },
     { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
-    { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
 
   // Fixed nav items (visible in bar) - only if component is active

@@ -161,7 +161,6 @@ function Navigation() {
     { id: 'faq', anchor: 'faq', label: 'FAQ' },
     { id: 'weddingabc', anchor: 'abc', label: 'Hochzeits-ABC' },
     { id: 'witnesses', anchor: 'witnesses', label: 'Trauzeugen' },
-    { id: 'contact', anchor: 'contact', label: 'Kontakt' },
   ];
 
   // All active components sorted by component_order

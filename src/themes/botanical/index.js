@@ -30,7 +30,6 @@ import Gifts from './Gifts';
 // Info Sections
 import FAQ from './FAQ';
 import WeddingABC from './WeddingABC';
-import Contact from './Contact';
 import ContactWitnesses from './ContactWitnesses';
 import Footer from './Footer';
 
@@ -70,7 +69,6 @@ export {
   // Info Sections
   FAQ,
   WeddingABC,
-  Contact,
   ContactWitnesses,
   Footer,
 

@@ -30,5 +30,4 @@ export { default as Gifts } from './Gifts';
 // Info Sections
 export { default as FAQ } from './FAQ';
 export { default as WeddingABC } from './WeddingABC';
-export { default as Contact } from './Contact';
 export { default as ContactWitnesses } from './ContactWitnesses';

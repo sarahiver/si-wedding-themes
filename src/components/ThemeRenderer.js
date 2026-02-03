@@ -9,7 +9,6 @@ import { useWedding } from "../context/WeddingContext"
 // ============================================
 import EditorialAccommodations from "../themes/editorial/Accommodations"
 import EditorialArchivePage from "../themes/editorial/ArchivePage"
-import EditorialContact from "../themes/editorial/Contact"
 import EditorialCountdown from "../themes/editorial/Countdown"
 import EditorialDirections from "../themes/editorial/Directions"
 import EditorialDresscode from "../themes/editorial/Dresscode"
@@ -34,7 +33,6 @@ import EditorialWeddingABC from "../themes/editorial/WeddingABC"
 // BOTANICAL THEME IMPORTS
 // ============================================
 import BotanicalAccommodations from "../themes/botanical/Accommodations"
-import BotanicalContact from "../themes/botanical/Contact"
 import BotanicalCountdown from "../themes/botanical/Countdown"
 import BotanicalDirections from "../themes/botanical/Directions"
 import BotanicalDresscode from "../themes/botanical/Dresscode"
@@ -59,7 +57,6 @@ import BotanicalWeddingABC from "../themes/botanical/WeddingABC"
 // ============================================
 import ContemporaryAccommodations from "../themes/contemporary/Accommodations"
 import ContemporaryArchivePage from "../themes/contemporary/ArchivePage"
-import ContemporaryContact from "../themes/contemporary/Contact"
 import ContemporaryCountdown from "../themes/contemporary/Countdown"
 import ContemporaryDirections from "../themes/contemporary/Directions"
 import ContemporaryDresscode from "../themes/contemporary/Dresscode"
@@ -85,7 +82,6 @@ import ContemporaryWeddingABC from "../themes/contemporary/WeddingABC"
 // ============================================
 import LuxeAccommodations from "../themes/luxe/Accommodations"
 import LuxeArchivePage from "../themes/luxe/ArchivePage"
-import LuxeContact from "../themes/luxe/Contact"
 import LuxeContactWitnesses from "../themes/luxe/ContactWitnesses"
 import LuxeCountdown from "../themes/luxe/Countdown"
 import LuxeDirections from "../themes/luxe/Directions"
@@ -112,7 +108,6 @@ import LuxeWeddingABC from "../themes/luxe/WeddingABC"
 // ============================================
 import NeonAccommodations from "../themes/neon/Accommodations"
 import NeonArchivePage from "../themes/neon/ArchivePage"
-import NeonContact from "../themes/neon/Contact"
 import NeonContactWitnesses from "../themes/neon/ContactWitnesses"
 import NeonCountdown from "../themes/neon/Countdown"
 import NeonDirections from "../themes/neon/Directions"
@@ -138,7 +133,6 @@ import NeonWeddingABC from "../themes/neon/WeddingABC"
 // VIDEO THEME IMPORTS
 // ============================================
 import VideoAccommodations from "../themes/video/Accommodations"
-import VideoContact from "../themes/video/Contact"
 import VideoCountdown from "../themes/video/Countdown"
 import VideoDresscode from "../themes/video/Dresscode"
 import VideoFAQ from "../themes/video/FAQ"
@@ -174,7 +168,6 @@ const themes = {
     Dresscode: EditorialDresscode,
     Gifts: EditorialGifts,
     Accommodations: EditorialAccommodations,
-    Contact: EditorialContact,
     Gallery: EditorialGallery,
     MusicWishes: EditorialMusicWishes,
     Guestbook: EditorialGuestbook,
@@ -198,7 +191,6 @@ const themes = {
     Dresscode: BotanicalDresscode,
     Gifts: BotanicalGifts,
     Accommodations: BotanicalAccommodations,
-    Contact: BotanicalContact,
     Gallery: BotanicalGallery,
     MusicWishes: BotanicalMusicWishes,
     Guestbook: BotanicalGuestbook,
@@ -220,7 +212,6 @@ const themes = {
     Dresscode: ContemporaryDresscode,
     Gifts: ContemporaryGifts,
     Accommodations: ContemporaryAccommodations,
-    Contact: ContemporaryContact,
     Gallery: ContemporaryGallery,
     MusicWishes: ContemporaryMusicWishes,
     Guestbook: ContemporaryGuestbook,
@@ -244,7 +235,6 @@ const themes = {
     Dresscode: LuxeDresscode,
     Gifts: LuxeGifts,
     Accommodations: LuxeAccommodations,
-    Contact: LuxeContact,
     ContactWitnesses: LuxeContactWitnesses,
     Gallery: LuxeGallery,
     MusicWishes: LuxeMusicWishes,
@@ -269,7 +259,6 @@ const themes = {
     Dresscode: NeonDresscode,
     Gifts: NeonGifts,
     Accommodations: NeonAccommodations,
-    Contact: NeonContact,
     ContactWitnesses: NeonContactWitnesses,
     Gallery: NeonGallery,
     MusicWishes: NeonMusicWishes,
@@ -293,7 +282,6 @@ const themes = {
     Dresscode: VideoDresscode,
     Gifts: VideoGifts,
     Accommodations: VideoAccommodations,
-    Contact: VideoContact,
     Gallery: VideoGallery,
     MusicWishes: VideoMusicWishes,
     Guestbook: VideoGuestbook,
@@ -325,7 +313,6 @@ const DEFAULT_ORDER = [
   "witnesses",
   "faq",
   "weddingabc",
-  "contact",
 ]
 
 // ============================================
@@ -350,7 +337,6 @@ const getComponentRenderer = (
     Dresscode,
     Gifts,
     Accommodations,
-    Contact,
     ContactWitnesses,
     Gallery,
     MusicWishes,
@@ -555,8 +541,7 @@ const getComponentRenderer = (
 
     witnesses: () =>
       isComponentActive("witnesses") &&
-      (ContactWitnesses || Contact) &&
-      (ContactWitnesses ? (
+      ContactWitnesses && (
         <ContactWitnesses
           key='witnesses'
           config={config}
@@ -564,14 +549,7 @@ const getComponentRenderer = (
           content={content.witnesses}
           witnesses={content.witnesses?.persons}
         />
-      ) : (
-        <Contact
-          key='witnesses'
-          config={config}
-          data={config}
-          content={content.witnesses}
-        />
-      )),
+      ),
 
     faq: () =>
       isComponentActive("faq") &&
@@ -600,16 +578,6 @@ const getComponentRenderer = (
         />
       ),
 
-    contact: () =>
-      isComponentActive("contact") &&
-      Contact && (
-        <Contact
-          key='contact'
-          config={config}
-          data={config}
-          content={content.contact}
-        />
-      ),
   }
 
   return renderers[componentId] || null

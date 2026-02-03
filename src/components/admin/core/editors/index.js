@@ -13,7 +13,6 @@ export { default as WitnessesEditor } from './WitnessesEditor';
 export { default as GalleryEditor } from './GalleryEditor';
 export { default as FAQEditor } from './FAQEditor';
 export { default as ABCEditor } from './ABCEditor';
-export { default as ContactEditor } from './ContactEditor';
 export { default as FooterEditor } from './FooterEditor';
 export { default as SaveTheDateEditor } from './SaveTheDateEditor';
 export { default as ArchiveEditor } from './ArchiveEditor';

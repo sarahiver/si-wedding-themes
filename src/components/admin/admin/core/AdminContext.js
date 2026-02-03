@@ -74,7 +74,6 @@ export function AdminProvider({ children }) {
         photoupload: content.photoupload || { title: '', description: '', max_files: 10, moderation: true },
         faq: content.faq || { title: '', questions: [] },
         weddingabc: content.weddingabc || { title: '', entries: [] },
-        contact: content.contact || { title: '', couple_email: '', couple_phone: '', show_form: true },
         footer: content.footer || { hashtag: '', impressum_url: '', datenschutz_url: '' },
         savethedate: content.savethedate || { hero_image: '', tagline: '', message: '', countdown_active: true },
         archive: content.archive || { hero_image: '', thank_you_title: '', thank_you_text: '', gallery_active: true, guestbook_active: true, photoupload_active: true },
@@ -319,7 +318,6 @@ export function AdminProvider({ children }) {
       checkActive('faq') && { id: 'edit-faq', label: 'FAQ', icon: '❓' },
       checkActive('weddingabc') && { id: 'edit-abc', label: 'ABC', icon: '🔤' },
       checkActive('witnesses') && { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
-      checkActive('contact') && { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
       { id: 'edit-footer', label: 'Footer', icon: '📝' },
     ].filter(Boolean)},
     { section: 'Seiten-Varianten', items: [

@@ -101,7 +101,6 @@ export function AdminProvider({ children }) {
         photoupload: content.photoupload || { title: '', description: '', max_files: 10, moderation: true },
         faq: content.faq || { title: '', questions: [] },
         weddingabc: content.weddingabc || { title: '', entries: [] },
-        contact: content.contact || { title: '', couple_email: '', couple_phone: '', show_form: true },
         footer: content.footer || { hashtag: '', impressum_url: '', datenschutz_url: '' },
         savethedate: content.savethedate || { hero_image: '', tagline: '', message: '', countdown_active: true },
         archive: content.archive || { hero_image: '', thank_you_title: '', thank_you_text: '', gallery_images: [] },
@@ -355,7 +354,6 @@ export function AdminProvider({ children }) {
     faq: { id: 'edit-faq', label: 'FAQ', icon: '❓' },
     weddingabc: { id: 'edit-abc', label: 'ABC', icon: '🔤' },
     witnesses: { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
-    contact: { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
     footer: { id: 'edit-footer', label: 'Footer', icon: '📝', always: true },
   };
 

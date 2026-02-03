@@ -280,7 +280,6 @@ function Navigation() {
     { id: 'faq', label: 'FAQ' },
     { id: 'weddingabc', label: 'ABC' },
     { id: 'witnesses', label: 'Trauzeugen' },
-    { id: 'contact', label: 'Kontakt' },
   ];
 
   // Burger menu items - all active components sorted by component_order

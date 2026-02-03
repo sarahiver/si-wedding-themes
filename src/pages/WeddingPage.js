@@ -54,7 +54,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/botanical/Dresscode")),
     FAQ: lazy(() => import("../themes/botanical/FAQ")),
     WeddingABC: lazy(() => import("../themes/botanical/WeddingABC")),
-    Contact: lazy(() => import("../themes/botanical/Contact")),
     ContactWitnesses: lazy(
       () => import("../themes/botanical/ContactWitnesses"),
     ),
@@ -78,7 +77,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/editorial/Dresscode")),
     FAQ: lazy(() => import("../themes/editorial/FAQ")),
     WeddingABC: lazy(() => import("../themes/editorial/WeddingABC")),
-    Contact: lazy(() => import("../themes/editorial/Contact")),
     ContactWitnesses: lazy(
       () => import("../themes/editorial/ContactWitnesses"),
     ),
@@ -102,7 +100,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/contemporary/Dresscode")),
     FAQ: lazy(() => import("../themes/contemporary/FAQ")),
     WeddingABC: lazy(() => import("../themes/contemporary/WeddingABC")),
-    Contact: lazy(() => import("../themes/contemporary/Contact")),
     ContactWitnesses: lazy(
       () => import("../themes/contemporary/ContactWitnesses"),
     ),
@@ -126,7 +123,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/luxe/Dresscode")),
     FAQ: lazy(() => import("../themes/luxe/FAQ")),
     WeddingABC: lazy(() => import("../themes/luxe/WeddingABC")),
-    Contact: lazy(() => import("../themes/luxe/Contact")),
     ContactWitnesses: lazy(() => import("../themes/luxe/ContactWitnesses")),
     Footer: lazy(() => import("../themes/luxe/Footer")),
   },
@@ -148,7 +144,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/neon/Dresscode")),
     FAQ: lazy(() => import("../themes/neon/FAQ")),
     WeddingABC: lazy(() => import("../themes/neon/WeddingABC")),
-    Contact: lazy(() => import("../themes/neon/Contact")),
     ContactWitnesses: lazy(() => import("../themes/neon/ContactWitnesses")),
     Footer: lazy(() => import("../themes/neon/Footer")),
   },
@@ -170,7 +165,6 @@ const themeComponents = {
     Dresscode: lazy(() => import("../themes/video/Dresscode")),
     FAQ: lazy(() => import("../themes/video/FAQ")),
     WeddingABC: lazy(() => import("../themes/video/WeddingABC")),
-    Contact: lazy(() => import("../themes/video/Contact")),
     ContactWitnesses: lazy(() => import("../themes/video/ContactWitnesses")),
     Footer: lazy(() => import("../themes/video/Footer")),
   },
@@ -242,7 +236,6 @@ const DEFAULT_ORDER = [
   "witnesses",
   "faq",
   "weddingabc",
-  "contact",
 ]
 
 // ============================================
@@ -279,7 +272,6 @@ function ComponentRenderer({ componentId, components, isComponentActive }) {
     witnesses: { Component: components.ContactWitnesses },
     faq: { Component: components.FAQ },
     weddingabc: { Component: components.WeddingABC },
-    contact: { Component: components.Contact },
   }
 
   const config = componentMap[componentId]
@@ -328,7 +320,6 @@ function VideoWeddingPage() {
     { id: "music", label: "Musik" },
     { id: "photos", label: "Fotos" },
     { id: "witnesses", label: "Trauzeugen" },
-    { id: "contact", label: "Kontakt" },
     { id: "footer", label: "Ende" },
   ]
 
@@ -382,7 +373,6 @@ function VideoWeddingPage() {
           <components.MusicWishes />
           <components.PhotoUpload />
           <components.ContactWitnesses />
-          <components.Contact />
           <components.Footer />
         </VideoHorizontalScroll>
       </Suspense>
