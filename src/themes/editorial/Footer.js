@@ -271,6 +271,20 @@ const PoweredBy = styled.a`
   }
 `;
 
+const Tagline = styled.p`
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1rem;
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 1s;
+  `}
+`;
+
 const Hashtag = styled.p`
   font-family: var(--font-body);
   font-size: 1rem;
@@ -291,8 +305,10 @@ const Hashtag = styled.p`
 // ============================================
 
 function Footer() {
-  const { coupleNames, weddingDate, isComponentActive, project } = useWedding();
-  const hashtag = project?.hashtag;
+  const { coupleNames, weddingDate, isComponentActive, content } = useWedding();
+  const footerData = content?.footer || {};
+  const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
   
   const [visible, setVisible] = useState(false);
   const footerRef = useRef(null);
@@ -351,6 +367,7 @@ function Footer() {
         
         <Heart $visible={visible}>♥</Heart>
 
+        {tagline && <Tagline $visible={visible}>{tagline}</Tagline>}
         {hashtag && <Hashtag $visible={visible}>#{hashtag}</Hashtag>}
 
         <DateText $visible={visible}>{formatDate(weddingDate)}</DateText>

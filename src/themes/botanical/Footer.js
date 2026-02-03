@@ -47,6 +47,15 @@ const Divider = styled.div`
   margin: 2rem auto;
 `;
 
+const Tagline = styled.p`
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+`;
+
 const Hashtag = styled.p`
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -95,10 +104,12 @@ const ScrollTop = styled.button`
 `;
 
 function Footer() {
-  const { coupleNames, weddingDate, project } = useWedding();
+  const { coupleNames, weddingDate, content } = useWedding();
+  const footerData = content?.footer || {};
 
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
-  const hashtag = project?.hashtag;
+  const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
   
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -123,7 +134,8 @@ function Footer() {
       {weddingDate && (
         <DateText>{formatDate(weddingDate)}</DateText>
       )}
-      
+
+      {tagline && <Tagline>{tagline}</Tagline>}
       {hashtag && <Hashtag>#{hashtag}</Hashtag>}
 
       <Divider />

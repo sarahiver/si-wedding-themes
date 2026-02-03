@@ -7,6 +7,7 @@ const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
 const FooterSection = styled.footer`padding: 5rem var(--section-padding-x); background: var(--luxe-void); text-align: center;`;
 const Names = styled.h2`font-family: var(--font-display); font-size: clamp(3rem, 8vw, 6rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 1rem;`;
 const DateText = styled.p`font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--luxe-slate); margin-bottom: 2rem;`;
+const Tagline = styled.p`font-family: var(--font-display); font-size: 1.1rem; font-style: italic; color: var(--luxe-pearl); margin-bottom: 0.5rem;`;
 const Hashtag = styled.p`font-family: var(--font-display); font-size: 1.25rem; font-style: italic; color: var(--luxe-gold); margin-bottom: 2rem;`;
 const AdminBtn = styled.button`font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-graphite); margin-top: 2rem; &:hover { color: var(--luxe-gold); }`;
 const Copyright = styled.p`font-family: var(--font-body); font-size: 0.65rem; color: var(--luxe-graphite); margin-top: 2rem;`;
@@ -20,11 +21,13 @@ const LoginBtn = styled.button`width: 100%; padding: 1rem; font-family: var(--fo
 const CloseBtn = styled.button`position: absolute; top: 2rem; right: 2rem; font-size: 1.5rem; color: var(--luxe-cream);`;
 
 function Footer({ onAdminLogin }) {
-  const { project } = useWedding();
+  const { project, content } = useWedding();
+  const footerData = content?.footer || {};
   const name1 = project?.partner1_name || 'Alexandra';
   const name2 = project?.partner2_name || 'Benjamin';
   const date = project?.wedding_date;
-  const hashtag = project?.hashtag;
+  const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
   
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
@@ -42,6 +45,7 @@ function Footer({ onAdminLogin }) {
     <FooterSection>
       <Names>{name1} & {name2}</Names>
       {formattedDate && <DateText>{formattedDate}</DateText>}
+      {tagline && <Tagline>{tagline}</Tagline>}
       {hashtag && <Hashtag>#{hashtag}</Hashtag>}
       <AdminBtn onClick={() => setShowLogin(true)}>Admin</AdminBtn>
       <Copyright>© {new Date().getFullYear()} {name1} & {name2}</Copyright>

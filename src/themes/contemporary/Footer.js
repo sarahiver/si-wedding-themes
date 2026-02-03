@@ -134,6 +134,13 @@ const PoweredBy = styled.a`
   &:hover { color: var(--coral); }
 `;
 
+const Tagline = styled.p`
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--gray-600);
+  margin-bottom: 0.5rem;
+`;
+
 const Hashtag = styled.span`
   display: block;
   font-size: 1rem;
@@ -236,6 +243,7 @@ function Footer({ onAdminLogin }) {
   const name2 = project?.partner2_name || 'Max';
   const coupleNames = `${name1} & ${name2}`;
   const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
   
   const [visible, setVisible] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -271,6 +279,7 @@ function Footer({ onAdminLogin }) {
           
           <Divider />
           
+          {tagline && <Tagline>{tagline}</Tagline>}
           {hashtag && <Hashtag>#{hashtag}</Hashtag>}
           <CoupleNames>{coupleNames}</CoupleNames>
           

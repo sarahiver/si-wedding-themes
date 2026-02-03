@@ -18,6 +18,14 @@ const Names = styled.h3`
   color: var(--footer-accent, #8B9D83);
 `;
 
+const Tagline = styled.p`
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--footer-text-secondary, rgba(255,255,255,0.6));
+  margin-bottom: 0.5rem;
+`;
+
 const Hashtag = styled.p`
   font-family: var(--font-sans, 'Inter', sans-serif);
   font-size: 1rem;
@@ -68,9 +76,10 @@ const PoweredBy = styled.a`
 `;
 
 function Footer() {
-  const { content, coupleNames, slug, project } = useWedding();
-  const footer = content?.footer || {};
-  const hashtag = project?.hashtag;
+  const { content, coupleNames, slug } = useWedding();
+  const footerData = content?.footer || {};
+  const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
 
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
   const year = new Date().getFullYear();
@@ -83,6 +92,7 @@ function Footer() {
   return (
     <FooterSection>
       <Names>{names[0]} & {names[1]}</Names>
+      {tagline && <Tagline>{tagline}</Tagline>}
       {hashtag && <Hashtag>#{hashtag}</Hashtag>}
       <Divider />
       <Copyright>© {year} {names[0]} & {names[1]}</Copyright>

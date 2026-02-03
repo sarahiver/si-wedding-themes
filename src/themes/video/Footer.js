@@ -59,6 +59,17 @@ const Quote = styled.p`
   animation-delay: 1s;
 `;
 
+const Tagline = styled.p`
+  font-family: var(--font-accent);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--video-silver);
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s ease forwards` : 'none'};
+  animation-delay: 1.1s;
+`;
+
 const Hashtag = styled.p`
   font-family: var(--font-primary);
   font-size: 0.9rem;
@@ -120,11 +131,13 @@ const ModalBtn = styled.button`width: 100%; padding: 1rem; font-family: var(--fo
 const CloseBtn = styled.button`position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: var(--video-gray); &:hover { color: var(--video-white); }`;
 
 function Footer({ onAdminLogin }) {
-  const { project } = useWedding();
+  const { project, content } = useWedding();
+  const footerData = content?.footer || {};
   const name1 = project?.partner1_name || 'Emma';
   const name2 = project?.partner2_name || 'Noah';
   const date = project?.wedding_date;
-  const hashtag = project?.hashtag;
+  const hashtag = footerData.hashtag;
+  const tagline = footerData.tagline;
   
   const [visible, setVisible] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -153,6 +166,7 @@ function Footer({ onAdminLogin }) {
         {formattedDate && <DateText $visible={visible}>{formattedDate}</DateText>}
         <Divider $visible={visible} />
         <Quote $visible={visible}>"Danke, dass ihr Teil unserer Geschichte seid"</Quote>
+        {tagline && <Tagline $visible={visible}>{tagline}</Tagline>}
         {hashtag && <Hashtag $visible={visible}>#{hashtag}</Hashtag>}
         <AdminBtn $visible={visible} onClick={() => setShowLogin(true)}>Admin</AdminBtn>
         <Copyright $visible={visible}>© {new Date().getFullYear()} {name1} & {name2}</Copyright>
