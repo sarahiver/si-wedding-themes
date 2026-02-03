@@ -231,8 +231,12 @@ const MetaItem = styled.div`
   }
 `;
 
-function Timeline({
-  events = [
+function Timeline() {
+  const { content } = useWedding();
+  const timelineData = content?.timeline || {};
+  const title = timelineData.title || 'Timeline';
+
+  const defaultEvents = [
     {
       time: '14:00',
       title: 'Ceremony Begins',
@@ -273,8 +277,9 @@ function Timeline({
       duration: 'Until late',
       color: '#00ffff'
     }
-  ]
-}) {
+  ];
+
+  const events = timelineData.events?.length > 0 ? timelineData.events : defaultEvents;
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -329,7 +334,7 @@ function Timeline({
       <Container>
         <Header $visible={visible}>
           <Eyebrow>The Schedule</Eyebrow>
-          <Title>Day <span>Timeline</span></Title>
+          <Title><span>{title}</span></Title>
         </Header>
         
         <TimelineWrapper>

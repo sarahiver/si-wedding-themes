@@ -19,12 +19,13 @@ function Timeline() {
   const { content } = useWedding();
   const data = content?.timeline || {};
   const title = data.title || 'Tagesablauf';
-  const items = data.items || [
+  const defaultEvents = [
     { time: '14:00', title: 'Empfang', description: 'Willkommensgetraenke' },
     { time: '15:00', title: 'Zeremonie', description: 'Die Trauung' },
     { time: '17:00', title: 'Dinner', description: 'Festliches Abendessen' },
     { time: '21:00', title: 'Party', description: 'Musik und Tanz' }
   ];
+  const items = data.events?.length > 0 ? data.events : defaultEvents;
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

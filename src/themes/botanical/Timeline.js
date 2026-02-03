@@ -168,7 +168,7 @@ function Timeline() {
   const timelineData = content?.timeline || {};
   
   const title = timelineData.title || 'Tagesablauf';
-  const items = timelineData.items || [];
+  const events = timelineData.events || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -182,7 +182,7 @@ function Timeline() {
     { time: '22:00', title: 'Party', description: 'Tanzen bis in die Nacht', icon: '🎉' },
   ];
 
-  const displayItems = items.length > 0 ? items : defaultItems;
+  const displayItems = events.length > 0 ? events : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
