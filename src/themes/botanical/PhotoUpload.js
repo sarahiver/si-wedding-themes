@@ -239,6 +239,35 @@ const UploadMoreButton = styled.button`
   &:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); }
 `;
 
+const StatusMessage = styled.div`
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: ${p => p.$type === 'error'
+    ? 'rgba(239, 83, 80, 0.15)'
+    : p.$type === 'success'
+      ? 'rgba(76, 175, 80, 0.15)'
+      : 'rgba(255, 255, 255, 0.05)'};
+  border: 1px solid ${p => p.$type === 'error'
+    ? 'rgba(239, 83, 80, 0.3)'
+    : p.$type === 'success'
+      ? 'rgba(76, 175, 80, 0.3)'
+      : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 12px;
+  text-align: center;
+  animation: ${fadeInUp} 0.4s ease;
+`;
+
+const StatusText = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: ${p => p.$type === 'error'
+    ? 'rgba(239, 83, 80, 0.9)'
+    : p.$type === 'success'
+      ? 'rgba(76, 175, 80, 0.9)'
+      : 'var(--text-light)'};
+  margin: 0;
+`;
+
 function PhotoUpload() {
   const { content } = useWedding();
   const photouploadData = content?.photoupload || {};
@@ -252,7 +281,7 @@ function PhotoUpload() {
   const sectionRef = useRef(null);
 
   const {
-    uploading, progress, error, success,
+    uploading, progress, error, success, fileCount,
     fileInputRef, handleFileSelect, openFilePicker, handleDrop, handleDragOver,
   } = usePhotoUpload({ maxFiles: 10, maxSizeMB: 10 });
 
@@ -319,6 +348,19 @@ function PhotoUpload() {
               </>
             )}
           </UploadArea>
+        )}
+
+        {/* Status-Anzeige */}
+        {uploading && fileCount > 0 && (
+          <StatusMessage $type="info">
+            <StatusText>{fileCount} {fileCount === 1 ? 'Foto wird' : 'Fotos werden'} hochgeladen... ({progress}%)</StatusText>
+          </StatusMessage>
+        )}
+
+        {error && !uploading && (
+          <StatusMessage $type="error">
+            <StatusText $type="error">{error}</StatusText>
+          </StatusMessage>
         )}
 
         <HiddenFileInput fileInputRef={fileInputRef} handleFileSelect={handleFileSelect} multiple={true} accept="image/*" />

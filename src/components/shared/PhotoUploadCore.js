@@ -19,6 +19,7 @@ export function usePhotoUpload(options = {}) {
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [fileCount, setFileCount] = useState(0);
   
   const fileInputRef = useRef(null);
   const isDemo = !projectId || projectId === 'demo';
@@ -74,7 +75,8 @@ export function usePhotoUpload(options = {}) {
       setError(errors.join('\n'));
       if (validFiles.length === 0) return;
     }
-    
+
+    setFileCount(validFiles.length);
     await uploadFiles(validFiles);
   };
 
@@ -153,9 +155,9 @@ export function usePhotoUpload(options = {}) {
   };
 
   return {
-    uploading, progress, uploadedPhotos, error, success, fileInputRef, isDemo,
+    uploading, progress, uploadedPhotos, error, success, fileInputRef, isDemo, fileCount,
     handleFileSelect, openFilePicker, handleDrop, handleDragOver, loadPhotos,
-    resetState: () => { setError(null); setSuccess(false); setProgress(0); },
+    resetState: () => { setError(null); setSuccess(false); setProgress(0); setFileCount(0); },
   };
 }
 
