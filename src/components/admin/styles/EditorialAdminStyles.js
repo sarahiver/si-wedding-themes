@@ -652,13 +652,14 @@ export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; righ
 export const DropZone = styled.div`
   border: 2px dashed ${p => p.$dragging ? '#C41E3A' : p.$hasImage ? 'rgba(46, 125, 50, 0.5)' : 'rgba(255, 255, 255, 0.15)'};
   background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : 'rgba(255, 255, 255, 0.02)'};
-  min-height: 150px;
+  min-height: 100px;
+  max-width: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  aspect-ratio: ${p => p.$ratio || 'auto'};
+  aspect-ratio: ${p => p.$ratio || '16/9'};
   transition: all 0.2s ease;
   &:hover { border-color: #C41E3A; }
   &:hover .overlay { opacity: 1; }
@@ -671,7 +672,7 @@ export const ProgressBar = styled.div`position: absolute; bottom: 0; left: 0; he
 // ============================================
 // MULTI IMAGE
 // ============================================
-export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem;`;
+export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 0.5rem;`;
 export const ImageItem = styled.div`aspect-ratio: 1; background: ${p => p.$url ? `url(${p.$url}) center/cover` : 'rgba(255, 255, 255, 0.05)'}; position: relative; filter: grayscale(30%); &:hover { filter: grayscale(0%); } &:hover button { opacity: 1; }`;
 export const RemoveButton = styled.button`position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: #C41E3A; color: #FFF; border: none; cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.2s;`;
 export const AddButton = styled.button`aspect-ratio: 1; background: rgba(255, 255, 255, 0.02); border: 2px dashed rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; color: rgba(255, 255, 255, 0.4); transition: all 0.2s ease; span { font-size: 1.5rem; } &:hover { border-color: #C41E3A; color: #C41E3A; }`;

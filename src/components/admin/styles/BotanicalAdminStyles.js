@@ -909,26 +909,27 @@ export const PhotoPending = styled.div`
 // IMAGE UPLOAD / DROP ZONE
 // ============================================
 export const DropZone = styled.div`
-  border: 2px dashed ${p => 
-    p.$dragging ? 'var(--admin-accent)' : 
-    p.$hasImage ? 'var(--admin-accent)' : 
+  border: 2px dashed ${p =>
+    p.$dragging ? 'var(--admin-accent)' :
+    p.$hasImage ? 'var(--admin-accent)' :
     'var(--admin-glass-border)'
   };
   background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : 'var(--admin-glass)'};
   border-radius: 12px;
-  min-height: 150px;
+  min-height: 120px;
+  max-width: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  aspect-ratio: ${p => p.$ratio || 'auto'};
+  aspect-ratio: ${p => p.$ratio || '16/9'};
   transition: all 0.3s ease;
-  
+
   &:hover {
     border-color: var(--admin-accent);
   }
-  
+
   &:hover .overlay {
     opacity: 1;
   }
@@ -990,8 +991,8 @@ export const ProgressBar = styled.div`
 // ============================================
 export const ImageGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 0.5rem;
   margin-top: 0.75rem;
 `;
 

@@ -128,14 +128,14 @@ export const PhotoPending = styled.div`position: absolute; bottom: 0; left: 0; r
 export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; right: 0; background: #0D0D0D; color: white; font-size: 0.7rem; padding: 0.35rem 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
 
 // UPLOAD
-export const DropZone = styled.div`border: 3px dashed ${p => p.$dragging ? '#FF6B6B' : p.$hasImage ? '#4ECDC4' : '#0D0D0D'}; background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : '#F5F5F5'}; min-height: 150px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; aspect-ratio: ${p => p.$ratio || 'auto'}; &:hover { border-color: #FF6B6B; } &:hover .overlay { opacity: 1; }`;
+export const DropZone = styled.div`border: 3px dashed ${p => p.$dragging ? '#FF6B6B' : p.$hasImage ? '#4ECDC4' : '#0D0D0D'}; background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : '#F5F5F5'}; min-height: 100px; max-width: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; aspect-ratio: ${p => p.$ratio || '16/9'}; &:hover { border-color: #FF6B6B; } &:hover .overlay { opacity: 1; }`;
 export const DropOverlay = styled.div`position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; gap: 0.75rem; opacity: 0; transition: opacity 0.2s;`;
 export const DropButton = styled.span`padding: 0.6rem 1.25rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; cursor: pointer; background: ${p => p.$danger ? '#FF6B6B' : '#FAFAFA'}; color: ${p => p.$danger ? '#FAFAFA' : '#0D0D0D'}; border: 2px solid #0D0D0D;`;
 export const DropPlaceholder = styled.div`text-align: center; color: #737373; font-size: 0.9rem; span { display: block; font-size: 2.5rem; margin-bottom: 0.75rem; }`;
 export const ProgressBar = styled.div`position: absolute; bottom: 0; left: 0; height: 4px; background: #FF6B6B; width: ${p => p.$progress}%; transition: width 0.3s;`;
 
 // MULTI IMAGE
-export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem;`;
+export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 0.5rem;`;
 export const ImageItem = styled.div`aspect-ratio: 1; background: ${p => p.$url ? `url(${p.$url}) center/cover` : '#E5E5E5'}; position: relative; border: 2px solid #0D0D0D; &:hover button { opacity: 1; }`;
 export const RemoveButton = styled.button`position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: #FF6B6B; color: #FAFAFA; border: none; cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.2s;`;
 export const AddButton = styled.button`aspect-ratio: 1; background: #F5F5F5; border: 3px dashed #0D0D0D; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; color: #737373; span { font-size: 1.5rem; } &:hover { border-color: #FF6B6B; color: #FF6B6B; }`;

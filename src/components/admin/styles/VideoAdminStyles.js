@@ -577,12 +577,13 @@ export const Divider = styled.hr`
 export const DropZone = styled.div`
   position: relative;
   aspect-ratio: ${p => p.$ratio || '16/9'};
+  max-width: 300px;
   background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : 'rgba(255,255,255,0.03)'};
   border: 2px dashed ${p => p.$dragging ? '#6B8CAE' : 'rgba(255,255,255,0.15)'};
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
-  
+
   &:hover {
     border-color: #6B8CAE;
     .overlay { opacity: 1; }
@@ -649,8 +650,8 @@ export const ProgressBar = styled.div`
 
 export const ImageGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 0.5rem;
 `;
 
 export const ImageItem = styled.div`
