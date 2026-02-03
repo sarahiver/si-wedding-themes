@@ -95,7 +95,8 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
   const name1 = project?.partner1_name || heroData.name1 || 'Emma';
   const name2 = project?.partner2_name || heroData.name2 || 'Noah';
   const date = project?.wedding_date || heroData.date;
-  const location = project?.location || heroData.location || 'Berlin';
+  const location = heroData.location_short || project?.location || 'Berlin';
+  const tagline = heroData.tagline;
   
   // Eyebrow-Text je nach Modus
   let eyebrowText;
@@ -104,7 +105,7 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
   } else if (isSaveTheDate) {
     eyebrowText = stdData.tagline || 'Save the Date';
   } else {
-    eyebrowText = 'Wir heiraten';
+    eyebrowText = tagline || 'Wir heiraten';
   }
   
   const [visible, setVisible] = useState(false);
