@@ -293,6 +293,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
   // Scroll accumulator for threshold-based section changes
   const scrollAccumulatorRef = useRef(0);
   const scrollTimeoutRef = useRef(null);
+  const isScrollCooldownRef = useRef(false);
 
   // Reset section scroll position when entering a new section
   const lastActiveIndexRef = useRef(activeIndex);
@@ -353,6 +354,9 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       // No vertical overflow, not centered, or at boundary → horizontal scroll to next/prev section
       e.preventDefault();
 
+      // Skip if in cooldown
+      if (isScrollCooldownRef.current) return;
+
       // Accumulate delta for threshold
       scrollAccumulatorRef.current += delta;
 
@@ -360,21 +364,27 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = setTimeout(() => {
         scrollAccumulatorRef.current = 0;
-      }, 200);
+      }, 150);
 
-      // Threshold before changing section
-      const threshold = 100;
+      // Threshold before changing section (higher = less sensitive)
+      const threshold = 150;
 
       if (scrollAccumulatorRef.current > threshold) {
         // Scroll right (next section)
         if (activeIndex < sections.length - 1) {
           scrollToSection(activeIndex + 1);
+          // Cooldown to prevent double-trigger
+          isScrollCooldownRef.current = true;
+          setTimeout(() => { isScrollCooldownRef.current = false; }, 600);
         }
         scrollAccumulatorRef.current = 0;
       } else if (scrollAccumulatorRef.current < -threshold) {
         // Scroll left (previous section)
         if (activeIndex > 0) {
           scrollToSection(activeIndex - 1);
+          // Cooldown to prevent double-trigger
+          isScrollCooldownRef.current = true;
+          setTimeout(() => { isScrollCooldownRef.current = false; }, 600);
         }
         scrollAccumulatorRef.current = 0;
       }
