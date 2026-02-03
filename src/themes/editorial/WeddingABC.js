@@ -169,9 +169,6 @@ function WeddingABC() {
   const description = abcData.description || 'Von A wie Anfahrt bis Z wie Zeitplan – alles Wichtige auf einen Blick.';
   const items = abcData.entries || [];
 
-  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
-  if (items.length === 0) return null;
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -182,10 +179,13 @@ function WeddingABC() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (items.length === 0) return null;
 
   return (
     <Section id="weddingabc" ref={sectionRef}>

@@ -21,9 +21,6 @@ function FAQ() {
   const title = data.title || 'FAQ';
   const questions = Array.isArray(data.questions) ? data.questions : [];
 
-  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
-  if (questions.length === 0) return null;
-
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
@@ -33,6 +30,9 @@ function FAQ() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (questions.length === 0) return null;
 
   return (
     <SectionWrapper id="faq">

@@ -271,6 +271,15 @@ function ContactWitnesses() {
 
   const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   // Keine Defaults - nur rendern wenn Personen vorhanden
   const persons = witnessesData.persons || [];
   if (persons.length === 0) return null;
@@ -289,15 +298,6 @@ function ContactWitnesses() {
   const getWhatsAppNumber = (witness) => (witness.whatsapp || witness.phone || '').replace(/\D/g, '');
 
   const note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner!';
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <Section ref={sectionRef} id="witnesses">

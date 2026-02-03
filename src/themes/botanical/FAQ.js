@@ -125,9 +125,6 @@ function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
-  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
-  if (items.length === 0) return null;
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
@@ -136,6 +133,9 @@ function FAQ() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
 
   const toggleItem = (index) => {
     setOpenIndex(openIndex === index ? null : index);

@@ -199,10 +199,10 @@ function WeddingABC() {
   const title = abcData.title || 'Hochzeits-ABC';
   const items = abcData.entries || [];
 
+  const [activeLetter, setActiveLetter] = useState(null);
+
   // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
   if (items.length === 0) return null;
-
-  const [activeLetter, setActiveLetter] = useState(null);
   
   // Create map of letters with content
   const letterMap = {};

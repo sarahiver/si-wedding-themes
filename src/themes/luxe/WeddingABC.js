@@ -22,9 +22,6 @@ function WeddingABC() {
   const title = data.title || 'Hochzeits-ABC';
   const entries = data.entries || [];
 
-  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
-  if (entries.length === 0) return null;
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -33,6 +30,9 @@ function WeddingABC() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (entries.length === 0) return null;
 
   return (
     <Section ref={sectionRef} id="abc">

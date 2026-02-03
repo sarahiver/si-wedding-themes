@@ -217,13 +217,8 @@ function ContactWitnesses() {
   const note = witnessData.note || '';
   const showDetails = witnessData.showContactDetails || false;
 
-  // Keine Defaults - nur rendern wenn Personen vorhanden
-  if (witnesses.length === 0) return null;
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -236,6 +231,11 @@ function ContactWitnesses() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (witnesses.length === 0) return null;
+
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   return (
     <Section id="witnesses" ref={sectionRef}>

@@ -211,9 +211,6 @@ function FAQ() {
   const title = faqData.title || 'FAQ';
   const items = faqData.questions || [];
 
-  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
-  if (items.length === 0) return null;
-
   const [messages, setMessages] = useState([]);
   const [askedQuestions, setAskedQuestions] = useState(new Set());
   const [isTyping, setIsTyping] = useState(false);
@@ -228,6 +225,9 @@ function FAQ() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
 
   const askQuestion = (item, index) => {
     if (askedQuestions.has(index)) return;

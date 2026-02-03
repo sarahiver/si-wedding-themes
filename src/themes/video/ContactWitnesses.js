@@ -22,11 +22,6 @@ function ContactWitnesses() {
   const persons = data.persons || [];
   const showDetails = data.showContactDetails || false;
 
-  // Keine Defaults - nur rendern wenn Personen vorhanden
-  if (persons.length === 0) return null;
-
-  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
-
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -35,6 +30,11 @@ function ContactWitnesses() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (persons.length === 0) return null;
+
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   return (
     <SectionWrapper id="witnesses">

@@ -282,9 +282,6 @@ function FAQ() {
   const title = faqData?.title || 'FAQ';
   const items = Array.isArray(faqData?.questions) ? faqData.questions : [];
 
-  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
-  if (items.length === 0) return null;
-
   const [visible, setVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
@@ -315,6 +312,9 @@ function FAQ() {
     });
     return () => observers.forEach(obs => obs.disconnect());
   }, [items.length]);
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
 
   const renderTitle = () => {
     if (!title) return null;

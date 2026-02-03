@@ -323,9 +323,6 @@ const WeddingABC = () => {
     description: e.description
   }));
 
-  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
-  if (abcItems.length === 0) return null;
-
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -337,7 +334,7 @@ const WeddingABC = () => {
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b',
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b', '#00ffff'
   ];
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -345,15 +342,15 @@ const WeddingABC = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
-  
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (selectedIndex === null) return;
-      
+
       if (e.key === 'Escape') {
         setSelectedIndex(null);
       } else if (e.key === 'ArrowRight' && selectedIndex < abcItems.length - 1) {
@@ -362,10 +359,13 @@ const WeddingABC = () => {
         setSelectedIndex(selectedIndex - 1);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedIndex, abcItems.length]);
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (abcItems.length === 0) return null;
   
   const selectedItem = selectedIndex !== null ? abcItems[selectedIndex] : null;
   

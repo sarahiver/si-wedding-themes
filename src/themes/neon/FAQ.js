@@ -288,14 +288,11 @@ const FAQ = () => {
   const title = faqData.title || 'FAQ';
   const faqs = faqData.questions || [];
 
-  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
-  if (faqs.length === 0) return null;
-
   const [openIndex, setOpenIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -303,10 +300,13 @@ const FAQ = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (faqs.length === 0) return null;
   
   const filteredFaqs = faqs.filter(faq => 
     faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
