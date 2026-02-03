@@ -207,11 +207,13 @@ function Countdown() {
 
   const title = countdownData.title || 'Es dauert noch';
   const message = countdownData.message || '';
+  const showSeconds = countdownData.show_seconds !== false; // Default true
 
   const units = [
     { value: timeLeft.days, label: 'Tage' },
     { value: timeLeft.hours, label: 'Stunden' },
     { value: timeLeft.minutes, label: 'Minuten' },
+    ...(showSeconds ? [{ value: timeLeft.seconds, label: 'Sekunden' }] : []),
   ];
 
   return (

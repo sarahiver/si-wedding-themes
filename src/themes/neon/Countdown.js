@@ -53,7 +53,8 @@ function Countdown() {
   const countdown = content?.countdown || {};
   
   const targetDate = countdown.target_date || weddingDate || '2026-08-15T14:00:00';
-  
+  const showSeconds = countdown.show_seconds !== false;
+
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -77,26 +78,23 @@ function Countdown() {
     return () => clearInterval(interval);
   }, [targetDate]);
 
+  const units = [
+    { value: timeLeft.days, label: 'Tage' },
+    { value: timeLeft.hours, label: 'Stunden' },
+    { value: timeLeft.minutes, label: 'Minuten' },
+    ...(showSeconds ? [{ value: timeLeft.seconds, label: 'Sekunden' }] : []),
+  ];
+
   return (
     <Section id="countdown">
       <Title>{countdown.title || 'Noch'}</Title>
       <Grid>
-        <Unit>
-          <Number>{timeLeft.days}</Number>
-          <Label>Tage</Label>
-        </Unit>
-        <Unit>
-          <Number>{timeLeft.hours}</Number>
-          <Label>Stunden</Label>
-        </Unit>
-        <Unit>
-          <Number>{timeLeft.minutes}</Number>
-          <Label>Minuten</Label>
-        </Unit>
-        <Unit>
-          <Number>{timeLeft.seconds}</Number>
-          <Label>Sekunden</Label>
-        </Unit>
+        {units.map((unit) => (
+          <Unit key={unit.label}>
+            <Number>{unit.value}</Number>
+            <Label>{unit.label}</Label>
+          </Unit>
+        ))}
       </Grid>
     </Section>
   );

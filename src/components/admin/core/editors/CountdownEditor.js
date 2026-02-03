@@ -24,9 +24,9 @@ function CountdownEditor({ components: C }) {
         
         <C.FormGroup>
           <C.Label>Zieldatum *</C.Label>
-          <C.Input 
-            type="datetime-local"
-            value={content.target_date || ''} 
+          <C.Input
+            type="date"
+            value={content.target_date ? content.target_date.split('T')[0] : ''}
             onChange={(e) => update('target_date', e.target.value)}
           />
         </C.FormGroup>

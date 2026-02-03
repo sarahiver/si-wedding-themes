@@ -20,6 +20,7 @@ function Countdown() {
   const data = content?.countdown || {};
   const title = data.title || 'Der grosse Tag';
   const targetDate = data.target_date || project?.wedding_date || '2025-06-21';
+  const showSeconds = data.show_seconds !== false;
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -52,7 +53,7 @@ function Countdown() {
     { value: timeLeft.days, label: 'Tage' },
     { value: timeLeft.hours, label: 'Stunden' },
     { value: timeLeft.minutes, label: 'Minuten' },
-    { value: timeLeft.seconds, label: 'Sekunden' }
+    ...(showSeconds ? [{ value: timeLeft.seconds, label: 'Sekunden' }] : []),
   ];
 
   return (

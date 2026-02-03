@@ -179,6 +179,7 @@ function Countdown() {
   const title = countdownData.title || 'Countdown';
   const targetDate = countdownData.target_date || project?.wedding_date || '2025-08-15';
   const startDate = '2026-01-01';
+  const showSeconds = countdownData.show_seconds !== false;
   
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [progress, setProgress] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -237,7 +238,7 @@ function Countdown() {
     { value: timeLeft.days, label: 'Tage', progress: progress.days },
     { value: timeLeft.hours, label: 'Stunden', progress: progress.hours },
     { value: timeLeft.minutes, label: 'Minuten', progress: progress.minutes },
-    { value: timeLeft.seconds, label: 'Sekunden', progress: progress.seconds }
+    ...(showSeconds ? [{ value: timeLeft.seconds, label: 'Sekunden', progress: progress.seconds }] : []),
   ];
 
   return (
