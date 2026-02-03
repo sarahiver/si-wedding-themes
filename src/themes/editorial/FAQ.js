@@ -280,24 +280,16 @@ function FAQ() {
   const faqData = content?.faq || {};
   
   const title = faqData?.title || 'FAQ';
-  const questions = Array.isArray(faqData?.questions) ? faqData.questions : [];
-  
+  const items = Array.isArray(faqData?.questions) ? faqData.questions : [];
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
   const itemRefs = useRef([]);
-
-  const defaultQuestions = [
-    { question: 'Darf ich eine Begleitung mitbringen?', answer: 'Bitte haltet euch an die Namen auf eurer Einladung. Bei Fragen meldet euch gerne bei uns.' },
-    { question: 'Sind Kinder eingeladen?', answer: 'Wir feiern diesen besonderen Tag gerne mit euren Kindern! Für Betreuung und Beschäftigung ist gesorgt.' },
-    { question: 'Gibt es einen Dresscode?', answer: 'Festlich elegant – das bedeutet Anzug oder schickes Kleid. Bitte vermeidet komplett weiße Outfits.' },
-    { question: 'Wie sieht es mit Fotos aus?', answer: 'Wir haben einen professionellen Fotografen. Genießt den Moment – aber teilt gerne eure Schnappschüsse in unserer Fotogalerie!' },
-    { question: 'Gibt es vegetarische Optionen?', answer: 'Ja! Bitte gebt bei eurer RSVP-Antwort eure Ernährungswünsche an, damit wir entsprechend planen können.' },
-    { question: 'Wo kann ich übernachten?', answer: 'Wir haben Zimmerkontingente in nahegelegenen Hotels reserviert. Die Details findet ihr unter "Unterkünfte".' },
-  ];
-
-  const items = questions.length > 0 ? questions : defaultQuestions;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

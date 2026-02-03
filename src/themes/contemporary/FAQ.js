@@ -209,23 +209,15 @@ function FAQ() {
   const faqData = content?.faq || {};
   
   const title = faqData.title || 'FAQ';
-  const questions = faqData.questions || [];
-  
+  const items = faqData.questions || [];
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
+
   const [messages, setMessages] = useState([]);
   const [askedQuestions, setAskedQuestions] = useState(new Set());
   const [isTyping, setIsTyping] = useState(false);
   const chatRef = useRef(null);
-
-  const defaultQuestions = [
-    { question: 'Kann ich eine Begleitung mitbringen?', answer: 'In eurer Einladung steht, für wie viele Personen sie gilt. Falls ihr noch Fragen habt, meldet euch gerne bei uns!' },
-    { question: 'Gibt es Parkplätze?', answer: 'Ja, es gibt ausreichend kostenlose Parkplätze direkt vor der Location. Alternativ empfehlen wir die Anreise mit öffentlichen Verkehrsmitteln.' },
-    { question: 'Was sollen wir anziehen?', answer: 'Der Dresscode ist festlich elegant. Bitte beachtet unsere Farbwünsche auf der Dresscode-Seite.' },
-    { question: 'Gibt es vegetarisches Essen?', answer: 'Ja! Wir bieten verschiedene Menüoptionen an, darunter vegetarisch und vegan. Bitte gebt eure Präferenz bei der Anmeldung an.' },
-    { question: 'Können wir Fotos machen?', answer: 'Während der Trauung bitten wir euch, die Handys wegzulegen – unser Fotograf kümmert sich um alles. Danach: Knipst los!' },
-    { question: 'Wann beginnt die Feier?', answer: 'Die Trauung beginnt um 14:00 Uhr. Bitte seid spätestens 15 Minuten vorher da. Alle Details findet ihr im Tagesablauf.' },
-  ];
-
-  const items = questions.length > 0 ? questions : defaultQuestions;
 
   const scrollToBottom = () => {
     if (chatRef.current) {

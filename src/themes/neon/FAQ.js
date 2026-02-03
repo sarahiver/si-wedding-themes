@@ -286,40 +286,15 @@ const FAQ = () => {
   const { content } = useWedding();
   const faqData = content?.faq || {};
   const title = faqData.title || 'FAQ';
+  const faqs = faqData.questions || [];
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (faqs.length === 0) return null;
 
   const [openIndex, setOpenIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const defaultFaqs = [
-    {
-      question: "Wann und wo findet die Hochzeit statt?",
-      answer: "Die Zeremonie beginnt um 14:00 Uhr in der St. Marien Kirche. Die Feier findet anschließend ab 17:00 Uhr in der Eventlocation statt. Die genauen Adressen findet ihr unter 'Locations'."
-    },
-    {
-      question: "Gibt es einen Dresscode?",
-      answer: "Wir freuen uns über elegante Abendgarderobe. Bitte keine weißen oder cremefarbenen Outfits - das ist der Braut vorbehalten. Mehr Details findet ihr unter 'Dresscode'."
-    },
-    {
-      question: "Kann ich eine Begleitung mitbringen?",
-      answer: "Die Einladung gilt für die auf der Einladung genannten Personen. Falls ihr unsicher seid, kontaktiert uns gerne direkt."
-    },
-    {
-      question: "Sind Kinder willkommen?",
-      answer: "Wir haben uns für eine Feier nur mit Erwachsenen entschieden. Wir hoffen auf euer Verständnis und wünschen euch einen schönen Abend ohne die Kleinen."
-    },
-    {
-      question: "Gibt es vegetarische/vegane Optionen?",
-      answer: "Absolut! Bitte gebt bei eurer RSVP-Antwort eure Ernährungswünsche an. Unser Catering kann auf alle Bedürfnisse eingehen."
-    },
-    {
-      question: "Wo kann ich parken?",
-      answer: "Es gibt ausreichend kostenlose Parkplätze direkt an der Location. Details zur Anfahrt findet ihr unter 'Anfahrt'."
-    }
-  ];
-
-  const faqs = faqData.questions?.length > 0 ? faqData.questions : defaultFaqs;
   
   useEffect(() => {
     const observer = new IntersectionObserver(

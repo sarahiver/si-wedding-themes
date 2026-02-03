@@ -19,11 +19,11 @@ function FAQ() {
   const { content } = useWedding();
   const data = content?.faq || {};
   const title = data.title || 'FAQ';
-  const questions = Array.isArray(data.questions) ? data.questions : [
-    { question: 'Gibt es einen Dresscode?', answer: 'Elegante Abendgarderobe.' },
-    { question: 'Sind Kinder willkommen?', answer: 'Ja, Kinder sind herzlich willkommen.' },
-    { question: 'Gibt es Parkplaetze?', answer: 'Kostenlose Parkplaetze stehen zur Verfuegung.' }
-  ];
+  const questions = Array.isArray(data.questions) ? data.questions : [];
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (questions.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);

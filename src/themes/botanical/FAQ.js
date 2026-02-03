@@ -120,20 +120,13 @@ function FAQ() {
   
   const title = faqData.title || 'FAQ';
   const items = faqData.questions || [];
-  
+
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
-  const defaultItems = [
-    { question: 'Dürfen wir unsere Kinder mitbringen?', answer: 'Wir feiern diesen besonderen Tag gerne nur mit Erwachsenen. Wir hoffen auf euer Verständnis.' },
-    { question: 'Gibt es einen Parkplatz?', answer: 'Ja, es stehen ausreichend kostenlose Parkplätze direkt an der Location zur Verfügung.' },
-    { question: 'Bis wann müssen wir zusagen?', answer: 'Bitte gebt uns bis spätestens 4 Wochen vor der Hochzeit Bescheid, damit wir entsprechend planen können.' },
-    { question: 'Gibt es vegetarisches Essen?', answer: 'Ja, bitte gebt bei der Zusage eure Ernährungswünsche an. Es wird vegetarische und vegane Optionen geben.' },
-    { question: 'Können wir vor Ort übernachten?', answer: 'Leider nicht direkt vor Ort, aber wir haben einige Hotels in der Nähe für euch herausgesucht.' },
-  ];
-
-  const displayItems = items.length > 0 ? items : defaultItems;
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (items.length === 0) return null;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -157,7 +150,7 @@ function FAQ() {
         </Header>
         
         <FAQList>
-          {displayItems.map((item, i) => (
+          {items.map((item, i) => (
             <FAQItem key={i} $visible={visible} $index={i}>
               <FAQHeader onClick={() => toggleItem(i)}>
                 <Question>{item.question}</Question>

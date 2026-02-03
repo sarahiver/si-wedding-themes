@@ -21,14 +21,12 @@ const AnswerText = styled.p`font-family: var(--font-body); font-size: 0.9rem; fo
 function FAQ() {
   const { content } = useWedding();
   const data = content?.faq || {};
-  const title = data?.title || 'Haeufige Fragen';
-  const questions = Array.isArray(data?.questions) ? data.questions : [
-    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns ueber elegante Abendgarderobe in gedeckten Farben.' },
-    { question: 'Sind Kinder willkommen?', answer: 'Ja, Kinder sind herzlich willkommen. Bitte gebt bei der Anmeldung an, ob Kinder dabei sein werden.' },
-    { question: 'Gibt es Parkmöglichkeiten?', answer: 'Ja, kostenlose Parkplaetze stehen zur Verfuegung.' },
-    { question: 'Gibt es besondere Essensoptionen?', answer: 'Vegetarische und vegane Optionen sind verfuegbar. Teilt uns Allergien bei der Anmeldung mit.' }
-  ];
-  
+  const title = data?.title || 'FAQ';
+  const questions = Array.isArray(data?.questions) ? data.questions : [];
+
+  // Keine Default-FAQs - zeige nichts wenn keine Fragen angelegt
+  if (questions.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
