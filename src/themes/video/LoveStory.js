@@ -19,11 +19,12 @@ function LoveStory() {
   const { content } = useWedding();
   const data = content?.lovestory || {};
   const title = data.title || 'Unsere Geschichte';
-  const items = data.items || [
-    { year: '2019', title: 'Der erste Blick', text: 'Bei einem gemeinsamen Abend trafen sich unsere Blicke zum ersten Mal.' },
-    { year: '2020', title: 'Das erste Date', text: 'Ein Spaziergang, der alles veraenderte.' },
-    { year: '2024', title: 'Die Frage', text: 'Unter dem Sternenhimmel stellte er die wichtigste Frage.' }
+  const defaultEvents = [
+    { date: '2019', title: 'Der erste Blick', description: 'Bei einem gemeinsamen Abend trafen sich unsere Blicke zum ersten Mal.' },
+    { date: '2020', title: 'Das erste Date', description: 'Ein Spaziergang, der alles veraenderte.' },
+    { date: '2024', title: 'Die Frage', description: 'Unter dem Sternenhimmel stellte er die wichtigste Frage.' }
   ];
+  const items = data.events?.length > 0 ? data.events : defaultEvents;
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -41,10 +42,10 @@ function LoveStory() {
         <Timeline>
           {items.map((item, i) => (
             <Item key={i} $visible={visible} $index={i}>
-              <Year>{item.year}</Year>
+              <Year>{item.date || item.year}</Year>
               <ItemContent>
                 <ItemTitle>{item.title}</ItemTitle>
-                <ItemText>{item.text}</ItemText>
+                <ItemText>{item.description || item.text}</ItemText>
               </ItemContent>
             </Item>
           ))}

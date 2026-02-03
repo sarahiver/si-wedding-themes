@@ -243,7 +243,7 @@ function LoveStory() {
   
   const title = lovestoryData.title || 'Unsere Geschichte';
   const subtitle = lovestoryData.subtitle || '';
-  const items = lovestoryData.items || [];
+  const events = lovestoryData.events || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -254,7 +254,7 @@ function LoveStory() {
     { year: '2024', title: 'Der Antrag', description: 'Bei Sonnenuntergang am Strand. Sie hat Ja gesagt!' },
   ];
 
-  const displayItems = items.length > 0 ? items : defaultItems;
+  const displayItems = events.length > 0 ? events : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

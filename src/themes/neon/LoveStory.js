@@ -235,45 +235,60 @@ const TerminalHint = styled.div`
   }
 `;
 
-function LoveStory({
-  chapters = [
+function LoveStory() {
+  const { content } = useWedding();
+  const lovestoryData = content?.lovestory || {};
+  const title = lovestoryData.title || 'Love Story';
+
+  const defaultChapters = [
     {
-      year: '2018',
+      date: '2018',
       title: 'First Connection',
-      text: 'Two strangers in a crowded room. A glance across the dance floor. The music faded, and only they remained.',
+      description: 'Two strangers in a crowded room. A glance across the dance floor. The music faded, and only they remained.',
       image: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=800',
       color: '#00ffff'
     },
     {
-      year: '2019',
+      date: '2019',
       title: 'The First Date',
-      text: 'Coffee turned into dinner. Dinner turned into a walk through the city lights. Neither wanted the night to end.',
+      description: 'Coffee turned into dinner. Dinner turned into a walk through the city lights. Neither wanted the night to end.',
       image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800',
       color: '#ff00ff'
     },
     {
-      year: '2021',
+      date: '2021',
       title: 'Moving In',
-      text: 'Two apartments became one home. Boxes everywhere, but together, it felt like they had already found home.',
+      description: 'Two apartments became one home. Boxes everywhere, but together, it felt like they had already found home.',
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
       color: '#b347ff'
     },
     {
-      year: '2024',
+      date: '2024',
       title: 'The Question',
-      text: 'Under a sky full of stars, one knee touched the ground. A ring emerged. A tear fell. "Yes" echoed into forever.',
+      description: 'Under a sky full of stars, one knee touched the ground. A ring emerged. A tear fell. "Yes" echoed into forever.',
       image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800',
       color: '#00ff88'
     },
     {
-      year: '2025',
+      date: '2025',
       title: 'Forever Begins',
-      text: 'This is just the beginning. A lifetime of adventures, laughter, and love awaits. Will you join us?',
+      description: 'This is just the beginning. A lifetime of adventures, laughter, and love awaits. Will you join us?',
       image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
       color: '#00ffff'
     }
-  ]
-}) {
+  ];
+
+  // Map events from editor format to chapter format
+  const colors = ['#00ffff', '#ff00ff', '#b347ff', '#00ff88', '#00ffff'];
+  const chapters = lovestoryData.events?.length > 0
+    ? lovestoryData.events.map((e, i) => ({
+        year: e.date,
+        title: e.title,
+        text: e.description,
+        image: e.image || defaultChapters[i % defaultChapters.length]?.image,
+        color: colors[i % colors.length]
+      }))
+    : defaultChapters.map(c => ({ year: c.date, title: c.title, text: c.description, image: c.image, color: c.color }));
   const sectionRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -334,7 +349,7 @@ function LoveStory({
         
         <Header>
           <Eyebrow>// Our Journey</Eyebrow>
-          <Title>Love <span>Story</span></Title>
+          <Title><span>{title}</span></Title>
         </Header>
         
         <HorizontalTrack $offset={offset}>
