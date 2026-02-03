@@ -275,10 +275,10 @@ function Dresscode() {
   const sectionRef = useRef(null);
 
   const defaultColors = [
-    { name: 'Bordeaux', color: '#800020' },
-    { name: 'Navy', color: '#1a1a4e' },
-    { name: 'Champagner', color: '#F7E7CE' },
-    { name: 'Salbei', color: '#9CAF88' },
+    { name: 'Bordeaux', hex: '#800020' },
+    { name: 'Navy', hex: '#1a1a4e' },
+    { name: 'Champagner', hex: '#F7E7CE' },
+    { name: 'Salbei', hex: '#9CAF88' },
   ];
 
   const defaultDos = [
@@ -295,7 +295,11 @@ function Dresscode() {
     'Zu auffällige Muster'
   ];
 
-  const displayColors = colors.length > 0 ? colors : defaultColors;
+  // Support both old format (string) and new format (object with hex/name)
+  const mappedColors = colors.length > 0
+    ? colors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || c?.color || '#888', name: c?.name || '' })
+    : defaultColors;
+  const displayColors = mappedColors;
   const displayDos = dos.length > 0 ? dos : defaultDos;
   const displayDonts = donts.length > 0 ? donts : defaultDonts;
 
@@ -327,8 +331,8 @@ function Dresscode() {
             <ColorPalette>
               {displayColors.map((c, i) => (
                 <ColorSwatch key={i} $visible={visible} $index={i}>
-                  <ColorCircle $color={c.color} />
-                  <ColorName>{c.name}</ColorName>
+                  <ColorCircle $color={c.hex} />
+                  {c.name && <ColorName>{c.name}</ColorName>}
                 </ColorSwatch>
               ))}
             </ColorPalette>

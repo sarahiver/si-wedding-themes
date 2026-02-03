@@ -156,22 +156,30 @@ function Dresscode() {
   const dresscodeData = content?.dresscode || {};
   
   const title = dresscodeData.title || 'Dresscode';
-  const style = dresscodeData.style || 'Festlich elegant';
+  const code = dresscodeData.code || 'Festlich elegant';
   const description = dresscodeData.description || 'Wir freuen uns, wenn ihr in festlicher Kleidung erscheint. Gedeckte Farben passen perfekt zu unserer Location.';
-  const colors = dresscodeData.colors || ['#2C3E50', '#34495E', '#7F8C8D', '#BDC3C7', '#ECF0F1'];
-  const tips = dresscodeData.tips || [];
+  const dos = dresscodeData.dos || [];
+  const donts = dresscodeData.donts || [];
+
+  // Support both old format (string) and new format (object with hex/name)
+  const rawColors = dresscodeData.colors || [];
+  const colors = rawColors.map(c => typeof c === 'string' ? c : (c?.hex || '#888888'));
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const defaultTips = [
-    { icon: '👔', text: 'Herren: Anzug oder Sakko mit Hemd' },
-    { icon: '👗', text: 'Damen: Cocktailkleid oder elegantes Outfit' },
-    { icon: '👠', text: 'Bequeme Schuhe für die Tanzfläche' },
-    { icon: '🌿', text: 'Grün- und Erdtöne passen perfekt' },
+  const defaultDos = [
+    'Elegante Abendgarderobe',
+    'Gedeckte, warme Farben',
+    'Bequeme Schuhe zum Tanzen'
   ];
-
-  const displayTips = tips.length > 0 ? tips : defaultTips;
+  const defaultDonts = [
+    'Weiß oder Creme',
+    'Jeans und Sneaker',
+    'Sehr auffällige Muster'
+  ];
+  const displayDos = dos.length > 0 ? dos : defaultDos;
+  const displayDonts = donts.length > 0 ? donts : defaultDonts;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -192,9 +200,9 @@ function Dresscode() {
         
         <GlassCard $visible={visible}>
           <Icon>👔</Icon>
-          <DresscodeTitle>{style}</DresscodeTitle>
+          <DresscodeTitle>{code}</DresscodeTitle>
           <Description>{description}</Description>
-          
+
           {colors && colors.length > 0 && (
             <ColorPalette>
               {colors.map((color, i) => (
@@ -202,20 +210,29 @@ function Dresscode() {
               ))}
             </ColorPalette>
           )}
-          
-          {displayTips.length > 0 && (
-            <Tips>
-              <TipsTitle>Tipps</TipsTitle>
-              <TipsList>
-                {displayTips.map((tip, i) => (
+
+          <Tips>
+            <TipsList>
+              <div>
+                <TipsTitle>✓ Empfohlen</TipsTitle>
+                {displayDos.map((item, i) => (
                   <TipItem key={i}>
-                    <span>{tip.icon}</span>
-                    <span>{tip.text}</span>
+                    <span>✓</span>
+                    <span>{item}</span>
                   </TipItem>
                 ))}
-              </TipsList>
-            </Tips>
-          )}
+              </div>
+              <div>
+                <TipsTitle>✗ Bitte vermeiden</TipsTitle>
+                {displayDonts.map((item, i) => (
+                  <TipItem key={i}>
+                    <span>✗</span>
+                    <span>{item}</span>
+                  </TipItem>
+                ))}
+              </div>
+            </TipsList>
+          </Tips>
         </GlassCard>
       </Container>
     </Section>

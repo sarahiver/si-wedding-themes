@@ -179,11 +179,11 @@ function Dresscode() {
   const sectionRef = useRef(null);
 
   const defaultColors = [
-    { color: '#1a365d', name: 'Navy', light: false },
-    { color: '#2d3748', name: 'Anthrazit', light: false },
-    { color: '#9b2c2c', name: 'Burgund', light: false },
-    { color: '#d4af37', name: 'Gold', light: true },
-    { color: '#f5f5f5', name: 'Creme', light: true },
+    { hex: '#1a365d', name: 'Navy', light: false },
+    { hex: '#2d3748', name: 'Anthrazit', light: false },
+    { hex: '#9b2c2c', name: 'Burgund', light: false },
+    { hex: '#d4af37', name: 'Gold', light: true },
+    { hex: '#f5f5f5', name: 'Creme', light: true },
   ];
 
   const defaultDos = [
@@ -200,7 +200,24 @@ function Dresscode() {
     'Grelle Neonfarben'
   ];
 
-  const displayColors = colors.length > 0 ? colors : defaultColors;
+  // Helper to determine if color is light
+  const isLightColor = (hex) => {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substr(0, 2), 16);
+    const g = parseInt(c.substr(2, 2), 16);
+    const b = parseInt(c.substr(4, 2), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+  };
+
+  // Support both old format (string) and new format (object with hex/name)
+  const mappedColors = colors.length > 0
+    ? colors.map(c => {
+        const hex = typeof c === 'string' ? c : (c?.hex || c?.color || '#888');
+        const name = typeof c === 'string' ? '' : (c?.name || '');
+        return { hex, name, light: isLightColor(hex) };
+      })
+    : defaultColors;
+  const displayColors = mappedColors;
   const displayDos = dos.length > 0 ? dos : defaultDos;
   const displayDonts = donts.length > 0 ? donts : defaultDonts;
 
@@ -228,8 +245,8 @@ function Dresscode() {
             <ColorTitle>Unsere Farbpalette</ColorTitle>
             <ColorPalette>
               {displayColors.map((c, i) => (
-                <ColorSwatch key={i} $color={c.color} $light={c.light}>
-                  <span>{c.name}</span>
+                <ColorSwatch key={i} $color={c.hex} $light={c.light}>
+                  {c.name && <span>{c.name}</span>}
                 </ColorSwatch>
               ))}
             </ColorPalette>

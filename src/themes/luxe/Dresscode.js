@@ -30,12 +30,13 @@ function Dresscode() {
   const title = data.title || 'Dresscode';
   const code = data.code || 'Black Tie Optional';
 
-  // FIX: Proper array validation for all arrays
   const defaultColors = [{ name: 'Champagner', hex: '#D4AF37' }, { name: 'Elfenbein', hex: '#FFFFF0' }, { name: 'Salbei', hex: '#9CAF88' }, { name: 'Anthrazit', hex: '#2D2D30' }];
   const defaultDos = ['Elegante Abendgarderobe', 'Gedeckte, warme Farben', 'Accessoires in Gold'];
   const defaultDonts = ['Weiss oder Creme', 'Sehr laute Farben', 'Casual Kleidung'];
 
-  const colors = Array.isArray(data.colors) && data.colors.length > 0 ? data.colors : defaultColors;
+  // Support both old format (string) and new format (object with hex/name)
+  const rawColors = Array.isArray(data.colors) && data.colors.length > 0 ? data.colors : defaultColors;
+  const colors = rawColors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || '#888', name: c?.name || '' });
   const dos = Array.isArray(data.dos) && data.dos.length > 0 ? data.dos : defaultDos;
   const donts = Array.isArray(data.donts) && data.donts.length > 0 ? data.donts : defaultDonts;
   
@@ -54,7 +55,7 @@ function Dresscode() {
         <Eyebrow $visible={visible}>Was ihr anziehen koennt</Eyebrow>
         <Title $visible={visible}>{title}</Title>
         <CodeBadge $visible={visible}><CodeText>{code}</CodeText></CodeBadge>
-        <Palette $visible={visible}>{colors.map((c, i) => <Swatch key={i}><Color $hex={c.hex} /><ColorName>{c.name}</ColorName></Swatch>)}</Palette>
+        <Palette $visible={visible}>{colors.map((c, i) => <Swatch key={i}><Color $hex={c.hex} />{c.name && <ColorName>{c.name}</ColorName>}</Swatch>)}</Palette>
         <Guidelines $visible={visible}>
           <GuideSection><GuideTitle $type="do">Empfohlen</GuideTitle><GuideList>{dos.map((item, i) => <GuideItem key={i} $type="do">{item}</GuideItem>)}</GuideList></GuideSection>
           <GuideSection><GuideTitle $type="dont">Bitte vermeiden</GuideTitle><GuideList>{donts.map((item, i) => <GuideItem key={i} $type="dont">{item}</GuideItem>)}</GuideList></GuideSection>

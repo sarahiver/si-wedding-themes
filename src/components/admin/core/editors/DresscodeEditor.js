@@ -8,17 +8,33 @@ function DresscodeEditor({ components: C }) {
   const content = contentStates.dresscode || {};
   const update = (field, value) => updateContent('dresscode', { ...content, [field]: value });
 
-  const renderColorItem = (item, index, onChange) => (
-    <C.FormGroup>
-      <C.Label>Farbe {index + 1}</C.Label>
-      <C.Input 
-        type="color"
-        value={item || '#000000'} 
-        onChange={(e) => onChange(null, e.target.value)} 
-        style={{ width: '100px', height: '40px' }}
-      />
-    </C.FormGroup>
-  );
+  const renderColorItem = (item, index, onChange) => {
+    // Support both old format (string) and new format (object)
+    const hex = typeof item === 'string' ? item : (item?.hex || '#000000');
+    const name = typeof item === 'string' ? '' : (item?.name || '');
+
+    return (
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+        <C.FormGroup style={{ flex: '0 0 auto' }}>
+          <C.Label>Farbe</C.Label>
+          <C.Input
+            type="color"
+            value={hex}
+            onChange={(e) => onChange(null, { name, hex: e.target.value })}
+            style={{ width: '60px', height: '40px', padding: '2px', cursor: 'pointer' }}
+          />
+        </C.FormGroup>
+        <C.FormGroup style={{ flex: 1 }}>
+          <C.Label>Name (optional)</C.Label>
+          <C.Input
+            value={name}
+            onChange={(e) => onChange(null, { hex, name: e.target.value })}
+            placeholder="z.B. Salbei, Champagner"
+          />
+        </C.FormGroup>
+      </div>
+    );
+  };
 
   const renderDoItem = (item, index, onChange) => (
     <C.FormGroup>
@@ -64,13 +80,16 @@ function DresscodeEditor({ components: C }) {
         </C.FormGroup>
         
         <C.SectionLabel>Farbpalette</C.SectionLabel>
-        <ListEditor 
-          components={C} 
-          items={content.colors || []} 
-          onItemsChange={(colors) => update('colors', colors)} 
-          renderItem={renderColorItem} 
-          createNewItem={() => '#8B9D83'} 
-          addLabel="+ Farbe hinzufügen" 
+        <C.HelpText style={{ marginBottom: '1rem' }}>
+          Empfohlene Farben für die Gäste. Name ist optional.
+        </C.HelpText>
+        <ListEditor
+          components={C}
+          items={content.colors || []}
+          onItemsChange={(colors) => update('colors', colors)}
+          renderItem={renderColorItem}
+          createNewItem={() => ({ hex: '#8B9D83', name: '' })}
+          addLabel="+ Farbe hinzufügen"
         />
         
         <C.SectionLabel>Empfehlungen (Dos)</C.SectionLabel>

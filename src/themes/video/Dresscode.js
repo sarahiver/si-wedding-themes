@@ -25,7 +25,12 @@ function Dresscode() {
   const data = content?.dresscode || {};
   const title = data.title || 'Dresscode';
   const code = data.code || 'Black Tie Optional';
-  const colors = data.colors || [{ name: 'Schwarz', hex: '#1A1A1A' }, { name: 'Navy', hex: '#1C2841' }, { name: 'Silber', hex: '#C0C0C0' }, { name: 'Creme', hex: '#F5F5DC' }];
+  const defaultColors = [{ name: 'Schwarz', hex: '#1A1A1A' }, { name: 'Navy', hex: '#1C2841' }, { name: 'Silber', hex: '#C0C0C0' }, { name: 'Creme', hex: '#F5F5DC' }];
+  // Support both old format (string) and new format (object with hex/name)
+  const rawColors = data.colors || [];
+  const colors = rawColors.length > 0
+    ? rawColors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || '#888', name: c?.name || '' })
+    : defaultColors;
   const dos = data.dos || ['Elegante Abendgarderobe', 'Dunkle Anzuege', 'Lange Kleider'];
   const donts = data.donts || ['Weiss (reserviert fuer Braut)', 'Jeans', 'Sneaker'];
   const [visible, setVisible] = useState(false);
@@ -44,7 +49,7 @@ function Dresscode() {
         <Title $visible={visible}>{title}</Title>
         <CodeBadge $visible={visible}><CodeText>{code}</CodeText></CodeBadge>
         <Palette $visible={visible}>
-          {colors.map((c, i) => <Swatch key={i}><Color $hex={c.hex} /><ColorName>{c.name}</ColorName></Swatch>)}
+          {colors.map((c, i) => <Swatch key={i}><Color $hex={c.hex} />{c.name && <ColorName>{c.name}</ColorName>}</Swatch>)}
         </Palette>
         <Guidelines $visible={visible}>
           <GuideCol>
