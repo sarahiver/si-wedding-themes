@@ -253,28 +253,43 @@ const MobileRSVPButton = styled.a`
 // ============================================
 
 function Navigation() {
-  const { isInNavigation, project } = useWedding();
+  const { isComponentActive, project } = useWedding();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // All possible nav items with their anchors
+  // Fixed items always visible in nav bar (if active)
+  const fixedNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
+    { id: 'lovestory', label: 'Story', href: '#lovestory' },
+  ];
+
+  // All possible items for burger menu
   const allNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
     { id: 'lovestory', label: 'Story', href: '#lovestory' },
     { id: 'timeline', label: 'Ablauf', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Galerie', href: '#gallery' },
     { id: 'gifts', label: 'Geschenke', href: '#gifts' },
+    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
+    { id: 'musicwishes', label: 'Musik', href: '#music' },
+    { id: 'photoupload', label: 'Fotos', href: '#photos' },
     { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'weddingabc', label: 'ABC', href: '#abc' },
     { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
     { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
 
-  // Filter by nav_components and sort by component_order
+  // Fixed nav items (visible in bar) - only if component is active
+  const visibleNavItems = fixedNavItems.filter(item => isComponentActive(item.id));
+
+  // Burger menu items - all active components sorted by component_order
   const componentOrder = project?.component_order || [];
-  const navLinks = allNavItems
-    .filter(item => isInNavigation(item.id))
+  const burgerMenuItems = allNavItems
+    .filter(item => isComponentActive(item.id))
     .sort((a, b) => {
       const indexA = componentOrder.indexOf(a.id);
       const indexB = componentOrder.indexOf(b.id);
@@ -301,20 +316,20 @@ function Navigation() {
     <>
       {/* Floating pill navigation */}
       <NavPill>
-        {/* Desktop links */}
-        {navLinks.slice(0, 5).map((link, i) => (
+        {/* Fixed visible items: Countdown, Love Story */}
+        {visibleNavItems.map((link, i) => (
           <NavLink key={i} href={link.href}>
             {link.label}
           </NavLink>
         ))}
-        
-        {/* RSVP button - desktop */}
-        {isInNavigation('rsvp') && (
+
+        {/* RSVP button - always if active */}
+        {isComponentActive('rsvp') && (
           <RSVPButton href="#rsvp">RSVP</RSVPButton>
         )}
-        
-        {/* Mobile menu button */}
-        <MenuButton 
+
+        {/* Burger menu button - always visible */}
+        <MenuButton
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Menü öffnen"
         >
@@ -325,14 +340,14 @@ function Navigation() {
           </MenuIcon>
         </MenuButton>
       </NavPill>
-      
-      {/* Mobile menu overlay */}
+
+      {/* Burger menu overlay - shows ALL active components */}
       <MobileMenuOverlay $open={mobileMenuOpen} onClick={() => setMobileMenuOpen(false)}>
         <MobileMenuContent $open={mobileMenuOpen} onClick={e => e.stopPropagation()}>
           <MobileMenuLinks>
-            {navLinks.map((link, i) => (
-              <MobileMenuLink 
-                key={i} 
+            {burgerMenuItems.map((link, i) => (
+              <MobileMenuLink
+                key={i}
                 href={link.href}
                 onClick={handleLinkClick}
               >
@@ -340,12 +355,6 @@ function Navigation() {
               </MobileMenuLink>
             ))}
           </MobileMenuLinks>
-          
-          {isInNavigation('rsvp') && (
-            <MobileRSVPButton href="#rsvp" onClick={handleLinkClick}>
-              Jetzt zusagen
-            </MobileRSVPButton>
-          )}
         </MobileMenuContent>
       </MobileMenuOverlay>
     </>

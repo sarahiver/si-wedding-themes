@@ -130,7 +130,7 @@ const MenuDate = styled.p`
 `;
 
 function Navigation() {
-  const { project, isInNavigation } = useWedding();
+  const { project, isComponentActive } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const name1 = project?.partner1_name || 'A';
@@ -141,9 +141,8 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  // Dynamic menu items based on nav_components (or all active if nav_components is empty)
-  // 'id' = component name for isInNavigation() (matches defaultContent keys)
-  // 'anchor' = section ID in DOM (some components use different IDs)
+  // All menu items for fullscreen burger menu
+  // 'id' = component name, 'anchor' = section ID in DOM
   const allMenuItems = [
     { id: 'hero', anchor: 'hero', label: 'Home', always: true },
     { id: 'countdown', anchor: 'countdown', label: 'Countdown' },
@@ -165,10 +164,10 @@ function Navigation() {
     { id: 'contact', anchor: 'contact', label: 'Kontakt' },
   ];
 
-  // Filter by nav_components (respects component_order for sorting)
+  // All active components sorted by component_order
   const componentOrder = project?.component_order || [];
   const menuItems = allMenuItems
-    .filter(item => item.always || isInNavigation(item.id))
+    .filter(item => item.always || isComponentActive(item.id))
     .sort((a, b) => {
       if (a.always) return -1; // Home always first
       if (b.always) return 1;

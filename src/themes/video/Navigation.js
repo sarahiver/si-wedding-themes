@@ -181,18 +181,26 @@ const Overlay = styled.div`
 `;
 
 function Navigation() {
-  const { project, isInNavigation } = useWedding();
+  const { project, isComponentActive } = useWedding();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // All possible nav items
+  // Fixed items always visible in nav bar (if active)
+  const fixedNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
+    { id: 'lovestory', label: 'Story', href: '#story' },
+  ];
+
+  // All possible items for burger menu
   const allNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
     { id: 'lovestory', label: 'Unsere Geschichte', href: '#story' },
     { id: 'timeline', label: 'Tagesablauf', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Galerie', href: '#gallery' },
     { id: 'gifts', label: 'Geschenke', href: '#gifts' },
     { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
@@ -204,10 +212,13 @@ function Navigation() {
     { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
 
-  // Filter by nav_components and sort by component_order
+  // Fixed nav items (visible in bar) - only if component is active
+  const visibleNavItems = fixedNavItems.filter(item => isComponentActive(item.id));
+
+  // Burger menu items - all active components sorted by component_order
   const componentOrder = project?.component_order || [];
-  const navItems = allNavItems
-    .filter(item => isInNavigation(item.id))
+  const burgerMenuItems = allNavItems
+    .filter(item => isComponentActive(item.id))
     .sort((a, b) => {
       const indexA = componentOrder.indexOf(a.id);
       const indexB = componentOrder.indexOf(b.id);
@@ -236,12 +247,13 @@ function Navigation() {
     <>
       <Nav $scrolled={scrolled}>
         <NavLinks>
-          {navItems.map(item => (
+          {/* Fixed visible items: Countdown, Love Story */}
+          {visibleNavItems.map(item => (
             <NavLink key={item.href} href={item.href} $scrolled={scrolled}>
               {item.label}
             </NavLink>
           ))}
-          {isInNavigation('rsvp') && <CTAButton href="#rsvp">Jetzt zusagen</CTAButton>}
+          {isComponentActive('rsvp') && <CTAButton href="#rsvp">Jetzt zusagen</CTAButton>}
         </NavLinks>
 
         <MobileMenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -254,7 +266,7 @@ function Navigation() {
       <Overlay $open={mobileOpen} onClick={() => setMobileOpen(false)} />
       
       <MobileMenu $open={mobileOpen}>
-        {navItems.map(item => (
+        {burgerMenuItems.map(item => (
           <MobileNavLink
             key={item.href}
             href={item.href}
@@ -263,11 +275,6 @@ function Navigation() {
             {item.label}
           </MobileNavLink>
         ))}
-        {isInNavigation('rsvp') && (
-          <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
-            Jetzt zusagen
-          </MobileCTA>
-        )}
       </MobileMenu>
     </>
   );

@@ -211,28 +211,44 @@ const MobileLink = styled.a`
 `;
 
 function Navigation() {
-  const { coupleNames, isInNavigation, project } = useWedding();
+  const { coupleNames, isComponentActive, project } = useWedding();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // All possible nav items
+  // Fixed items always visible in nav bar (if active)
+  const fixedNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
+    { id: 'lovestory', label: 'Story', href: '#story' },
+  ];
+
+  // All possible items for burger menu
   const allNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
     { id: 'lovestory', label: 'Story', href: '#story' },
     { id: 'timeline', label: 'Timeline', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Gallery', href: '#gallery' },
     { id: 'gifts', label: 'Gifts', href: '#gifts' },
+    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
+    { id: 'musicwishes', label: 'Musik', href: '#music' },
+    { id: 'photoupload', label: 'Fotos', href: '#photos' },
     { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'weddingabc', label: 'ABC', href: '#abc' },
     { id: 'witnesses', label: 'Contact', href: '#witnesses' },
+    { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
 
-  // Filter by nav_components and sort by component_order
+  // Fixed nav items (visible in bar) - only if component is active
+  const visibleNavItems = fixedNavItems.filter(item => isComponentActive(item.id));
+
+  // Burger menu items - all active components sorted by component_order
   const componentOrder = project?.component_order || [];
-  const navItems = allNavItems
-    .filter(item => isInNavigation(item.id))
+  const burgerMenuItems = allNavItems
+    .filter(item => isComponentActive(item.id))
     .sort((a, b) => {
       const indexA = componentOrder.indexOf(a.id);
       const indexB = componentOrder.indexOf(b.id);
@@ -265,11 +281,11 @@ function Navigation() {
           </Logo>
 
           <NavLinks>
-            {/* Desktop: max 5 items to fit */}
-            {navItems.slice(0, 5).map((item, i) => (
+            {/* Fixed visible items: Countdown, Love Story */}
+            {visibleNavItems.map((item, i) => (
               <NavLink key={i} href={item.href}>{item.label}</NavLink>
             ))}
-            {isInNavigation('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}
+            {isComponentActive('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}
           </NavLinks>
           
           <MenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -281,7 +297,7 @@ function Navigation() {
       </Nav>
       
       <MobileMenu $open={mobileOpen}>
-        {navItems.map((item, i) => (
+        {burgerMenuItems.map((item, i) => (
           <MobileLink
             key={i}
             href={item.href}
@@ -291,11 +307,6 @@ function Navigation() {
             {item.label}
           </MobileLink>
         ))}
-        {isInNavigation('rsvp') && (
-          <RSVPButton href="#rsvp" onClick={() => setMobileOpen(false)}>
-            RSVP Now
-          </RSVPButton>
-        )}
       </MobileMenu>
     </>
   );

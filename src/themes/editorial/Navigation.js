@@ -229,7 +229,7 @@ const MenuFooterText = styled.p`
 // ============================================
 
 function Navigation() {
-  const { coupleNames, isInNavigation, project } = useWedding();
+  const { coupleNames, isComponentActive, project } = useWedding();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -256,7 +256,7 @@ function Navigation() {
     setIsOpen(false);
   };
 
-  // Build menu items based on nav_components (or all active if empty)
+  // All possible items for burger menu
   const allMenuItems = [
     { id: 'top', label: 'Start', always: true },
     { id: 'countdown', label: 'Countdown' },
@@ -278,10 +278,10 @@ function Navigation() {
     { id: 'contact', label: 'Kontakt' },
   ];
 
-  // Filter by nav_components and sort by component_order
+  // Burger menu items - all active components sorted by component_order
   const componentOrder = project?.component_order || [];
   const menuItems = allMenuItems
-    .filter(item => item.always || isInNavigation(item.id))
+    .filter(item => item.always || isComponentActive(item.id))
     .sort((a, b) => {
       if (a.always) return -1;
       if (b.always) return 1;

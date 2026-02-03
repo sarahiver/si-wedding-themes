@@ -231,20 +231,28 @@ const MobileCTA = styled.a`
 `;
 
 function Navigation() {
-  const { project, isInNavigation } = useWedding();
+  const { project, isComponentActive } = useWedding();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const name1 = project?.partner1_name || 'Sophie';
   const name2 = project?.partner2_name || 'Max';
 
-  // All possible nav items
+  // Fixed items always visible in nav bar (if active)
+  const fixedNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
+    { id: 'lovestory', label: 'Story', href: '#story' },
+  ];
+
+  // All possible items for burger menu
   const allNavItems = [
+    { id: 'countdown', label: 'Countdown', href: '#countdown' },
     { id: 'lovestory', label: 'Story', href: '#story' },
     { id: 'timeline', label: 'Ablauf', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Galerie', href: '#gallery' },
     { id: 'gifts', label: 'Geschenke', href: '#gifts' },
     { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
@@ -256,10 +264,13 @@ function Navigation() {
     { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
 
-  // Filter by nav_components and sort by component_order
+  // Fixed nav items (visible in bar) - only if component is active
+  const visibleNavItems = fixedNavItems.filter(item => isComponentActive(item.id));
+
+  // Burger menu items - all active components sorted by component_order
   const componentOrder = project?.component_order || [];
-  const navLinks = allNavItems
-    .filter(item => isInNavigation(item.id))
+  const burgerMenuItems = allNavItems
+    .filter(item => isComponentActive(item.id))
     .sort((a, b) => {
       const indexA = componentOrder.indexOf(a.id);
       const indexB = componentOrder.indexOf(b.id);
@@ -291,14 +302,14 @@ function Navigation() {
           </Logo>
           
           <NavLinks>
-            {/* Desktop: max 4 items to fit in floating card */}
-            {navLinks.slice(0, 4).map((link, i) => (
+            {/* Fixed visible items: Countdown, Love Story */}
+            {visibleNavItems.map((link, i) => (
               <NavLink key={i} href={link.href}>{link.label}</NavLink>
             ))}
           </NavLinks>
 
           <RightSection>
-            {isInNavigation('rsvp') && <CTAButton href="#rsvp">RSVP</CTAButton>}
+            {isComponentActive('rsvp') && <CTAButton href="#rsvp">RSVP</CTAButton>}
             <MobileButton onClick={() => setMobileOpen(!mobileOpen)}>
               <Hamburger $open={mobileOpen}>
                 <span /><span /><span />
@@ -309,16 +320,11 @@ function Navigation() {
       </Nav>
       
       <MobileMenu $open={mobileOpen}>
-        {navLinks.map((link, i) => (
+        {burgerMenuItems.map((link, i) => (
           <MobileLink key={i} href={link.href} onClick={() => setMobileOpen(false)}>
             {link.label}
           </MobileLink>
         ))}
-        {isInNavigation('rsvp') && (
-          <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
-            RSVP →
-          </MobileCTA>
-        )}
       </MobileMenu>
     </>
   );
