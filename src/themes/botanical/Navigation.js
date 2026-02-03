@@ -253,17 +253,35 @@ const MobileRSVPButton = styled.a`
 // ============================================
 
 function Navigation() {
-  const { isComponentActive } = useWedding();
+  const { isInNavigation, project } = useWedding();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Build navigation links based on active components
-  const navLinks = [];
-  
-  if (isComponentActive('lovestory')) navLinks.push({ label: 'Story', href: '#lovestory' });
-  if (isComponentActive('timeline')) navLinks.push({ label: 'Ablauf', href: '#timeline' });
-  if (isComponentActive('locations')) navLinks.push({ label: 'Location', href: '#locations' });
-  if (isComponentActive('gallery')) navLinks.push({ label: 'Galerie', href: '#gallery' });
-  if (isComponentActive('faq')) navLinks.push({ label: 'FAQ', href: '#faq' });
+  // All possible nav items with their anchors
+  const allNavItems = [
+    { id: 'lovestory', label: 'Story', href: '#lovestory' },
+    { id: 'timeline', label: 'Ablauf', href: '#timeline' },
+    { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'directions', label: 'Anfahrt', href: '#directions' },
+    { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
+    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'gallery', label: 'Galerie', href: '#gallery' },
+    { id: 'gifts', label: 'Geschenke', href: '#gifts' },
+    { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
+    { id: 'contact', label: 'Kontakt', href: '#contact' },
+  ];
+
+  // Filter by nav_components and sort by component_order
+  const componentOrder = project?.component_order || [];
+  const navLinks = allNavItems
+    .filter(item => isInNavigation(item.id))
+    .sort((a, b) => {
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   // Prevent body scroll when menu is open
   useEffect(() => {
@@ -291,7 +309,7 @@ function Navigation() {
         ))}
         
         {/* RSVP button - desktop */}
-        {isComponentActive('rsvp') && (
+        {isInNavigation('rsvp') && (
           <RSVPButton href="#rsvp">RSVP</RSVPButton>
         )}
         
@@ -323,7 +341,7 @@ function Navigation() {
             ))}
           </MobileMenuLinks>
           
-          {isComponentActive('rsvp') && (
+          {isInNavigation('rsvp') && (
             <MobileRSVPButton href="#rsvp" onClick={handleLinkClick}>
               Jetzt zusagen
             </MobileRSVPButton>

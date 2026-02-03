@@ -180,8 +180,39 @@ export function useWeddingData(slugOrDomain) {
     // If no active_components defined, show all
     if (!project.active_components || project.active_components.length === 0) return true;
     // Check for 'all' or specific component
-    return project.active_components.includes('all') || 
+    return project.active_components.includes('all') ||
            project.active_components.includes(componentName);
+  }, [project]);
+
+  // Check if a component should appear in navigation
+  // Returns true if: nav_components is empty (show all active) OR component is in nav_components
+  const isInNavigation = useCallback((componentName) => {
+    if (!project) return false;
+    // If no nav_components defined or empty, fall back to isComponentActive
+    if (!project.nav_components || project.nav_components.length === 0) {
+      return isComponentActive(componentName);
+    }
+    // Check if component is in nav_components list
+    return project.nav_components.includes(componentName);
+  }, [project, isComponentActive]);
+
+  // Get ordered list of navigation components
+  const getNavComponents = useCallback(() => {
+    if (!project) return [];
+    const componentOrder = project.component_order || [];
+    const navComponents = project.nav_components || [];
+    const activeComponents = project.active_components || [];
+
+    // If nav_components is set, use it (already ordered by component_order in admin)
+    if (navComponents.length > 0) {
+      // Return nav_components in the order they appear in component_order
+      return componentOrder.filter(comp => navComponents.includes(comp));
+    }
+
+    // Fallback: return all active components in component_order
+    return componentOrder.filter(comp =>
+      activeComponents.includes(comp) || activeComponents.includes('all')
+    );
   }, [project]);
 
   // Get custom styles
@@ -196,6 +227,8 @@ export function useWeddingData(slugOrDomain) {
     error,
     getContent,
     isComponentActive,
+    isInNavigation,
+    getNavComponents,
     getCustomStyles,
     refetch, // NEW: Allows reloading data
     // Convenience properties

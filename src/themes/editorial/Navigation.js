@@ -229,35 +229,35 @@ const MenuFooterText = styled.p`
 // ============================================
 
 function Navigation() {
-  const { coupleNames, isComponentActive } = useWedding();
+  const { coupleNames, isInNavigation, project } = useWedding();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
+
   // Get first names for logo
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
   const logoText = `${names[0]?.charAt(0) || 'B'} & ${names[1]?.charAt(0) || 'B'}`;
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   // Prevent body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
-  
+
   const handleLinkClick = () => {
     setIsOpen(false);
   };
-  
-  // Build menu items based on active components
-  const menuItems = [
+
+  // Build menu items based on nav_components (or all active if empty)
+  const allMenuItems = [
     { id: 'top', label: 'Start', always: true },
     { id: 'countdown', label: 'Countdown' },
     { id: 'lovestory', label: 'Unsere Geschichte' },
@@ -269,9 +269,28 @@ function Navigation() {
     { id: 'rsvp', label: 'RSVP' },
     { id: 'gallery', label: 'Galerie' },
     { id: 'gifts', label: 'Geschenke' },
+    { id: 'guestbook', label: 'Gästebuch' },
+    { id: 'musicwishes', label: 'Musik' },
+    { id: 'photoupload', label: 'Fotos' },
     { id: 'faq', label: 'FAQ' },
+    { id: 'weddingabc', label: 'ABC' },
+    { id: 'witnesses', label: 'Trauzeugen' },
     { id: 'contact', label: 'Kontakt' },
-  ].filter(item => item.always || isComponentActive(item.id));
+  ];
+
+  // Filter by nav_components and sort by component_order
+  const componentOrder = project?.component_order || [];
+  const menuItems = allMenuItems
+    .filter(item => item.always || isInNavigation(item.id))
+    .sort((a, b) => {
+      if (a.always) return -1;
+      if (b.always) return 1;
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   return (
     <>

@@ -128,7 +128,7 @@ const MenuDate = styled.p`
 `;
 
 function Navigation() {
-  const { project, isComponentActive } = useWedding();
+  const { project, isInNavigation } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const name1 = project?.partner1_name || 'A';
@@ -139,10 +139,10 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  // FIX: Dynamic menu items based on active components (like Editorial theme)
-  // 'id' = component name for isComponentActive() (matches defaultContent keys)
+  // Dynamic menu items based on nav_components (or all active if nav_components is empty)
+  // 'id' = component name for isInNavigation() (matches defaultContent keys)
   // 'anchor' = section ID in DOM (some components use different IDs)
-  const menuItems = [
+  const allMenuItems = [
     { id: 'hero', anchor: 'hero', label: 'Home', always: true },
     { id: 'countdown', anchor: 'countdown', label: 'Countdown' },
     { id: 'lovestory', anchor: 'story', label: 'Unsere Geschichte' },
@@ -161,7 +161,21 @@ function Navigation() {
     { id: 'weddingabc', anchor: 'abc', label: 'Hochzeits-ABC' },
     { id: 'witnesses', anchor: 'witnesses', label: 'Trauzeugen' },
     { id: 'contact', anchor: 'contact', label: 'Kontakt' },
-  ].filter(item => item.always || isComponentActive(item.id));
+  ];
+
+  // Filter by nav_components (respects component_order for sorting)
+  const componentOrder = project?.component_order || [];
+  const menuItems = allMenuItems
+    .filter(item => item.always || isInNavigation(item.id))
+    .sort((a, b) => {
+      if (a.always) return -1; // Home always first
+      if (b.always) return 1;
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   const handleClick = (e, anchor) => {
     e.preventDefault();

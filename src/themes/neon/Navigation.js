@@ -210,18 +210,36 @@ const MobileLink = styled.a`
   }
 `;
 
-function Navigation({ 
-  coupleNames = "Alex & Jordan",
-  navItems = [
-    { label: 'Story', href: '#story' },
-    { label: 'Timeline', href: '#timeline' },
-    { label: 'Location', href: '#location' },
-    { label: 'Gallery', href: '#gallery' },
-    { label: 'FAQ', href: '#faq' },
-  ]
-}) {
+function Navigation() {
+  const { coupleNames, isInNavigation, project } = useWedding();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // All possible nav items
+  const allNavItems = [
+    { id: 'lovestory', label: 'Story', href: '#story' },
+    { id: 'timeline', label: 'Timeline', href: '#timeline' },
+    { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'directions', label: 'Anfahrt', href: '#directions' },
+    { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
+    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'gallery', label: 'Gallery', href: '#gallery' },
+    { id: 'gifts', label: 'Gifts', href: '#gifts' },
+    { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'witnesses', label: 'Contact', href: '#witnesses' },
+  ];
+
+  // Filter by nav_components and sort by component_order
+  const componentOrder = project?.component_order || [];
+  const navItems = allNavItems
+    .filter(item => isInNavigation(item.id))
+    .sort((a, b) => {
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -234,7 +252,8 @@ function Navigation({
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  const names = coupleNames.split(' & ');
+  const displayName = coupleNames || 'Alex & Jordan';
+  const names = displayName.split(/\s*[&+]\s*/);
 
   return (
     <>
@@ -248,7 +267,7 @@ function Navigation({
             {navItems.map((item, i) => (
               <NavLink key={i} href={item.href}>{item.label}</NavLink>
             ))}
-            <RSVPButton href="#rsvp">RSVP</RSVPButton>
+            {isInNavigation('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}
           </NavLinks>
           
           <MenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -261,18 +280,20 @@ function Navigation({
       
       <MobileMenu $open={mobileOpen}>
         {navItems.map((item, i) => (
-          <MobileLink 
-            key={i} 
-            href={item.href} 
+          <MobileLink
+            key={i}
+            href={item.href}
             data-text={item.label}
             onClick={() => setMobileOpen(false)}
           >
             {item.label}
           </MobileLink>
         ))}
-        <RSVPButton href="#rsvp" onClick={() => setMobileOpen(false)}>
-          RSVP Now
-        </RSVPButton>
+        {isInNavigation('rsvp') && (
+          <RSVPButton href="#rsvp" onClick={() => setMobileOpen(false)}>
+            RSVP Now
+          </RSVPButton>
+        )}
       </MobileMenu>
     </>
   );
