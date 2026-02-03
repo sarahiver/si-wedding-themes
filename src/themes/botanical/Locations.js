@@ -220,7 +220,17 @@ function Locations() {
     },
   ];
 
-  const displayLocations = locations.length > 0 ? locations : defaultLocations;
+  // Map editor field names to component field names
+  const mappedLocations = locations.map(loc => ({
+    icon: loc.icon || '📍',
+    title: loc.name || loc.title || '',
+    subtitle: loc.type || loc.subtitle || '',
+    address: loc.address || '',
+    image: loc.image || '',
+    mapsUrl: loc.maps_url || loc.mapsUrl || '',
+  }));
+
+  const displayLocations = mappedLocations.length > 0 ? mappedLocations : defaultLocations;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
