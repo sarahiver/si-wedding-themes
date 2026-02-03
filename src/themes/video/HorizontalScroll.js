@@ -51,6 +51,7 @@ const Container = styled.div`
   overflow-x: scroll;
   overflow-y: hidden;
   display: flex;
+  scroll-snap-type: x mandatory;
 
   scrollbar-width: none;
   -ms-overflow-style: none;

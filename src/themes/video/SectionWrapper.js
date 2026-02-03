@@ -10,6 +10,7 @@ const Wrapper = styled.section`
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  scroll-snap-align: start;
 
   /* Allow vertical scroll ONLY if content overflows */
   overflow-x: hidden;
