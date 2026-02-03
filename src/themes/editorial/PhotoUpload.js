@@ -314,7 +314,7 @@ function PhotoUpload() {
   const photouploadData = content?.photoupload || {};
   
   const title = photouploadData.title || 'Eure Fotos';
-  const subtitle = photouploadData.subtitle || 'Teilt eure schönsten Momente mit uns';
+  const description = photouploadData.description || 'Teilt eure schönsten Momente mit uns';
   
   const [visible, setVisible] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -384,7 +384,7 @@ function PhotoUpload() {
         <Header>
           <Eyebrow $visible={visible}>Schnappschüsse</Eyebrow>
           <Title $visible={visible}>{renderTitle()}</Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Subtitle $visible={visible}>{description}</Subtitle>
         </Header>
         
         {showSuccess ? (
