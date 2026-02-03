@@ -10,19 +10,32 @@ function DresscodeEditor({ components: C }) {
 
   const renderColorItem = (item, index, onChange) => {
     // Support both old format (string) and new format (object)
-    const hex = typeof item === 'string' ? item : (item?.hex || '#000000');
+    const hex = typeof item === 'string' ? item : (item?.hex || '#8B9D83');
     const name = typeof item === 'string' ? '' : (item?.name || '');
 
     return (
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
         <C.FormGroup style={{ flex: '0 0 auto' }}>
           <C.Label>Farbe</C.Label>
-          <C.Input
-            type="color"
-            value={hex}
-            onChange={(e) => onChange({ name, hex: e.target.value })}
-            style={{ width: '60px', height: '40px', padding: '2px', cursor: 'pointer' }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="color"
+              value={hex}
+              onChange={(e) => onChange({ name, hex: e.target.value })}
+              style={{
+                width: '50px',
+                height: '40px',
+                padding: 0,
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                background: 'transparent'
+              }}
+            />
+            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
+              {hex}
+            </span>
+          </div>
         </C.FormGroup>
         <C.FormGroup style={{ flex: 1 }}>
           <C.Label>Name (optional)</C.Label>
