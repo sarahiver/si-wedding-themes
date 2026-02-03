@@ -327,7 +327,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
 
         if (hasVerticalOverflow && isCentered) {
           const isAtTop = currentSection.scrollTop <= 5;
-          const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 10;
+          const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 50;
 
           // Scroll down but not at bottom yet → vertical scroll
           if (delta > 0 && !isAtBottom) {

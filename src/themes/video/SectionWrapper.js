@@ -8,7 +8,7 @@ const Wrapper = styled.section`
   height: 100vh;
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 
   /* Allow vertical scroll ONLY if content overflows */
@@ -33,20 +33,23 @@ const ContentBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  padding-bottom: calc(var(--nav-height) + 2rem);
-  padding-top: 2rem;
-  
+  justify-content: flex-start;
+  padding: 4rem 1.5rem;
+  padding-bottom: calc(var(--nav-height) + 4rem);
+  padding-top: 3rem;
+
+  /* Center vertically when content fits */
+  margin: auto 0;
+
   /* Fade in animation */
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateX(${p => p.$visible ? '0' : '20px'});
   transition: opacity 0.5s ease, transform 0.5s ease;
-  
+
   @media (max-width: 768px) {
     padding: 2rem 1.25rem;
-    padding-bottom: 4rem;
-    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+    padding-top: 2rem;
     box-sizing: border-box;
   }
 `;
