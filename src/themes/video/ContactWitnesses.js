@@ -19,10 +19,14 @@ function ContactWitnesses() {
   const { content } = useWedding();
   const data = content?.witnesses || {};
   const title = data.title || 'Trauzeugen';
-  const persons = data.persons || [
-    { name: 'Anna Schmidt', role: 'Trauzeugin', email: 'anna@example.de', phone: '+49 170 1111111', image: '' },
-    { name: 'Max Mueller', role: 'Trauzeuge', email: 'max@example.de', phone: '+49 170 2222222', image: '' }
-  ];
+  const persons = data.persons || [];
+  const showDetails = data.showContactDetails || false;
+
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (persons.length === 0) return null;
+
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -43,8 +47,9 @@ function ContactWitnesses() {
               <Avatar $image={person.image}>{!person.image && person.name.charAt(0)}</Avatar>
               <PersonName>{person.name}</PersonName>
               <Role>{person.role}</Role>
-              {person.email && <ContactLink href={'mailto:' + person.email}>{person.email}</ContactLink>}
-              {person.phone && <ContactLink href={'tel:' + person.phone.replace(/\s/g, '')}>{person.phone}</ContactLink>}
+              {getWhatsAppNumber(person) && <ContactLink href={'https://wa.me/' + getWhatsAppNumber(person)} target="_blank" rel="noopener noreferrer">WhatsApp</ContactLink>}
+              {person.phone && <ContactLink href={'tel:' + person.phone.replace(/\s/g, '')}>{showDetails ? person.phone : 'Anrufen'}</ContactLink>}
+              {person.email && <ContactLink href={'mailto:' + person.email}>{showDetails ? person.email : 'E-Mail'}</ContactLink>}
             </Card>
           ))}
         </Grid>

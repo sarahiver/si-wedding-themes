@@ -111,43 +111,47 @@ const ContactLink = styled.a`
 function ContactWitnesses() {
   const { content } = useWedding();
   const witnessesData = content?.witnesses || {};
-  
+
   const title = witnessesData.title || 'Trauzeugen';
   const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen könnt ihr euch an unsere Trauzeugen wenden';
   const persons = witnessesData.persons || [];
+  const showDetails = witnessesData.showContactDetails || false;
 
-  const defaultPersons = [
-    { name: 'Julia Schmidt', role: 'Trauzeugin der Braut', email: 'julia@example.com', phone: '+49 170 1234567' },
-    { name: 'Thomas Müller', role: 'Trauzeuge des Bräutigams', email: 'thomas@example.com', phone: '+49 171 7654321' },
-  ];
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (persons.length === 0) return null;
 
-  const items = persons.length > 0 ? persons : defaultPersons;
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   return (
     <Section id="witnesses">
       <Container>
         <Header>
-          <Eyebrow>Unsere Helfer</Eyebrow>
+          <Eyebrow>💬 Eure Ansprechpartner</Eyebrow>
           <Title>{title}</Title>
           <Subtitle>{subtitle}</Subtitle>
         </Header>
-        
+
         <Grid>
-          {items.map((person, i) => (
+          {persons.map((person, i) => (
             <Card key={i}>
               <Avatar $image={person.image}>
-                {!person.image && (i === 0 ? '👩' : '👨')}
+                {!person.image && (person.role?.toLowerCase().includes('zeugin') ? '👩' : '👨')}
               </Avatar>
               <Name>{person.name}</Name>
               <Role>{person.role}</Role>
-              {person.email && (
-                <ContactLink href={`mailto:${person.email}`}>
-                  E-Mail schreiben
+              {getWhatsAppNumber(person) && (
+                <ContactLink href={`https://wa.me/${getWhatsAppNumber(person)}`} target="_blank" rel="noopener noreferrer">
+                  💬 WhatsApp
                 </ContactLink>
               )}
               {person.phone && (
                 <ContactLink href={`tel:${person.phone.replace(/\s/g, '')}`}>
-                  Anrufen
+                  📞 {showDetails ? person.phone : 'Anrufen'}
+                </ContactLink>
+              )}
+              {person.email && (
+                <ContactLink href={`mailto:${person.email}`}>
+                  📧 {showDetails ? person.email : 'E-Mail'}
                 </ContactLink>
               )}
             </Card>

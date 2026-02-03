@@ -46,10 +46,18 @@ function WitnessesEditor({ components: C }) {
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>E-Mail</C.Label>
-        <C.Input 
-          value={item.email || ''} 
-          onChange={(e) => onChange('email', e.target.value)} 
+        <C.Input
+          value={item.email || ''}
+          onChange={(e) => onChange('email', e.target.value)}
           placeholder="max@beispiel.de"
+        />
+      </C.FormGroup>
+      <C.FormGroup>
+        <C.Label>WhatsApp-Nummer (falls abweichend)</C.Label>
+        <C.Input
+          value={item.whatsapp || ''}
+          onChange={(e) => onChange('whatsapp', e.target.value)}
+          placeholder="Leer = Telefonnummer verwenden"
         />
       </C.FormGroup>
     </>
@@ -63,13 +71,25 @@ function WitnessesEditor({ components: C }) {
       <C.PanelContent>
         <C.FormGroup>
           <C.Label>Titel</C.Label>
-          <C.Input 
-            value={content.title || ''} 
-            onChange={(e) => update('title', e.target.value)} 
+          <C.Input
+            value={content.title || ''}
+            onChange={(e) => update('title', e.target.value)}
             placeholder="Eure Ansprechpartner"
           />
         </C.FormGroup>
-        
+
+        <C.FormGroup>
+          <C.CheckboxLabel>
+            <input
+              type="checkbox"
+              checked={content.showContactDetails || false}
+              onChange={(e) => update('showContactDetails', e.target.checked)}
+            />
+            Kontaktdaten (Nummer/E-Mail) sichtbar anzeigen
+          </C.CheckboxLabel>
+          <C.HelpText>Wenn deaktiviert, werden nur Buttons gezeigt (WhatsApp, Anrufen, E-Mail)</C.HelpText>
+        </C.FormGroup>
+
         <C.SectionLabel>Personen</C.SectionLabel>
         <ListEditor 
           components={C} 

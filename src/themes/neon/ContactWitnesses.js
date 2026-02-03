@@ -264,48 +264,29 @@ function ContactWitnesses() {
   const { content } = useWedding();
   const witnessesData = content?.witnesses || {};
   const title = witnessesData.title || 'Trauzeugen';
+  const showDetails = witnessesData.showContactDetails || false;
 
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
-  const defaultWitnesses = [
-    {
-      id: 1,
-      name: 'Alex',
-      role: 'Trauzeugin',
-      relation: 'Beste Freundin der Braut seit 15 Jahren',
-      color: '#ff00ff',
-      image: null,
-      phone: '+49 170 1234567',
-      email: 'sarah@example.com'
-    },
-    {
-      id: 2,
-      name: 'Jordan',
-      role: 'Trauzeuge',
-      relation: 'Bruder des Bräutigams',
-      color: '#00ffff',
-      image: null,
-      phone: '+49 171 7654321',
-      email: 'max@example.com'
-    }
-  ];
-
   const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
 
-  // Map from editor format to neon format
-  const witnesses = witnessesData.persons?.length > 0
-    ? witnessesData.persons.map((p, i) => ({
-        id: i + 1,
-        name: p.name,
-        role: p.role || 'Trauzeuge/in',
-        relation: '',
-        color: neonColors[i % neonColors.length],
-        image: p.image || null,
-        phone: p.phone || '',
-        email: p.email || ''
-      }))
-    : defaultWitnesses;
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  const persons = witnessesData.persons || [];
+  if (persons.length === 0) return null;
+
+  const witnesses = persons.map((p, i) => ({
+    id: i + 1,
+    name: p.name,
+    role: p.role || 'Trauzeuge/in',
+    color: neonColors[i % neonColors.length],
+    image: p.image || null,
+    phone: p.phone || '',
+    email: p.email || '',
+    whatsapp: p.whatsapp || ''
+  }));
+
+  const getWhatsAppNumber = (witness) => (witness.whatsapp || witness.phone || '').replace(/\D/g, '');
 
   const note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner!';
 
@@ -321,14 +302,14 @@ function ContactWitnesses() {
   return (
     <Section ref={sectionRef} id="witnesses">
       <GridBG />
-      
+
       <Container>
         <Header $visible={visible}>
           <Eyebrow>contact_witnesses.init()</Eyebrow>
           <Title>Eure <span>{title}</span></Title>
           <Subtitle>Bei Fragen oder Überraschungen sind wir für euch da!</Subtitle>
         </Header>
-        
+
         <WitnessesGrid>
           {witnesses.map((witness, i) => (
             <WitnessCard key={witness.id} $color={witness.color} $delay={`${i * 0.2}s`}>
@@ -343,39 +324,46 @@ function ContactWitnesses() {
                   )}
                 </Avatar>
               </AvatarWrapper>
-              
+
               <RoleBadge $color={witness.color}>{witness.role}</RoleBadge>
               <WitnessName>{witness.name}</WitnessName>
-              <Relation>{witness.relation}</Relation>
-              
+              <Relation />
+
               <ContactInfo>
+                {getWhatsAppNumber(witness) && (
+                  <ContactItem href={`https://wa.me/${getWhatsAppNumber(witness)}`} target="_blank" rel="noopener noreferrer" $color={witness.color}>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    </svg>
+                    WhatsApp
+                  </ContactItem>
+                )}
+
                 {witness.phone && (
-                  <ContactItem href={`tel:${witness.phone}`} $color={witness.color}>
+                  <ContactItem href={`tel:${witness.phone.replace(/\s/g, '')}`} $color={witness.color}>
                     <svg viewBox="0 0 24 24" fill="currentColor">
                       <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                     </svg>
-                    {witness.phone}
+                    {showDetails ? witness.phone : 'Anrufen'}
                   </ContactItem>
                 )}
-                
+
                 {witness.email && (
                   <ContactItem href={`mailto:${witness.email}`} $color={witness.color}>
                     <svg viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                     </svg>
-                    {witness.email}
+                    {showDetails ? witness.email : 'E-Mail'}
                   </ContactItem>
                 )}
               </ContactInfo>
             </WitnessCard>
           ))}
         </WitnessesGrid>
-        
-        {note && (
-          <InfoNote>
-            <p><strong>💬 Hinweis:</strong> {note}</p>
-          </InfoNote>
-        )}
+
+        <InfoNote>
+          <p><strong>💬 Hinweis:</strong> {note}</p>
+        </InfoNote>
       </Container>
     </Section>
   );

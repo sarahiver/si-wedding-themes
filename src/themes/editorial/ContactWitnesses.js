@@ -210,33 +210,20 @@ const Note = styled.p`
 function ContactWitnesses() {
   const { content } = useWedding();
   const witnessData = content?.witnesses || {};
-  
+
   const title = witnessData.title || 'Trauzeugen';
   const description = witnessData.description || 'Für Überraschungen, Fragen oder geheime Absprachen – wendet euch an unsere Trauzeugen.';
-  const witnesses = witnessData.witnesses || [];
+  const witnesses = witnessData.persons || [];
   const note = witnessData.note || '';
-  
+  const showDetails = witnessData.showContactDetails || false;
+
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (witnesses.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const defaultWitnesses = [
-    { 
-      name: 'Muster Trauzeuge', 
-      for_person: 'Für die Braut', 
-      email: 'trauzeugin@beispiel.de', 
-      phone: '+49 123 456789',
-      image: null 
-    },
-    { 
-      name: 'Muster Trauzeuge', 
-      for_person: 'Für den Bräutigam', 
-      email: 'trauzeuge@beispiel.de', 
-      phone: '+49 123 456789',
-      image: null 
-    },
-  ];
-
-  const displayWitnesses = witnesses.length > 0 ? witnesses : defaultWitnesses;
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -245,7 +232,7 @@ function ContactWitnesses() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -258,9 +245,9 @@ function ContactWitnesses() {
           <Title $visible={visible}>{title}</Title>
           <Description $visible={visible}>{description}</Description>
         </Header>
-        
+
         <WitnessGrid $visible={visible}>
-          {displayWitnesses.map((witness, i) => (
+          {witnesses.map((witness, i) => (
             <WitnessCard key={i}>
               <WitnessImage>
                 {witness.image ? (
@@ -269,37 +256,37 @@ function ContactWitnesses() {
                   <WitnessPlaceholder>💍</WitnessPlaceholder>
                 )}
               </WitnessImage>
-              
-              {witness.for_person && (
-                <WitnessFor>{witness.for_person}</WitnessFor>
+
+              {witness.role && (
+                <WitnessFor>{witness.role}</WitnessFor>
               )}
               <WitnessName>{witness.name}</WitnessName>
-              
+
               <WitnessInfo>
-                {witness.phone && (
-                  <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
-                    Anrufen
-                  </WitnessLink>
-                )}
-                {witness.phone && (
-                  <WitnessLink 
-                    href={`https://wa.me/${witness.phone.replace(/\D/g, '')}`}
+                {getWhatsAppNumber(witness) && (
+                  <WitnessLink
+                    href={`https://wa.me/${getWhatsAppNumber(witness)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     WhatsApp
                   </WitnessLink>
                 )}
+                {witness.phone && (
+                  <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
+                    {showDetails ? witness.phone : 'Anrufen'}
+                  </WitnessLink>
+                )}
                 {witness.email && (
                   <WitnessLink href={`mailto:${witness.email}`}>
-                    E-Mail
+                    {showDetails ? witness.email : 'E-Mail'}
                   </WitnessLink>
                 )}
               </WitnessInfo>
             </WitnessCard>
           ))}
         </WitnessGrid>
-        
+
         {note && (
           <Note $visible={visible}>{note}</Note>
         )}

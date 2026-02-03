@@ -165,20 +165,19 @@ const ContactItem = styled.a`
 function ContactWitnesses() {
   const { content } = useWedding();
   const witnessesData = content?.witnesses || {};
-  
+
   const title = witnessesData.title || 'Trauzeugen';
   const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen & mehr';
   const witnesses = witnessesData.persons || [];
-  
+  const showDetails = witnessesData.showContactDetails || false;
+
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (witnesses.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const defaultWitnesses = [
-    { name: 'Lisa Müller', role: 'Trauzeugin', email: 'lisa@email.de', phone: '+49 123 456789', image: '' },
-    { name: 'Max Schmidt', role: 'Trauzeuge', email: 'max@email.de', phone: '+49 123 456789', image: '' },
-  ];
-
-  const displayWitnesses = witnesses.length > 0 ? witnesses : defaultWitnesses;
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -197,9 +196,9 @@ function ContactWitnesses() {
           <Title $visible={visible}>{title}</Title>
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
-        
+
         <WitnessGrid>
-          {displayWitnesses.map((witness, i) => (
+          {witnesses.map((witness, i) => (
             <GlassCard key={i} $visible={visible} $index={i}>
               {witness.image ? (
                 <WitnessImage>
@@ -210,19 +209,24 @@ function ContactWitnesses() {
                   {witness.role?.toLowerCase().includes('zeugin') ? '👩' : '👨'}
                 </WitnessPlaceholder>
               )}
-              
+
               <Role>{witness.role}</Role>
               <WitnessName>{witness.name}</WitnessName>
-              
+
               <ContactInfo>
-                {witness.email && (
-                  <ContactItem href={`mailto:${witness.email}`}>
-                    📧 {witness.email}
+                {getWhatsAppNumber(witness) && (
+                  <ContactItem href={`https://wa.me/${getWhatsAppNumber(witness)}`} target="_blank" rel="noopener noreferrer">
+                    💬 WhatsApp
                   </ContactItem>
                 )}
                 {witness.phone && (
                   <ContactItem href={`tel:${witness.phone.replace(/\s/g, '')}`}>
-                    📞 {witness.phone}
+                    📞 {showDetails ? witness.phone : 'Anrufen'}
+                  </ContactItem>
+                )}
+                {witness.email && (
+                  <ContactItem href={`mailto:${witness.email}`}>
+                    📧 {showDetails ? witness.email : 'E-Mail'}
                   </ContactItem>
                 )}
               </ContactInfo>

@@ -22,17 +22,15 @@ function ContactWitnesses() {
   const { content } = useWedding();
   const data = content?.witnesses || {};
   const title = data.title || 'Trauzeugen';
+  const persons = Array.isArray(data.persons) ? data.persons : [];
+  const showDetails = data.showContactDetails || false;
 
-  // FIX: Proper array validation
-  const defaultPersons = [
-    { name: 'Sarah Mueller', role: 'Trauzeugin', email: 'sarah@example.de', phone: '+49 170 1111111', image: '' },
-    { name: 'Michael Schmidt', role: 'Trauzeuge', email: 'michael@example.de', phone: '+49 170 2222222', image: '' }
-  ];
-  const persons = Array.isArray(data.persons) && data.persons.length > 0 ? data.persons : defaultPersons;
+  // Keine Defaults - nur rendern wenn Personen vorhanden
+  if (persons.length === 0) return null;
 
-  // FIX: Handle both string and object formats for images
   const getImageUrl = (img) => img?.url || img || '';
-  
+  const getWhatsAppNumber = (person) => (person.whatsapp || person.phone || '').replace(/\D/g, '');
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -52,8 +50,9 @@ function ContactWitnesses() {
               <Avatar $image={getImageUrl(person.image)} />
               <PersonName>{person.name}</PersonName>
               <Role>{person.role}</Role>
-              {person.email && <Link href={`mailto:${person.email}`}>{person.email}</Link>}
-              {person.phone && <Link href={`tel:${person.phone.replace(/\s/g, '')}`}>{person.phone}</Link>}
+              {getWhatsAppNumber(person) && <Link href={`https://wa.me/${getWhatsAppNumber(person)}`} target="_blank" rel="noopener noreferrer">WhatsApp</Link>}
+              {person.phone && <Link href={`tel:${person.phone.replace(/\s/g, '')}`}>{showDetails ? person.phone : 'Anrufen'}</Link>}
+              {person.email && <Link href={`mailto:${person.email}`}>{showDetails ? person.email : 'E-Mail'}</Link>}
             </Card>
           ))}
         </Grid>
