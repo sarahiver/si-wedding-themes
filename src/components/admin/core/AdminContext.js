@@ -339,6 +339,57 @@ export function AdminProvider({ children }) {
     return isComponentActive(name);
   }, [isComponentActive]);
 
+  // Mapping: component name → editor config
+  const editorMapping = {
+    hero: { id: 'edit-hero', label: 'Hero', icon: '🖼️', always: true },
+    countdown: { id: 'edit-countdown', label: 'Countdown', icon: '⏰' },
+    lovestory: { id: 'edit-lovestory', label: 'Love Story', icon: '💕' },
+    timeline: { id: 'edit-timeline', label: 'Ablauf', icon: '📅' },
+    locations: { id: 'edit-locations', label: 'Locations', icon: '📍' },
+    directions: { id: 'edit-directions', label: 'Anfahrt', icon: '🚗' },
+    accommodations: { id: 'edit-hotels', label: 'Hotels', icon: '🏨' },
+    dresscode: { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
+    rsvp: { id: 'edit-rsvp', label: 'RSVP Text', icon: '✏️' },
+    gifts: { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
+    gallery: { id: 'edit-gallery', label: 'Galerie', icon: '🎨' },
+    faq: { id: 'edit-faq', label: 'FAQ', icon: '❓' },
+    weddingabc: { id: 'edit-abc', label: 'ABC', icon: '🔤' },
+    witnesses: { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
+    contact: { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
+    footer: { id: 'edit-footer', label: 'Footer', icon: '📝', always: true },
+  };
+
+  // Build sorted content editors based on component_order
+  const componentOrder = project?.component_order || [];
+  const contentEditors = useMemo(() => {
+    const editors = [];
+
+    // First add hero (always first)
+    editors.push(editorMapping.hero);
+
+    // Add editors in component_order (if active)
+    componentOrder.forEach(component => {
+      const editor = editorMapping[component];
+      if (editor && !editor.always && checkActive(component)) {
+        editors.push(editor);
+      }
+    });
+
+    // Add any active editors not in component_order (fallback)
+    Object.entries(editorMapping).forEach(([component, editor]) => {
+      if (!editor.always && !componentOrder.includes(component) && checkActive(component)) {
+        if (!editors.find(e => e.id === editor.id)) {
+          editors.push(editor);
+        }
+      }
+    });
+
+    // Add footer (always last)
+    editors.push(editorMapping.footer);
+
+    return editors;
+  }, [componentOrder, checkActive]);
+
   const navItems = [
     { section: 'Übersicht', items: [
       { id: 'dashboard', label: 'Dashboard', icon: '📊' }
@@ -349,24 +400,7 @@ export function AdminProvider({ children }) {
       checkActive('musicwishes') && { id: 'music', label: 'Musik', icon: '🎵', badge: stats.totalMusic },
       checkActive('photoupload') && { id: 'photos', label: 'Fotos', icon: '📷', badge: stats.totalPhotos },
     ].filter(Boolean)},
-    { section: 'Inhalte', items: [
-      { id: 'edit-hero', label: 'Hero', icon: '🖼️' },
-      checkActive('countdown') && { id: 'edit-countdown', label: 'Countdown', icon: '⏰' },
-      checkActive('lovestory') && { id: 'edit-lovestory', label: 'Love Story', icon: '💕' },
-      checkActive('timeline') && { id: 'edit-timeline', label: 'Ablauf', icon: '📅' },
-      checkActive('locations') && { id: 'edit-locations', label: 'Locations', icon: '📍' },
-      checkActive('directions') && { id: 'edit-directions', label: 'Anfahrt', icon: '🚗' },
-      checkActive('accommodations') && { id: 'edit-hotels', label: 'Hotels', icon: '🏨' },
-      checkActive('dresscode') && { id: 'edit-dresscode', label: 'Dresscode', icon: '👔' },
-      checkActive('rsvp') && { id: 'edit-rsvp', label: 'RSVP Text', icon: '✏️' },
-      checkActive('gifts') && { id: 'edit-gifts', label: 'Geschenke', icon: '🎁' },
-      checkActive('gallery') && { id: 'edit-gallery', label: 'Galerie', icon: '🎨' },
-      checkActive('faq') && { id: 'edit-faq', label: 'FAQ', icon: '❓' },
-      checkActive('weddingabc') && { id: 'edit-abc', label: 'ABC', icon: '🔤' },
-      checkActive('witnesses') && { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
-      checkActive('contact') && { id: 'edit-contact', label: 'Kontakt', icon: '📧' },
-      { id: 'edit-footer', label: 'Footer', icon: '📝' },
-    ].filter(Boolean)},
+    { section: 'Inhalte', items: contentEditors },
     { section: 'Seiten-Varianten', items: [
       hasSaveTheDate && { id: 'edit-savethedate', label: 'Save the Date', icon: '💌' },
       hasArchive && { id: 'edit-archive', label: 'Archiv', icon: '📦' },
