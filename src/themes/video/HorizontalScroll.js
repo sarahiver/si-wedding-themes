@@ -7,6 +7,46 @@ const fadeIn = keyframes`
   to { opacity: 1; }
 `;
 
+const pulseArrow = keyframes`
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+`;
+
+const pulseArrowLeft = keyframes`
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-8px); }
+`;
+
+const ScrollIndicator = styled.div`
+  position: fixed;
+  top: 50%;
+  ${p => p.$direction === 'right' ? 'right: 2rem;' : 'left: 2rem;'}
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(107, 140, 174, ${p => 0.2 + (p.$progress * 0.6)});
+  border: 2px solid var(--video-accent);
+  opacity: ${p => p.$progress > 0.1 ? p.$progress : 0};
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+
+  &::after {
+    content: '${p => p.$direction === 'right' ? '→' : '←'}';
+    font-size: 1.5rem;
+    color: var(--video-white);
+    animation: ${p => p.$direction === 'right' ? pulseArrow : pulseArrowLeft} 0.6s ease-in-out infinite;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
 // Fixed Background Layer
 const FixedBackground = styled.div`
   position: fixed;
@@ -231,6 +271,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [showHint, setShowHint] = useState(true);
+  const [scrollIndicator, setScrollIndicator] = useState({ direction: null, progress: 0 });
 
   // Detect mobile viewport
   useEffect(() => {
@@ -364,29 +405,44 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = setTimeout(() => {
         scrollAccumulatorRef.current = 0;
+        setScrollIndicator({ direction: null, progress: 0 });
       }, 150);
 
       // Threshold before changing section (higher = less sensitive)
       const threshold = 150;
 
+      // Update scroll indicator
+      const accum = scrollAccumulatorRef.current;
+      const indicatorProgress = Math.min(Math.abs(accum) / threshold, 1);
+      const canGoRight = activeIndex < sections.length - 1;
+      const canGoLeft = activeIndex > 0;
+
+      if (accum > 20 && canGoRight) {
+        setScrollIndicator({ direction: 'right', progress: indicatorProgress });
+      } else if (accum < -20 && canGoLeft) {
+        setScrollIndicator({ direction: 'left', progress: indicatorProgress });
+      } else {
+        setScrollIndicator({ direction: null, progress: 0 });
+      }
+
       if (scrollAccumulatorRef.current > threshold) {
         // Scroll right (next section)
-        if (activeIndex < sections.length - 1) {
+        if (canGoRight) {
           scrollToSection(activeIndex + 1);
-          // Cooldown to prevent double-trigger
           isScrollCooldownRef.current = true;
           setTimeout(() => { isScrollCooldownRef.current = false; }, 600);
         }
         scrollAccumulatorRef.current = 0;
+        setScrollIndicator({ direction: null, progress: 0 });
       } else if (scrollAccumulatorRef.current < -threshold) {
         // Scroll left (previous section)
-        if (activeIndex > 0) {
+        if (canGoLeft) {
           scrollToSection(activeIndex - 1);
-          // Cooldown to prevent double-trigger
           isScrollCooldownRef.current = true;
           setTimeout(() => { isScrollCooldownRef.current = false; }, 600);
         }
         scrollAccumulatorRef.current = 0;
+        setScrollIndicator({ direction: null, progress: 0 });
       }
     };
 
@@ -419,7 +475,14 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       <Container ref={containerRef}>
         {children}
       </Container>
-      
+
+      {scrollIndicator.direction && (
+        <ScrollIndicator
+          $direction={scrollIndicator.direction}
+          $progress={scrollIndicator.progress}
+        />
+      )}
+
       <Navigation>
         <NavList>
           {sections.map((section, index) => (
