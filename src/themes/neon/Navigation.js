@@ -252,19 +252,21 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  const displayName = coupleNames || 'Alex & Jordan';
-  const names = displayName.split(/\s*[&+]\s*/);
+  // Get names - prefer partner names, fallback to coupleNames
+  const name1 = project?.partner1_name || coupleNames?.split(/\s*[&+]\s*/)?.[0] || 'Alex';
+  const name2 = project?.partner2_name || coupleNames?.split(/\s*[&+]\s*/)?.[1] || 'Jordan';
 
   return (
     <>
       <Nav $scrolled={scrolled}>
         <Container>
           <Logo href="#">
-            {names[0]} <span>&</span> {names[1]}
+            {name1} <span>&</span> {name2}
           </Logo>
-          
+
           <NavLinks>
-            {navItems.map((item, i) => (
+            {/* Desktop: max 5 items to fit */}
+            {navItems.slice(0, 5).map((item, i) => (
               <NavLink key={i} href={item.href}>{item.label}</NavLink>
             ))}
             {isInNavigation('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}

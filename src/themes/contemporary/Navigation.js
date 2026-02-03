@@ -291,7 +291,8 @@ function Navigation() {
           </Logo>
           
           <NavLinks>
-            {navLinks.map((link, i) => (
+            {/* Desktop: max 4 items to fit in floating card */}
+            {navLinks.slice(0, 4).map((link, i) => (
               <NavLink key={i} href={link.href}>{link.label}</NavLink>
             ))}
           </NavLinks>

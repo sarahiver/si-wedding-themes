@@ -75,6 +75,8 @@ const FullscreenMenu = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+  padding: 2rem 0;
   opacity: ${p => p.$open ? 1 : 0};
   visibility: ${p => p.$open ? 'visible' : 'hidden'};
   transition: opacity 0.6s var(--ease-out-expo), visibility 0.6s;
