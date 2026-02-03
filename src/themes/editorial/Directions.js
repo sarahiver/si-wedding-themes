@@ -46,7 +46,7 @@ const Eyebrow = styled.span`
   color: var(--editorial-red);
   margin-bottom: 1.5rem;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
   `}
@@ -61,7 +61,7 @@ const Title = styled.h2`
   letter-spacing: -0.02em;
   line-height: 0.9;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.15s;
@@ -72,7 +72,7 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(2rem, 5vw, 4rem);
-  
+
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
@@ -80,7 +80,7 @@ const Grid = styled.div`
 
 const MapSection = styled.div`
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.3s;
@@ -92,7 +92,7 @@ const MapFrame = styled.div`
   background: var(--editorial-white);
   padding-top: 80%;
   overflow: hidden;
-  
+
   iframe {
     position: absolute;
     inset: 0;
@@ -102,7 +102,7 @@ const MapFrame = styled.div`
     filter: grayscale(100%);
     transition: filter 0.4s ease;
   }
-  
+
   &:hover iframe {
     filter: grayscale(0%);
   }
@@ -117,11 +117,11 @@ const MapPlaceholder = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  
+
   span {
     font-size: 3rem;
   }
-  
+
   p {
     font-family: var(--font-body);
     font-size: 0.8rem;
@@ -141,7 +141,7 @@ const InfoBlock = styled.div`
   background: var(--editorial-white);
   padding: clamp(1.5rem, 3vw, 2.5rem);
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: ${0.4 + p.$index * 0.1}s;
@@ -173,7 +173,7 @@ const InfoText = styled.p`
   color: var(--editorial-gray);
   line-height: 1.7;
   margin: 0;
-  
+
   & + & {
     margin-top: 0.75rem;
   }
@@ -186,7 +186,7 @@ const Divider = styled.div`
   margin: 1rem 0;
   transform: scaleX(0);
   transform-origin: left;
-  
+
   ${p => p.$visible && css`
     animation: ${lineGrow} 0.6s ease forwards;
     animation-delay: ${0.6 + p.$index * 0.1}s;
@@ -217,7 +217,7 @@ const TransportText = styled.div`
   font-size: 0.85rem;
   color: var(--editorial-black);
   line-height: 1.5;
-  
+
   strong {
     display: block;
     font-weight: 600;
@@ -232,16 +232,46 @@ const TransportText = styled.div`
 function Directions() {
   const { content } = useWedding();
   const directionsData = content?.directions || {};
-  
+
   const title = directionsData.title || 'Anfahrt';
   const address = directionsData.address || 'Schlossstraße 1, 69117 Heidelberg';
   const mapsEmbed = directionsData.maps_embed || '';
-  const parkingInfo = directionsData.parking_info || 'Kostenfreie Parkplätze stehen am Schloss zur Verfügung.';
-  const publicTransport = directionsData.public_transport || 'Mit der S-Bahn bis Heidelberg Hbf, dann Bus 33 bis Schloss.';
-  const taxiInfo = directionsData.taxi_info || '';
-  
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
+
+  const defaultItems = [
+    { icon: '🚗', title: 'Mit dem Auto', description: 'Kostenfreie Parkplätze stehen am Schloss zur Verfügung.' },
+    { icon: '🚆', title: 'ÖPNV', description: 'Mit der S-Bahn bis Heidelberg Hbf, dann Bus 33 bis Schloss.' },
+  ];
+
+  // Support new items array format
+  const getDisplayItems = () => {
+    // New format: items array from editor
+    if (directionsData.items && directionsData.items.length > 0) {
+      return directionsData.items.map(item => ({
+        icon: item.icon || '📍',
+        title: item.title || '',
+        description: item.description || ''
+      }));
+    }
+
+    // Legacy format: fixed fields
+    const legacyItems = [];
+    if (directionsData.parking_info) {
+      legacyItems.push({ icon: '🚗', title: 'Mit dem Auto', description: directionsData.parking_info });
+    }
+    if (directionsData.public_transport) {
+      legacyItems.push({ icon: '🚆', title: 'ÖPNV', description: directionsData.public_transport });
+    }
+    if (directionsData.taxi_info) {
+      legacyItems.push({ icon: '🚕', title: 'Taxi', description: directionsData.taxi_info });
+    }
+
+    return legacyItems.length > 0 ? legacyItems : defaultItems;
+  };
+
+  const displayItems = getDisplayItems();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -250,7 +280,7 @@ function Directions() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -262,12 +292,12 @@ function Directions() {
           <Eyebrow $visible={visible}>So findet ihr uns</Eyebrow>
           <Title $visible={visible}>{title}</Title>
         </Header>
-        
+
         <Grid>
           <MapSection $visible={visible}>
             <MapFrame>
               {mapsEmbed ? (
-                <iframe 
+                <iframe
                   src={mapsEmbed}
                   allowFullScreen
                   loading="lazy"
@@ -282,7 +312,7 @@ function Directions() {
               )}
             </MapFrame>
           </MapSection>
-          
+
           <InfoSection>
             <InfoBlock $visible={visible} $index={0}>
               <InfoLabel>Adresse</InfoLabel>
@@ -290,43 +320,23 @@ function Directions() {
               <Divider $visible={visible} $index={0} />
               <InfoText>{address}</InfoText>
             </InfoBlock>
-            
-            {(parkingInfo || publicTransport || taxiInfo) && (
+
+            {displayItems.length > 0 && (
               <InfoBlock $visible={visible} $index={1}>
                 <InfoLabel>Anreise</InfoLabel>
                 <InfoTitle>So kommt ihr hin</InfoTitle>
                 <Divider $visible={visible} $index={1} />
-                
+
                 <TransportGrid>
-                  {parkingInfo && (
-                    <TransportItem>
-                      <TransportIcon>🚗</TransportIcon>
+                  {displayItems.map((item, i) => (
+                    <TransportItem key={i}>
+                      <TransportIcon>{item.icon}</TransportIcon>
                       <TransportText>
-                        <strong>Mit dem Auto</strong>
-                        {parkingInfo}
+                        <strong>{item.title}</strong>
+                        {item.description}
                       </TransportText>
                     </TransportItem>
-                  )}
-                  
-                  {publicTransport && (
-                    <TransportItem>
-                      <TransportIcon>🚆</TransportIcon>
-                      <TransportText>
-                        <strong>ÖPNV</strong>
-                        {publicTransport}
-                      </TransportText>
-                    </TransportItem>
-                  )}
-                  
-                  {taxiInfo && (
-                    <TransportItem>
-                      <TransportIcon>🚕</TransportIcon>
-                      <TransportText>
-                        <strong>Taxi</strong>
-                        {taxiInfo}
-                      </TransportText>
-                    </TransportItem>
-                  )}
+                  ))}
                 </TransportGrid>
               </InfoBlock>
             )}

@@ -41,7 +41,7 @@ const Eyebrow = styled.span`
   color: var(--text-muted);
   margin-bottom: 1rem;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
   `}
@@ -53,7 +53,7 @@ const Title = styled.h2`
   font-weight: 300;
   color: var(--text-light);
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.1s;
@@ -71,23 +71,23 @@ const GlassCard = styled.div`
   position: relative;
   overflow: hidden;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.2s;
   `}
-  
+
   /* Top highlight */
   &::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      rgba(255,255,255,0.15) 20%, 
-      rgba(255,255,255,0.25) 50%, 
-      rgba(255,255,255,0.15) 80%, 
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.15) 20%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(255,255,255,0.15) 80%,
       transparent 100%
     );
     pointer-events: none;
@@ -98,7 +98,7 @@ const DirectionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
-  
+
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
@@ -110,7 +110,7 @@ const DirectionItem = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.12);
@@ -145,7 +145,7 @@ const Note = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border-left: 3px solid rgba(255, 255, 255, 0.2);
   border-radius: 0 12px 12px 0;
-  
+
   p {
     font-family: var(--font-display);
     font-size: 1rem;
@@ -162,46 +162,46 @@ const Note = styled.div`
 function Directions() {
   const { content } = useWedding();
   const directionsData = content?.directions || {};
-  
+
   const title = directionsData.title || 'Anfahrt';
-  const address = directionsData.address || '';
-  const parkingInfo = directionsData.parking_info || '';
-  const publicTransport = directionsData.public_transport || '';
-  const taxiInfo = directionsData.taxi_info || '';
   const note = directionsData.note || '';
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   const defaultItems = [
-    {
-      icon: '🚗',
-      title: 'Mit dem Auto',
-      text: 'Parkplätze sind vor Ort vorhanden. Navigation: Landhaus Walter, Elbchaussee 547, Hamburg',
-    },
-    {
-      icon: '🚇',
-      title: 'Öffentliche Verkehrsmittel',
-      text: 'S-Bahn bis Blankenese, dann Bus 286 bis Teufelsbrück. Von dort 5 Minuten zu Fuß.',
-    },
-    {
-      icon: '🚕',
-      title: 'Taxi',
-      text: 'Für den Rückweg organisieren wir gerne Taxis. Bitte am Empfang Bescheid geben.',
-    },
+    { icon: '🚗', title: 'Mit dem Auto', description: 'Parkplätze sind vor Ort vorhanden. Navigation: Landhaus Walter, Elbchaussee 547, Hamburg' },
+    { icon: '🚇', title: 'Öffentliche Verkehrsmittel', description: 'S-Bahn bis Blankenese, dann Bus 286 bis Teufelsbrück. Von dort 5 Minuten zu Fuß.' },
+    { icon: '🚕', title: 'Taxi', description: 'Für den Rückweg organisieren wir gerne Taxis. Bitte am Empfang Bescheid geben.' },
   ];
 
-  // Build items from DirectionsEditor fields if they exist
-  const buildItemsFromFields = () => {
-    const items = [];
-    if (parkingInfo) items.push({ icon: '🚗', title: 'Mit dem Auto', text: parkingInfo });
-    if (publicTransport) items.push({ icon: '🚇', title: 'Öffentliche Verkehrsmittel', text: publicTransport });
-    if (taxiInfo) items.push({ icon: '🚕', title: 'Taxi', text: taxiInfo });
-    return items;
+  // Support new items array format
+  const getDisplayItems = () => {
+    // New format: items array from editor
+    if (directionsData.items && directionsData.items.length > 0) {
+      return directionsData.items.map(item => ({
+        icon: item.icon || '📍',
+        title: item.title || '',
+        description: item.description || ''
+      }));
+    }
+
+    // Legacy format: fixed fields
+    const legacyItems = [];
+    if (directionsData.parking_info) {
+      legacyItems.push({ icon: '🚗', title: 'Mit dem Auto', description: directionsData.parking_info });
+    }
+    if (directionsData.public_transport) {
+      legacyItems.push({ icon: '🚇', title: 'Öffentliche Verkehrsmittel', description: directionsData.public_transport });
+    }
+    if (directionsData.taxi_info) {
+      legacyItems.push({ icon: '🚕', title: 'Taxi', description: directionsData.taxi_info });
+    }
+
+    return legacyItems.length > 0 ? legacyItems : defaultItems;
   };
 
-  const builtItems = buildItemsFromFields();
-  const displayItems = builtItems.length > 0 ? builtItems : defaultItems;
+  const displayItems = getDisplayItems();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -210,7 +210,7 @@ function Directions() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -222,18 +222,18 @@ function Directions() {
           <Eyebrow $visible={visible}>So kommt ihr hin</Eyebrow>
           <Title $visible={visible}>{title}</Title>
         </Header>
-        
+
         <GlassCard $visible={visible}>
           <DirectionsGrid>
             {displayItems.map((item, i) => (
               <DirectionItem key={i}>
                 {item.icon && <ItemIcon>{item.icon}</ItemIcon>}
                 <ItemTitle>{item.title}</ItemTitle>
-                <ItemText>{item.text}</ItemText>
+                <ItemText>{item.description}</ItemText>
               </DirectionItem>
             ))}
           </DirectionsGrid>
-          
+
           {note && (
             <Note>
               <p>{note}</p>

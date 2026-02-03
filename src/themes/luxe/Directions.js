@@ -10,8 +10,9 @@ const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
 const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
 const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const Content = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
-const Block = styled.div``;
+const Content = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
+const Block = styled.div`text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.1);`;
+const BlockIcon = styled.div`font-size: 2rem; margin-bottom: 1rem;`;
 const BlockTitle = styled.h4`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem;`;
 const BlockText = styled.p`font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--luxe-pearl);`;
 
@@ -21,12 +22,43 @@ function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
   const title = data.title || 'Anfahrt';
-  const car = data.car_info || 'Kostenlose Parkplaetze stehen vor Ort zur Verfuegung.';
-  const publicTransport = data.public_transport || 'Mit der S-Bahn bis Hauptbahnhof, dann Bus Linie 42.';
   const mapsUrl = data.maps_url || '';
-  
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
+
+  const defaultItems = [
+    { icon: '🚗', title: 'Mit dem Auto', description: 'Kostenlose Parkplätze stehen vor Ort zur Verfügung.' },
+    { icon: '🚆', title: 'Öffentlich', description: 'Mit der S-Bahn bis Hauptbahnhof, dann Bus Linie 42.' },
+  ];
+
+  // Support new items array format
+  const getDisplayItems = () => {
+    // New format: items array from editor
+    if (data.items && data.items.length > 0) {
+      return data.items.map(item => ({
+        icon: item.icon || '📍',
+        title: item.title || '',
+        description: item.description || ''
+      }));
+    }
+
+    // Legacy format: fixed fields
+    const legacyItems = [];
+    if (data.car_info || data.parking_info) {
+      legacyItems.push({ icon: '🚗', title: 'Mit dem Auto', description: data.car_info || data.parking_info });
+    }
+    if (data.public_transport) {
+      legacyItems.push({ icon: '🚆', title: 'Öffentlich', description: data.public_transport });
+    }
+    if (data.taxi_info) {
+      legacyItems.push({ icon: '🚕', title: 'Taxi', description: data.taxi_info });
+    }
+
+    return legacyItems.length > 0 ? legacyItems : defaultItems;
+  };
+
+  const displayItems = getDisplayItems();
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
@@ -39,8 +71,13 @@ function Directions() {
       <Container>
         <Header><Eyebrow $visible={visible}>So findet ihr uns</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <Content $visible={visible}>
-          <Block><BlockTitle>Mit dem Auto</BlockTitle><BlockText>{car}</BlockText></Block>
-          <Block><BlockTitle>Oeffentlich</BlockTitle><BlockText>{publicTransport}</BlockText></Block>
+          {displayItems.map((item, i) => (
+            <Block key={i}>
+              <BlockIcon>{item.icon}</BlockIcon>
+              <BlockTitle>{item.title}</BlockTitle>
+              <BlockText>{item.description}</BlockText>
+            </Block>
+          ))}
         </Content>
         {mapsUrl && <div style={{ textAlign: 'center' }}><MapBtn href={mapsUrl} target="_blank" rel="noopener">Route anzeigen</MapBtn></div>}
       </Container>

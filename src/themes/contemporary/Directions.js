@@ -36,13 +36,11 @@ const Title = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 `;
+
+const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
 
 const Card = styled.div`
   background: ${p => p.$color || 'var(--white)'};
@@ -75,13 +73,13 @@ const MapContainer = styled.div`
   height: 350px;
   border: 3px solid var(--black);
   box-shadow: var(--shadow-lg);
-  
+
   iframe {
     width: 100%;
     height: 100%;
     border: none;
   }
-  
+
   @media (max-width: 768px) {
     grid-column: span 1;
     height: 250px;
@@ -95,7 +93,7 @@ const AddressCard = styled.div`
   border: 3px solid var(--black);
   padding: 2rem;
   text-align: center;
-  
+
   @media (max-width: 768px) {
     grid-column: span 1;
   }
@@ -116,22 +114,56 @@ const MapsButton = styled.a`
   padding: 0.75rem 2rem;
   border: 3px solid var(--white);
   text-transform: uppercase;
-  
+
   &:hover {
     background: var(--coral);
     color: var(--white);
   }
 `;
 
+// Check if color should have light text
+const isLightText = (colorIndex) => colorIndex !== 2; // Yellow (index 2) needs dark text
+
 function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
-  
+
   const title = data.title || 'Anfahrt';
   const address = data.address || 'Schloss Charlottenburg, Spandauer Damm 10-22, 14059 Berlin';
-  const parkingInfo = data.parking_info || 'Kostenlose Parkplätze stehen direkt vor der Location zur Verfügung.';
-  const publicTransport = data.public_transport || 'U-Bahn: Richard-Wagner-Platz (U7), dann 10 Min Fußweg. Bus: M45 bis Schloss Charlottenburg.';
   const mapsEmbed = data.maps_embed;
+
+  const defaultItems = [
+    { icon: '🚗', title: 'Mit dem Auto', description: 'Kostenlose Parkplätze stehen direkt vor der Location zur Verfügung.' },
+    { icon: '🚇', title: 'ÖPNV', description: 'U-Bahn: Richard-Wagner-Platz (U7), dann 10 Min Fußweg. Bus: M45 bis Schloss Charlottenburg.' },
+  ];
+
+  // Support new items array format
+  const getDisplayItems = () => {
+    // New format: items array from editor
+    if (data.items && data.items.length > 0) {
+      return data.items.map(item => ({
+        icon: item.icon || '📍',
+        title: item.title || '',
+        description: item.description || ''
+      }));
+    }
+
+    // Legacy format: fixed fields
+    const legacyItems = [];
+    if (data.parking_info) {
+      legacyItems.push({ icon: '🚗', title: 'Mit dem Auto', description: data.parking_info });
+    }
+    if (data.public_transport) {
+      legacyItems.push({ icon: '🚇', title: 'ÖPNV', description: data.public_transport });
+    }
+    if (data.taxi_info) {
+      legacyItems.push({ icon: '🚕', title: 'Taxi', description: data.taxi_info });
+    }
+
+    return legacyItems.length > 0 ? legacyItems : defaultItems;
+  };
+
+  const displayItems = getDisplayItems();
 
   return (
     <Section id="directions">
@@ -140,31 +172,31 @@ function Directions() {
           <Eyebrow>🚗 So kommt ihr hin</Eyebrow>
           <Title>{title}</Title>
         </Header>
-        
+
         <Grid>
-          <Card $color="var(--coral)">
-            <CardIcon>🚗</CardIcon>
-            <CardTitle $light>Mit dem Auto</CardTitle>
-            <CardText $light>{parkingInfo}</CardText>
-          </Card>
-          
-          <Card $color="var(--electric)">
-            <CardIcon>🚇</CardIcon>
-            <CardTitle>ÖPNV</CardTitle>
-            <CardText>{publicTransport}</CardText>
-          </Card>
-          
+          {displayItems.map((item, i) => {
+            const colorIndex = i % colors.length;
+            const light = isLightText(colorIndex);
+            return (
+              <Card key={i} $color={colors[colorIndex]}>
+                <CardIcon>{item.icon}</CardIcon>
+                <CardTitle $light={light}>{item.title}</CardTitle>
+                <CardText $light={light}>{item.description}</CardText>
+              </Card>
+            );
+          })}
+
           <AddressCard>
             <Address>📍 {address}</Address>
-            <MapsButton 
-              href={`https://maps.google.com/?q=${encodeURIComponent(address)}`} 
-              target="_blank" 
+            <MapsButton
+              href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+              target="_blank"
               rel="noopener noreferrer"
             >
               In Google Maps öffnen →
             </MapsButton>
           </AddressCard>
-          
+
           {mapsEmbed && (
             <MapContainer>
               <iframe src={mapsEmbed} title="Anfahrt" loading="lazy" allowFullScreen />
