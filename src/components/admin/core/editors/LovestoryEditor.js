@@ -9,8 +9,8 @@ function LovestoryEditor({ components: C }) {
   const content = contentStates.lovestory || {};
   const update = (field, value) => updateContent('lovestory', { ...content, [field]: value });
   
-  // Botanical theme doesn't use images in lovestory
-  const showImages = project?.theme !== 'botanical';
+  // All themes can use images in lovestory
+  const showImages = true;
 
   const renderItem = (item, index, onChange) => (
     <>

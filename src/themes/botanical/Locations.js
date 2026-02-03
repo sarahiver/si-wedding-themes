@@ -196,7 +196,7 @@ function Locations() {
   const locationsData = content?.locations || {};
   
   const title = locationsData.title || 'Locations';
-  const locations = locationsData.items || [];
+  const locations = locationsData.locations || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

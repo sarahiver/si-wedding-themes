@@ -164,9 +164,11 @@ function Directions() {
   const directionsData = content?.directions || {};
   
   const title = directionsData.title || 'Anfahrt';
-  const items = directionsData.items || [];
-  const note = directionsData.note || '';
-  
+  const address = directionsData.address || '';
+  const parkingInfo = directionsData.parking_info || '';
+  const publicTransport = directionsData.public_transport || '';
+  const taxiInfo = directionsData.taxi_info || '';
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -188,7 +190,17 @@ function Directions() {
     },
   ];
 
-  const displayItems = items.length > 0 ? items : defaultItems;
+  // Build items from DirectionsEditor fields if they exist
+  const buildItemsFromFields = () => {
+    const items = [];
+    if (parkingInfo) items.push({ icon: '🚗', title: 'Mit dem Auto', text: parkingInfo });
+    if (publicTransport) items.push({ icon: '🚇', title: 'Öffentliche Verkehrsmittel', text: publicTransport });
+    if (taxiInfo) items.push({ icon: '🚕', title: 'Taxi', text: taxiInfo });
+    return items;
+  };
+
+  const builtItems = buildItemsFromFields();
+  const displayItems = builtItems.length > 0 ? builtItems : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

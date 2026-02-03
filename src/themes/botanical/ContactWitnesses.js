@@ -168,7 +168,7 @@ function ContactWitnesses() {
   
   const title = witnessesData.title || 'Trauzeugen';
   const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen & mehr';
-  const witnesses = witnessesData.items || [];
+  const witnesses = witnessesData.persons || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

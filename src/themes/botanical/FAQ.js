@@ -119,7 +119,7 @@ function FAQ() {
   const faqData = content?.faq || {};
   
   const title = faqData.title || 'FAQ';
-  const items = faqData.items || [];
+  const items = faqData.questions || [];
   
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);

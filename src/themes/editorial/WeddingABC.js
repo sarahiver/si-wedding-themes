@@ -167,7 +167,7 @@ function WeddingABC() {
   
   const title = abcData.title || 'Hochzeits-ABC';
   const description = abcData.description || 'Von A wie Anfahrt bis Z wie Zeitplan – alles Wichtige auf einen Blick.';
-  const items = abcData.items || [];
+  const items = abcData.entries || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

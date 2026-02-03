@@ -108,7 +108,7 @@ function WeddingABC() {
   const abcData = content?.weddingabc || {};
   
   const title = abcData.title || 'Hochzeits-ABC';
-  const items = abcData.items || [];
+  const items = abcData.entries || [];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
