@@ -51,13 +51,11 @@ const Container = styled.div`
   overflow-x: scroll;
   overflow-y: hidden;
   display: flex;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  
+
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
-  
+
   -webkit-overflow-scrolling: touch;
 `;
 
@@ -291,10 +289,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
-  // Mousewheel to snap-scroll sections (Desktop only)
-  const isScrollingRef = useRef(false);
-  const scrollCooldownRef = useRef(null);
-
+  // Mousewheel to horizontal scroll (Desktop only)
   useEffect(() => {
     const handleWheel = (e) => {
       if (!containerRef.current) return;
@@ -304,40 +299,14 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
 
       e.preventDefault();
 
-      // If currently in scroll animation, ignore
-      if (isScrollingRef.current) return;
-
+      // Convert vertical scroll to horizontal
       const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-
-      // Threshold to trigger section change
-      if (Math.abs(delta) < 30) return;
-
-      // Determine direction and target section
-      const direction = delta > 0 ? 1 : -1;
-      const targetIndex = Math.max(0, Math.min(sections.length - 1, activeIndex + direction));
-
-      // Don't scroll if already at boundary
-      if (targetIndex === activeIndex) return;
-
-      // Lock scrolling
-      isScrollingRef.current = true;
-
-      // Scroll to target section
-      scrollToSection(targetIndex);
-
-      // Cooldown before allowing next scroll (matches animation duration)
-      clearTimeout(scrollCooldownRef.current);
-      scrollCooldownRef.current = setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 800);
+      containerRef.current.scrollLeft += delta;
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      clearTimeout(scrollCooldownRef.current);
-    };
-  }, [activeIndex, sections.length, scrollToSection]);
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <>

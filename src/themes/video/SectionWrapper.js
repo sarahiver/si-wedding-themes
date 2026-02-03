@@ -7,20 +7,19 @@ const Wrapper = styled.section`
   width: 100vw;
   height: 100vh;
   flex-shrink: 0;
-  scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   /* Allow vertical scroll ONLY if content overflows */
   overflow-x: hidden;
   overflow-y: auto;
-  
+
   /* Hide scrollbar but allow scrolling */
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
-  
+
   /* Ensure touch scroll works */
   -webkit-overflow-scrolling: touch;
 `;
