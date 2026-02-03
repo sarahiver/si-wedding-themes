@@ -290,6 +290,10 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
+  // Scroll accumulator for threshold-based section changes
+  const scrollAccumulatorRef = useRef(0);
+  const scrollTimeoutRef = useRef(null);
+
   // Reset section scroll position when entering a new section
   const lastActiveIndexRef = useRef(activeIndex);
   useEffect(() => {
@@ -346,21 +350,42 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
         }
       }
 
-      // No vertical overflow, not centered, or at boundary → horizontal scroll
-      // Don't preventDefault - let native scroll + CSS snap handle it
-      // Just need to convert vertical wheel to horizontal
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        container.scrollBy({
-          left: e.deltaY,
-          behavior: 'auto'
-        });
+      // No vertical overflow, not centered, or at boundary → horizontal scroll to next/prev section
+      e.preventDefault();
+
+      // Accumulate delta for threshold
+      scrollAccumulatorRef.current += delta;
+
+      // Clear accumulator after pause
+      clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        scrollAccumulatorRef.current = 0;
+      }, 200);
+
+      // Threshold before changing section
+      const threshold = 100;
+
+      if (scrollAccumulatorRef.current > threshold) {
+        // Scroll right (next section)
+        if (activeIndex < sections.length - 1) {
+          scrollToSection(activeIndex + 1);
+        }
+        scrollAccumulatorRef.current = 0;
+      } else if (scrollAccumulatorRef.current < -threshold) {
+        // Scroll left (previous section)
+        if (activeIndex > 0) {
+          scrollToSection(activeIndex - 1);
+        }
+        scrollAccumulatorRef.current = 0;
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [activeIndex]);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [activeIndex, sections.length, scrollToSection]);
 
   return (
     <>
