@@ -37,7 +37,7 @@ function MusicSection({ components: C }) {
   return (
     <>
       <C.ActionBar>
-        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+        <span style={{ color: '#525252', fontSize: '0.9rem' }}>
           {musicWishes.length} Musikwünsche
         </span>
         <C.Button onClick={exportExcel}>📥 Excel Export</C.Button>

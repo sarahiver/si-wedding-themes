@@ -120,10 +120,10 @@ function RSVPSection({ components: C }) {
     <>
       {/* Stats */}
       <C.StatsGrid style={{ marginBottom: '1.5rem' }}>
-        <C.StatCard><C.StatNumber>{stats.total}</C.StatNumber><C.StatLabel>Gesamt</C.StatLabel></C.StatCard>
-        <C.StatCard><C.StatNumber>{stats.confirmed}</C.StatNumber><C.StatLabel>Zusagen</C.StatLabel></C.StatCard>
-        <C.StatCard><C.StatNumber>{stats.declined}</C.StatNumber><C.StatLabel>Absagen</C.StatLabel></C.StatCard>
-        <C.StatCard><C.StatNumber>{stats.guests}</C.StatNumber><C.StatLabel>Gäste</C.StatLabel></C.StatCard>
+        <C.StatCard $index={0}><C.StatNumber $index={0}>{stats.total}</C.StatNumber><C.StatLabel $index={0}>Gesamt</C.StatLabel></C.StatCard>
+        <C.StatCard $index={1}><C.StatNumber $index={1}>{stats.confirmed}</C.StatNumber><C.StatLabel $index={1}>Zusagen</C.StatLabel></C.StatCard>
+        <C.StatCard $index={2}><C.StatNumber $index={2}>{stats.declined}</C.StatNumber><C.StatLabel $index={2}>Absagen</C.StatLabel></C.StatCard>
+        <C.StatCard $index={3}><C.StatNumber $index={3}>{stats.guests}</C.StatNumber><C.StatLabel $index={3}>Gäste</C.StatLabel></C.StatCard>
       </C.StatsGrid>
 
       <C.ActionBar>

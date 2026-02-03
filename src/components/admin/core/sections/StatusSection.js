@@ -35,23 +35,23 @@ function StatusSection({ components: C }) {
       </C.PanelHeader>
       <C.PanelContent>
         {/* Aktueller Status - groß und deutlich */}
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '2rem', 
-          background: 'rgba(255,255,255,0.03)', 
+        <div style={{
+          textAlign: 'center',
+          padding: '2rem',
+          background: 'rgba(0,0,0,0.03)',
           borderRadius: '12px',
           marginBottom: '1.5rem'
         }}>
-          <div style={{ 
+          <div style={{
             display: 'inline-block',
             padding: '0.5rem 1.5rem',
             background: status.color,
             borderRadius: '20px',
             marginBottom: '1rem'
           }}>
-            <span style={{ 
-              fontSize: '0.8rem', 
-              fontWeight: '700', 
+            <span style={{
+              fontSize: '0.8rem',
+              fontWeight: '700',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               color: '#fff'
@@ -59,8 +59,8 @@ function StatusSection({ components: C }) {
               {status.label}
             </span>
           </div>
-          <p style={{ 
-            color: 'rgba(255,255,255,0.6)', 
+          <p style={{
+            color: '#525252',
             fontSize: '0.9rem',
             marginTop: '0.5rem'
           }}>
