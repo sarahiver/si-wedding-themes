@@ -168,6 +168,7 @@ function Directions() {
   const parkingInfo = directionsData.parking_info || '';
   const publicTransport = directionsData.public_transport || '';
   const taxiInfo = directionsData.taxi_info || '';
+  const note = directionsData.note || '';
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
