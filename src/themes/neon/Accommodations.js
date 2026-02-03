@@ -1,5 +1,4 @@
 import { useWedding } from '../../context/WeddingContext';
-// src/components/Accommodations.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -28,7 +27,7 @@ const Section = styled.section`
 const GridBG = styled.div`
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -54,7 +53,7 @@ const Eyebrow = styled.div`
   font-size: 0.85rem;
   color: #00ffff;
   margin-bottom: 20px;
-  
+
   &::before {
     content: '$ ';
     color: #ff00ff;
@@ -66,7 +65,7 @@ const Title = styled.h2`
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 700;
   color: #fff;
-  
+
   span {
     color: #ff00ff;
     text-shadow: 0 0 20px rgba(255,0,255,0.5);
@@ -102,7 +101,7 @@ const AccommodationCard = styled.div`
   animation-delay: ${p => p.$delay || '0s'};
   opacity: 0;
   transition: all 0.4s ease;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -113,25 +112,13 @@ const AccommodationCard = styled.div`
     background: ${p => p.$color || '#00ffff'};
     box-shadow: 0 0 20px ${p => p.$color || '#00ffff'};
   }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, ${p => p.$color || '#00ffff'}50, transparent);
-    animation: ${scanlineAnim} 5s linear infinite;
-    opacity: 0.3;
-  }
-  
+
   &:hover {
     border-color: ${p => p.$color || '#00ffff'};
     transform: translateX(10px);
     box-shadow: 0 0 40px ${p => p.$color || '#00ffff'}20;
   }
-  
+
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
@@ -142,27 +129,7 @@ const ImageWrapper = styled.div`
   height: 180px;
   overflow: hidden;
   border: 1px solid ${p => p.$color || '#00ffff'}20;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(30%);
-    transition: all 0.4s ease;
-    
-    ${AccommodationCard}:hover & {
-      filter: grayscale(0%) brightness(1.1);
-      transform: scale(1.05);
-    }
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, ${p => p.$color || '#00ffff'}20, transparent);
-    pointer-events: none;
-  }
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'rgba(255,255,255,0.02)'};
 `;
 
 const ContentSection = styled.div`
@@ -181,7 +148,7 @@ const TypeBadge = styled.div`
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin-bottom: 12px;
-  
+
   &::before {
     content: '';
     width: 8px;
@@ -200,32 +167,44 @@ const HotelName = styled.h3`
   margin-bottom: 10px;
 `;
 
-const HotelDescription = styled.p`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.6;
-  margin-bottom: 20px;
+const HotelMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
 `;
 
-const DetailsGrid = styled.div`
+const MetaItem = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const DetailItem = styled.div`
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.85rem;
   color: rgba(255,255,255,0.6);
-  
-  svg {
-    width: 18px;
-    height: 18px;
+`;
+
+const AddressLink = styled.a`
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
     color: ${p => p.$color || '#00ffff'};
+  }
+`;
+
+const BookingCodeBox = styled.div`
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  background: rgba(0,255,136,0.05);
+  border: 1px solid rgba(0,255,136,0.2);
+  padding: 10px 15px;
+  margin-top: 10px;
+
+  code {
+    color: #00ff88;
+    font-weight: 600;
   }
 `;
 
@@ -235,7 +214,7 @@ const PriceSection = styled.div`
   align-items: flex-end;
   justify-content: center;
   gap: 15px;
-  
+
   @media (max-width: 900px) {
     align-items: flex-start;
   }
@@ -243,7 +222,7 @@ const PriceSection = styled.div`
 
 const PriceTag = styled.div`
   text-align: right;
-  
+
   @media (max-width: 900px) {
     text-align: left;
   }
@@ -260,15 +239,10 @@ const PriceLabel = styled.div`
 
 const Price = styled.div`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: ${p => p.$color || '#00ffff'};
   text-shadow: 0 0 15px ${p => p.$color || '#00ffff'}50;
-  
-  span {
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.4);
-  }
 `;
 
 const BookButton = styled.a`
@@ -286,12 +260,7 @@ const BookButton = styled.a`
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: all 0.3s ease;
-  
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-  
+
   &:hover {
     background: ${p => p.$color || '#00ffff'};
     color: #0a0a0f;
@@ -299,95 +268,50 @@ const BookButton = styled.a`
   }
 `;
 
-const CodeBox = styled.div`
-  margin-top: 60px;
-  background: rgba(0,255,136,0.05);
-  border: 1px solid rgba(0,255,136,0.2);
-  padding: 30px;
-  text-align: center;
-  
-  h4 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.2rem;
-    color: #00ff88;
-    margin-bottom: 15px;
-    
-    &::before {
-      content: '🎫 ';
-    }
-  }
-  
-  p {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.6);
-    
-    code {
-      background: rgba(0,255,136,0.1);
-      padding: 5px 15px;
-      border: 1px solid rgba(0,255,136,0.3);
-      color: #00ff88;
-      font-family: 'Space Grotesk', monospace;
-      margin-left: 10px;
-    }
-  }
-`;
+const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
+
+const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
 
 function Accommodations() {
   const { content } = useWedding();
   const accommodationsData = content?.accommodations || {};
   const title = accommodationsData.title || 'Übernachtung';
+  const description = accommodationsData.description || 'Wir haben für euch ein paar Hotel-Empfehlungen zusammengestellt';
 
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
   const defaultAccommodations = [
     {
-      id: 1,
       name: 'Hotel Neon Nights',
-      type: 'PREMIUM',
-      description: 'Modernes Designhotel direkt neben der Location.',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
+      address: 'Hauptstraße 15, Berlin',
       distance: '200m zur Location',
-      price: '159€',
-      priceNote: 'pro Nacht',
-      color: '#ff00ff',
-      bookingUrl: '#'
+      price_range: '€€€',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
+      url: '#'
     },
     {
-      id: 2,
       name: 'Cyber Inn',
-      type: 'MITTELKLASSE',
-      description: 'Gemütliches Hotel mit futuristischem Flair.',
-      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500',
+      address: 'Technostraße 42, Berlin',
       distance: '1.5km zur Location',
-      price: '99€',
-      priceNote: 'pro Nacht',
-      color: '#00ffff',
-      bookingUrl: '#'
+      price_range: '€€',
+      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500',
+      url: '#'
     }
   ];
 
-  const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
-
-  // Map from editor format to neon format
   const accommodations = accommodationsData.hotels?.length > 0
     ? accommodationsData.hotels.map((h, i) => ({
-        id: i + 1,
         name: h.name,
-        type: h.price_range || 'Hotel',
-        description: '',
-        image: h.image || defaultAccommodations[i % defaultAccommodations.length]?.image,
+        address: h.address || '',
         distance: h.distance || '',
-        price: h.price_range || '',
-        priceNote: 'pro Nacht',
-        color: neonColors[i % neonColors.length],
-        bookingUrl: h.url || '#',
-        bookingCode: h.booking_code || ''
+        price_range: h.price_range || '',
+        image: h.image || '',
+        url: h.url || '',
+        booking_code: h.booking_code || '',
+        color: neonColors[i % neonColors.length]
       }))
-    : defaultAccommodations;
-
-  const bookingCode = accommodationsData.hotels?.[0]?.booking_code || '';
+    : defaultAccommodations.map((h, i) => ({ ...h, color: neonColors[i % neonColors.length] }));
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -401,61 +325,52 @@ function Accommodations() {
   return (
     <Section ref={sectionRef} id="accommodations">
       <GridBG />
-      
+
       <Container>
         <Header $visible={visible}>
           <Eyebrow>find_accommodation.exe</Eyebrow>
           <Title><span>{title}</span></Title>
-          <Subtitle>Wir haben für euch ein paar Hotel-Empfehlungen zusammengestellt</Subtitle>
+          {description && <Subtitle>{description}</Subtitle>}
         </Header>
-        
+
         <AccommodationsGrid>
           {accommodations.map((hotel, i) => (
-            <AccommodationCard key={hotel.id} $color={hotel.color} $delay={`${i * 0.15}s`}>
-              <ImageWrapper $color={hotel.color}>
-                <img src={hotel.image} alt={hotel.name} />
-              </ImageWrapper>
-              
+            <AccommodationCard key={i} $color={hotel.color} $delay={`${i * 0.15}s`}>
+              {hotel.image && <ImageWrapper $color={hotel.color} $image={hotel.image} />}
+
               <ContentSection>
-                <TypeBadge $color={hotel.color}>{hotel.type}</TypeBadge>
+                {hotel.price_range && <TypeBadge $color={hotel.color}>{hotel.price_range}</TypeBadge>}
                 <HotelName>{hotel.name}</HotelName>
-                <HotelDescription>{hotel.description}</HotelDescription>
-                
-                <DetailsGrid>
-                  <DetailItem $color={hotel.color}>
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
-                    {hotel.distance}
-                  </DetailItem>
-                </DetailsGrid>
+
+                <HotelMeta>
+                  {hotel.address && (
+                    <MetaItem>
+                      <span>📍</span>
+                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer" $color={hotel.color}>
+                        {hotel.address}
+                      </AddressLink>
+                    </MetaItem>
+                  )}
+                  {hotel.distance && <MetaItem><span>🚶</span><span>{hotel.distance}</span></MetaItem>}
+                </HotelMeta>
+
+                {hotel.booking_code && (
+                  <BookingCodeBox>
+                    Buchungscode: <code>{hotel.booking_code}</code>
+                  </BookingCodeBox>
+                )}
               </ContentSection>
-              
+
               <PriceSection>
-                <PriceTag>
-                  <PriceLabel>Ab</PriceLabel>
-                  <Price $color={hotel.color}>
-                    {hotel.price} <span>/ {hotel.priceNote}</span>
-                  </Price>
-                </PriceTag>
-                
-                <BookButton href={hotel.bookingUrl} $color={hotel.color} target="_blank">
-                  Buchen
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                  </svg>
-                </BookButton>
+                {hotel.url && (
+                  <BookButton href={hotel.url} $color={hotel.color} target="_blank">
+                    Buchen →
+                  </BookButton>
+                )}
               </PriceSection>
             </AccommodationCard>
           ))}
         </AccommodationsGrid>
-        
-        {bookingCode && (
-          <CodeBox>
-            <h4>Buchungscode für Rabatt</h4>
-            <p>Nennt bei der Buchung einfach unseren Code: <code>{bookingCode}</code></p>
-          </CodeBox>
-        )}
       </Container>
     </Section>
   );

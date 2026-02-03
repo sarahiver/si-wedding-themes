@@ -303,9 +303,89 @@ function LocationItem({ location, index }) {
   );
 }
 
+const Header = styled.div`
+  padding: 80px 5% 40px;
+  background: #0a0a0f;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const HeaderTitle = styled.h2`
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+
+  span {
+    color: #00ffff;
+    text-shadow: 0 0 20px rgba(0,255,255,0.5);
+  }
+`;
+
+const ExportContainer = styled.div`
+  margin-top: 1rem;
+`;
+
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 35px;
+  background: transparent;
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #00ffff;
+    color: #0a0a0f;
+    box-shadow: 0 0 30px rgba(0,255,255,0.5);
+  }
+`;
+
+const generateKML = (locations, coupleName) => {
+  const placemarks = locations.map((loc, i) => `
+    <Placemark>
+      <name>${loc.name || `Location ${i + 1}`}</name>
+      <description>${loc.type || ''}</description>
+      <address>${(loc.address || '').replace(/\n/g, ', ')}</address>
+    </Placemark>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document><name>${coupleName} - Wedding Locations</name>${placemarks}</Document>
+</kml>`;
+};
+
+const downloadKML = (locations, coupleName) => {
+  const blob = new Blob([generateKML(locations, coupleName)], { type: 'application/vnd.google-earth.kml+xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${coupleName.replace(/\s+/g, '_')}_Wedding_Locations.kml`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 function Locations() {
-  const { content } = useWedding();
+  const { content, project } = useWedding();
   const locationsData = content?.locations || {};
+
+  const name1 = project?.partner1_name || 'Partner1';
+  const name2 = project?.partner2_name || 'Partner2';
+  const coupleName = `${name1} & ${name2}`;
 
   const defaultLocations = [
     {
@@ -348,6 +428,14 @@ function Locations() {
 
   return (
     <Section id="location">
+      <Header>
+        <HeaderTitle>Die <span>Locations</span></HeaderTitle>
+        <ExportContainer>
+          <ExportButton onClick={() => downloadKML(locations, coupleName)}>
+            <span>📥</span> Für Google Maps speichern
+          </ExportButton>
+        </ExportContainer>
+      </Header>
       {locations.map((location, i) => (
         <React.Fragment key={i}>
           <LocationItem location={location} index={i} />

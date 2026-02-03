@@ -29,6 +29,9 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: clamp(3rem, 6vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Eyebrow = styled.span`
@@ -41,7 +44,7 @@ const Eyebrow = styled.span`
   color: var(--text-muted);
   margin-bottom: 1rem;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
   `}
@@ -53,7 +56,7 @@ const Title = styled.h2`
   font-weight: 300;
   color: var(--text-light);
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.1s;
@@ -64,7 +67,7 @@ const LocationsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  
+
   @media (max-width: 700px) {
     grid-template-columns: 1fr;
   }
@@ -81,12 +84,12 @@ const GlassCard = styled.div`
   position: relative;
   transition: all 0.4s ease;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: ${0.2 + p.$index * 0.15}s;
   `}
-  
+
   &:hover {
     background: var(--glass-bg-hover);
     transform: translateY(-5px);
@@ -97,7 +100,7 @@ const CardImage = styled.div`
   width: 100%;
   height: 200px;
   overflow: hidden;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -105,7 +108,7 @@ const CardImage = styled.div`
     filter: brightness(0.8);
     transition: all 0.5s ease;
   }
-  
+
   ${GlassCard}:hover & img {
     filter: brightness(0.9);
     transform: scale(1.05);
@@ -115,18 +118,18 @@ const CardImage = styled.div`
 const CardContent = styled.div`
   padding: 1.5rem;
   position: relative;
-  
+
   /* Top highlight */
   &::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      rgba(255,255,255,0.15) 20%, 
-      rgba(255,255,255,0.25) 50%, 
-      rgba(255,255,255,0.15) 80%, 
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.15) 20%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(255,255,255,0.15) 80%,
       transparent 100%
     );
     pointer-events: none;
@@ -179,7 +182,7 @@ const MapLink = styled.a`
   text-transform: uppercase;
   color: var(--text-muted);
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-light);
@@ -187,17 +190,97 @@ const MapLink = styled.a`
   }
 `;
 
+const ExportSection = styled.div`
+  margin-top: 1.5rem;
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.2s;
+  `}
+`;
+
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+`;
+
+// ============================================
+// HELPER: Generate KML for Google Maps
+// ============================================
+
+const generateKML = (locations, coupleName) => {
+  const placemarks = locations.map((loc, i) => {
+    const name = loc.title || loc.name || `Location ${i + 1}`;
+    const description = loc.subtitle || loc.type || '';
+    const address = (loc.address || '').replace(/\n/g, ', ');
+
+    return `
+    <Placemark>
+      <name>${name}</name>
+      <description>${description}${address ? `\n${address}` : ''}</description>
+      <address>${address}</address>
+    </Placemark>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>${coupleName} - Hochzeitslocations</name>
+    <description>Alle Locations für unsere Hochzeit</description>
+    ${placemarks}
+  </Document>
+</kml>`;
+};
+
+const downloadKML = (locations, coupleName) => {
+  const kml = generateKML(locations, coupleName);
+  const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${coupleName.replace(/\s+/g, '_')}_Hochzeit_Locations.kml`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 // ============================================
 // COMPONENT
 // ============================================
 
 function Locations() {
-  const { content } = useWedding();
+  const { content, project } = useWedding();
   const locationsData = content?.locations || {};
-  
+
   const title = locationsData.title || 'Locations';
   const locations = locationsData.locations || [];
-  
+
+  // Get couple names for KML filename
+  const name1 = project?.partner1_name || 'Partner1';
+  const name2 = project?.partner2_name || 'Partner2';
+  const coupleName = `${name1} & ${name2}`;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -239,10 +322,14 @@ function Locations() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleExport = () => {
+    downloadKML(displayLocations, coupleName);
+  };
 
   return (
     <Section id="locations" ref={sectionRef}>
@@ -250,8 +337,13 @@ function Locations() {
         <Header>
           <Eyebrow $visible={visible}>Wo wir feiern</Eyebrow>
           <Title $visible={visible}>{title}</Title>
+          <ExportSection $visible={visible}>
+            <ExportButton onClick={handleExport}>
+              <span>📥</span> Für Google Maps speichern
+            </ExportButton>
+          </ExportSection>
         </Header>
-        
+
         <LocationsGrid>
           {displayLocations.map((location, i) => (
             <GlassCard key={i} $visible={visible} $index={i}>

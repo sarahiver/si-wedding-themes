@@ -47,6 +47,7 @@ function LocationsEditor({ components: C }) {
           onChange={(e) => onChange('address', e.target.value)}
           placeholder="Musterstraße 1&#10;20095 Hamburg"
         />
+        <C.HelpText>Vollständige Adresse für den Google Maps Export (Straße, Nr., PLZ, Stadt)</C.HelpText>
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>Uhrzeit</C.Label>
@@ -65,12 +66,13 @@ function LocationsEditor({ components: C }) {
         />
       </C.FormGroup>
       <C.FormGroup>
-        <C.Label>Google Maps Link</C.Label>
+        <C.Label>Google Maps Link (optional)</C.Label>
         <C.Input
           value={item.maps_url || ''}
           onChange={(e) => onChange('maps_url', e.target.value)}
           placeholder="https://maps.google.com/..."
         />
+        <C.HelpText>Falls leer, wird automatisch aus der Adresse generiert</C.HelpText>
       </C.FormGroup>
     </>
   );
@@ -91,6 +93,9 @@ function LocationsEditor({ components: C }) {
         </C.FormGroup>
 
         <C.SectionLabel>Orte (max. 4)</C.SectionLabel>
+        <C.HelpText style={{ marginBottom: '1rem' }}>
+          Gäste können alle Orte als KML-Datei für Google Maps herunterladen. Name und Adresse werden exportiert.
+        </C.HelpText>
         <ListEditor
           components={C}
           items={content.locations || []}

@@ -44,6 +44,9 @@ const Container = styled.div`
 
 const Header = styled.div`
   margin-bottom: clamp(4rem, 8vw, 6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 `;
 
 const Eyebrow = styled.span`
@@ -296,17 +299,95 @@ const MapButton = styled.a`
   }
 `;
 
+const ExportSection = styled.div`
+  margin-top: 2rem;
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.2s;
+  `}
+`;
+
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2.5rem;
+  background: var(--editorial-black);
+  border: none;
+  font-family: var(--font-headline);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--editorial-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: var(--editorial-red);
+    transform: translateY(-3px);
+  }
+`;
+
+// ============================================
+// HELPER: Generate KML for Google Maps
+// ============================================
+
+const generateKML = (locations, coupleName) => {
+  const placemarks = locations.map((loc, i) => {
+    const name = loc.name || `Location ${i + 1}`;
+    const description = loc.type || '';
+    const address = (loc.address || '').replace(/\n/g, ', ');
+
+    return `
+    <Placemark>
+      <name>${name}</name>
+      <description>${description}${address ? `\n${address}` : ''}</description>
+      <address>${address}</address>
+    </Placemark>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>${coupleName} - Hochzeitslocations</name>
+    <description>Alle Locations für unsere Hochzeit</description>
+    ${placemarks}
+  </Document>
+</kml>`;
+};
+
+const downloadKML = (locations, coupleName) => {
+  const kml = generateKML(locations, coupleName);
+  const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${coupleName.replace(/\s+/g, '_')}_Hochzeit_Locations.kml`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 // ============================================
 // COMPONENT
 // ============================================
 
 function Locations() {
-  const { content } = useWedding();
+  const { content, project } = useWedding();
   const locationsData = content?.locations || {};
   
   const title = locationsData.title || 'Die Locations';
   const locations = locationsData.locations || [];
-  
+
+  // Get couple names for KML filename
+  const name1 = project?.partner1_name || 'Partner1';
+  const name2 = project?.partner2_name || 'Partner2';
+  const coupleName = `${name1} & ${name2}`;
+
   const [headerVisible, setHeaderVisible] = useState(false);
   const [visibleCards, setVisibleCards] = useState([]);
   const sectionRef = useRef(null);
@@ -366,14 +447,23 @@ function Locations() {
     return () => observers.forEach(obs => obs.disconnect());
   }, [items.length]);
 
+  const handleExport = () => {
+    downloadKML(items, coupleName);
+  };
+
   return (
     <Section id="locations" ref={sectionRef}>
       <Container>
         <Header>
           <Eyebrow $visible={headerVisible}>Wo wir feiern</Eyebrow>
           <Title $visible={headerVisible}>{title}</Title>
+          <ExportSection $visible={headerVisible}>
+            <ExportButton onClick={handleExport}>
+              <span>📥</span> Für Google Maps speichern
+            </ExportButton>
+          </ExportSection>
         </Header>
-        
+
         <LocationsGrid>
           {items.map((loc, i) => {
             const isVisible = visibleCards.includes(i);

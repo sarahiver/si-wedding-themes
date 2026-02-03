@@ -33,6 +33,16 @@ const Title = styled.h2`
   font-weight: 700;
   color: var(--white);
   text-transform: uppercase;
+  margin-bottom: 1rem;
+`;
+
+const Description = styled.p`
+  font-size: 1rem;
+  color: var(--black);
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 `;
 
 const Grid = styled.div`
@@ -46,12 +56,12 @@ const Card = styled.div`
   border: 3px solid var(--black);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
   }
-  
+
   transition: all 0.3s ease;
 `;
 
@@ -74,24 +84,58 @@ const CardTitle = styled.h3`
   font-weight: 700;
   color: var(--black);
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 `;
 
-const CardInfo = styled.p`
+const CardMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const MetaItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
   font-size: 0.9rem;
   color: var(--gray-600);
-  margin-bottom: 0.25rem;
+`;
+
+const AddressLink = styled.a`
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--coral);
+  }
 `;
 
 const CardPrice = styled.div`
   font-size: 1rem;
   font-weight: 700;
   color: var(--coral);
-  margin: 1rem 0;
+  margin-bottom: 0.75rem;
   padding: 0.5rem;
   background: var(--gray-100);
   border: 2px solid var(--black);
   text-align: center;
+`;
+
+const BookingCode = styled.div`
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  background: var(--gray-100);
+  border: 2px solid var(--black);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+
+  strong {
+    color: var(--coral);
+    font-weight: 700;
+  }
 `;
 
 const Button = styled.a`
@@ -104,22 +148,25 @@ const Button = styled.a`
   padding: 0.75rem;
   border: none;
   text-transform: uppercase;
-  
+
   &:hover {
     background: var(--coral);
   }
 `;
 
+const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+
 function Accommodations() {
   const { content } = useWedding();
   const data = content?.accommodations || {};
-  
+
   const title = data.title || 'Unterkünfte';
+  const description = data.description || '';
   const hotels = data.hotels || [];
 
   const defaultHotels = [
-    { name: 'Hotel Amano', address: 'Auguststraße 43, 10119 Berlin', price: 'ab 120€/Nacht', url: '#', stars: 4 },
-    { name: 'Motel One', address: 'Prinzessinnenstr. 1, 10969 Berlin', price: 'ab 89€/Nacht', url: '#', stars: 3 },
+    { name: 'Hotel Amano', address: 'Auguststraße 43, 10119 Berlin', distance: '10 Min zur Location', price_range: '€€', url: '#' },
+    { name: 'Motel One', address: 'Prinzessinnenstr. 1, 10969 Berlin', distance: '15 Min zur Location', price_range: '€', url: '#' },
   ];
 
   const items = hotels.length > 0 ? hotels : defaultHotels;
@@ -130,8 +177,9 @@ function Accommodations() {
         <Header>
           <Eyebrow>🏨 Übernachten</Eyebrow>
           <Title>{title}</Title>
+          {description && <Description>{description}</Description>}
         </Header>
-        
+
         <Grid>
           {items.map((hotel, i) => (
             <Card key={i}>
@@ -140,9 +188,23 @@ function Accommodations() {
               </CardImage>
               <CardBody>
                 <CardTitle>{hotel.name}</CardTitle>
-                <CardInfo>{hotel.address}</CardInfo>
-                {hotel.distance && <CardInfo>📍 {hotel.distance}</CardInfo>}
-                {hotel.price && <CardPrice>{hotel.price}</CardPrice>}
+                <CardMeta>
+                  {hotel.address && (
+                    <MetaItem>
+                      <span>📍</span>
+                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                        {hotel.address}
+                      </AddressLink>
+                    </MetaItem>
+                  )}
+                  {hotel.distance && <MetaItem><span>🚶</span><span>{hotel.distance}</span></MetaItem>}
+                </CardMeta>
+                {hotel.price_range && <CardPrice>{hotel.price_range}</CardPrice>}
+                {hotel.booking_code && (
+                  <BookingCode>
+                    Code: <strong>{hotel.booking_code}</strong>
+                  </BookingCode>
+                )}
                 {hotel.url && (
                   <Button href={hotel.url} target="_blank" rel="noopener noreferrer">
                     Buchen →

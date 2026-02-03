@@ -47,7 +47,7 @@ const Eyebrow = styled.span`
   color: var(--editorial-red);
   margin-bottom: 1.5rem;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
   `}
@@ -62,7 +62,7 @@ const Title = styled.h2`
   letter-spacing: -0.02em;
   line-height: 0.9;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.15s;
@@ -77,7 +77,7 @@ const Description = styled.p`
   margin-top: 1.5rem;
   line-height: 1.7;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: 0.3s;
@@ -88,7 +88,7 @@ const HotelsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
-  
+
   @media (max-width: 768px) {
     display: flex;
     overflow-x: auto;
@@ -98,7 +98,7 @@ const HotelsGrid = styled.div`
     margin: 0 -1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-    
+
     scrollbar-width: none;
     -ms-overflow-style: none;
     &::-webkit-scrollbar { display: none; }
@@ -110,12 +110,12 @@ const HotelCard = styled.article`
   display: flex;
   flex-direction: column;
   opacity: 0;
-  
+
   ${p => p.$visible && css`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: ${0.3 + p.$index * 0.1}s;
   `}
-  
+
   @media (max-width: 768px) {
     flex-shrink: 0;
     width: 85vw;
@@ -127,13 +127,14 @@ const HotelCard = styled.article`
 const HotelImage = styled.div`
   position: relative;
   overflow: hidden;
-  
+  background: var(--editorial-light-gray);
+
   &::before {
     content: '';
     display: block;
     padding-top: 60%;
   }
-  
+
   img {
     position: absolute;
     inset: 0;
@@ -143,25 +144,11 @@ const HotelImage = styled.div`
     filter: grayscale(30%);
     transition: all 0.5s ease;
   }
-  
+
   &:hover img {
     filter: grayscale(0%);
     transform: scale(1.05);
   }
-`;
-
-const HotelBadge = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: var(--editorial-red);
-  color: var(--editorial-white);
-  padding: 0.5rem 1rem;
-  font-family: var(--font-headline);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 `;
 
 const HotelContent = styled.div`
@@ -180,13 +167,6 @@ const HotelName = styled.h3`
   margin-bottom: 0.5rem;
 `;
 
-const HotelStars = styled.div`
-  color: var(--editorial-red);
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
-`;
-
 const Divider = styled.div`
   width: 40px;
   height: 2px;
@@ -194,14 +174,14 @@ const Divider = styled.div`
   margin-bottom: 1rem;
   transform: scaleX(0);
   transform-origin: left;
-  
+
   ${p => p.$visible && css`
     animation: ${lineGrow} 0.6s ease forwards;
     animation-delay: ${0.5 + p.$index * 0.1}s;
   `}
 `;
 
-const HotelDetails = styled.div`
+const HotelMeta = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -209,30 +189,48 @@ const HotelDetails = styled.div`
   flex: 1;
 `;
 
-const DetailRow = styled.div`
+const MetaRow = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: var(--editorial-gray);
-  
+
   span:first-child {
     flex-shrink: 0;
   }
 `;
 
+const AddressLink = styled.a`
+  color: var(--editorial-gray);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--editorial-red);
+    text-decoration: underline;
+  }
+`;
+
 const PriceTag = styled.div`
   font-family: var(--font-headline);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--editorial-black);
   margin-bottom: 1rem;
-  
-  span {
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--editorial-gray);
+`;
+
+const BookingCode = styled.div`
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--editorial-gray);
+  padding: 0.75rem;
+  background: var(--editorial-white);
+  margin-bottom: 1rem;
+
+  strong {
+    color: var(--editorial-red);
   }
 `;
 
@@ -252,24 +250,17 @@ const BookButton = styled.a`
   text-decoration: none;
   transition: all 0.3s ease;
   margin-top: auto;
-  
+
   &:hover {
     background: var(--editorial-red);
   }
 `;
 
-const CodeNote = styled.p`
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--editorial-gray);
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background: var(--editorial-white);
-  
-  strong {
-    color: var(--editorial-red);
-  }
-`;
+// ============================================
+// HELPER
+// ============================================
+
+const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
 
 // ============================================
 // COMPONENT
@@ -278,33 +269,30 @@ const CodeNote = styled.p`
 function Accommodations() {
   const { content } = useWedding();
   const accommodationsData = content?.accommodations || {};
-  
+
   const title = accommodationsData.title || 'Unterkünfte';
   const description = accommodationsData.description || 'Wir haben für euch Zimmerkontingente reserviert.';
   const hotels = accommodationsData.hotels || [];
-  
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   const defaultHotels = [
     {
       name: 'Hotel Schlossblick',
-      stars: 4,
       address: 'Schlossstraße 10, 69117 Heidelberg',
       distance: '5 Minuten zur Location',
-      price: 'ab 120€',
+      price_range: '€€€',
       booking_code: 'WEDDING2026',
-      booking_url: '#',
+      url: '#',
       image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
-      recommended: true
     },
     {
       name: 'Gasthaus zur Linde',
-      stars: 3,
       address: 'Lindenweg 5, 69117 Heidelberg',
       distance: '10 Minuten zur Location',
-      price: 'ab 85€',
-      booking_url: '#',
+      price_range: '€€',
+      url: '#',
       image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600'
     }
   ];
@@ -318,7 +306,7 @@ function Accommodations() {
       },
       { threshold: 0.1 }
     );
-    
+
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
@@ -329,55 +317,51 @@ function Accommodations() {
         <Header>
           <Eyebrow $visible={visible}>Übernachten</Eyebrow>
           <Title $visible={visible}>{title}</Title>
-          <Description $visible={visible}>{description}</Description>
+          {description && <Description $visible={visible}>{description}</Description>}
         </Header>
-        
+
         <HotelsGrid>
           {items.map((hotel, i) => (
             <HotelCard key={i} $visible={visible} $index={i}>
-              <HotelImage>
-                {hotel.image && <img src={hotel.image} alt={hotel.name} />}
-                {hotel.recommended && <HotelBadge>Empfohlen</HotelBadge>}
-              </HotelImage>
-              
+              {hotel.image && (
+                <HotelImage>
+                  <img src={hotel.image} alt={hotel.name} />
+                </HotelImage>
+              )}
+
               <HotelContent>
                 <HotelName>{hotel.name}</HotelName>
-                {hotel.stars && (
-                  <HotelStars>{'★'.repeat(hotel.stars)}</HotelStars>
-                )}
                 <Divider $visible={visible} $index={i} />
-                
-                <HotelDetails>
+
+                <HotelMeta>
                   {hotel.address && (
-                    <DetailRow>
+                    <MetaRow>
                       <span>📍</span>
-                      <span>{hotel.address}</span>
-                    </DetailRow>
+                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                        {hotel.address}
+                      </AddressLink>
+                    </MetaRow>
                   )}
                   {hotel.distance && (
-                    <DetailRow>
+                    <MetaRow>
                       <span>🚶</span>
                       <span>{hotel.distance}</span>
-                    </DetailRow>
+                    </MetaRow>
                   )}
-                </HotelDetails>
-                
-                {hotel.price && (
-                  <PriceTag>
-                    {hotel.price} <span>/ Nacht</span>
-                  </PriceTag>
+                </HotelMeta>
+
+                {hotel.price_range && <PriceTag>{hotel.price_range}</PriceTag>}
+
+                {hotel.booking_code && (
+                  <BookingCode>
+                    Buchungscode: <strong>{hotel.booking_code}</strong>
+                  </BookingCode>
                 )}
-                
-                {hotel.booking_url && (
-                  <BookButton href={hotel.booking_url} target="_blank" rel="noopener noreferrer">
+
+                {hotel.url && (
+                  <BookButton href={hotel.url} target="_blank" rel="noopener noreferrer">
                     Jetzt buchen →
                   </BookButton>
-                )}
-                
-                {hotel.booking_code && (
-                  <CodeNote>
-                    Buchungscode: <strong>{hotel.booking_code}</strong>
-                  </CodeNote>
                 )}
               </HotelContent>
             </HotelCard>
