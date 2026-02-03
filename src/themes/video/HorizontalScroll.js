@@ -289,7 +289,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
-  // Mousewheel to horizontal scroll (Desktop only)
+  // Mousewheel: vertical in overflowing sections, then horizontal
   useEffect(() => {
     const handleWheel = (e) => {
       if (!containerRef.current) return;
@@ -297,16 +297,43 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       // Only on desktop
       if (window.innerWidth <= 768) return;
 
-      e.preventDefault();
+      const delta = e.deltaY;
 
-      // Convert vertical scroll to horizontal
-      const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      // Find the current section element (direct children of container)
+      const sectionElements = containerRef.current.children;
+      const currentSection = sectionElements[activeIndex];
+
+      if (currentSection) {
+        const hasVerticalOverflow = currentSection.scrollHeight > currentSection.clientHeight;
+
+        if (hasVerticalOverflow) {
+          const isAtTop = currentSection.scrollTop <= 0;
+          const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 5;
+
+          // Scroll down but not at bottom yet → vertical scroll
+          if (delta > 0 && !isAtBottom) {
+            currentSection.scrollTop += delta;
+            e.preventDefault();
+            return;
+          }
+
+          // Scroll up but not at top yet → vertical scroll
+          if (delta < 0 && !isAtTop) {
+            currentSection.scrollTop += delta;
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      // No vertical overflow or at boundary → horizontal scroll
+      e.preventDefault();
       containerRef.current.scrollLeft += delta;
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
+  }, [activeIndex]);
 
   return (
     <>
