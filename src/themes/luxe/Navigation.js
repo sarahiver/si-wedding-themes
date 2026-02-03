@@ -146,7 +146,7 @@ function Navigation() {
   const allMenuItems = [
     { id: 'hero', anchor: 'hero', label: 'Home', always: true },
     { id: 'countdown', anchor: 'countdown', label: 'Countdown' },
-    { id: 'lovestory', anchor: 'lovestory', label: 'Unsere Geschichte' },
+    { id: 'lovestory', anchor: 'story', label: 'Unsere Geschichte' },
     { id: 'timeline', anchor: 'timeline', label: 'Der Tag' },
     { id: 'locations', anchor: 'locations', label: 'Locations' },
     { id: 'directions', anchor: 'directions', label: 'Anfahrt' },
@@ -156,10 +156,10 @@ function Navigation() {
     { id: 'gallery', anchor: 'gallery', label: 'Galerie' },
     { id: 'gifts', anchor: 'gifts', label: 'Geschenke' },
     { id: 'guestbook', anchor: 'guestbook', label: 'Gästebuch' },
-    { id: 'musicwishes', anchor: 'musicwishes', label: 'Musikwünsche' },
-    { id: 'photoupload', anchor: 'photoupload', label: 'Fotos' },
+    { id: 'musicwishes', anchor: 'music', label: 'Musikwünsche' },
+    { id: 'photoupload', anchor: 'photos', label: 'Fotos' },
     { id: 'faq', anchor: 'faq', label: 'FAQ' },
-    { id: 'weddingabc', anchor: 'weddingabc', label: 'Hochzeits-ABC' },
+    { id: 'weddingabc', anchor: 'abc', label: 'Hochzeits-ABC' },
     { id: 'witnesses', anchor: 'witnesses', label: 'Trauzeugen' },
     { id: 'contact', anchor: 'contact', label: 'Kontakt' },
   ];

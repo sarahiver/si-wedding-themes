@@ -214,23 +214,23 @@ function Navigation() {
   // Fixed items always visible in nav bar (if active)
   const fixedNavItems = [
     { id: 'countdown', label: 'Countdown', href: '#countdown' },
-    { id: 'lovestory', label: 'Story', href: '#lovestory' },
+    { id: 'lovestory', label: 'Story', href: '#story' },
   ];
 
   // Items for burger menu (excluding fixed nav items: countdown, lovestory, rsvp)
   const burgerNavItems = [
     { id: 'timeline', label: 'Timeline', href: '#timeline' },
-    { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'locations', label: 'Location', href: '#location' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
     { id: 'gallery', label: 'Gallery', href: '#gallery' },
     { id: 'gifts', label: 'Gifts', href: '#gifts' },
     { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
-    { id: 'musicwishes', label: 'Musik', href: '#musicwishes' },
-    { id: 'photoupload', label: 'Fotos', href: '#photoupload' },
+    { id: 'musicwishes', label: 'Musik', href: '#music' },
+    { id: 'photoupload', label: 'Fotos', href: '#photo-upload' },
     { id: 'faq', label: 'FAQ', href: '#faq' },
-    { id: 'weddingabc', label: 'ABC', href: '#weddingabc' },
+    { id: 'weddingabc', label: 'ABC', href: '#wedding-abc' },
     { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
     { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
