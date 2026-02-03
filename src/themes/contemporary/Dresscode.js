@@ -202,6 +202,7 @@ function Dresscode() {
 
   // Helper to determine if color is light
   const isLightColor = (hex) => {
+    if (!hex || !hex.startsWith('#')) return false;
     const c = hex.replace('#', '');
     const r = parseInt(c.substr(0, 2), 16);
     const g = parseInt(c.substr(2, 2), 16);
@@ -210,14 +211,21 @@ function Dresscode() {
   };
 
   // Support both old format (string) and new format (object with hex/name)
+  const getValidHex = (c) => {
+    if (typeof c === 'string' && c.startsWith('#')) return c;
+    if (c?.hex && c.hex.startsWith('#')) return c.hex;
+    if (c?.color && c.color.startsWith('#')) return c.color;
+    return null;
+  };
   const mappedColors = colors.length > 0
     ? colors.map(c => {
-        const hex = typeof c === 'string' ? c : (c?.hex || c?.color || '#888');
-        const name = typeof c === 'string' ? '' : (c?.name || '');
+        const hex = getValidHex(c);
+        if (!hex) return null;
+        const name = typeof c === 'object' ? (c?.name || '') : '';
         return { hex, name, light: isLightColor(hex) };
-      })
-    : defaultColors;
-  const displayColors = mappedColors;
+      }).filter(Boolean)
+    : [];
+  const displayColors = mappedColors.length > 0 ? mappedColors : defaultColors;
   const displayDos = dos.length > 0 ? dos : defaultDos;
   const displayDonts = donts.length > 0 ? donts : defaultDonts;
 

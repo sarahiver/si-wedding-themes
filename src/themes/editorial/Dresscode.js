@@ -296,10 +296,17 @@ function Dresscode() {
   ];
 
   // Support both old format (string) and new format (object with hex/name)
+  const getValidHex = (c) => {
+    if (typeof c === 'string' && c.startsWith('#')) return c;
+    if (c?.hex && c.hex.startsWith('#')) return c.hex;
+    if (c?.color && c.color.startsWith('#')) return c.color;
+    return null;
+  };
   const mappedColors = colors.length > 0
-    ? colors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || c?.color || '#888', name: c?.name || '' })
-    : defaultColors;
-  const displayColors = mappedColors;
+    ? colors.map(c => ({ hex: getValidHex(c) || '#888888', name: (typeof c === 'object' ? c?.name : '') || '' }))
+        .filter(c => c.hex !== '#888888')
+    : [];
+  const displayColors = mappedColors.length > 0 ? mappedColors : defaultColors;
   const displayDos = dos.length > 0 ? dos : defaultDos;
   const displayDonts = donts.length > 0 ? donts : defaultDonts;
 

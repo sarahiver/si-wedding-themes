@@ -27,10 +27,20 @@ function Dresscode() {
   const code = data.code || 'Black Tie Optional';
   const defaultColors = [{ name: 'Schwarz', hex: '#1A1A1A' }, { name: 'Navy', hex: '#1C2841' }, { name: 'Silber', hex: '#C0C0C0' }, { name: 'Creme', hex: '#F5F5DC' }];
   // Support both old format (string) and new format (object with hex/name)
+  const getValidHex = (c) => {
+    if (typeof c === 'string' && c.startsWith('#')) return c;
+    if (c?.hex && c.hex.startsWith('#')) return c.hex;
+    return null;
+  };
   const rawColors = data.colors || [];
-  const colors = rawColors.length > 0
-    ? rawColors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || '#888', name: c?.name || '' })
-    : defaultColors;
+  const mappedColors = rawColors.length > 0
+    ? rawColors.map(c => {
+        const hex = getValidHex(c);
+        if (!hex) return null;
+        return { hex, name: (typeof c === 'object' ? c?.name : '') || '' };
+      }).filter(Boolean)
+    : [];
+  const colors = mappedColors.length > 0 ? mappedColors : defaultColors;
   const dos = data.dos || ['Elegante Abendgarderobe', 'Dunkle Anzuege', 'Lange Kleider'];
   const donts = data.donts || ['Weiss (reserviert fuer Braut)', 'Jeans', 'Sneaker'];
   const [visible, setVisible] = useState(false);

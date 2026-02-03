@@ -35,8 +35,18 @@ function Dresscode() {
   const defaultDonts = ['Weiss oder Creme', 'Sehr laute Farben', 'Casual Kleidung'];
 
   // Support both old format (string) and new format (object with hex/name)
-  const rawColors = Array.isArray(data.colors) && data.colors.length > 0 ? data.colors : defaultColors;
-  const colors = rawColors.map(c => typeof c === 'string' ? { hex: c, name: '' } : { hex: c?.hex || '#888', name: c?.name || '' });
+  const getValidHex = (c) => {
+    if (typeof c === 'string' && c.startsWith('#')) return c;
+    if (c?.hex && c.hex.startsWith('#')) return c.hex;
+    return null;
+  };
+  const rawColors = Array.isArray(data.colors) && data.colors.length > 0 ? data.colors : [];
+  const mappedColors = rawColors.map(c => {
+    const hex = getValidHex(c);
+    if (!hex) return null;
+    return { hex, name: (typeof c === 'object' ? c?.name : '') || '' };
+  }).filter(Boolean);
+  const colors = mappedColors.length > 0 ? mappedColors : defaultColors;
   const dos = Array.isArray(data.dos) && data.dos.length > 0 ? data.dos : defaultDos;
   const donts = Array.isArray(data.donts) && data.donts.length > 0 ? data.donts : defaultDonts;
   
