@@ -231,18 +231,42 @@ const MobileCTA = styled.a`
 `;
 
 function Navigation() {
-  const { project, content } = useWedding();
+  const { project, isInNavigation } = useWedding();
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
   const name1 = project?.partner1_name || 'Sophie';
   const name2 = project?.partner2_name || 'Max';
 
-  const defaultLinks = [
-    { label: 'Story', href: '#story' },
-    { label: 'Location', href: '#location' },
-    { label: 'Ablauf', href: '#timeline' },
-    { label: 'FAQ', href: '#faq' },
+  // All possible nav items
+  const allNavItems = [
+    { id: 'lovestory', label: 'Story', href: '#story' },
+    { id: 'timeline', label: 'Ablauf', href: '#timeline' },
+    { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'directions', label: 'Anfahrt', href: '#directions' },
+    { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
+    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'gallery', label: 'Galerie', href: '#gallery' },
+    { id: 'gifts', label: 'Geschenke', href: '#gifts' },
+    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
+    { id: 'musicwishes', label: 'Musik', href: '#music' },
+    { id: 'photoupload', label: 'Fotos', href: '#photos' },
+    { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'weddingabc', label: 'ABC', href: '#abc' },
+    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
+    { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
+
+  // Filter by nav_components and sort by component_order
+  const componentOrder = project?.component_order || [];
+  const navLinks = allNavItems
+    .filter(item => isInNavigation(item.id))
+    .sort((a, b) => {
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -267,13 +291,13 @@ function Navigation() {
           </Logo>
           
           <NavLinks>
-            {defaultLinks.map((link, i) => (
+            {navLinks.map((link, i) => (
               <NavLink key={i} href={link.href}>{link.label}</NavLink>
             ))}
           </NavLinks>
-          
+
           <RightSection>
-            <CTAButton href="#rsvp">RSVP</CTAButton>
+            {isInNavigation('rsvp') && <CTAButton href="#rsvp">RSVP</CTAButton>}
             <MobileButton onClick={() => setMobileOpen(!mobileOpen)}>
               <Hamburger $open={mobileOpen}>
                 <span /><span /><span />
@@ -284,14 +308,16 @@ function Navigation() {
       </Nav>
       
       <MobileMenu $open={mobileOpen}>
-        {defaultLinks.map((link, i) => (
+        {navLinks.map((link, i) => (
           <MobileLink key={i} href={link.href} onClick={() => setMobileOpen(false)}>
             {link.label}
           </MobileLink>
         ))}
-        <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
-          RSVP →
-        </MobileCTA>
+        {isInNavigation('rsvp') && (
+          <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
+            RSVP →
+          </MobileCTA>
+        )}
       </MobileMenu>
     </>
   );
