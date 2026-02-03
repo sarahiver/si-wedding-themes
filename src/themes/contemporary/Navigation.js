@@ -121,7 +121,9 @@ const CTAButton = styled.a`
 `;
 
 const MobileButton = styled.button`
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
   background: var(--yellow);
@@ -129,16 +131,10 @@ const MobileButton = styled.button`
   box-shadow: 3px 3px 0 var(--black);
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     transform: translate(-1px, -1px);
     box-shadow: 4px 4px 0 var(--black);
-  }
-  
-  @media (max-width: 900px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 `;
 

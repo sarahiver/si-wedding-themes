@@ -105,9 +105,11 @@ const RSVPButton = styled.a`
   }
 `;
 
-// Mobile menu button
+// Burger menu button - always visible
 const MenuButton = styled.button`
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
   background: transparent;
@@ -116,15 +118,9 @@ const MenuButton = styled.button`
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.1);
-  }
-  
-  @media (max-width: 900px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 `;
 

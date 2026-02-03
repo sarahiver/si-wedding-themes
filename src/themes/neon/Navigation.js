@@ -116,16 +116,12 @@ const RSVPButton = styled.a`
 
 // Mobile Menu
 const MenuButton = styled.button`
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 6px;
   background: none;
   padding: 10px;
   z-index: 1001;
-  
-  @media (max-width: 968px) {
-    display: flex;
-  }
   
   span {
     width: 30px;

@@ -91,15 +91,11 @@ const CTAButton = styled.a`
 `;
 
 const MobileMenuButton = styled.button`
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 10px;
   z-index: 1001;
-
-  @media (max-width: 968px) {
-    display: flex;
-  }
 
   span {
     width: 28px;
