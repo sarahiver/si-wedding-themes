@@ -265,6 +265,16 @@ function Navigation() {
   const name1 = project?.partner1_name || coupleNames?.split(/\s*[&+]\s*/)?.[0] || 'Alex';
   const name2 = project?.partner2_name || coupleNames?.split(/\s*[&+]\s*/)?.[1] || 'Jordan';
 
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Nav $scrolled={scrolled}>
@@ -276,9 +286,9 @@ function Navigation() {
           <NavLinks>
             {/* Fixed visible items: Countdown, Love Story */}
             {visibleNavItems.map((item, i) => (
-              <NavLink key={i} href={item.href}>{item.label}</NavLink>
+              <NavLink key={i} href={item.href} onClick={(e) => handleLinkClick(e, item.href)}>{item.label}</NavLink>
             ))}
-            {isComponentActive('rsvp') && <RSVPButton href="#rsvp">RSVP</RSVPButton>}
+            {isComponentActive('rsvp') && <RSVPButton href="#rsvp" onClick={(e) => handleLinkClick(e, '#rsvp')}>RSVP</RSVPButton>}
           </NavLinks>
           
           <MenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -295,7 +305,7 @@ function Navigation() {
             key={i}
             href={item.href}
             data-text={item.label}
-            onClick={() => setMobileOpen(false)}
+            onClick={(e) => handleLinkClick(e, item.href)}
           >
             {item.label}
           </MobileLink>

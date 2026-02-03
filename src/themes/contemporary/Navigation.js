@@ -286,6 +286,16 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <Nav>
@@ -297,12 +307,12 @@ function Navigation() {
           <NavLinks>
             {/* Fixed visible items: Countdown, Love Story */}
             {visibleNavItems.map((link, i) => (
-              <NavLink key={i} href={link.href}>{link.label}</NavLink>
+              <NavLink key={i} href={link.href} onClick={(e) => handleLinkClick(e, link.href)}>{link.label}</NavLink>
             ))}
           </NavLinks>
 
           <RightSection>
-            {isComponentActive('rsvp') && <CTAButton href="#rsvp">RSVP</CTAButton>}
+            {isComponentActive('rsvp') && <CTAButton href="#rsvp" onClick={(e) => handleLinkClick(e, '#rsvp')}>RSVP</CTAButton>}
             <MobileButton onClick={() => setMobileOpen(!mobileOpen)}>
               <Hamburger $open={mobileOpen}>
                 <span /><span /><span />
@@ -314,7 +324,7 @@ function Navigation() {
       
       <MobileMenu $open={mobileOpen}>
         {burgerMenuItems.map((link, i) => (
-          <MobileLink key={i} href={link.href} onClick={() => setMobileOpen(false)}>
+          <MobileLink key={i} href={link.href} onClick={(e) => handleLinkClick(e, link.href)}>
             {link.label}
           </MobileLink>
         ))}

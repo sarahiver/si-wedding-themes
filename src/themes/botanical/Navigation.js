@@ -301,8 +301,14 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (e, href) => {
+    e.preventDefault();
     setMobileMenuOpen(false);
+    const targetId = href.replace('#', '');
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -311,14 +317,14 @@ function Navigation() {
       <NavPill>
         {/* Fixed visible items: Countdown, Love Story */}
         {visibleNavItems.map((link, i) => (
-          <NavLink key={i} href={link.href}>
+          <NavLink key={i} href={link.href} onClick={(e) => handleLinkClick(e, link.href)}>
             {link.label}
           </NavLink>
         ))}
 
         {/* RSVP button - always if active */}
         {isComponentActive('rsvp') && (
-          <RSVPButton href="#rsvp">RSVP</RSVPButton>
+          <RSVPButton href="#rsvp" onClick={(e) => handleLinkClick(e, '#rsvp')}>RSVP</RSVPButton>
         )}
 
         {/* Burger menu button - always visible */}
@@ -342,7 +348,7 @@ function Navigation() {
               <MobileMenuLink
                 key={i}
                 href={link.href}
-                onClick={handleLinkClick}
+                onClick={(e) => handleLinkClick(e, link.href)}
               >
                 {link.label}
               </MobileMenuLink>

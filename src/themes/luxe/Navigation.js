@@ -189,7 +189,7 @@ function Navigation() {
   return (
     <>
       <Nav $menuOpen={menuOpen}>
-        <Logo href="#hero">{name1[0]} & {name2[0]}</Logo>
+        <Logo href="#hero" onClick={(e) => handleClick(e, 'hero')}>{name1[0]} & {name2[0]}</Logo>
         <MenuToggle onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
           <MenuLine $open={menuOpen} />
           <MenuLine $open={menuOpen} />

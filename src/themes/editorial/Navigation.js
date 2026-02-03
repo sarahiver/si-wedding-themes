@@ -252,8 +252,13 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (e, targetId) => {
+    e.preventDefault();
     setIsOpen(false);
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   // All possible items for burger menu (Editorial has burger-only nav, so all items included)
@@ -295,7 +300,7 @@ function Navigation() {
   return (
     <>
       <Nav $scrolled={scrolled}>
-        <Logo href="#top">{logoText}</Logo>
+        <Logo href="#top" onClick={(e) => handleLinkClick(e, 'top')}>{logoText}</Logo>
         
         <MenuButton 
           onClick={() => setIsOpen(!isOpen)}
@@ -315,9 +320,9 @@ function Navigation() {
           <MenuItems>
             {menuItems.map((item, index) => (
               <MenuItem key={item.id} $open={isOpen} $delay={0.1 + index * 0.05}>
-                <MenuLink 
+                <MenuLink
                   href={`#${item.id}`}
-                  onClick={handleLinkClick}
+                  onClick={(e) => handleLinkClick(e, item.id)}
                 >
                   {item.label}
                 </MenuLink>
