@@ -85,9 +85,6 @@ const defaultContent = {
     title: 'Hochzeits-ABC',
     entries: [],
   },
-  contact: {
-    title: 'Kontakt',
-  },
   footer: {
     names: '',
     tagline: '',
