@@ -128,9 +128,9 @@ const MenuDate = styled.p`
 `;
 
 function Navigation() {
-  const { project } = useWedding();
+  const { project, isComponentActive } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   const name1 = project?.partner1_name || 'A';
   const name2 = project?.partner2_name || 'B';
 
@@ -139,20 +139,35 @@ function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  // FIX: Dynamic menu items based on active components (like Editorial theme)
+  // 'id' = component name for isComponentActive() (matches defaultContent keys)
+  // 'anchor' = section ID in DOM (some components use different IDs)
   const menuItems = [
-    { label: 'Home', href: '#hero' },
-    { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Der Tag', href: '#timeline' },
-    { label: 'Location', href: '#locations' },
-    { label: 'Galerie', href: '#gallery' },
-    { label: 'RSVP', href: '#rsvp' },
-  ];
+    { id: 'hero', anchor: 'hero', label: 'Home', always: true },
+    { id: 'countdown', anchor: 'countdown', label: 'Countdown' },
+    { id: 'lovestory', anchor: 'story', label: 'Unsere Geschichte' },
+    { id: 'timeline', anchor: 'timeline', label: 'Der Tag' },
+    { id: 'locations', anchor: 'locations', label: 'Locations' },
+    { id: 'directions', anchor: 'directions', label: 'Anfahrt' },
+    { id: 'accommodations', anchor: 'accommodations', label: 'Unterkünfte' },
+    { id: 'dresscode', anchor: 'dresscode', label: 'Dresscode' },
+    { id: 'rsvp', anchor: 'rsvp', label: 'RSVP' },
+    { id: 'gallery', anchor: 'gallery', label: 'Galerie' },
+    { id: 'gifts', anchor: 'gifts', label: 'Geschenke' },
+    { id: 'guestbook', anchor: 'guestbook', label: 'Gästebuch' },
+    { id: 'musicwishes', anchor: 'music', label: 'Musikwünsche' },
+    { id: 'photoupload', anchor: 'photos', label: 'Fotos' },
+    { id: 'faq', anchor: 'faq', label: 'FAQ' },
+    { id: 'weddingabc', anchor: 'abc', label: 'Hochzeits-ABC' },
+    { id: 'witnesses', anchor: 'witnesses', label: 'Trauzeugen' },
+    { id: 'contact', anchor: 'contact', label: 'Kontakt' },
+  ].filter(item => item.always || isComponentActive(item.id));
 
-  const handleClick = (e, href) => {
+  const handleClick = (e, anchor) => {
     e.preventDefault();
     setMenuOpen(false);
     setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+      document.querySelector(`#${anchor}`)?.scrollIntoView({ behavior: 'smooth' });
     }, 400);
   };
 
@@ -165,15 +180,15 @@ function Navigation() {
           <MenuLine $open={menuOpen} />
         </MenuToggle>
       </Nav>
-      
+
       <FullscreenMenu $open={menuOpen}>
         <MenuContent>
           <MenuList>
             {menuItems.map((item, i) => (
-              <MenuItem key={item.href}>
-                <MenuLink 
-                  href={item.href}
-                  onClick={(e) => handleClick(e, item.href)}
+              <MenuItem key={item.id}>
+                <MenuLink
+                  href={`#${item.anchor}`}
+                  onClick={(e) => handleClick(e, item.anchor)}
                   $open={menuOpen}
                   $delay={`${0.1 + i * 0.05}s`}
                 >
