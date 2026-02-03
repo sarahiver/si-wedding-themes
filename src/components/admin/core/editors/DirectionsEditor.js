@@ -42,11 +42,11 @@ function DirectionsEditor({ components: C }) {
             onChange={(e) => {
               const newType = e.target.value;
               const info = getTransportInfo(newType);
-              onChange('type', newType);
-              // Auto-set icon and title if not custom
+              // Batch update all fields at once
               if (newType !== 'custom') {
-                onChange('icon', info.icon);
-                onChange('title', info.label);
+                onChange({ type: newType, icon: info.icon, title: info.label });
+              } else {
+                onChange({ type: newType });
               }
             }}
           >

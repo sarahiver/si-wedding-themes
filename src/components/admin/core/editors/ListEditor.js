@@ -19,9 +19,17 @@ function ListEditor({
   createNewItem, 
   addLabel = '+ Hinzufügen' 
 }) {
-  const updateItem = (index, field, value) => {
+  // Support both single field update and batch update
+  // onChange('field', value) or onChange({ field1: value1, field2: value2 })
+  const updateItem = (index, fieldOrUpdates, value) => {
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value };
+    if (typeof fieldOrUpdates === 'object') {
+      // Batch update: onChange({ type: 'car', icon: '🚗', title: 'Auto' })
+      newItems[index] = { ...newItems[index], ...fieldOrUpdates };
+    } else {
+      // Single field update: onChange('field', value)
+      newItems[index] = { ...newItems[index], [fieldOrUpdates]: value };
+    }
     onItemsChange(newItems);
   };
 
