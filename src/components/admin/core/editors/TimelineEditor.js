@@ -2,10 +2,9 @@
 import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
-import ImageUploader from './ImageUploader';
 
 function TimelineEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
   const content = contentStates.timeline || {};
   const update = (field, value) => updateContent('timeline', { ...content, [field]: value });
 
@@ -14,16 +13,16 @@ function TimelineEditor({ components: C }) {
       <C.FormRow>
         <C.FormGroup style={{ flex: 1 }}>
           <C.Label>Uhrzeit *</C.Label>
-          <C.Input 
-            value={item.time || ''} 
+          <C.Input
+            value={item.time || ''}
             onChange={(e) => onChange('time', e.target.value)}
             placeholder="14:00"
           />
         </C.FormGroup>
         <C.FormGroup style={{ flex: 1 }}>
           <C.Label>Icon</C.Label>
-          <C.Input 
-            value={item.icon || ''} 
+          <C.Input
+            value={item.icon || ''}
             onChange={(e) => onChange('icon', e.target.value)}
             placeholder="💒"
           />
@@ -31,37 +30,28 @@ function TimelineEditor({ components: C }) {
       </C.FormRow>
       <C.FormGroup>
         <C.Label>Titel *</C.Label>
-        <C.Input 
-          value={item.title || ''} 
+        <C.Input
+          value={item.title || ''}
           onChange={(e) => onChange('title', e.target.value)}
           placeholder="Trauung"
         />
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>Ort</C.Label>
-        <C.Input 
-          value={item.location || ''} 
+        <C.Input
+          value={item.location || ''}
           onChange={(e) => onChange('location', e.target.value)}
           placeholder="Kirche St. Marien"
         />
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>Beschreibung</C.Label>
-        <C.TextArea 
-          value={item.description || ''} 
+        <C.TextArea
+          value={item.description || ''}
           onChange={(e) => onChange('description', e.target.value)}
           placeholder="Details zum Programmpunkt..."
         />
       </C.FormGroup>
-      <ImageUploader
-        components={C}
-        image={item.image}
-        onUpload={(url) => onChange('image', url)}
-        folder={`${baseFolder}/timeline`}
-        ratio="16/9"
-        maxHeight="100px"
-        label="Bild (optional)"
-      />
     </>
   );
 
@@ -86,7 +76,7 @@ function TimelineEditor({ components: C }) {
           items={content.events || []} 
           onItemsChange={(events) => update('events', events)} 
           renderItem={renderItem} 
-          createNewItem={() => ({ time: '', title: '', description: '', icon: '', location: '', image: '' })} 
+          createNewItem={() => ({ time: '', title: '', description: '', icon: '', location: '' })} 
           addLabel="+ Programmpunkt"
         />
         
