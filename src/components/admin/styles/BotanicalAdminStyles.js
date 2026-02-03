@@ -946,6 +946,20 @@ export const PhotoPending = styled.div`
   text-align: center;
 `;
 
+export const PhotoCaption = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 0.65rem;
+  padding: 0.35rem 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 // ============================================
 // IMAGE UPLOAD / DROP ZONE
 // ============================================
@@ -1379,7 +1393,7 @@ export const BotanicalAdminComponents = {
   ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   
   // Photos
-  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
+  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   
   // Image Upload
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,

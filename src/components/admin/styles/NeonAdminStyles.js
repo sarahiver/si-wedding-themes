@@ -167,6 +167,7 @@ export const PhotoImage = styled.div`width: 100%; height: 100%; background: ${p 
 export const PhotoOverlay = styled.div`position: absolute; inset: 0; background: rgba(10, 10, 10, 0.85); display: flex; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.2s;`;
 export const PhotoButton = styled.button`width: 32px; height: 32px; border-radius: 50%; border: none; background: ${p => p.$approve ? '#00D4FF' : '#FF3366'}; color: ${p => p.$approve ? '#000' : '#FFF'}; cursor: pointer; font-size: 14px; box-shadow: 0 0 10px ${p => p.$approve ? 'rgba(0, 212, 255, 0.5)' : 'rgba(255, 51, 102, 0.5)'};`;
 export const PhotoPending = styled.div`position: absolute; bottom: 0; left: 0; right: 0; background: #FF9800; color: #000; font-size: 0.65rem; font-weight: 600; padding: 0.25rem; text-align: center;`;
+export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.85); color: #FF3366; font-size: 0.65rem; padding: 0.35rem 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
 
 export const DropZone = styled.div`border: 2px dashed ${p => p.$dragging ? '#FF3366' : p.$hasImage ? '#00D4FF' : '#222'}; background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : '#0A0A0A'}; min-height: 100px; max-width: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; aspect-ratio: ${p => p.$ratio || '16/9'}; transition: all 0.3s; &:hover { border-color: #FF3366; box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); } &:hover .overlay { opacity: 1; }`;
 export const DropOverlay = styled.div`position: absolute; inset: 0; background: rgba(10, 10, 10, 0.9); display: flex; align-items: center; justify-content: center; gap: 0.75rem; opacity: 0; transition: opacity 0.2s;`;
@@ -222,7 +223,7 @@ export const NeonAdminComponents = {
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   AlertBox, SearchInput, ActionButton,
   ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
-  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
+  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,
   ColorPalette, ColorItem, ColorInput,

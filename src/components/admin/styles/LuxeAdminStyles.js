@@ -162,6 +162,7 @@ export const PhotoImage = styled.div`width: 100%; height: 100%; background: ${p 
 export const PhotoOverlay = styled.div`position: absolute; inset: 0; background: rgba(26, 26, 26, 0.8); display: flex; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.2s;`;
 export const PhotoButton = styled.button`width: 32px; height: 32px; border-radius: 50%; border: none; background: ${p => p.$approve ? '#4CAF50' : '#FF6B6B'}; color: white; cursor: pointer; font-size: 14px;`;
 export const PhotoPending = styled.div`position: absolute; bottom: 0; left: 0; right: 0; background: #FFB74D; color: #1A1A1A; font-size: 0.65rem; padding: 0.25rem; text-align: center;`;
+export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: white; font-size: 0.65rem; padding: 0.35rem 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
 
 export const DropZone = styled.div`border: 2px dashed ${p => p.$dragging ? '#C9A86C' : p.$hasImage ? '#C9A86C' : '#333'}; background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : '#1A1A1A'}; min-height: 100px; max-width: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; aspect-ratio: ${p => p.$ratio || '16/9'}; transition: all 0.3s; &:hover { border-color: #C9A86C; } &:hover .overlay { opacity: 1; }`;
 export const DropOverlay = styled.div`position: absolute; inset: 0; background: rgba(26, 26, 26, 0.85); display: flex; align-items: center; justify-content: center; gap: 0.75rem; opacity: 0; transition: opacity 0.2s;`;
@@ -217,7 +218,7 @@ export const LuxeAdminComponents = {
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   AlertBox, SearchInput, ActionButton,
   ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
-  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
+  PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending, PhotoCaption,
   DropZone, DropOverlay, DropButton, DropPlaceholder, ProgressBar,
   ImageGrid, ImageItem, RemoveButton, AddButton,
   ColorPalette, ColorItem, ColorInput,
