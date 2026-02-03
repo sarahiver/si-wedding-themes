@@ -395,6 +395,7 @@ const PhotoUpload = () => {
   const projectId = project?.id;
   const slug = project?.slug;
   const title = photoData.title || 'Fotos hochladen';
+  const description = photoData.description || 'Teilt eure schönsten Momente mit uns! Ladet eure Fotos hier hoch und helft uns, Erinnerungen zu sammeln.';
   
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -519,11 +520,8 @@ const PhotoUpload = () => {
           <CommandLine visible={visible}>
             ./photo_upload.sh --init --max-size=10MB
           </CommandLine>
-          <Title>Fotos Hochladen</Title>
-          <Subtitle>
-            Teilt eure schönsten Momente mit uns! 
-            Ladet eure Fotos hier hoch und helft uns, Erinnerungen zu sammeln.
-          </Subtitle>
+          <Title>{title}</Title>
+          <Subtitle>{description}</Subtitle>
         </Header>
         
         <DropZone

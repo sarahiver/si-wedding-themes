@@ -9,7 +9,8 @@ const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { 
 const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-charcoal);`;
 const Container = styled.div`max-width: 450px; margin: 0 auto; text-align: center;`;
 const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
-const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
+const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
+const Subtitle = styled.p`font-family: var(--font-body); font-size: 1rem; color: var(--luxe-slate); max-width: 400px; margin: 0 auto 3rem; line-height: 1.6; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.15s;`;
 
 const DropZone = styled.div`padding: 4rem 2rem; background: ${p => p.$dragging ? 'var(--luxe-gold)' : 'var(--luxe-anthracite)'}; border: 1px dashed ${p => p.$dragging ? 'var(--luxe-void)' : 'var(--luxe-graphite)'}; cursor: pointer; transition: all 0.3s ease; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s; &:hover { border-color: var(--luxe-gold); }`;
 const DropText = styled.p`font-family: var(--font-body); font-size: 0.9rem; color: ${p => p.$dragging ? 'var(--luxe-void)' : 'var(--luxe-pearl)'};`;
@@ -26,6 +27,7 @@ const ResetBtn = styled.button`margin-top: 1rem; font-family: var(--font-body); 
 function PhotoUpload() {
   const { project, content } = useWedding();
   const title = content?.photoupload?.title || 'Fotos teilen';
+  const description = content?.photoupload?.description || 'Teilt eure schönsten Momente mit uns';
   const [visible, setVisible] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -62,6 +64,7 @@ function PhotoUpload() {
       <Container>
         <Eyebrow $visible={visible}>Momente</Eyebrow>
         <Title $visible={visible}>{title}</Title>
+        <Subtitle $visible={visible}>{description}</Subtitle>
         {success ? (
           <Success><SuccessText>Vielen Dank!</SuccessText><ResetBtn onClick={() => { setSuccess(false); setProgress(0); }}>Weitere hochladen</ResetBtn></Success>
         ) : (
