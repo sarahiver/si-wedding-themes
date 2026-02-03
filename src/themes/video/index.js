@@ -1,27 +1,38 @@
-// Video Theme - Horizontal Scroll, S/W, Dusty Blue Accent - ALL COMPONENTS
-export { default as WeddingPage } from './WeddingPage';
+// Video Theme - Horizontal Scroll, S/W, Dusty Blue Accent
 export { default as AdminDashboard } from './AdminDashboard';
 export { default as GlobalStyles } from './GlobalStyles';
+export { default as LoadingScreen } from './LoadingScreen';
+export { default as SaveTheDate } from './SaveTheDate';
+export { default as ArchivePage } from './ArchivePage';
+
+// Video-specific Components
 export { default as HorizontalScroll } from './HorizontalScroll';
 export { default as SectionWrapper } from './SectionWrapper';
 
-// All Sections
+// Navigation & Layout
+export { default as Navigation } from './Navigation';
+export { default as Footer } from './Footer';
+
+// Content Sections
 export { default as Hero } from './Hero';
 export { default as Countdown } from './Countdown';
 export { default as LoveStory } from './LoveStory';
 export { default as Timeline } from './Timeline';
 export { default as Locations } from './Locations';
-export { default as Gallery } from './Gallery';
-export { default as RSVP } from './RSVP';
-export { default as Dresscode } from './Dresscode';
-export { default as Gifts } from './Gifts';
-export { default as Accommodations } from './Accommodations';
 export { default as Directions } from './Directions';
-export { default as FAQ } from './FAQ';
-export { default as WeddingABC } from './WeddingABC';
+export { default as Accommodations } from './Accommodations';
+export { default as Dresscode } from './Dresscode';
+
+// Interactive Sections
+export { default as RSVP } from './RSVP';
+export { default as Gallery } from './Gallery';
 export { default as Guestbook } from './Guestbook';
 export { default as MusicWishes } from './MusicWishes';
 export { default as PhotoUpload } from './PhotoUpload';
-export { default as ContactWitnesses } from './ContactWitnesses';
+export { default as Gifts } from './Gifts';
+
+// Info Sections
+export { default as FAQ } from './FAQ';
+export { default as WeddingABC } from './WeddingABC';
 export { default as Contact } from './Contact';
-export { default as Footer } from './Footer';
+export { default as ContactWitnesses } from './ContactWitnesses';

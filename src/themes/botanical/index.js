@@ -1,6 +1,5 @@
 // Botanical Glass Theme - Index
 import GlobalStyles from './GlobalStyles';
-import WeddingPage from './WeddingPage';
 import AdminDashboard from './AdminDashboard';
 import ArchivePage from './ArchivePage';
 import SaveTheDate from './SaveTheDate';
@@ -41,16 +40,15 @@ import { BotanicalGlassAdminComponents, AdminGlobalStyles, BotanicalGlassAdminWr
 export {
   // Pages
   GlobalStyles,
-  WeddingPage,
   AdminDashboard,
   ArchivePage,
   SaveTheDate,
   LoadingScreen,
-  
+
   // Background & Core
   BotanicalBackground,
   Navigation,
-  
+
   // Content Sections
   Hero,
   Countdown,
@@ -60,7 +58,7 @@ export {
   Directions,
   Accommodations,
   Dresscode,
-  
+
   // Interactive Sections
   RSVP,
   Gallery,
@@ -68,14 +66,14 @@ export {
   MusicWishes,
   PhotoUpload,
   Gifts,
-  
+
   // Info Sections
   FAQ,
   WeddingABC,
   Contact,
   ContactWitnesses,
   Footer,
-  
+
   // Admin
   BotanicalGlassAdminComponents,
   AdminGlobalStyles,
@@ -84,7 +82,6 @@ export {
 
 export default {
   GlobalStyles,
-  WeddingPage,
   AdminDashboard,
   ArchivePage,
   SaveTheDate,
