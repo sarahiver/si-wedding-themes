@@ -547,6 +547,39 @@ export const HelpText = styled.span`
   line-height: 1.4;
 `;
 
+export const Select = styled.select`
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.95rem;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-glass-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--admin-accent);
+    background: var(--admin-surface-hover);
+  }
+
+  option {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+  }
+`;
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
+`;
+
 // ============================================
 // BUTTONS
 // ============================================
@@ -1087,6 +1120,85 @@ export const FeedbackModal = styled.div`
 `;
 
 // ============================================
+// MODAL
+// ============================================
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+`;
+
+export const ModalContent = styled.div`
+  background: var(--admin-bg);
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid var(--admin-glass-border);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+`;
+
+export const ModalHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--admin-glass-border);
+`;
+
+export const ModalTitle = styled.h3`
+  font-family: var(--admin-font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--admin-text);
+  margin: 0;
+`;
+
+export const ModalBody = styled.div`
+  padding: 1.5rem;
+  color: var(--admin-text-secondary);
+  line-height: 1.6;
+
+  p { margin: 0; }
+`;
+
+export const ModalFooter = styled.div`
+  padding: 1.5rem;
+  border-top: 1px solid var(--admin-glass-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+export const ActionButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  font-family: var(--admin-font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+
+  background: ${p => p.$primary ? 'var(--admin-accent)' : 'transparent'};
+  color: ${p => p.$primary ? '#0a150a' : 'var(--admin-text-secondary)'};
+  border: 1px solid ${p => p.$primary ? 'var(--admin-accent)' : 'var(--admin-glass-border)'};
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// ============================================
 // LOGO ICON
 // ============================================
 
@@ -1121,7 +1233,7 @@ export const BotanicalGlassAdminComponents = {
   // Tables
   TableWrapper, Table, Th, Td, StatusBadge,
   // Forms
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
   // Buttons
   Button, SmallButton, ButtonGroup,
   // Layout Helpers
@@ -1130,7 +1242,9 @@ export const BotanicalGlassAdminComponents = {
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   // Alerts & Search
-  AlertBox, SearchInput,
+  AlertBox, SearchInput, ActionButton,
+  // Modal
+  ModalOverlay, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter,
   // Photos
   PhotoGrid, PhotoActions, PhotoCount, PhotoCard, PhotoImage, PhotoOverlay, PhotoButton, PhotoPending,
   // Image Upload
