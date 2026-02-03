@@ -17,22 +17,33 @@ function DresscodeEditor({ components: C }) {
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
         <C.FormGroup style={{ flex: '0 0 auto' }}>
           <C.Label>Farbe</C.Label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              type="color"
-              value={hex}
-              onChange={(e) => onChange({ name, hex: e.target.value })}
-              style={{
-                width: '50px',
-                height: '40px',
-                padding: 0,
-                border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                background: 'transparent'
-              }}
-            />
-            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  backgroundColor: hex,
+                  borderRadius: '6px',
+                  border: '2px solid rgba(255,255,255,0.3)'
+                }}
+              />
+              <input
+                type="color"
+                value={hex}
+                onChange={(e) => onChange({ name, hex: e.target.value })}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
+            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>
               {hex}
             </span>
           </div>
