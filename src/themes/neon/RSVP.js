@@ -1,7 +1,9 @@
-// src/components/RSVP.js - Neon Theme
+// Neon RSVP - Cyberpunk multi-step form with per-person dietary/allergies
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { useRSVP } from '../../components/shared/RSVPCore';
+import FeedbackModal from '../../components/shared/FeedbackModal';
 
 const glowPulse = keyframes`
   0%, 100% { box-shadow: 0 0 20px rgba(0,255,255,0.3); }
@@ -27,7 +29,7 @@ const Section = styled.section`
 const GridBG = styled.div`
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -40,13 +42,13 @@ const GlowOrb = styled.div`
   border-radius: 50%;
   filter: blur(100px);
   opacity: 0.2;
-  
+
   &:nth-child(1) {
     background: #00ffff;
     top: -100px;
     left: -100px;
   }
-  
+
   &:nth-child(2) {
     background: #ff00ff;
     bottom: -100px;
@@ -84,7 +86,7 @@ const Title = styled.h2`
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 700;
   color: #fff;
-  
+
   span {
     color: #00ffff;
     text-shadow: 0 0 20px rgba(0,255,255,0.5);
@@ -98,7 +100,7 @@ const ProgressSteps = styled.div`
   margin-bottom: 50px;
   opacity: ${p => p.$visible ? 1 : 0};
   transition: opacity 0.8s ease 0.2s;
-  
+
   @media (max-width: 500px) {
     gap: 30px;
   }
@@ -125,7 +127,7 @@ const StepCircle = styled.div`
   font-weight: 700;
   color: ${p => p.$active ? '#00ffff' : p.$completed ? '#0a0a0f' : 'rgba(255,255,255,0.3)'};
   transition: all 0.3s ease;
-  
+
   ${p => p.$active && css`
     box-shadow: 0 0 20px rgba(0,255,255,0.5);
   `}
@@ -145,8 +147,7 @@ const FormCard = styled.div`
   padding: 50px;
   position: relative;
   overflow: hidden;
-  
-  /* Scanline */
+
   &::before {
     content: '';
     position: absolute;
@@ -157,7 +158,7 @@ const FormCard = styled.div`
     animation: ${scanline} 4s linear infinite;
     pointer-events: none;
   }
-  
+
   @media (max-width: 600px) {
     padding: 30px 20px;
   }
@@ -191,15 +192,38 @@ const Input = styled.input`
   color: #fff;
   padding: 18px 20px;
   transition: all 0.3s ease;
-  
+
   &:focus {
     outline: none;
     border-color: #00ffff;
     box-shadow: 0 0 20px rgba(0,255,255,0.3);
   }
-  
+
   &::placeholder {
     color: rgba(255,255,255,0.2);
+  }
+`;
+
+const Select = styled.select`
+  width: 100%;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,255,255,0.2);
+  color: #fff;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 20px rgba(0,255,255,0.3);
+  }
+
+  option {
+    background: #0a0a0f;
+    color: #fff;
   }
 `;
 
@@ -214,7 +238,7 @@ const TextArea = styled.textarea`
   padding: 18px 20px;
   resize: vertical;
   transition: all 0.3s ease;
-  
+
   &:focus {
     outline: none;
     border-color: #00ffff;
@@ -239,7 +263,7 @@ const ToggleOption = styled.button`
   color: ${p => p.$selected ? '#0a0a0f' : 'rgba(255,255,255,0.5)'};
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     border-color: ${p => p.$yes ? '#00ff88' : '#ff00ff'};
     ${p => p.$selected && css`
@@ -248,41 +272,53 @@ const ToggleOption = styled.button`
   }
 `;
 
-const GuestCounter = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
+const GuestSection = styled.div`
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0,255,255,0.2);
 `;
 
-const CounterButton = styled.button`
-  width: 50px;
-  height: 50px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(0,255,255,0.3);
-  color: #00ffff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(0,255,255,0.1);
-    box-shadow: 0 0 15px rgba(0,255,255,0.3);
-  }
-  
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-`;
-
-const CounterValue = styled.div`
+const GuestSectionTitle = styled.h4`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: #00ffff;
-  text-shadow: 0 0 20px rgba(0,255,255,0.5);
-  min-width: 80px;
-  text-align: center;
+  margin-bottom: 1.5rem;
+`;
+
+const GuestCard = styled.div`
+  background: rgba(0,255,255,0.02);
+  border: 1px solid rgba(0,255,255,0.15);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+`;
+
+const GuestNumber = styled.span`
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff00ff;
+  margin-bottom: 1rem;
+`;
+
+const GuestFields = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
+
+const SmallInput = styled(Input)`
+  padding: 14px 16px;
+  font-size: 0.9rem;
+`;
+
+const SmallSelect = styled(Select)`
+  padding: 14px 16px;
+  font-size: 0.9rem;
 `;
 
 const ButtonGroup = styled.div`
@@ -301,22 +337,27 @@ const Button = styled.button`
   padding: 20px 30px;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   ${p => p.$primary ? css`
     background: #00ffff;
     border: none;
     color: #0a0a0f;
     box-shadow: 0 0 20px rgba(0,255,255,0.4);
-    
-    &:hover {
+
+    &:hover:not(:disabled) {
       box-shadow: 0 0 40px rgba(0,255,255,0.6);
       transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   ` : css`
     background: transparent;
     border: 1px solid rgba(255,255,255,0.2);
     color: rgba(255,255,255,0.6);
-    
+
     &:hover {
       border-color: rgba(255,255,255,0.4);
       color: #fff;
@@ -324,66 +365,38 @@ const Button = styled.button`
   `}
 `;
 
-const SuccessMessage = styled.div`
-  text-align: center;
-  padding: 40px;
-`;
-
-const SuccessIcon = styled.div`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #00ff88;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 30px;
-  box-shadow: 0 0 40px rgba(0,255,136,0.5);
-  
-  svg {
-    width: 50px;
-    height: 50px;
-    color: #0a0a0f;
-  }
-`;
-
-const SuccessTitle = styled.h3`
+const ErrorMessage = styled.div`
+  background: rgba(255,0,100,0.1);
+  border: 1px solid rgba(255,0,100,0.3);
+  color: #ff6b6b;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 15px;
-`;
-
-const SuccessText = styled.p`
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1rem;
-  color: rgba(255,255,255,0.6);
+  font-size: 0.9rem;
 `;
 
 function RSVP() {
-  const { content, project } = useWedding();
+  const { content } = useWedding();
   const rsvpData = content?.rsvp || {};
-  
-  const projectId = project?.id;
+
   const title = rsvpData.title || 'RSVP';
-  const deadline = rsvpData.deadline || project?.rsvp_deadline;
+  const askDietary = rsvpData.ask_dietary !== false;
+  const askAllergies = rsvpData.ask_allergies !== false;
   const customQuestion = rsvpData.custom_question || '';
-  
+
+  const {
+    formData,
+    updateField,
+    submitting,
+    error,
+    submitted,
+    submit,
+  } = useRSVP();
+
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    attending: null,
-    name: '',
-    email: '',
-    guests: 1,
-    dietary: '',
-    message: '',
-    customAnswer: ''
-  });
+  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -394,34 +407,43 @@ function RSVP() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = async () => {
-    if (!projectId) {
-      console.error('No projectId provided');
-      setSubmitted(true);
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      // Dynamic import to avoid issues if supabase not configured
-      const { submitRSVP } = await import('../../lib/supabase');
-      await submitRSVP(projectId, {
-        name: formData.name,
-        email: formData.email,
-        attending: formData.attending === true,
-        guest_count: parseInt(formData.guests) || 1,
-        dietary_requirements: formData.dietary,
-        message: formData.message,
-        custom_answer: formData.customAnswer
+  useEffect(() => {
+    if (submitted) {
+      setModalState({
+        isOpen: true,
+        type: 'success',
+        message: formData.attending
+          ? "We can't wait to celebrate with you!"
+          : "Thank you for letting us know. We'll be thinking of you!",
       });
-      setSubmitted(true);
-    } catch (err) {
-      console.error('RSVP submit error:', err);
-      // Still show success to user even if backend fails
-      setSubmitted(true);
-    } finally {
-      setLoading(false);
     }
+  }, [submitted, formData.attending]);
+
+  useEffect(() => {
+    if (error) {
+      setModalState({ isOpen: true, type: 'error', message: error });
+    }
+  }, [error]);
+
+  const handlePersonsChange = (newCount) => {
+    updateField('persons', newCount);
+    const currentGuests = formData.guests || [];
+    if (newCount > currentGuests.length) {
+      const newGuests = [...currentGuests];
+      for (let i = currentGuests.length; i < newCount; i++) {
+        newGuests.push({ name: '', dietary: '', allergies: '' });
+      }
+      updateField('guests', newGuests);
+    } else {
+      updateField('guests', currentGuests.slice(0, newCount));
+    }
+  };
+
+  const updateGuest = (index, field, value) => {
+    const newGuests = [...(formData.guests || [])];
+    if (!newGuests[index]) newGuests[index] = { name: '', dietary: '', allergies: '' };
+    newGuests[index] = { ...newGuests[index], [field]: value };
+    updateField('guests', newGuests);
   };
 
   const steps = [
@@ -430,51 +452,22 @@ function RSVP() {
     { num: 3, label: 'Confirm' }
   ];
 
-  if (submitted) {
-    return (
-      <Section ref={sectionRef} id="rsvp">
-        <GridBG />
-        <GlowOrb />
-        <GlowOrb />
-        <Container>
-          <FormCard>
-            <SuccessMessage>
-              <SuccessIcon>
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-              </SuccessIcon>
-              <SuccessTitle>
-                {formData.attending ? "You're In!" : "We'll Miss You!"}
-              </SuccessTitle>
-              <SuccessText>
-                {formData.attending 
-                  ? "We can't wait to celebrate with you. See you there!"
-                  : "Thank you for letting us know. We'll be thinking of you!"}
-              </SuccessText>
-            </SuccessMessage>
-          </FormCard>
-        </Container>
-      </Section>
-    );
-  }
-
   return (
     <Section ref={sectionRef} id="rsvp">
       <GridBG />
       <GlowOrb />
       <GlowOrb />
-      
+
       <Container>
         <Header $visible={visible}>
           <Eyebrow>// Respond Please</Eyebrow>
           <Title>Your <span>RSVP</span></Title>
         </Header>
-        
+
         <ProgressSteps $visible={visible}>
           {steps.map(step => (
             <Step key={step.num}>
-              <StepCircle 
+              <StepCircle
                 $active={currentStep === step.num}
                 $completed={currentStep > step.num}
               >
@@ -484,111 +477,179 @@ function RSVP() {
             </Step>
           ))}
         </ProgressSteps>
-        
+
         <FormCard>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+
           <FormStep $active={currentStep === 1}>
             <Label>Will you be joining us?</Label>
             <AttendanceToggle>
-              <ToggleOption 
-                $yes 
+              <ToggleOption
+                type="button"
+                $yes
                 $selected={formData.attending === true}
-                onClick={() => setFormData({...formData, attending: true})}
+                onClick={() => updateField('attending', true)}
               >
-                Hell Yeah! 🎉
+                Hell Yeah!
               </ToggleOption>
-              <ToggleOption 
+              <ToggleOption
+                type="button"
                 $selected={formData.attending === false}
-                onClick={() => setFormData({...formData, attending: false})}
+                onClick={() => updateField('attending', false)}
               >
-                Can't Make It 😢
+                Can't Make It
               </ToggleOption>
             </AttendanceToggle>
-            
+
             <ButtonGroup>
-              <Button 
-                $primary 
-                disabled={formData.attending === null}
+              <Button
+                type="button"
+                $primary
+                disabled={formData.attending === null || formData.attending === undefined}
                 onClick={() => setCurrentStep(2)}
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </FormStep>
-          
+
           <FormStep $active={currentStep === 2}>
             <InputGroup>
               <Label>Your Name</Label>
-              <Input 
+              <Input
                 type="text"
                 placeholder="Enter your full name"
                 value={formData.name}
-                onChange={e => setFormData({...formData, name: e.target.value})}
+                onChange={e => updateField('name', e.target.value)}
               />
             </InputGroup>
-            
+
             <InputGroup>
               <Label>Email Address</Label>
-              <Input 
+              <Input
                 type="email"
                 placeholder="your@email.com"
                 value={formData.email}
-                onChange={e => setFormData({...formData, email: e.target.value})}
+                onChange={e => updateField('email', e.target.value)}
               />
             </InputGroup>
-            
+
             {formData.attending && (
               <InputGroup>
                 <Label>Number of Guests</Label>
-                <GuestCounter>
-                  <CounterButton 
-                    onClick={() => setFormData({...formData, guests: Math.max(1, formData.guests - 1)})}
-                    disabled={formData.guests <= 1}
-                  >
-                    −
-                  </CounterButton>
-                  <CounterValue>{formData.guests}</CounterValue>
-                  <CounterButton 
-                    onClick={() => setFormData({...formData, guests: Math.min(5, formData.guests + 1)})}
-                    disabled={formData.guests >= 5}
-                  >
-                    +
-                  </CounterButton>
-                </GuestCounter>
+                <Select
+                  value={formData.persons}
+                  onChange={e => handlePersonsChange(parseInt(e.target.value))}
+                >
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Persons'}</option>
+                  ))}
+                </Select>
               </InputGroup>
             )}
-            
+
             <ButtonGroup>
-              <Button onClick={() => setCurrentStep(1)}>← Back</Button>
-              <Button 
-                $primary 
+              <Button type="button" onClick={() => setCurrentStep(1)}>Back</Button>
+              <Button
+                type="button"
+                $primary
                 disabled={!formData.name || !formData.email}
                 onClick={() => setCurrentStep(3)}
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </FormStep>
-          
+
           <FormStep $active={currentStep === 3}>
-            {formData.attending && (
-              <InputGroup>
-                <Label>Dietary Requirements</Label>
-                <Input
-                  type="text"
-                  placeholder="Vegetarian, vegan, allergies, etc."
-                  value={formData.dietary}
-                  onChange={e => setFormData({...formData, dietary: e.target.value})}
-                />
-              </InputGroup>
+            {formData.attending && (askDietary || askAllergies) && (
+              <>
+                {formData.persons === 1 ? (
+                  <>
+                    {askDietary && (
+                      <InputGroup>
+                        <Label>Dietary Requirements</Label>
+                        <Select
+                          value={formData.dietary}
+                          onChange={e => updateField('dietary', e.target.value)}
+                        >
+                          <option value="">No special requirements</option>
+                          <option value="vegetarisch">Vegetarian</option>
+                          <option value="vegan">Vegan</option>
+                          <option value="andere">Other</option>
+                        </Select>
+                      </InputGroup>
+                    )}
+                    {askAllergies && (
+                      <InputGroup>
+                        <Label>Allergies / Intolerances</Label>
+                        <Input
+                          type="text"
+                          placeholder="e.g. Nuts, Lactose..."
+                          value={formData.allergies}
+                          onChange={e => updateField('allergies', e.target.value)}
+                        />
+                      </InputGroup>
+                    )}
+                  </>
+                ) : (
+                  <GuestSection>
+                    <GuestSectionTitle>Details per Person</GuestSectionTitle>
+                    {Array.from({ length: formData.persons }, (_, i) => {
+                      const guest = formData.guests?.[i] || { name: '', dietary: '', allergies: '' };
+                      return (
+                        <GuestCard key={i}>
+                          <GuestNumber>Person {i + 1}{i === 0 ? ' (You)' : ''}</GuestNumber>
+                          <GuestFields>
+                            {i > 0 && (
+                              <SmallInput
+                                type="text"
+                                value={guest.name}
+                                onChange={e => updateGuest(i, 'name', e.target.value)}
+                                placeholder={`Name Person ${i + 1}`}
+                              />
+                            )}
+                            {askDietary && (
+                              <SmallSelect
+                                value={i === 0 ? formData.dietary : guest.dietary}
+                                onChange={e => i === 0
+                                  ? updateField('dietary', e.target.value)
+                                  : updateGuest(i, 'dietary', e.target.value)
+                                }
+                              >
+                                <option value="">No special requirements</option>
+                                <option value="vegetarisch">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="andere">Other</option>
+                              </SmallSelect>
+                            )}
+                            {askAllergies && (
+                              <SmallInput
+                                type="text"
+                                value={i === 0 ? formData.allergies : guest.allergies}
+                                onChange={e => i === 0
+                                  ? updateField('allergies', e.target.value)
+                                  : updateGuest(i, 'allergies', e.target.value)
+                                }
+                                placeholder="Allergies / Intolerances"
+                              />
+                            )}
+                          </GuestFields>
+                        </GuestCard>
+                      );
+                    })}
+                  </GuestSection>
+                )}
+              </>
             )}
 
             {customQuestion && (
               <InputGroup>
                 <Label>{customQuestion}</Label>
                 <TextArea
-                  placeholder="Deine Antwort..."
-                  value={formData.customAnswer}
-                  onChange={e => setFormData({...formData, customAnswer: e.target.value})}
+                  placeholder="Your answer..."
+                  value={formData.customAnswer || ''}
+                  onChange={e => updateField('customAnswer', e.target.value)}
                 />
               </InputGroup>
             )}
@@ -598,19 +659,27 @@ function RSVP() {
               <TextArea
                 placeholder="Share your wishes, song requests, or just say hi..."
                 value={formData.message}
-                onChange={e => setFormData({...formData, message: e.target.value})}
+                onChange={e => updateField('message', e.target.value)}
               />
             </InputGroup>
-            
+
             <ButtonGroup>
-              <Button onClick={() => setCurrentStep(2)}>← Back</Button>
-              <Button $primary onClick={handleSubmit}>
-                Submit RSVP ✓
+              <Button type="button" onClick={() => setCurrentStep(2)}>Back</Button>
+              <Button type="button" $primary onClick={submit} disabled={submitting}>
+                {submitting ? 'Sending...' : 'Submit RSVP'}
               </Button>
             </ButtonGroup>
           </FormStep>
         </FormCard>
       </Container>
+
+      <FeedbackModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        type={modalState.type}
+        message={modalState.message}
+        autoClose={modalState.type === 'success' ? 4000 : 0}
+      />
     </Section>
   );
 }
