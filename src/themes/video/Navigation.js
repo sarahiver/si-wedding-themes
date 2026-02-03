@@ -181,8 +181,40 @@ const Overlay = styled.div`
 `;
 
 function Navigation() {
+  const { project, isInNavigation } = useWedding();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // All possible nav items
+  const allNavItems = [
+    { id: 'lovestory', label: 'Unsere Geschichte', href: '#story' },
+    { id: 'timeline', label: 'Tagesablauf', href: '#timeline' },
+    { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'directions', label: 'Anfahrt', href: '#directions' },
+    { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
+    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'gallery', label: 'Galerie', href: '#gallery' },
+    { id: 'gifts', label: 'Geschenke', href: '#gifts' },
+    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
+    { id: 'musicwishes', label: 'Musik', href: '#music' },
+    { id: 'photoupload', label: 'Fotos', href: '#photos' },
+    { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'weddingabc', label: 'ABC', href: '#abc' },
+    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
+    { id: 'contact', label: 'Kontakt', href: '#contact' },
+  ];
+
+  // Filter by nav_components and sort by component_order
+  const componentOrder = project?.component_order || [];
+  const navItems = allNavItems
+    .filter(item => isInNavigation(item.id))
+    .sort((a, b) => {
+      const indexA = componentOrder.indexOf(a.id);
+      const indexB = componentOrder.indexOf(b.id);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -200,14 +232,6 @@ function Navigation() {
     }
   }, [mobileOpen]);
 
-  const navItems = [
-    { label: 'Unsere Geschichte', href: '#story' },
-    { label: 'Tagesablauf', href: '#timeline' },
-    { label: 'Location', href: '#location' },
-    { label: 'RSVP', href: '#rsvp' },
-    { label: 'Galerie', href: '#gallery' },
-  ];
-
   return (
     <>
       <Nav $scrolled={scrolled}>
@@ -217,7 +241,7 @@ function Navigation() {
               {item.label}
             </NavLink>
           ))}
-          <CTAButton href="#rsvp">Jetzt zusagen</CTAButton>
+          {isInNavigation('rsvp') && <CTAButton href="#rsvp">Jetzt zusagen</CTAButton>}
         </NavLinks>
 
         <MobileMenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -231,17 +255,19 @@ function Navigation() {
       
       <MobileMenu $open={mobileOpen}>
         {navItems.map(item => (
-          <MobileNavLink 
-            key={item.href} 
+          <MobileNavLink
+            key={item.href}
             href={item.href}
             onClick={() => setMobileOpen(false)}
           >
             {item.label}
           </MobileNavLink>
         ))}
-        <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
-          Jetzt zusagen
-        </MobileCTA>
+        {isInNavigation('rsvp') && (
+          <MobileCTA href="#rsvp" onClick={() => setMobileOpen(false)}>
+            Jetzt zusagen
+          </MobileCTA>
+        )}
       </MobileMenu>
     </>
   );
