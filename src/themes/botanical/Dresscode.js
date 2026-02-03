@@ -162,8 +162,15 @@ function Dresscode() {
   const donts = dresscodeData.donts || [];
 
   // Support both old format (string) and new format (object with hex/name)
+  const defaultColors = ['#2C3E50', '#34495E', '#7F8C8D', '#BDC3C7', '#ECF0F1'];
   const rawColors = dresscodeData.colors || [];
-  const colors = rawColors.map(c => typeof c === 'string' ? c : (c?.hex || '#888888'));
+  const colors = rawColors.length > 0
+    ? rawColors.map(c => {
+        if (typeof c === 'string' && c) return c;
+        if (c?.hex && c.hex.startsWith('#')) return c.hex;
+        return '#888888';
+      }).filter(c => c && c !== '#888888')
+    : defaultColors;
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

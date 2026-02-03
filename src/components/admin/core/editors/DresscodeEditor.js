@@ -80,9 +80,6 @@ function DresscodeEditor({ components: C }) {
         </C.FormGroup>
         
         <C.SectionLabel>Farbpalette</C.SectionLabel>
-        <C.HelpText style={{ marginBottom: '1rem' }}>
-          Empfohlene Farben für die Gäste. Name ist optional.
-        </C.HelpText>
         <ListEditor
           components={C}
           items={content.colors || []}
