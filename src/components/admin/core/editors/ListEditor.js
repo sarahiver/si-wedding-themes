@@ -19,11 +19,17 @@ function ListEditor({
   createNewItem, 
   addLabel = '+ Hinzufügen' 
 }) {
-  // Support both single field update and batch update
-  // onChange('field', value) or onChange({ field1: value1, field2: value2 })
+  // Support multiple update modes:
+  // 1. onChange('field', value) - single field update for objects
+  // 2. onChange({ field1: value1, field2: value2 }) - batch update for objects
+  // 3. onChange(null, primitiveValue) - replace entire item (for strings, numbers)
   const updateItem = (index, fieldOrUpdates, value) => {
     const newItems = [...items];
-    if (typeof fieldOrUpdates === 'object') {
+
+    if (fieldOrUpdates === null || fieldOrUpdates === undefined) {
+      // Replace entire item (for primitive values like strings)
+      newItems[index] = value;
+    } else if (typeof fieldOrUpdates === 'object' && fieldOrUpdates !== null) {
       // Batch update: onChange({ type: 'car', icon: '🚗', title: 'Auto' })
       newItems[index] = { ...newItems[index], ...fieldOrUpdates };
     } else {

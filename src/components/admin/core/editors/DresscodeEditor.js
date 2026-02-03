@@ -20,7 +20,7 @@ function DresscodeEditor({ components: C }) {
           <C.Input
             type="color"
             value={hex}
-            onChange={(e) => onChange(null, { name, hex: e.target.value })}
+            onChange={(e) => onChange({ name, hex: e.target.value })}
             style={{ width: '60px', height: '40px', padding: '2px', cursor: 'pointer' }}
           />
         </C.FormGroup>
@@ -28,7 +28,7 @@ function DresscodeEditor({ components: C }) {
           <C.Label>Name (optional)</C.Label>
           <C.Input
             value={name}
-            onChange={(e) => onChange(null, { hex, name: e.target.value })}
+            onChange={(e) => onChange({ hex, name: e.target.value })}
             placeholder="z.B. Salbei, Champagner"
           />
         </C.FormGroup>
