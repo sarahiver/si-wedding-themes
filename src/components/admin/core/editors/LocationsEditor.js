@@ -4,22 +4,29 @@ import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
+// Themes that show images in Locations component
+const THEMES_WITH_LOCATION_IMAGES = ['botanical', 'editorial', 'neon', 'luxe'];
+
 function LocationsEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContent, saveContent, isSaving, baseFolder, project } = useAdmin();
   const content = contentStates.locations || {};
   const update = (field, value) => updateContent('locations', { ...content, [field]: value });
 
+  const showImages = THEMES_WITH_LOCATION_IMAGES.includes(project?.theme);
+
   const renderItem = (item, index, onChange) => (
     <>
-      <ImageUploader
-        components={C}
-        image={item.image}
-        onUpload={(url) => onChange('image', url)}
-        folder={`${baseFolder}/locations`}
-        ratio="16/9"
-        maxHeight="100px"
-        label="Bild"
-      />
+      {showImages && (
+        <ImageUploader
+          components={C}
+          image={item.image}
+          onUpload={(url) => onChange('image', url)}
+          folder={`${baseFolder}/locations`}
+          ratio="16/9"
+          maxHeight="100px"
+          label="Bild"
+        />
+      )}
       <C.FormGroup>
         <C.Label>Name *</C.Label>
         <C.Input 
