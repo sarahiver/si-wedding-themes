@@ -5,26 +5,21 @@ import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function LovestoryEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.lovestory || {};
   const update = (field, value) => updateContent('lovestory', { ...content, [field]: value });
-  
-  // All themes can use images in lovestory
-  const showImages = true;
 
   const renderItem = (item, index, onChange) => (
     <>
-      {showImages && (
-        <ImageUploader
-          components={C}
-          image={item.image}
-          onUpload={(url) => onChange('image', url)}
-          folder={`${baseFolder}/lovestory`}
-          ratio="4/3"
-          label="Bild"
-          maxHeight="80px"
-        />
-      )}
+      <ImageUploader
+        components={C}
+        image={item.image}
+        onUpload={(url) => onChange('image', url)}
+        folder={`${baseFolder}/lovestory`}
+        ratio="4/3"
+        label="Bild"
+        maxHeight="100px"
+      />
       <C.FormGroup>
         <C.Label>Zeitpunkt *</C.Label>
         <C.Input 

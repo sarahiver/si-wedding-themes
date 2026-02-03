@@ -17,9 +17,8 @@ function GiftsEditor({ components: C }) {
         onUpload={(url) => onChange('image', url)}
         folder={`${baseFolder}/gifts`}
         ratio="1/1"
-        maxHeight="80px"
+        maxHeight="100px"
         label="Bild"
-        maxHeight="80px"
       />
       <C.FormGroup>
         <C.Label>Titel *</C.Label>

@@ -17,9 +17,8 @@ function HotelsEditor({ components: C }) {
         onUpload={(url) => onChange('image', url)}
         folder={`${baseFolder}/hotels`}
         ratio="16/9"
-        maxHeight="80px"
+        maxHeight="100px"
         label="Bild"
-        maxHeight="80px"
       />
       <C.FormGroup>
         <C.Label>Hotel-Name *</C.Label>
