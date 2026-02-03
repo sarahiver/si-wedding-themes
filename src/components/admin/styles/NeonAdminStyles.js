@@ -132,6 +132,9 @@ export const Input = styled.input`width: 100%; padding: 1rem; font-family: 'Inte
 export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; border: 1px solid #222; background: #0A0A0A; color: #FFF; min-height: 100px; resize: vertical; box-sizing: border-box; &:focus { outline: none; border-color: #FF3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }`;
 export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input { width: 18px; height: 18px; accent-color: #FF3366; }`;
 export const ErrorText = styled.span`font-size: 0.75rem; color: #FF3366; margin-top: 0.25rem; display: block;`;
+export const HelpText = styled.span`font-size: 0.75rem; color: #555; margin-top: 0.25rem; display: block;`;
+export const Select = styled.select`width: 100%; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; border: 1px solid #222; background: #0A0A0A; color: #FFF; box-sizing: border-box; cursor: pointer; &:focus { outline: none; border-color: #FF3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); } option { background: #0A0A0A; color: #FFF; }`;
+export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
 
 export const Button = styled.button`font-family: 'Space Grotesk', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.75rem 1.25rem; cursor: pointer; transition: all 0.3s; background: ${p => p.$variant === 'danger' ? '#FF3366' : p.$variant === 'secondary' ? 'transparent' : '#FF3366'}; color: ${p => p.$variant === 'secondary' ? '#FF3366' : '#FFF'}; border: ${p => p.$variant === 'secondary' ? '1px solid #FF3366' : 'none'}; &:hover { box-shadow: 0 0 20px rgba(255, 51, 102, 0.4); } &:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }`;
 export const SmallButton = styled.button`font-family: 'Inter', sans-serif; font-size: 0.6rem; font-weight: 600; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid #222; background: ${p => p.$variant === 'success' ? 'rgba(0, 212, 255, 0.1)' : p.$variant === 'danger' ? 'rgba(255, 51, 102, 0.1)' : '#1A1A1A'}; color: ${p => p.$variant === 'success' ? '#00D4FF' : p.$variant === 'danger' ? '#FF3366' : '#AAA'}; &:hover { opacity: 0.8; }`;
@@ -213,7 +216,7 @@ export const NeonAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,

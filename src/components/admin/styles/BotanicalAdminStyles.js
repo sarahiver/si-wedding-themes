@@ -583,6 +583,47 @@ export const ErrorText = styled.span`
   display: block;
 `;
 
+export const HelpText = styled.span`
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  margin-top: 0.25rem;
+  display: block;
+`;
+
+export const Select = styled.select`
+  width: 100%;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  background: var(--admin-glass);
+  border: 1px solid var(--admin-glass-border);
+  border-radius: 10px;
+  color: var(--admin-text);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 3px var(--admin-accent-muted);
+  }
+
+  option {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+  }
+`;
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
+`;
+
 // ============================================
 // BUTTONS
 // ============================================
@@ -1317,7 +1358,7 @@ export const BotanicalAdminComponents = {
   TableWrapper, Table, Th, Td, StatusBadge,
   
   // Forms
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
   
   // Buttons
   Button, SmallButton, ButtonGroup,

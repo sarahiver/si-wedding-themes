@@ -127,6 +127,9 @@ export const Input = styled.input`width: 100%; padding: 1rem; font-family: 'Mont
 export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F3EF; min-height: 100px; resize: vertical; box-sizing: border-box; &:focus { outline: none; border-color: #C9A86C; }`;
 export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input { width: 18px; height: 18px; accent-color: #C9A86C; }`;
 export const ErrorText = styled.span`font-size: 0.75rem; color: #FF6B6B; margin-top: 0.25rem; display: block;`;
+export const HelpText = styled.span`font-size: 0.75rem; color: #666; margin-top: 0.25rem; display: block;`;
+export const Select = styled.select`width: 100%; padding: 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F3EF; box-sizing: border-box; cursor: pointer; &:focus { outline: none; border-color: #C9A86C; } option { background: #1A1A1A; color: #F5F3EF; }`;
+export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
 
 export const Button = styled.button`font-family: 'Montserrat', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.75rem 1.25rem; cursor: pointer; transition: all 0.3s; background: ${p => p.$variant === 'danger' ? '#FF6B6B' : p.$variant === 'secondary' ? 'transparent' : '#C9A86C'}; color: ${p => p.$variant === 'secondary' ? '#C9A86C' : p.$variant === 'danger' ? '#FFF' : '#1A1A1A'}; border: ${p => p.$variant === 'secondary' ? '1px solid #C9A86C' : 'none'}; &:hover { opacity: 0.9; } &:disabled { background: #444; color: #666; cursor: not-allowed; }`;
 export const SmallButton = styled.button`font-family: 'Montserrat', sans-serif; font-size: 0.6rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid #333; background: ${p => p.$variant === 'success' ? 'rgba(76, 175, 80, 0.15)' : p.$variant === 'danger' ? 'rgba(255, 107, 107, 0.15)' : '#2D2D2D'}; color: ${p => p.$variant === 'success' ? '#4CAF50' : p.$variant === 'danger' ? '#FF6B6B' : '#AAA'}; &:hover { opacity: 0.8; }`;
@@ -208,7 +211,7 @@ export const LuxeAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
