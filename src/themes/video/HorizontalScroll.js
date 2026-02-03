@@ -347,8 +347,15 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       }
 
       // No vertical overflow, not centered, or at boundary → horizontal scroll
-      e.preventDefault();
-      container.scrollLeft += delta;
+      // Don't preventDefault - let native scroll + CSS snap handle it
+      // Just need to convert vertical wheel to horizontal
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        container.scrollBy({
+          left: e.deltaY,
+          behavior: 'auto'
+        });
+      }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
