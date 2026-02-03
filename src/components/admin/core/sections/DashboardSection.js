@@ -88,21 +88,21 @@ function DashboardSection({ components: C }) {
       )}
 
       <C.StatsGrid>
-        <C.StatCard>
-          <C.StatNumber>{stats.confirmed}</C.StatNumber>
-          <C.StatLabel>Zusagen</C.StatLabel>
+        <C.StatCard $index={0}>
+          <C.StatNumber $index={0}>{stats.confirmed}</C.StatNumber>
+          <C.StatLabel $index={0}>Zusagen</C.StatLabel>
         </C.StatCard>
-        <C.StatCard>
-          <C.StatNumber>{stats.declined}</C.StatNumber>
-          <C.StatLabel>Absagen</C.StatLabel>
+        <C.StatCard $index={1}>
+          <C.StatNumber $index={1}>{stats.declined}</C.StatNumber>
+          <C.StatLabel $index={1}>Absagen</C.StatLabel>
         </C.StatCard>
-        <C.StatCard>
-          <C.StatNumber>{stats.totalGuests}</C.StatNumber>
-          <C.StatLabel>Gäste</C.StatLabel>
+        <C.StatCard $index={2}>
+          <C.StatNumber $index={2}>{stats.totalGuests}</C.StatNumber>
+          <C.StatLabel $index={2}>Gäste</C.StatLabel>
         </C.StatCard>
-        <C.StatCard>
-          <C.StatNumber>{stats.pendingGuestbook + stats.pendingPhotos}</C.StatNumber>
-          <C.StatLabel>Ausstehend</C.StatLabel>
+        <C.StatCard $index={3}>
+          <C.StatNumber $index={3}>{stats.pendingGuestbook + stats.pendingPhotos}</C.StatNumber>
+          <C.StatLabel $index={3}>Ausstehend</C.StatLabel>
         </C.StatCard>
       </C.StatsGrid>
       
