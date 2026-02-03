@@ -260,8 +260,15 @@ const InfoNote = styled.div`
   }
 `;
 
-function ContactWitnesses({
-  witnesses = [
+function ContactWitnesses() {
+  const { content } = useWedding();
+  const witnessesData = content?.witnesses || {};
+  const title = witnessesData.title || 'Trauzeugen';
+
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  const defaultWitnesses = [
     {
       id: 1,
       name: 'Alex',
@@ -282,11 +289,25 @@ function ContactWitnesses({
       phone: '+49 171 7654321',
       email: 'max@example.com'
     }
-  ],
-  note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner!'
-}) {
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  ];
+
+  const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
+
+  // Map from editor format to neon format
+  const witnesses = witnessesData.persons?.length > 0
+    ? witnessesData.persons.map((p, i) => ({
+        id: i + 1,
+        name: p.name,
+        role: p.role || 'Trauzeuge/in',
+        relation: '',
+        color: neonColors[i % neonColors.length],
+        image: p.image || null,
+        phone: p.phone || '',
+        email: p.email || ''
+      }))
+    : defaultWitnesses;
+
+  const note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner!';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -304,7 +325,7 @@ function ContactWitnesses({
       <Container>
         <Header $visible={visible}>
           <Eyebrow>contact_witnesses.init()</Eyebrow>
-          <Title>Eure <span>Trauzeugen</span></Title>
+          <Title>Eure <span>{title}</span></Title>
           <Subtitle>Bei Fragen oder Überraschungen sind wir für euch da!</Subtitle>
         </Header>
         

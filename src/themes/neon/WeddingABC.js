@@ -313,11 +313,15 @@ const Counter = styled.span`
   color: rgba(255, 255, 255, 0.5);
 `;
 
-const WeddingABC = ({ config = {} }) => {
+const WeddingABC = () => {
+  const { content } = useWedding();
+  const abcData = content?.weddingabc || {};
+  const title = abcData.title || 'Wedding ABC';
+
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-  
+
   const neonColors = [
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b',
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b',
@@ -325,37 +329,24 @@ const WeddingABC = ({ config = {} }) => {
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b',
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b', '#00ffff'
   ];
-  
+
   const defaultABC = [
     { letter: 'A', word: 'Anfahrt', description: 'Alle Informationen zur Anreise findet ihr unter "Anfahrt". Parkplätze sind ausreichend vorhanden.' },
-    { letter: 'B', word: 'Blumen', description: 'Ihr müsst keine Blumen mitbringen - für die Dekoration ist gesorgt. Aber über kleine Aufmerksamkeiten freuen wir uns natürlich!' },
-    { letter: 'C', word: 'Countdown', description: 'Die Tage bis zu unserem großen Tag könnt ihr oben im Countdown verfolgen. Wir sind schon sehr aufgeregt!' },
-    { letter: 'D', word: 'Dresscode', description: 'Elegante Abendgarderobe. Details findet ihr unter "Dresscode". Bitte keine weißen Outfits - das ist der Braut vorbehalten.' },
-    { letter: 'E', word: 'Essen', description: 'Es erwartet euch ein köstliches Menü. Bitte teilt uns Allergien oder Unverträglichkeiten bei der RSVP mit.' },
-    { letter: 'F', word: 'Fotos', description: 'Während der Zeremonie bitten wir euch, auf Fotos zu verzichten. Bei der Feier dürft ihr gerne knipsen!' },
-    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk! Falls ihr uns etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserer Hochzeitsreise.' },
-    { letter: 'H', word: 'Hotel', description: 'Unterkünfte in der Nähe findet ihr unter "Unterkünfte". Reserviert frühzeitig!' },
-    { letter: 'I', word: 'Instagram', description: 'Teilt eure Bilder gerne mit unserem Hashtag! Den findet ihr auf der Startseite.' },
-    { letter: 'J', word: 'Ja-Wort', description: 'Das Ja-Wort geben wir uns um 14:00 Uhr in der Kirche. Bitte seid pünktlich!' },
-    { letter: 'K', word: 'Kinder', description: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.' },
-    { letter: 'L', word: 'Location', description: 'Die Zeremonie findet in der Kirche statt, die Feier anschließend in der Eventlocation. Details unter "Locations".' },
-    { letter: 'M', word: 'Musik', description: 'Ihr habt Musikwünsche? Teilt sie uns mit unter "Musikwünsche"! Wir freuen uns auf eure Vorschläge.' },
-    { letter: 'N', word: 'Notfall', description: 'Bei Notfällen oder dringenden Fragen wendet euch an unsere Trauzeugen. Kontaktdaten unter "Trauzeugen".' },
-    { letter: 'O', word: 'Outfit', description: 'Elegante Abendgarderobe. Denkt an bequeme Schuhe für die Tanzfläche!' },
-    { letter: 'P', word: 'Party', description: 'Nach dem Dinner wird gefeiert! Die Tanzfläche öffnet gegen 22:00 Uhr.' },
-    { letter: 'Q', word: 'Quatsch', description: 'Lustige Einlagen und Spiele sind willkommen - aber bitte koordiniert euch mit unseren Trauzeugen.' },
-    { letter: 'R', word: 'RSVP', description: 'Bitte bestätigt eure Teilnahme bis zum angegebenen Datum. Das hilft uns enorm bei der Planung!' },
-    { letter: 'S', word: 'Sektempfang', description: 'Nach der Zeremonie laden wir zum Sektempfang ein. Stoßt mit uns an!' },
-    { letter: 'T', word: 'Trauzeugen', description: 'Unsere Trauzeugen sind eure Ansprechpartner für alle Fragen rund um die Hochzeit.' },
-    { letter: 'U', word: 'Unterkunft', description: 'Hotels in der Nähe findet ihr unter "Unterkünfte". Reserviert frühzeitig!' },
-    { letter: 'V', word: 'Verspätung', description: 'Bitte plant genug Zeit für die Anreise ein. Die Zeremonie beginnt pünktlich!' },
-    { letter: 'W', word: 'Wetter', description: 'Egal ob Sonne oder Regen - wir feiern! Plant aber sicherheitshalber für beide Szenarien.' },
-    { letter: 'X', word: 'X-tra', description: 'Alle weiteren Infos findet ihr in unserem FAQ oder fragt einfach nach!' },
-    { letter: 'Y', word: 'Yeah!', description: 'Wir freuen uns riesig auf die Feier mit euch! Es wird ein unvergesslicher Tag!' },
-    { letter: 'Z', word: 'Zeit', description: 'Nehmt euch Zeit, diesen besonderen Tag mit uns zu genießen. Die Feier geht bis in die frühen Morgenstunden!' }
+    { letter: 'D', word: 'Dresscode', description: 'Elegante Abendgarderobe. Details findet ihr unter "Dresscode".' },
+    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk!' },
+    { letter: 'H', word: 'Hotel', description: 'Unterkünfte in der Nähe findet ihr unter "Unterkünfte".' },
+    { letter: 'K', word: 'Kinder', description: 'Wir haben uns für eine Feier nur für Erwachsene entschieden.' },
+    { letter: 'P', word: 'Party', description: 'Nach dem Dinner wird gefeiert!' },
   ];
-  
-  const abcItems = config.abcItems || defaultABC;
+
+  // Map from editor format to neon format
+  const abcItems = abcData.entries?.length > 0
+    ? abcData.entries.map(e => ({
+        letter: e.letter,
+        word: e.word,
+        description: e.description
+      }))
+    : defaultABC;
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -398,7 +389,7 @@ const WeddingABC = ({ config = {} }) => {
           <CommandLine visible={visible}>
             ./wedding_abc.sh --display-all
           </CommandLine>
-          <Title>Wedding ABC</Title>
+          <Title>{title}</Title>
           <Subtitle>Von A wie Anfahrt bis Z wie Zeit</Subtitle>
         </Header>
         

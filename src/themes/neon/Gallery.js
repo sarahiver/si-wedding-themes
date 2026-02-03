@@ -236,22 +236,32 @@ const ImageCounter = styled.div`
   }
 `;
 
-function Gallery({
-  images = [
-    { src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600', color: '#00ffff' },
-    { src: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600', color: '#ff00ff' },
-    { src: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=600', color: '#b347ff' },
-    { src: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600', color: '#00ff88' },
-    { src: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=600', color: '#00ffff' },
-    { src: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600', color: '#ff00ff' },
-    { src: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600', color: '#b347ff' },
-    { src: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600', color: '#00ff88' },
-  ]
-}) {
+function Gallery() {
+  const { content } = useWedding();
+  const galleryData = content?.gallery || {};
+  const title = galleryData.title || 'Galerie';
+
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
+
+  const defaultImages = [
+    { src: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600', color: '#00ffff' },
+    { src: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600', color: '#ff00ff' },
+    { src: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=600', color: '#b347ff' },
+    { src: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=600', color: '#00ff88' },
+  ];
+
+  const neonColors = ['#00ffff', '#ff00ff', '#b347ff', '#00ff88'];
+
+  // Map from editor format to neon format
+  const images = galleryData.images?.length > 0
+    ? galleryData.images.map((img, i) => ({
+        src: typeof img === 'string' ? img : img.url,
+        color: neonColors[i % neonColors.length]
+      }))
+    : defaultImages;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

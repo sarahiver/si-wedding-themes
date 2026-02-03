@@ -282,12 +282,16 @@ const NoResults = styled.div`
   }
 `;
 
-const FAQ = ({ config = {} }) => {
+const FAQ = () => {
+  const { content } = useWedding();
+  const faqData = content?.faq || {};
+  const title = faqData.title || 'FAQ';
+
   const [openIndex, setOpenIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-  
+
   const defaultFaqs = [
     {
       question: "Wann und wo findet die Hochzeit statt?",
@@ -312,26 +316,10 @@ const FAQ = ({ config = {} }) => {
     {
       question: "Wo kann ich parken?",
       answer: "Es gibt ausreichend kostenlose Parkplätze direkt an der Location. Details zur Anfahrt findet ihr unter 'Anfahrt'."
-    },
-    {
-      question: "Gibt es eine Geschenkeliste?",
-      answer: "Eure Anwesenheit ist das größte Geschenk! Falls ihr uns dennoch etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserer Hochzeitsreise. Details unter 'Geschenke'."
-    },
-    {
-      question: "Bis wann muss ich zusagen?",
-      answer: "Bitte gebt uns bis spätestens 6 Wochen vor der Hochzeit Bescheid. Das hilft uns bei der Planung enorm!"
-    },
-    {
-      question: "Darf ich Fotos machen?",
-      answer: "Während der Zeremonie bitten wir euch, die Handys wegzulassen - unser Fotograf hält alles fest. Bei der Feier könnt ihr nach Herzenslust knipsen und die Bilder gerne hochladen!"
-    },
-    {
-      question: "An wen kann ich mich bei Fragen wenden?",
-      answer: "Unsere Trauzeugen helfen euch gerne weiter. Kontaktdaten findet ihr unter 'Trauzeugen'. Für dringende Fragen könnt ihr uns auch direkt kontaktieren."
     }
   ];
-  
-  const faqs = config.faqs || defaultFaqs;
+
+  const faqs = faqData.questions?.length > 0 ? faqData.questions : defaultFaqs;
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -372,7 +360,7 @@ const FAQ = ({ config = {} }) => {
               <CommandLine visible={visible}>
                 cat frequently_asked_questions.md
               </CommandLine>
-              <Title>FAQ</Title>
+              <Title>{title}</Title>
               <Subtitle>Alles was ihr wissen müsst</Subtitle>
             </Header>
             

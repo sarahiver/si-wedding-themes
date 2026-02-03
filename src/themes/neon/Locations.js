@@ -303,8 +303,11 @@ function LocationItem({ location, index }) {
   );
 }
 
-function Locations({
-  locations = [
+function Locations() {
+  const { content } = useWedding();
+  const locationsData = content?.locations || {};
+
+  const defaultLocations = [
     {
       type: 'Ceremony',
       name: 'St. Patrick Church',
@@ -325,8 +328,24 @@ function Locations({
       mapUrl: 'https://maps.google.com',
       color: '#ff00ff'
     }
-  ]
-}) {
+  ];
+
+  const neonColors = ['#00ffff', '#ff00ff', '#00ff88', '#b347ff'];
+
+  // Map from editor format to neon format
+  const locations = locationsData.locations?.length > 0
+    ? locationsData.locations.map((loc, i) => ({
+        type: loc.type || 'Location',
+        name: loc.name,
+        description: loc.description || '',
+        time: loc.time || '',
+        address: loc.address || '',
+        image: loc.image || defaultLocations[i % defaultLocations.length]?.image,
+        mapUrl: loc.maps_url || '',
+        color: neonColors[i % neonColors.length]
+      }))
+    : defaultLocations;
+
   return (
     <Section id="location">
       {locations.map((location, i) => (

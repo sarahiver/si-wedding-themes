@@ -333,13 +333,20 @@ const CodeBox = styled.div`
   }
 `;
 
-function Accommodations({
-  accommodations = [
+function Accommodations() {
+  const { content } = useWedding();
+  const accommodationsData = content?.accommodations || {};
+  const title = accommodationsData.title || 'Übernachtung';
+
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  const defaultAccommodations = [
     {
       id: 1,
       name: 'Hotel Neon Nights',
       type: 'PREMIUM',
-      description: 'Modernes Designhotel direkt neben der Location. Perfekt für alle, die bis in die Morgenstunden feiern wollen!',
+      description: 'Modernes Designhotel direkt neben der Location.',
       image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
       distance: '200m zur Location',
       price: '159€',
@@ -351,31 +358,36 @@ function Accommodations({
       id: 2,
       name: 'Cyber Inn',
       type: 'MITTELKLASSE',
-      description: 'Gemütliches Hotel mit futuristischem Flair. Shuttle-Service zur Location inklusive.',
+      description: 'Gemütliches Hotel mit futuristischem Flair.',
       image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500',
       distance: '1.5km zur Location',
       price: '99€',
       priceNote: 'pro Nacht',
       color: '#00ffff',
       bookingUrl: '#'
-    },
-    {
-      id: 3,
-      name: 'Pixel Lodge',
-      type: 'BUDGET',
-      description: 'Einfach aber stylish! Perfekt für alle mit kleinerem Budget.',
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500',
-      distance: '3km zur Location',
-      price: '69€',
-      priceNote: 'pro Nacht',
-      color: '#00ff88',
-      bookingUrl: '#'
     }
-  ],
-  bookingCode = 'WEDDING2025'
-}) {
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  ];
+
+  const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
+
+  // Map from editor format to neon format
+  const accommodations = accommodationsData.hotels?.length > 0
+    ? accommodationsData.hotels.map((h, i) => ({
+        id: i + 1,
+        name: h.name,
+        type: h.price_range || 'Hotel',
+        description: '',
+        image: h.image || defaultAccommodations[i % defaultAccommodations.length]?.image,
+        distance: h.distance || '',
+        price: h.price_range || '',
+        priceNote: 'pro Nacht',
+        color: neonColors[i % neonColors.length],
+        bookingUrl: h.url || '#',
+        bookingCode: h.booking_code || ''
+      }))
+    : defaultAccommodations;
+
+  const bookingCode = accommodationsData.hotels?.[0]?.booking_code || '';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -393,7 +405,7 @@ function Accommodations({
       <Container>
         <Header $visible={visible}>
           <Eyebrow>find_accommodation.exe</Eyebrow>
-          <Title>Über<span>nachtung</span></Title>
+          <Title><span>{title}</span></Title>
           <Subtitle>Wir haben für euch ein paar Hotel-Empfehlungen zusammengestellt</Subtitle>
         </Header>
         

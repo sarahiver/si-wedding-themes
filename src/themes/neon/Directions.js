@@ -171,37 +171,80 @@ const MapEmbed = styled.div`
   }
 `;
 
-function Directions({
-  directions = [
+function Directions() {
+  const { content } = useWedding();
+  const directionsData = content?.directions || {};
+  const title = directionsData.title || 'Anfahrt';
+
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  const defaultDirections = [
     {
       icon: 'car',
-      title: 'By Car',
-      text: 'Free parking available at the venue. Use the main entrance on Kirchstraße. GPS: 52.5200° N, 13.4050° E',
-      link: 'https://maps.google.com',
-      linkText: 'Get Directions',
+      title: 'Mit dem Auto',
+      text: 'Kostenlose Parkplätze stehen vor Ort zur Verfügung.',
+      link: '',
+      linkText: 'Route planen',
       color: '#00ffff'
     },
     {
       icon: 'train',
-      title: 'Public Transport',
-      text: 'Take U-Bahn line U2 to Alexanderplatz, then tram M4 to Kirchstraße. 5-minute walk from the stop.',
-      link: 'https://bvg.de',
-      linkText: 'Plan Route',
+      title: 'Öffentliche Verkehrsmittel',
+      text: 'Mit der U-Bahn bis zur Haltestelle, dann 5 Minuten zu Fuß.',
+      link: '',
+      linkText: 'Route planen',
       color: '#ff00ff'
     },
     {
       icon: 'plane',
-      title: 'From Airport',
-      text: 'BER Airport is 30km away. Take the Airport Express (FEX) to Hauptbahnhof, then U2 to Alexanderplatz.',
-      link: 'https://ber.berlin',
-      linkText: 'Airport Info',
+      title: 'Taxi',
+      text: 'Taxi-Service verfügbar. Wir können auch einen Shuttle organisieren.',
+      link: '',
+      linkText: 'Info',
       color: '#00ff88'
     }
-  ],
-  mapEmbedUrl = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.408!2d13.4050!3d52.5200!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTLCsDMxJzEyLjAiTiAxM8KwMjQnMTguMCJF!5e0!3m2!1sen!2sde!4v1'
-}) {
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  ];
+
+  // Build directions from editor fields
+  const buildDirections = () => {
+    const dirs = [];
+    if (directionsData.parking_info) {
+      dirs.push({
+        icon: 'car',
+        title: 'Mit dem Auto',
+        text: directionsData.parking_info,
+        link: '',
+        linkText: 'Route planen',
+        color: '#00ffff'
+      });
+    }
+    if (directionsData.public_transport) {
+      dirs.push({
+        icon: 'train',
+        title: 'Öffentliche Verkehrsmittel',
+        text: directionsData.public_transport,
+        link: '',
+        linkText: 'Route planen',
+        color: '#ff00ff'
+      });
+    }
+    if (directionsData.taxi_info) {
+      dirs.push({
+        icon: 'plane',
+        title: 'Taxi / Shuttle',
+        text: directionsData.taxi_info,
+        link: '',
+        linkText: 'Info',
+        color: '#00ff88'
+      });
+    }
+    return dirs;
+  };
+
+  const builtDirections = buildDirections();
+  const directions = builtDirections.length > 0 ? builtDirections : defaultDirections;
+  const mapEmbedUrl = directionsData.maps_embed || '';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -224,7 +267,7 @@ function Directions({
       <Container>
         <Header $visible={visible}>
           <Eyebrow>// How to Find Us</Eyebrow>
-          <Title>Getting <span>There</span></Title>
+          <Title><span>{title}</span></Title>
         </Header>
         
         <Grid>

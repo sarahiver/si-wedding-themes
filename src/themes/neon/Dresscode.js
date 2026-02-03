@@ -272,33 +272,41 @@ const InfoBox = styled.div`
   }
 `;
 
-function Dresscode({
-  dresscodes = [
+function Dresscode() {
+  const { content } = useWedding();
+  const dresscodeData = content?.dresscode || {};
+  const title = dresscodeData.title || 'Dresscode';
+  const code = dresscodeData.code || 'Festlich Elegant';
+  const description = dresscodeData.description || '';
+
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  const defaultDresscodes = [
     {
       id: 'ladies',
       icon: 'dress',
       label: 'FOR HER',
       title: 'Ladies',
-      description: 'Cocktailkleid, elegantes Abendkleid oder schicker Jumpsuit. Hauptsache ihr fühlt euch wohl und könnt die Nacht durchtanzen!',
+      description: 'Cocktailkleid, elegantes Abendkleid oder schicker Jumpsuit.',
       color: '#ff00ff',
-      suggestions: ['Cocktailkleid', 'Elegantes Jumpsuit', 'Midi/Maxi Kleid', 'Hohe oder flache Schuhe'],
-      avoid: ['Weiß', 'Ballkleid', 'Casual Jeans']
+      suggestions: dresscodeData.dos?.length > 0 ? dresscodeData.dos : ['Cocktailkleid', 'Elegantes Jumpsuit', 'Midi/Maxi Kleid'],
+      avoid: dresscodeData.donts?.length > 0 ? dresscodeData.donts : ['Weiß', 'Casual Jeans']
     },
     {
       id: 'gents',
       icon: 'suit',
       label: 'FOR HIM',
       title: 'Gentlemen',
-      description: 'Anzug mit oder ohne Krawatte, gerne auch Hemd mit Chinos. Wichtig: Bequeme Tanzschuhe nicht vergessen!',
+      description: 'Anzug mit oder ohne Krawatte, gerne auch Hemd mit Chinos.',
       color: '#00ffff',
-      suggestions: ['Anzug (dunkel oder bunt)', 'Hemd + Chinos', 'Optional: Krawatte/Fliege', 'Bequeme Lederschuhe'],
-      avoid: ['Jeans', 'Sneakers', 'T-Shirt']
+      suggestions: dresscodeData.dos?.length > 0 ? dresscodeData.dos : ['Anzug', 'Hemd + Chinos', 'Bequeme Schuhe'],
+      avoid: dresscodeData.donts?.length > 0 ? dresscodeData.donts : ['Jeans', 'Sneakers']
     }
-  ],
-  tip = 'Die Location ist teilweise im Freien. Denkt an einen Blazer oder Stola für den Abend!'
-}) {
-  const sectionRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  ];
+
+  const dresscodes = defaultDresscodes;
+  const tip = description || 'Die Location ist teilweise im Freien. Denkt an einen Blazer oder Stola für den Abend!';
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -331,7 +339,7 @@ function Dresscode({
       <Container>
         <Header $visible={visible}>
           <Eyebrow>What to Wear</Eyebrow>
-          <Title><span>Dresscode</span></Title>
+          <Title><span>{title}</span></Title>
           <Subtitle>Festlich & Elegant – aber das Wichtigste ist, dass ihr euch wohlfühlt!</Subtitle>
         </Header>
         

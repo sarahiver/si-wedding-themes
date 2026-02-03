@@ -290,21 +290,54 @@ const WishlistLink = styled.a`
   }
 `;
 
-function Gifts({
-  message = 'Das größte Geschenk ist eure Anwesenheit! Aber falls ihr uns trotzdem etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserer Hochzeitsreise oder etwas von unserer Wunschliste.',
-  bankDetails = {
-    accountHolder: 'Alex & Jordan Smith',
-    iban: 'DE89 3704 0044 0532 0130 00',
-    bic: 'COBADEFFXXX',
-    bank: 'Commerzbank',
-    reference: 'Wedding Alex & Jordan'
-  },
-  wishlistUrl = null
-}) {
+function Gifts() {
+  const { content } = useWedding();
+  const giftsData = content?.gifts || {};
+  const title = giftsData.title || 'Geschenke';
+
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const message = giftsData.description || 'Das größte Geschenk ist eure Anwesenheit! Aber falls ihr uns trotzdem etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserer Hochzeitsreise.';
+
+  // Parse bank details from editor format
+  const bankDetailsText = giftsData.bank_details || '';
+  const parseBankDetails = () => {
+    const lines = bankDetailsText.split('\n');
+    const details = {
+      accountHolder: '',
+      iban: '',
+      bic: '',
+      bank: '',
+      reference: ''
+    };
+    lines.forEach(line => {
+      if (line.toLowerCase().includes('iban')) {
+        details.iban = line.replace(/iban[:\s]*/i, '').trim();
+      } else if (line.toLowerCase().includes('bic')) {
+        details.bic = line.replace(/bic[:\s]*/i, '').trim();
+      } else if (line.toLowerCase().includes('verwendungszweck')) {
+        details.reference = line.replace(/verwendungszweck[:\s]*/i, '').trim();
+      } else if (line.toLowerCase().includes('inhaber') || line.toLowerCase().includes('name')) {
+        details.accountHolder = line.replace(/[a-zA-Z]+[:\s]*/i, '').trim();
+      } else if (line.toLowerCase().includes('bank')) {
+        details.bank = line.replace(/bank[:\s]*/i, '').trim();
+      }
+    });
+    return details;
+  };
+
+  const bankDetails = bankDetailsText ? parseBankDetails() : {
+    accountHolder: 'Brautpaar',
+    iban: 'DE89 3704 0044 0532 0130 00',
+    bic: 'COBADEFFXXX',
+    bank: 'Bank',
+    reference: 'Hochzeitsgeschenk'
+  };
+
+  const wishlistUrl = giftsData.registry_url || giftsData.paypal_link || null;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -341,7 +374,7 @@ function Gifts({
       <Container>
         <Header $visible={visible}>
           <GiftIcon>🎁</GiftIcon>
-          <Title><span>Geschenke</span></Title>
+          <Title><span>{title}</span></Title>
           <Subtitle>Ein kleiner Guide für alle, die fragen...</Subtitle>
         </Header>
         
