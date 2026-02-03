@@ -151,6 +151,32 @@ const PaymentButton = styled.a`
   }
 `;
 
+const RegistryLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto 3rem;
+  padding: 1rem 2rem;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+  font-family: var(--font-headline);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.45s;
+  `}
+
+  &:hover {
+    background: var(--editorial-red);
+  }
+`;
+
 const SectionTitle = styled.h3`
   font-family: var(--font-headline);
   font-size: clamp(1.5rem, 4vw, 2.5rem);
@@ -458,14 +484,11 @@ function Gifts() {
   const description = giftsData.description || 'Das größte Geschenk ist eure Anwesenheit. Wer uns dennoch etwas schenken möchte, findet hier ein paar Ideen.';
   const bankDetails = giftsData.bank_details || '';
   const paypalLink = giftsData.paypal_link || '';
+  const showRegistry = giftsData.show_registry;
+  const registryUrl = giftsData.registry_url || '';
   const items = giftsData.items || [];
   
-  const {
-    gifts,
-    reservations,
-    reserveGift,
-    loading,
-  } = useGifts();
+  const { reservations, reserveGiftItem } = useGifts();
   
   const [visible, setVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -475,15 +498,12 @@ function Gifts() {
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
 
-  const defaultItems = [
-    { id: '1', name: 'Kaffeemaschine', description: 'Für den perfekten Start in den Tag.', price: 350, image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600' },
-    { id: '2', name: 'Küchenmaschine', description: 'Zum gemeinsamen Backen und Kochen.', price: 500, image: 'https://images.unsplash.com/photo-1594385208974-2e75f8d7bb48?w=600' },
-    { id: '3', name: 'Reisekasse', description: 'Für unsere Hochzeitsreise.', price: null, image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600' },
-  ];
-
-  const displayItems = items.length > 0 ? items : defaultItems;
+  // Keine Default-Einträge - nur Items aus dem Dashboard anzeigen
+  const displayItems = items;
   
   const isReserved = (itemId) => {
+    const item = items.find(i => i.id === itemId);
+    if (item?.reserved) return true;
     return reservations.some(r => r.item_id === itemId);
   };
 
@@ -506,18 +526,18 @@ function Gifts() {
 
   const handleReserveSubmit = async () => {
     if (!reserverName.trim()) return;
-    
-    try {
-      await reserveGift(selectedGift.id, reserverName, reserverEmail);
+
+    const result = await reserveGiftItem(selectedGift.id, reserverName, reserverEmail);
+    if (result.success) {
       setModalOpen(false);
       setReserverName('');
       setReserverEmail('');
       setModalState({
         isOpen: true,
         type: 'success',
-        message: `"${selectedGift.name}" wurde für dich reserviert!`,
+        message: `"${selectedGift.name || selectedGift.title}" wurde für dich reserviert!`,
       });
-    } catch (err) {
+    } else {
       setModalState({
         isOpen: true,
         type: 'error',
@@ -556,7 +576,15 @@ function Gifts() {
             )}
           </PaymentSection>
         )}
-        
+
+        {showRegistry && registryUrl && (
+          <div style={{ textAlign: 'center' }}>
+            <RegistryLink $visible={visible} href={registryUrl} target="_blank" rel="noopener noreferrer">
+              🎁 Zur externen Geschenkeliste →
+            </RegistryLink>
+          </div>
+        )}
+
         {displayItems.length > 0 && (
           <>
             <SectionTitle $visible={visible}>Unsere Wünsche</SectionTitle>
@@ -570,7 +598,7 @@ function Gifts() {
                   <GiftCard key={gift.id} $reserved={reserved}>
                     <GiftImage $reserved={reserved}>
                       {gift.image ? (
-                        <img src={gift.image} alt={gift.name} loading="lazy" />
+                        <img src={gift.image} alt={gift.title || gift.name} loading="lazy" />
                       ) : (
                         <GiftImagePlaceholder>🎁</GiftImagePlaceholder>
                       )}
@@ -578,13 +606,14 @@ function Gifts() {
                     </GiftImage>
                     
                     <GiftContent>
-                      <GiftName>{gift.name}</GiftName>
+                      <GiftName>{gift.title || gift.name}</GiftName>
                       {gift.description && (
                         <GiftDescription>{gift.description}</GiftDescription>
                       )}
-                      {gift.price && (
+                      {(gift.price || gift.cost) && (
                         <GiftPrice>
-                          {gift.price}€ <span>ca.</span>
+                          {gift.cost || gift.price}
+                          {!gift.cost && gift.price && '€'} <span>ca.</span>
                         </GiftPrice>
                       )}
                       

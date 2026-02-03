@@ -68,9 +68,10 @@ const PoweredBy = styled.a`
 `;
 
 function Footer() {
-  const { content, coupleNames, slug } = useWedding();
+  const { content, coupleNames, slug, project } = useWedding();
   const footer = content?.footer || {};
-  
+  const hashtag = project?.hashtag;
+
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Name', 'Name'];
   const year = new Date().getFullYear();
   
@@ -82,7 +83,7 @@ function Footer() {
   return (
     <FooterSection>
       <Names>{names[0]} & {names[1]}</Names>
-      {footer.hashtag && <Hashtag>{footer.hashtag}</Hashtag>}
+      {hashtag && <Hashtag>#{hashtag}</Hashtag>}
       <Divider />
       <Copyright>© {year} {names[0]} & {names[1]}</Copyright>
       <AdminLink onClick={handleAdminClick}>Admin</AdminLink>

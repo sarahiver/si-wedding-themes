@@ -47,6 +47,15 @@ const Divider = styled.div`
   margin: 2rem auto;
 `;
 
+const Hashtag = styled.p`
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+`;
+
 const Credits = styled.p`
   font-family: var(--font-body);
   font-size: 0.65rem;
@@ -86,9 +95,10 @@ const ScrollTop = styled.button`
 `;
 
 function Footer() {
-  const { coupleNames, weddingDate } = useWedding();
-  
+  const { coupleNames, weddingDate, project } = useWedding();
+
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
+  const hashtag = project?.hashtag;
   
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -114,8 +124,10 @@ function Footer() {
         <DateText>{formatDate(weddingDate)}</DateText>
       )}
       
+      {hashtag && <Hashtag>#{hashtag}</Hashtag>}
+
       <Divider />
-      
+
       <Credits>
         Powered by <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I.</a>
       </Credits>

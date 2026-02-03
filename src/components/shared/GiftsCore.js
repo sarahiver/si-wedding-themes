@@ -61,39 +61,50 @@ export function useGifts() {
     setSuccess(false);
   };
 
+  // Reserve with internal form data (for modal-based flows)
   const reserve = async (itemId) => {
     if (!formData.reservedBy.trim()) {
       setError('Bitte gib deinen Namen ein');
       return { success: false };
     }
-    
+
+    return await reserveGiftItem(itemId, formData.reservedBy.trim(), formData.email);
+  };
+
+  // Reserve with explicit name/email (for direct calls from theme components)
+  const reserveGiftItem = async (itemId, name, email = '') => {
+    if (!name?.trim()) {
+      setError('Bitte gib deinen Namen ein');
+      return { success: false };
+    }
+
     if (isItemReserved(itemId)) {
       setError('Dieses Geschenk wurde bereits reserviert');
       return { success: false };
     }
-    
+
     setSubmitting(true);
     setError(null);
-    
+
     try {
       if (isDemo) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setSuccess(true);
         setFormData({ reservedBy: '', email: '', message: '' });
         setSelectedItem(null);
-        setReservations(prev => [...prev, { id: Date.now(), item_id: itemId, reserved_by: formData.reservedBy }]);
+        setReservations(prev => [...prev, { id: Date.now(), item_id: itemId, reserved_by: name }]);
         return { success: true, data: { demo: true } };
       }
-      
-      const { data, error: submitError } = await reserveGift(projectId, itemId, formData.reservedBy.trim());
+
+      const { data, error: submitError } = await reserveGift(projectId, itemId, name.trim(), email);
       if (submitError) throw submitError;
-      
+
       setSuccess(true);
       setFormData({ reservedBy: '', email: '', message: '' });
       setSelectedItem(null);
       await loadReservations();
       return { success: true, data };
-      
+
     } catch (err) {
       console.error('Gift reservation error:', err);
       setError('Reservierung fehlgeschlagen');
@@ -126,7 +137,7 @@ export function useGifts() {
     items: itemsWithStatus, reservations, loading, submitting, error, success, formData, selectedItem, isDemo,
     bankDetails, paypalLink, registryUrl,
     stats: { total: items.length, reserved: reservations.length, available: items.length - reservations.length },
-    updateField, reserve, isItemReserved, openReservationModal, closeReservationModal, loadReservations,
+    updateField, reserve, reserveGiftItem, isItemReserved, openReservationModal, closeReservationModal, loadReservations,
   };
 }
 

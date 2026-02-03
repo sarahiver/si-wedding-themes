@@ -265,10 +265,25 @@ const PoweredBy = styled.a`
   color: rgba(255, 255, 255, 0.15);
   text-decoration: none;
   transition: color 0.3s ease;
-  
+
   &:hover {
     color: var(--editorial-red);
   }
+`;
+
+const Hashtag = styled.p`
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--editorial-red);
+  margin-bottom: 2rem;
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 1.1s;
+  `}
 `;
 
 // ============================================
@@ -276,7 +291,8 @@ const PoweredBy = styled.a`
 // ============================================
 
 function Footer() {
-  const { coupleNames, weddingDate, isComponentActive } = useWedding();
+  const { coupleNames, weddingDate, isComponentActive, project } = useWedding();
+  const hashtag = project?.hashtag;
   
   const [visible, setVisible] = useState(false);
   const footerRef = useRef(null);
@@ -297,7 +313,6 @@ function Footer() {
     { id: 'timeline', label: 'Ablauf' },
     { id: 'rsvp', label: 'RSVP' },
     { id: 'gallery', label: 'Galerie' },
-    { id: 'contact', label: 'Kontakt' },
   ].filter(item => item.always || isComponentActive(item.id));
 
   useEffect(() => {
@@ -335,7 +350,9 @@ function Footer() {
         </NamesSection>
         
         <Heart $visible={visible}>♥</Heart>
-        
+
+        {hashtag && <Hashtag $visible={visible}>#{hashtag}</Hashtag>}
+
         <DateText $visible={visible}>{formatDate(weddingDate)}</DateText>
         
         <Divider $visible={visible} />
