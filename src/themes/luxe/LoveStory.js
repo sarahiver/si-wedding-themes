@@ -142,7 +142,8 @@ function LoveStory() {
   const { content } = useWedding();
   const storyData = content?.lovestory || {};
   const title = storyData.title || 'Unsere Geschichte';
-  const items = storyData.items || [];
+  // FIX: Content uses 'events' key, not 'items'
+  const items = Array.isArray(storyData.events) ? storyData.events : [];
   
   const [headerVisible, setHeaderVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);

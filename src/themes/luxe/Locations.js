@@ -30,10 +30,16 @@ function Locations() {
   const { content } = useWedding();
   const data = content?.locations || {};
   const title = data.title || 'Veranstaltungsorte';
-  const locations = data.locations || [
+
+  // FIX: Proper array validation and default locations
+  const defaultLocations = [
     { name: 'Villa Rothschild', type: 'Zeremonie', address: 'Im Rothschildpark 1\n61462 Koenigstein', time: '15:00 Uhr', image: '' },
     { name: 'Schloss Johannisberg', type: 'Empfang & Dinner', address: 'Schloss Johannisberg\n65366 Geisenheim', time: '18:00 Uhr', image: '' }
   ];
+  const locations = Array.isArray(data.locations) && data.locations.length > 0 ? data.locations : defaultLocations;
+
+  // FIX: Handle both string and object formats for images
+  const getImageUrl = (img) => img?.url || img || '';
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -50,7 +56,7 @@ function Locations() {
       <LocationsGrid>
         {locations.map((loc, i) => (
           <LocationCard key={i}>
-            <ImageSection><Image $image={loc.image} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
+            <ImageSection><Image $image={getImageUrl(loc.image)} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
             <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
               <TypeBadge>{loc.type}</TypeBadge>
               <CardTitle>{loc.name}</CardTitle>

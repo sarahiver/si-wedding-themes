@@ -13,7 +13,8 @@ const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5re
 
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;`;
 const Card = styled.div`opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
-const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; margin-bottom: 1.5rem; overflow: hidden;`;
+// FIX: Only use url() when image exists and is not empty string
+const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image && p.$image.length > 0 ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; margin-bottom: 1.5rem; overflow: hidden;`;
 const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--luxe-cream); margin-bottom: 0.5rem;`;
 const CardAddress = styled.p`font-family: var(--font-body); font-size: 0.85rem; color: var(--luxe-pearl); margin-bottom: 0.75rem;`;
 const CardPrice = styled.span`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-gold);`;
@@ -23,10 +24,16 @@ function Accommodations() {
   const { content } = useWedding();
   const data = content?.accommodations || {};
   const title = data.title || 'Unterkuenfte';
-  const hotels = data.hotels || [
+
+  // FIX: Proper array validation
+  const defaultHotels = [
     { name: 'Grand Hotel', address: 'Hauptstrasse 1', price: 'ab 150 EUR/Nacht', image: '', url: '' },
     { name: 'Boutique Hotel', address: 'Altstadt 15', price: 'ab 120 EUR/Nacht', image: '', url: '' }
   ];
+  const hotels = Array.isArray(data.hotels) && data.hotels.length > 0 ? data.hotels : defaultHotels;
+
+  // FIX: Handle both string and object formats for images
+  const getImageUrl = (img) => img?.url || img || '';
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -44,7 +51,7 @@ function Accommodations() {
         <Grid>
           {hotels.map((hotel, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              <CardImage $image={hotel.image} />
+              <CardImage $image={getImageUrl(hotel.image)} />
               <CardTitle>{hotel.name}</CardTitle>
               <CardAddress>{hotel.address}</CardAddress>
               <CardPrice>{hotel.price}</CardPrice>

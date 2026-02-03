@@ -29,9 +29,15 @@ function Dresscode() {
   const data = content?.dresscode || {};
   const title = data.title || 'Dresscode';
   const code = data.code || 'Black Tie Optional';
-  const colors = data.colors || [{ name: 'Champagner', hex: '#D4AF37' }, { name: 'Elfenbein', hex: '#FFFFF0' }, { name: 'Salbei', hex: '#9CAF88' }, { name: 'Anthrazit', hex: '#2D2D30' }];
-  const dos = data.dos || ['Elegante Abendgarderobe', 'Gedeckte, warme Farben', 'Accessoires in Gold'];
-  const donts = data.donts || ['Weiss oder Creme', 'Sehr laute Farben', 'Casual Kleidung'];
+
+  // FIX: Proper array validation for all arrays
+  const defaultColors = [{ name: 'Champagner', hex: '#D4AF37' }, { name: 'Elfenbein', hex: '#FFFFF0' }, { name: 'Salbei', hex: '#9CAF88' }, { name: 'Anthrazit', hex: '#2D2D30' }];
+  const defaultDos = ['Elegante Abendgarderobe', 'Gedeckte, warme Farben', 'Accessoires in Gold'];
+  const defaultDonts = ['Weiss oder Creme', 'Sehr laute Farben', 'Casual Kleidung'];
+
+  const colors = Array.isArray(data.colors) && data.colors.length > 0 ? data.colors : defaultColors;
+  const dos = Array.isArray(data.dos) && data.dos.length > 0 ? data.dos : defaultDos;
+  const donts = Array.isArray(data.donts) && data.donts.length > 0 ? data.donts : defaultDonts;
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

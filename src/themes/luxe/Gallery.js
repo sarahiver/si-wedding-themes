@@ -58,7 +58,20 @@ function Gallery() {
   const { content } = useWedding();
   const data = content?.gallery || {};
   const title = data.title || 'Galerie';
-  const images = data.images || Array(9).fill({ url: '', caption: '' });
+
+  // FIX: Proper default images instead of empty placeholders
+  const defaultImages = [
+    { url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800', caption: 'Verlobung' },
+    { url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800', caption: 'Unser Moment' },
+    { url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800', caption: 'Zusammen' },
+    { url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800', caption: 'Unterwegs' },
+    { url: 'https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800', caption: 'Am Meer' },
+    { url: 'https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?w=800', caption: 'Der Antrag' },
+  ];
+
+  // Handle both array of objects {url:...} and array of strings
+  const rawImages = Array.isArray(data.images) && data.images.length > 0 ? data.images : defaultImages;
+  const images = rawImages.map(img => typeof img === 'string' ? { url: img, caption: '' } : img);
   
   const [visible, setVisible] = useState(false);
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
@@ -70,7 +83,9 @@ function Gallery() {
     return () => observer.disconnect();
   }, []);
 
-  const openLightbox = (i) => { if (images[i]?.url) { setLightbox({ open: true, index: i }); document.body.style.overflow = 'hidden'; } };
+  // FIX: Handle both string and object formats
+  const getImageUrl = (img) => img?.url || img || '';
+  const openLightbox = (i) => { if (getImageUrl(images[i])) { setLightbox({ open: true, index: i }); document.body.style.overflow = 'hidden'; } };
   const closeLightbox = () => { setLightbox({ ...lightbox, open: false }); document.body.style.overflow = ''; };
   const navigate = (dir) => setLightbox(prev => ({ ...prev, index: (prev.index + dir + images.length) % images.length }));
 
@@ -85,16 +100,19 @@ function Gallery() {
       <Container>
         <Header><Eyebrow $visible={visible}>Momente</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <Grid>
-          {images.map((img, i) => (
-            <GridItem key={i} $visible={visible} $index={i} onClick={() => openLightbox(i)}>
-              {img.url ? <GridImage src={img.url} alt={img.caption || `Bild ${i+1}`} /> : <Placeholder>✦</Placeholder>}
-            </GridItem>
-          ))}
+          {images.map((img, i) => {
+            const url = getImageUrl(img);
+            return (
+              <GridItem key={i} $visible={visible} $index={i} onClick={() => openLightbox(i)}>
+                {url ? <GridImage src={url} alt={img.caption || `Bild ${i+1}`} /> : <Placeholder>✦</Placeholder>}
+              </GridItem>
+            );
+          })}
         </Grid>
       </Container>
-      
+
       <Lightbox $open={lightbox.open} onClick={closeLightbox}>
-        {images[lightbox.index]?.url && <LightboxImage src={images[lightbox.index].url} alt="" onClick={e => e.stopPropagation()} />}
+        {getImageUrl(images[lightbox.index]) && <LightboxImage src={getImageUrl(images[lightbox.index])} alt="" onClick={e => e.stopPropagation()} />}
         <LightboxClose onClick={closeLightbox}>×</LightboxClose>
         <LightboxNav className="prev" onClick={e => { e.stopPropagation(); navigate(-1); }}>‹</LightboxNav>
         <LightboxNav className="next" onClick={e => { e.stopPropagation(); navigate(1); }}>›</LightboxNav>

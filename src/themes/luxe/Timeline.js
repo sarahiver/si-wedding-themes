@@ -30,13 +30,16 @@ function Timeline() {
   const { content } = useWedding();
   const data = content?.timeline || {};
   const title = data.title || 'Tagesablauf';
-  const items = data.items || [
+
+  // FIX: Content uses 'events' key, not 'items'
+  const defaultEvents = [
     { time: '14:00', title: 'Empfang', description: 'Willkommensgetraenke im Garten' },
     { time: '15:00', title: 'Zeremonie', description: 'Die Trauung in der Kapelle' },
     { time: '16:30', title: 'Aperitif', description: 'Haeppchen und Champagner' },
     { time: '18:00', title: 'Dinner', description: 'Festliches Abendessen' },
     { time: '21:00', title: 'Party', description: 'Musik und Tanz' }
   ];
+  const items = Array.isArray(data.events) && data.events.length > 0 ? data.events : defaultEvents;
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

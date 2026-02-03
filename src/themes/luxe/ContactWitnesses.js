@@ -12,7 +12,8 @@ const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5re
 
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 3rem;`;
 const Card = styled.div`text-align: center; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
-const Avatar = styled.div`width: 100px; height: 100px; margin: 0 auto 1.5rem; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; border-radius: 50%;`;
+// FIX: Only use url() when image exists and is not empty string
+const Avatar = styled.div`width: 100px; height: 100px; margin: 0 auto 1.5rem; background: ${p => p.$image && p.$image.length > 0 ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; border-radius: 50%;`;
 const PersonName = styled.h3`font-family: var(--font-display); font-size: 1.25rem; font-style: italic; color: var(--luxe-cream); margin-bottom: 0.25rem;`;
 const Role = styled.p`font-family: var(--font-body); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem;`;
 const Link = styled.a`display: block; font-family: var(--font-body); font-size: 0.85rem; color: var(--luxe-pearl); margin-bottom: 0.5rem; &:hover { color: var(--luxe-gold); }`;
@@ -21,10 +22,16 @@ function ContactWitnesses() {
   const { content } = useWedding();
   const data = content?.witnesses || {};
   const title = data.title || 'Trauzeugen';
-  const persons = data.persons || [
+
+  // FIX: Proper array validation
+  const defaultPersons = [
     { name: 'Sarah Mueller', role: 'Trauzeugin', email: 'sarah@example.de', phone: '+49 170 1111111', image: '' },
     { name: 'Michael Schmidt', role: 'Trauzeuge', email: 'michael@example.de', phone: '+49 170 2222222', image: '' }
   ];
+  const persons = Array.isArray(data.persons) && data.persons.length > 0 ? data.persons : defaultPersons;
+
+  // FIX: Handle both string and object formats for images
+  const getImageUrl = (img) => img?.url || img || '';
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -42,7 +49,7 @@ function ContactWitnesses() {
         <Grid>
           {persons.map((person, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              <Avatar $image={person.image} />
+              <Avatar $image={getImageUrl(person.image)} />
               <PersonName>{person.name}</PersonName>
               <Role>{person.role}</Role>
               {person.email && <Link href={`mailto:${person.email}`}>{person.email}</Link>}
