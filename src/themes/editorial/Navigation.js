@@ -256,9 +256,9 @@ function Navigation() {
     setIsOpen(false);
   };
 
-  // All possible items for burger menu
+  // All possible items for burger menu (Editorial has burger-only nav, so all items included)
   const allMenuItems = [
-    { id: 'top', label: 'Start', always: true },
+    { id: 'hero', label: 'Start', always: true },
     { id: 'countdown', label: 'Countdown' },
     { id: 'lovestory', label: 'Unsere Geschichte' },
     { id: 'timeline', label: 'Ablauf' },

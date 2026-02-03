@@ -184,26 +184,23 @@ function Navigation() {
   // Fixed items always visible in nav bar (if active)
   const fixedNavItems = [
     { id: 'countdown', label: 'Countdown', href: '#countdown' },
-    { id: 'lovestory', label: 'Story', href: '#story' },
+    { id: 'lovestory', label: 'Story', href: '#lovestory' },
   ];
 
-  // All possible items for burger menu
-  const allNavItems = [
-    { id: 'countdown', label: 'Countdown', href: '#countdown' },
-    { id: 'lovestory', label: 'Unsere Geschichte', href: '#story' },
+  // Items for burger menu (excluding fixed nav items: countdown, lovestory, rsvp)
+  const burgerNavItems = [
     { id: 'timeline', label: 'Tagesablauf', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
     { id: 'directions', label: 'Anfahrt', href: '#directions' },
     { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
     { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
-    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Galerie', href: '#gallery' },
     { id: 'gifts', label: 'Geschenke', href: '#gifts' },
     { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
-    { id: 'musicwishes', label: 'Musik', href: '#music' },
-    { id: 'photoupload', label: 'Fotos', href: '#photos' },
+    { id: 'musicwishes', label: 'Musik', href: '#musicwishes' },
+    { id: 'photoupload', label: 'Fotos', href: '#photoupload' },
     { id: 'faq', label: 'FAQ', href: '#faq' },
-    { id: 'weddingabc', label: 'ABC', href: '#abc' },
+    { id: 'weddingabc', label: 'ABC', href: '#weddingabc' },
     { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
     { id: 'contact', label: 'Kontakt', href: '#contact' },
   ];
@@ -211,9 +208,9 @@ function Navigation() {
   // Fixed nav items (visible in bar) - only if component is active
   const visibleNavItems = fixedNavItems.filter(item => isComponentActive(item.id));
 
-  // Burger menu items - all active components sorted by component_order
+  // Burger menu items - active components (excluding static nav items) sorted by component_order
   const componentOrder = project?.component_order || [];
-  const burgerMenuItems = allNavItems
+  const burgerMenuItems = burgerNavItems
     .filter(item => isComponentActive(item.id))
     .sort((a, b) => {
       const indexA = componentOrder.indexOf(a.id);
