@@ -60,11 +60,18 @@ const Card = styled.div`
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '40px'});
   transition: all 0.6s ease ${p => p.$index * 0.15}s;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-xl);
   }
+`;
+
+const CardImage = styled.div`
+  width: 100%;
+  height: 200px;
+  background: ${p => p.$image ? `url(${p.$image}) center/cover` : colors[p.$index % colors.length]};
+  border-bottom: 3px solid var(--black);
 `;
 
 const CardHeader = styled.div`
@@ -222,6 +229,7 @@ function Locations() {
         <Grid>
           {items.map((location, index) => (
             <Card key={index} $index={index} $visible={visible}>
+              {location.image && <CardImage $image={location.image} $index={index} />}
               <CardHeader $index={index}>
                 <CardIcon>{location.icon || '📍'}</CardIcon>
                 <CardTitle $index={index}>{location.name}</CardTitle>

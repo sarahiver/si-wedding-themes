@@ -9,7 +9,9 @@ const Content = styled.div`text-align: center; max-width: 800px; width: 100%;`;
 const Eyebrow = styled.p`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
 const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;`;
-const Card = styled.div`text-align: left; padding: 1.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
+const Card = styled.div`text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s; overflow: hidden;`;
+const CardImage = styled.div`width: 100%; height: 180px; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'rgba(255,255,255,0.1)'}; border-bottom: 1px solid rgba(255,255,255,0.1);`;
+const CardContent = styled.div`padding: 1.5rem;`;
 const TypeBadge = styled.span`font-family: var(--font-primary); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--video-accent); display: block; margin-bottom: 0.75rem;`;
 const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--video-white); margin-bottom: 0.75rem;`;
 const CardAddress = styled.p`font-family: var(--font-primary); font-size: 0.85rem; color: var(--video-silver); line-height: 1.6; white-space: pre-line; margin-bottom: 0.75rem;`;
@@ -39,10 +41,13 @@ function Locations() {
         <Grid>
           {locations.map((loc, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              <TypeBadge>{loc.type}</TypeBadge>
-              <CardTitle>{loc.name}</CardTitle>
-              <CardAddress>{loc.address}</CardAddress>
-              <CardTime>{loc.time}</CardTime>
+              {loc.image && <CardImage $image={loc.image} />}
+              <CardContent>
+                <TypeBadge>{loc.type}</TypeBadge>
+                <CardTitle>{loc.name}</CardTitle>
+                <CardAddress>{loc.address}</CardAddress>
+                <CardTime>{loc.time}</CardTime>
+              </CardContent>
             </Card>
           ))}
         </Grid>
