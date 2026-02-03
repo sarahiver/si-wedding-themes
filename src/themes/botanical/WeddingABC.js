@@ -109,24 +109,12 @@ function WeddingABC() {
   
   const title = abcData.title || 'Hochzeits-ABC';
   const items = abcData.entries || [];
-  
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (items.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const defaultItems = [
-    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze vorhanden. ÖPNV bis Haltestelle Blankenese.' },
-    { letter: 'B', word: 'Blumenmädchen', description: 'Die kleine Mia wird Blumen streuen.' },
-    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant in gedeckten Farben.' },
-    { letter: 'F', word: 'Fotos', description: 'Unser Fotograf Frank hält alles fest.' },
-    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das schönste Geschenk.' },
-    { letter: 'K', word: 'Kinder', description: 'Die Feier ist leider nur für Erwachsene.' },
-    { letter: 'M', word: 'Musik', description: 'DJ Max sorgt für die richtige Stimmung.' },
-    { letter: 'T', word: 'Trauung', description: 'Um 14:00 Uhr im Standesamt.' },
-    { letter: 'Ü', word: 'Überraschungen', description: 'Bitte sprecht euch mit den Trauzeugen ab.' },
-    { letter: 'W', word: 'Wetter', description: 'Wir feiern bei jedem Wetter!' },
-  ];
-
-  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -146,7 +134,7 @@ function WeddingABC() {
         </Header>
         
         <ABCGrid>
-          {displayItems.map((item, i) => (
+          {items.map((item, i) => (
             <ABCCard key={i} $visible={visible} $index={i}>
               <Letter>{item.letter}</Letter>
               <Content>

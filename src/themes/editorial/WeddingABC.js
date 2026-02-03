@@ -168,26 +168,12 @@ function WeddingABC() {
   const title = abcData.title || 'Hochzeits-ABC';
   const description = abcData.description || 'Von A wie Anfahrt bis Z wie Zeitplan – alles Wichtige auf einen Blick.';
   const items = abcData.entries || [];
-  
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (items.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
-
-  const defaultItems = [
-    { letter: 'A', title: 'Anfahrt', text: 'Alle Details zur Anreise findet ihr unter "Anfahrt".' },
-    { letter: 'B', title: 'Blumenkinder', text: 'Wer möchte Blumen streuen? Meldet euch bei den Trauzeugen!' },
-    { letter: 'C', title: 'Checkliste', text: 'RSVP nicht vergessen – bitte bis zum Stichtag antworten.' },
-    { letter: 'D', title: 'Dresscode', text: 'Festlich elegant. Mehr Infos unter "Dresscode".' },
-    { letter: 'E', title: 'Essen', text: 'Es gibt ein festliches Menü mit vegetarischen Optionen.' },
-    { letter: 'F', title: 'Fotos', text: 'Teilt eure Schnappschüsse in unserer Fotogalerie!' },
-    { letter: 'G', title: 'Geschenke', text: 'Das größte Geschenk ist eure Anwesenheit.' },
-    { letter: 'H', title: 'Hotels', text: 'Zimmerkontingente unter "Unterkünfte".' },
-    { letter: 'K', title: 'Kinder', text: 'Kinder sind herzlich willkommen!' },
-    { letter: 'M', title: 'Musik', text: 'Wünscht euch euren Lieblingssong!' },
-    { letter: 'P', title: 'Parken', text: 'Kostenfreie Parkplätze vor Ort.' },
-    { letter: 'T', title: 'Tanzen', text: 'Bequeme Schuhe nicht vergessen!' },
-  ];
-
-  const displayItems = items.length > 0 ? items : defaultItems;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -211,7 +197,7 @@ function WeddingABC() {
         </Header>
         
         <ABCGrid $visible={visible}>
-          {displayItems.map((item, i) => (
+          {items.map((item, i) => (
             <ABCItem key={i}>
               <Letter>{item.letter}</Letter>
               <ItemContent>

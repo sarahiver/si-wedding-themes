@@ -20,15 +20,11 @@ function WeddingABC() {
   const { content } = useWedding();
   const data = content?.weddingabc || {};
   const title = data.title || 'Hochzeits-ABC';
-  const entries = data.entries || [
-    { letter: 'A', title: 'Anfahrt', text: 'Details zur Anreise unter Anfahrt.' },
-    { letter: 'B', title: 'Blumen', text: 'Bitte keine Blumengeschenke.' },
-    { letter: 'D', title: 'Dresscode', text: 'Black Tie Optional.' },
-    { letter: 'F', title: 'Fotos', text: 'Waehrend der Trauung bitte keine Fotos.' },
-    { letter: 'K', title: 'Kinder', text: 'Kinder sind willkommen.' },
-    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplaetze vorhanden.' }
-  ];
-  
+  const entries = data.entries || [];
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (entries.length === 0) return null;
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 

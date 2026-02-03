@@ -197,22 +197,12 @@ function WeddingABC() {
   const abcData = content?.weddingabc || {};
   
   const title = abcData.title || 'Hochzeits-ABC';
-  const entries = abcData.entries || [];
-  
+  const items = abcData.entries || [];
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (items.length === 0) return null;
+
   const [activeLetter, setActiveLetter] = useState(null);
-
-  const defaultEntries = [
-    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze sind vorhanden. ÖPNV-Infos findet ihr unter Anfahrt. Die Location ist gut mit dem Auto und öffentlichen Verkehrsmitteln erreichbar.' },
-    { letter: 'B', word: 'Blumen', description: 'Bitte keine Blumen mitbringen – wir haben bereits für wunderschöne Dekoration gesorgt!' },
-    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant. Bitte beachtet unsere Farbwünsche auf der Dresscode-Seite. Wir freuen uns auf eure schicken Outfits!' },
-    { letter: 'F', word: 'Fotos', description: 'Während der Trauung bitten wir um Handypause. Unser Fotograf hält alles fest. Danach freuen wir uns über eure Schnappschüsse!' },
-    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk! Falls ihr uns dennoch etwas schenken möchtet, findet ihr Infos unter Geschenke.' },
-    { letter: 'K', word: 'Kinder', description: 'Unsere Feier ist eine Erwachsenen-Party. Wir bitten um Verständnis und hoffen auf einen ausgelassenen Abend mit euch!' },
-    { letter: 'M', word: 'Musik', description: 'Habt ihr einen Musikwunsch? Teilt ihn uns mit und wir versuchen, ihn in die Playlist aufzunehmen!' },
-    { letter: 'T', word: 'Taxi', description: 'Am Ende der Feier stehen Taxis bereit. Sprecht uns an, wenn ihr Hilfe bei der Heimfahrt braucht.' },
-  ];
-
-  const items = entries.length > 0 ? entries : defaultEntries;
   
   // Create map of letters with content
   const letterMap = {};

@@ -317,6 +317,14 @@ const WeddingABC = () => {
   const { content } = useWedding();
   const abcData = content?.weddingabc || {};
   const title = abcData.title || 'Wedding ABC';
+  const abcItems = (abcData.entries || []).map(e => ({
+    letter: e.letter,
+    word: e.word,
+    description: e.description
+  }));
+
+  // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
+  if (abcItems.length === 0) return null;
 
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -329,24 +337,6 @@ const WeddingABC = () => {
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b',
     '#00ffff', '#ff00ff', '#00ff88', '#b347ff', '#ff6b6b', '#00ffff'
   ];
-
-  const defaultABC = [
-    { letter: 'A', word: 'Anfahrt', description: 'Alle Informationen zur Anreise findet ihr unter "Anfahrt". Parkplätze sind ausreichend vorhanden.' },
-    { letter: 'D', word: 'Dresscode', description: 'Elegante Abendgarderobe. Details findet ihr unter "Dresscode".' },
-    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk!' },
-    { letter: 'H', word: 'Hotel', description: 'Unterkünfte in der Nähe findet ihr unter "Unterkünfte".' },
-    { letter: 'K', word: 'Kinder', description: 'Wir haben uns für eine Feier nur für Erwachsene entschieden.' },
-    { letter: 'P', word: 'Party', description: 'Nach dem Dinner wird gefeiert!' },
-  ];
-
-  // Map from editor format to neon format
-  const abcItems = abcData.entries?.length > 0
-    ? abcData.entries.map(e => ({
-        letter: e.letter,
-        word: e.word,
-        description: e.description
-      }))
-    : defaultABC;
   
   useEffect(() => {
     const observer = new IntersectionObserver(
