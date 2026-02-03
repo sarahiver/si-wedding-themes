@@ -289,6 +289,20 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
+  // Reset section scroll position when entering a new section
+  const lastActiveIndexRef = useRef(activeIndex);
+  useEffect(() => {
+    if (activeIndex !== lastActiveIndexRef.current) {
+      const sectionElements = containerRef.current?.children;
+      if (sectionElements) {
+        // Reset the new section to top
+        const newSection = sectionElements[activeIndex];
+        if (newSection) newSection.scrollTop = 0;
+      }
+      lastActiveIndexRef.current = activeIndex;
+    }
+  }, [activeIndex]);
+
   // Mousewheel: vertical in overflowing sections (only when centered), then horizontal
   useEffect(() => {
     const handleWheel = (e) => {
@@ -305,15 +319,15 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       const currentSection = sectionElements[activeIndex];
 
       if (currentSection) {
-        // Check if section is centered (within 20px tolerance)
+        // Check if section is centered (within 100px tolerance for more buffer)
         const sectionLeft = activeIndex * container.clientWidth;
-        const isCentered = Math.abs(container.scrollLeft - sectionLeft) < 20;
+        const isCentered = Math.abs(container.scrollLeft - sectionLeft) < 100;
 
         const hasVerticalOverflow = currentSection.scrollHeight > currentSection.clientHeight;
 
         if (hasVerticalOverflow && isCentered) {
-          const isAtTop = currentSection.scrollTop <= 0;
-          const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 5;
+          const isAtTop = currentSection.scrollTop <= 5;
+          const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 10;
 
           // Scroll down but not at bottom yet → vertical scroll
           if (delta > 0 && !isAtBottom) {
