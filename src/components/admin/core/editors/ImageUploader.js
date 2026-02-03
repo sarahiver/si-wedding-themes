@@ -77,7 +77,7 @@ function ImageUploader({
         $hasImage={!!image}
         $image={image}
         $ratio={ratio}
-        style={maxHeight ? { maxHeight, aspectRatio: 'unset' } : {}}
+        style={maxHeight ? { maxHeight, minHeight: maxHeight, aspectRatio: 'unset' } : {}}
         onDrop={handleDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
