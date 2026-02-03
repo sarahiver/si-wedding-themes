@@ -23,11 +23,13 @@ const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem
 
 function RSVP() {
   const { project, content } = useWedding();
-  const title = content?.rsvp?.title || 'Zusagen';
+  const rsvpData = content?.rsvp || {};
+  const title = rsvpData.title || 'Zusagen';
+  const customQuestion = rsvpData.custom_question || '';
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', attending: 'yes', guests: '1', dietary: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', attending: 'yes', guests: '1', dietary: '', message: '', customAnswer: '' });
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ function RSVP() {
     if (!project?.id) return;
     setLoading(true);
     try {
-      await submitRSVP(project.id, { name: formData.name, email: formData.email, attending: formData.attending === 'yes', guest_count: parseInt(formData.guests), dietary_requirements: formData.dietary, message: formData.message });
+      await submitRSVP(project.id, { name: formData.name, email: formData.email, attending: formData.attending === 'yes', guest_count: parseInt(formData.guests), dietary_requirements: formData.dietary, message: formData.message, custom_answer: formData.customAnswer });
       setSubmitted(true);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
@@ -72,6 +74,9 @@ function RSVP() {
                 </Select>
                 <Input type="text" name="dietary" placeholder="Ernaehrungswuensche (optional)" value={formData.dietary} onChange={handleChange} />
               </>
+            )}
+            {customQuestion && (
+              <TextArea name="customAnswer" placeholder={customQuestion} value={formData.customAnswer} onChange={handleChange} />
             )}
             <TextArea name="message" placeholder="Nachricht (optional)" value={formData.message} onChange={handleChange} />
             <SubmitBtn type="submit" disabled={loading}>{loading ? 'Wird gesendet...' : 'Absenden'}</SubmitBtn>

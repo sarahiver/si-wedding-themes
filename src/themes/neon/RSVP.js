@@ -368,6 +368,7 @@ function RSVP() {
   const projectId = project?.id;
   const title = rsvpData.title || 'RSVP';
   const deadline = rsvpData.deadline || project?.rsvp_deadline;
+  const customQuestion = rsvpData.custom_question || '';
   
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -380,7 +381,8 @@ function RSVP() {
     email: '',
     guests: 1,
     dietary: '',
-    message: ''
+    message: '',
+    customAnswer: ''
   });
 
   useEffect(() => {
@@ -409,7 +411,8 @@ function RSVP() {
         attending: formData.attending === true,
         guest_count: parseInt(formData.guests) || 1,
         dietary_requirements: formData.dietary,
-        message: formData.message
+        message: formData.message,
+        custom_answer: formData.customAnswer
       });
       setSubmitted(true);
     } catch (err) {
@@ -570,7 +573,7 @@ function RSVP() {
             {formData.attending && (
               <InputGroup>
                 <Label>Dietary Requirements</Label>
-                <Input 
+                <Input
                   type="text"
                   placeholder="Vegetarian, vegan, allergies, etc."
                   value={formData.dietary}
@@ -578,10 +581,21 @@ function RSVP() {
                 />
               </InputGroup>
             )}
-            
+
+            {customQuestion && (
+              <InputGroup>
+                <Label>{customQuestion}</Label>
+                <TextArea
+                  placeholder="Deine Antwort..."
+                  value={formData.customAnswer}
+                  onChange={e => setFormData({...formData, customAnswer: e.target.value})}
+                />
+              </InputGroup>
+            )}
+
             <InputGroup>
               <Label>Message for the Couple (Optional)</Label>
-              <TextArea 
+              <TextArea
                 placeholder="Share your wishes, song requests, or just say hi..."
                 value={formData.message}
                 onChange={e => setFormData({...formData, message: e.target.value})}

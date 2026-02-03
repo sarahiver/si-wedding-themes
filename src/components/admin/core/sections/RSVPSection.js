@@ -8,7 +8,8 @@ function RSVPSection({ components: C }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newEntry, setNewEntry] = useState({ name: '', email: '', persons: 1, attending: true, dietary: '', message: '' });
+  const [newEntry, setNewEntry] = useState({ name: '', email: '', persons: 1, attending: true, dietary: '', message: '', custom_answer: '' });
+  const [expandedRow, setExpandedRow] = useState(null);
   
   const filteredData = rsvpData.filter(r => 
     r.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -19,22 +20,62 @@ function RSVPSection({ components: C }) {
   const exportExcel = async () => {
     try {
       // Create CSV with BOM for Excel compatibility
-      const headers = ['Name', 'E-Mail', 'Personen', 'Status', 'Ernährung', 'Allergien', 'Nachricht', 'Datum'];
-      const rows = rsvpData.map(r => [
-        r.name || '',
-        r.email || '',
-        r.persons || 1,
-        r.attending ? 'Zusage' : 'Absage',
-        r.dietary || '',
-        r.allergies || '',
-        r.message || '',
-        new Date(r.created_at).toLocaleDateString('de-DE')
-      ]);
-      
-      const csvContent = '\uFEFF' + [headers, ...rows].map(row => 
+      const headers = ['Name', 'E-Mail', 'Personen', 'Status', 'Ernährung (alle Personen)', 'Allergien (alle Personen)', 'Custom Antwort', 'Nachricht', 'Datum'];
+
+      const rows = rsvpData.map(r => {
+        // Parse guests array
+        let guests = [];
+        if (r.guests && Array.isArray(r.guests)) {
+          guests = r.guests;
+        } else if (typeof r.guests === 'string') {
+          try { guests = JSON.parse(r.guests); } catch { guests = []; }
+        }
+
+        // Build dietary info for all persons
+        const dietaryParts = [];
+        // Hauptgast (Person 1)
+        if (r.dietary) {
+          dietaryParts.push(`${r.name}: ${r.dietary}`);
+        }
+        // Begleitpersonen
+        guests.slice(1).forEach((guest, idx) => {
+          if (guest.dietary) {
+            const guestName = guest.name || `Begleitung ${idx + 1}`;
+            dietaryParts.push(`${guestName}: ${guest.dietary}`);
+          }
+        });
+
+        // Build allergies info for all persons
+        const allergiesParts = [];
+        // Hauptgast (Person 1)
+        if (r.allergies) {
+          allergiesParts.push(`${r.name}: ${r.allergies}`);
+        }
+        // Begleitpersonen
+        guests.slice(1).forEach((guest, idx) => {
+          if (guest.allergies) {
+            const guestName = guest.name || `Begleitung ${idx + 1}`;
+            allergiesParts.push(`${guestName}: ${guest.allergies}`);
+          }
+        });
+
+        return [
+          r.name || '',
+          r.email || '',
+          r.persons || 1,
+          r.attending ? 'Zusage' : 'Absage',
+          dietaryParts.join(' | ') || '',
+          allergiesParts.join(' | ') || '',
+          r.custom_answer || '',
+          r.message || '',
+          new Date(r.created_at).toLocaleDateString('de-DE')
+        ];
+      });
+
+      const csvContent = '\uFEFF' + [headers, ...rows].map(row =>
         row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';')
       ).join('\n');
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -46,6 +87,23 @@ function RSVPSection({ components: C }) {
     } catch (e) {
       showFeedback('error', 'Export fehlgeschlagen');
     }
+  };
+
+  // Parse guests JSON if available
+  const parseGuests = (r) => {
+    if (r.guests && Array.isArray(r.guests)) return r.guests;
+    if (typeof r.guests === 'string') {
+      try { return JSON.parse(r.guests); } catch { return []; }
+    }
+    return [];
+  };
+
+  // Format dietary/allergies display
+  const formatDietaryDisplay = (r) => {
+    const parts = [];
+    if (r.dietary) parts.push(r.dietary);
+    if (r.allergies) parts.push(`Allergien: ${r.allergies}`);
+    return parts.join(' | ') || '-';
   };
 
   // Delete RSVP
@@ -87,7 +145,7 @@ function RSVPSection({ components: C }) {
       if (error) throw error;
       await loadData();
       setShowAddForm(false);
-      setNewEntry({ name: '', email: '', persons: 1, attending: true, dietary: '', message: '' });
+      setNewEntry({ name: '', email: '', persons: 1, attending: true, dietary: '', message: '', custom_answer: '' });
       showFeedback('success', 'RSVP hinzugefügt');
     } catch (e) {
       console.error('Add error:', e);
@@ -104,7 +162,8 @@ function RSVPSection({ components: C }) {
       attending: rsvp.attending,
       dietary: rsvp.dietary || '',
       allergies: rsvp.allergies || '',
-      message: rsvp.message || ''
+      message: rsvp.message || '',
+      custom_answer: rsvp.custom_answer || ''
     });
   };
 
@@ -169,6 +228,10 @@ function RSVPSection({ components: C }) {
               </C.FormGroup>
             </C.FormRow>
             <C.FormGroup>
+              <C.Label>Custom Antwort</C.Label>
+              <C.Input value={newEntry.custom_answer} onChange={e => setNewEntry({...newEntry, custom_answer: e.target.value})} placeholder="Antwort auf eigene Frage" />
+            </C.FormGroup>
+            <C.FormGroup>
               <C.Label>Nachricht</C.Label>
               <C.TextArea value={newEntry.message} onChange={e => setNewEntry({...newEntry, message: e.target.value})} />
             </C.FormGroup>
@@ -190,14 +253,19 @@ function RSVPSection({ components: C }) {
                   <C.Th>E-Mail</C.Th>
                   <C.Th>Pers.</C.Th>
                   <C.Th>Status</C.Th>
-                  <C.Th>Ernährung</C.Th>
+                  <C.Th>Ernährung/Allergien</C.Th>
+                  <C.Th>Custom Antwort</C.Th>
                   <C.Th>Nachricht</C.Th>
+                  <C.Th>Datum</C.Th>
                   <C.Th style={{ width: '100px' }}>Aktionen</C.Th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map(r => (
-                  editingId === r.id ? (
+                {filteredData.map(r => {
+                  const guests = parseGuests(r);
+                  const hasGuestDetails = guests.length > 1 && guests.some((g, i) => i > 0 && (g.name || g.dietary || g.allergies));
+
+                  return editingId === r.id ? (
                     <tr key={r.id}>
                       <C.Td><C.Input value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} /></C.Td>
                       <C.Td><C.Input value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} /></C.Td>
@@ -208,8 +276,10 @@ function RSVPSection({ components: C }) {
                           <option value="no">Absage</option>
                         </C.Select>
                       </C.Td>
-                      <C.Td><C.Input value={editForm.dietary} onChange={e => setEditForm({...editForm, dietary: e.target.value})} /></C.Td>
+                      <C.Td><C.Input value={editForm.dietary} onChange={e => setEditForm({...editForm, dietary: e.target.value})} placeholder="Ernährung" /></C.Td>
+                      <C.Td><C.Input value={editForm.custom_answer} onChange={e => setEditForm({...editForm, custom_answer: e.target.value})} placeholder="Custom Antwort" /></C.Td>
                       <C.Td><C.Input value={editForm.message} onChange={e => setEditForm({...editForm, message: e.target.value})} /></C.Td>
+                      <C.Td>{new Date(r.created_at).toLocaleDateString('de-DE')}</C.Td>
                       <C.Td>
                         <C.ButtonGroup>
                           <C.SmallButton onClick={() => updateRSVP(r.id)}>✓</C.SmallButton>
@@ -218,26 +288,70 @@ function RSVPSection({ components: C }) {
                       </C.Td>
                     </tr>
                   ) : (
-                    <tr key={r.id}>
-                      <C.Td><strong>{r.name}</strong></C.Td>
-                      <C.Td>{r.email || '-'}</C.Td>
-                      <C.Td>{r.persons || 1}</C.Td>
-                      <C.Td>
-                        <C.StatusBadge $status={r.attending ? 'confirmed' : 'declined'}>
-                          {r.attending ? 'Zusage' : 'Absage'}
-                        </C.StatusBadge>
-                      </C.Td>
-                      <C.Td>{r.dietary || '-'}</C.Td>
-                      <C.Td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.message || '-'}</C.Td>
-                      <C.Td>
-                        <C.ButtonGroup>
-                          <C.SmallButton onClick={() => startEdit(r)}>✎</C.SmallButton>
-                          <C.SmallButton onClick={() => deleteRSVP(r.id)} style={{ color: '#C41E3A' }}>🗑</C.SmallButton>
-                        </C.ButtonGroup>
-                      </C.Td>
-                    </tr>
-                  )
-                ))}
+                    <>
+                      <tr key={r.id}>
+                        <C.Td>
+                          <strong>{r.name}</strong>
+                          {hasGuestDetails && (
+                            <button
+                              onClick={() => setExpandedRow(expandedRow === r.id ? null : r.id)}
+                              style={{
+                                marginLeft: '0.5rem',
+                                background: 'none',
+                                border: 'none',
+                                color: '#C41E3A',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem'
+                              }}
+                            >
+                              {expandedRow === r.id ? '▼' : '▶'} +{guests.length - 1}
+                            </button>
+                          )}
+                        </C.Td>
+                        <C.Td>{r.email || '-'}</C.Td>
+                        <C.Td>{r.persons || 1}</C.Td>
+                        <C.Td>
+                          <C.StatusBadge $status={r.attending ? 'confirmed' : 'declined'}>
+                            {r.attending ? 'Zusage' : 'Absage'}
+                          </C.StatusBadge>
+                        </C.Td>
+                        <C.Td style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {formatDietaryDisplay(r)}
+                        </C.Td>
+                        <C.Td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {r.custom_answer || '-'}
+                        </C.Td>
+                        <C.Td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.message || '-'}</C.Td>
+                        <C.Td style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                          {new Date(r.created_at).toLocaleDateString('de-DE')}
+                        </C.Td>
+                        <C.Td>
+                          <C.ButtonGroup>
+                            <C.SmallButton onClick={() => startEdit(r)}>✎</C.SmallButton>
+                            <C.SmallButton onClick={() => deleteRSVP(r.id)} style={{ color: '#C41E3A' }}>🗑</C.SmallButton>
+                          </C.ButtonGroup>
+                        </C.Td>
+                      </tr>
+                      {expandedRow === r.id && hasGuestDetails && guests.slice(1).map((guest, idx) => (
+                        <tr key={`${r.id}-guest-${idx}`} style={{ background: 'rgba(255,255,255,0.02)' }}>
+                          <C.Td style={{ paddingLeft: '2rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                            ↳ {guest.name || `Begleitung ${idx + 1}`}
+                          </C.Td>
+                          <C.Td></C.Td>
+                          <C.Td></C.Td>
+                          <C.Td></C.Td>
+                          <C.Td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
+                            {[guest.dietary, guest.allergies ? `Allergien: ${guest.allergies}` : ''].filter(Boolean).join(' | ') || '-'}
+                          </C.Td>
+                          <C.Td></C.Td>
+                          <C.Td></C.Td>
+                          <C.Td></C.Td>
+                          <C.Td></C.Td>
+                        </tr>
+                      ))}
+                    </>
+                  );
+                })}
               </tbody>
             </C.Table>
           </C.TableWrapper>

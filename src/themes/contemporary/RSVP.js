@@ -288,6 +288,7 @@ function RSVP() {
   const description = rsvpData.description || 'Wir freuen uns auf deine Antwort!';
   const askDietary = rsvpData.ask_dietary !== false;
   const askAllergies = rsvpData.ask_allergies !== false;
+  const customQuestion = rsvpData.custom_question || '';
   
   const {
     formData,
@@ -522,6 +523,17 @@ function RSVP() {
                 </>
               )}
               
+              {customQuestion && (
+                <FormGroup style={{ marginTop: '1.5rem' }}>
+                  <Label>{customQuestion}</Label>
+                  <TextArea
+                    value={formData.customAnswer || ''}
+                    onChange={e => updateField('customAnswer', e.target.value)}
+                    placeholder="Deine Antwort..."
+                  />
+                </FormGroup>
+              )}
+
               <FormGroup style={{ marginTop: '1.5rem' }}>
                 <Label>Nachricht (optional)</Label>
                 <TextArea

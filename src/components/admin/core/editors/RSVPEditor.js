@@ -65,7 +65,23 @@ function RSVPEditor({ components: C }) {
             <span style={{ color: 'rgba(255,255,255,0.7)' }}>Allergien/Unverträglichkeiten abfragen</span>
           </label>
         </C.FormGroup>
-        
+
+        <C.Divider />
+
+        <C.SectionLabel>Eigene Frage</C.SectionLabel>
+
+        <C.FormGroup>
+          <C.Label>Eigene Frage (optional)</C.Label>
+          <C.Input
+            value={content.custom_question || ''}
+            onChange={(e) => update('custom_question', e.target.value)}
+            placeholder="z.B. Brauchst du eine Übernachtung?"
+          />
+          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
+            Diese Frage erscheint als Freitextfeld im RSVP-Formular
+          </p>
+        </C.FormGroup>
+
         <C.Divider />
         <C.Button onClick={() => saveContent('rsvp')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}

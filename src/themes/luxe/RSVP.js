@@ -33,12 +33,14 @@ const SuccessText = styled.p`font-family: var(--font-body); font-size: 0.95rem; 
 
 function RSVP() {
   const { project, content } = useWedding();
-  const title = content?.rsvp?.title || 'Zusagen';
-  
+  const rsvpData = content?.rsvp || {};
+  const title = rsvpData.title || 'Zusagen';
+  const customQuestion = rsvpData.custom_question || '';
+
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', attending: 'yes', guests: '1', dietary: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', attending: 'yes', guests: '1', dietary: '', message: '', customAnswer: '' });
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ function RSVP() {
     if (!project?.id) return;
     setLoading(true);
     try {
-      await submitRSVP(project.id, { name: formData.name, email: formData.email, attending: formData.attending === 'yes', guest_count: parseInt(formData.guests), dietary_requirements: formData.dietary, message: formData.message });
+      await submitRSVP(project.id, { name: formData.name, email: formData.email, attending: formData.attending === 'yes', guest_count: parseInt(formData.guests), dietary_requirements: formData.dietary, message: formData.message, custom_answer: formData.customAnswer });
       setSubmitted(true);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
@@ -85,6 +87,9 @@ function RSVP() {
                 <FormGroup><Label>Anzahl Gaeste</Label><Select name="guests" value={formData.guests} onChange={handleChange}><option value="1">1 Person</option><option value="2">2 Personen</option><option value="3">3 Personen</option><option value="4">4 Personen</option></Select></FormGroup>
                 <FormGroup><Label>Ernaehrungswuensche</Label><Input type="text" name="dietary" value={formData.dietary} onChange={handleChange} placeholder="Vegetarisch, Allergien, etc." /></FormGroup>
               </>
+            )}
+            {customQuestion && (
+              <FormGroup><Label>{customQuestion}</Label><TextArea name="customAnswer" value={formData.customAnswer} onChange={handleChange} placeholder="Deine Antwort..." /></FormGroup>
             )}
             <FormGroup><Label>Nachricht (optional)</Label><TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Eine persoenliche Nachricht..." /></FormGroup>
             <SubmitBtn type="submit" disabled={loading}>{loading ? 'Wird gesendet...' : 'Absenden'}</SubmitBtn>

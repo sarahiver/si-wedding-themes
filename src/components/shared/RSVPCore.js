@@ -31,6 +31,7 @@ export function useRSVP() {
     childrenCount: 0,
     needsTransport: false,
     needsAccommodation: false,
+    customAnswer: '', // Antwort auf die optionale custom_question
   });
 
   // Update form field
@@ -120,6 +121,7 @@ export function useRSVP() {
         songWish: formData.songWish.trim(),
         message: formData.message.trim(),
         guests: formData.guests, // Store full guests array as JSONB
+        custom_answer: formData.customAnswer?.trim() || '', // Antwort auf custom_question
       });
       
       if (submitError) throw submitError;
@@ -159,6 +161,7 @@ export function useRSVP() {
       childrenCount: 0,
       needsTransport: false,
       needsAccommodation: false,
+      customAnswer: '',
     });
     setError(null);
     setSubmitted(false);

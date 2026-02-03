@@ -110,10 +110,11 @@ export async function submitRSVP(projectId, rsvpData) {
       allergies: rsvpData.allergies || '',
       message: rsvpData.message || '',
       guests: rsvpData.guests || null,
+      custom_answer: rsvpData.custom_answer || '',
     })
     .select()
     .single();
-  
+
   return { data, error };
 }
 
@@ -138,11 +139,12 @@ export async function updateRSVPResponse(id, updates) {
       dietary: updates.dietary,
       allergies: updates.allergies,
       message: updates.message,
+      custom_answer: updates.custom_answer,
     })
     .eq('id', id)
     .select()
     .single();
-  
+
   return { data, error };
 }
 
