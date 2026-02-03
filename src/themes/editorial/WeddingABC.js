@@ -201,8 +201,8 @@ function WeddingABC() {
             <ABCItem key={i}>
               <Letter>{item.letter}</Letter>
               <ItemContent>
-                <ItemTitle>{item.title}</ItemTitle>
-                <ItemText>{item.text}</ItemText>
+                <ItemTitle>{item.word}</ItemTitle>
+                <ItemText>{item.description}</ItemText>
               </ItemContent>
             </ABCItem>
           ))}

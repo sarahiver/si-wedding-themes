@@ -42,8 +42,8 @@ function WeddingABC() {
           {entries.map((entry, i) => (
             <Card key={i} $visible={visible} $index={i}>
               <Letter>{entry.letter}</Letter>
-              <CardTitle>{entry.title}</CardTitle>
-              <CardText>{entry.text}</CardText>
+              <CardTitle>{entry.word}</CardTitle>
+              <CardText>{entry.description}</CardText>
             </Card>
           ))}
         </Grid>
