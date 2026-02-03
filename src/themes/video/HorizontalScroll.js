@@ -289,7 +289,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, sections.length, scrollToSection]);
 
-  // Mousewheel: vertical in overflowing sections, then horizontal
+  // Mousewheel: vertical in overflowing sections (only when centered), then horizontal
   useEffect(() => {
     const handleWheel = (e) => {
       if (!containerRef.current) return;
@@ -298,15 +298,20 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       if (window.innerWidth <= 768) return;
 
       const delta = e.deltaY;
+      const container = containerRef.current;
 
       // Find the current section element (direct children of container)
-      const sectionElements = containerRef.current.children;
+      const sectionElements = container.children;
       const currentSection = sectionElements[activeIndex];
 
       if (currentSection) {
+        // Check if section is centered (within 20px tolerance)
+        const sectionLeft = activeIndex * container.clientWidth;
+        const isCentered = Math.abs(container.scrollLeft - sectionLeft) < 20;
+
         const hasVerticalOverflow = currentSection.scrollHeight > currentSection.clientHeight;
 
-        if (hasVerticalOverflow) {
+        if (hasVerticalOverflow && isCentered) {
           const isAtTop = currentSection.scrollTop <= 0;
           const isAtBottom = currentSection.scrollTop + currentSection.clientHeight >= currentSection.scrollHeight - 5;
 
@@ -326,9 +331,9 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
         }
       }
 
-      // No vertical overflow or at boundary → horizontal scroll
+      // No vertical overflow, not centered, or at boundary → horizontal scroll
       e.preventDefault();
-      containerRef.current.scrollLeft += delta;
+      container.scrollLeft += delta;
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
