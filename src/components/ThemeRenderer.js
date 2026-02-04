@@ -6,6 +6,11 @@
 import { useWedding } from "../context/WeddingContext"
 
 // ============================================
+// VARIANT IMPORTS
+// ============================================
+import SplitScreenHero from "../variants/hero/SplitScreenHero"
+
+// ============================================
 // EDITORIAL THEME IMPORTS
 // ============================================
 import EditorialAccommodations from "../themes/editorial/Accommodations"
@@ -299,16 +304,13 @@ const themes = {
 // Format: variants[componentId][variantId] = Component
 // ============================================
 const variants = {
-  // Beispiel-Struktur (Komponenten hier importieren wenn implementiert):
+  hero: {
+    'split': SplitScreenHero,
+  },
   // countdown: {
   //   'round-clock': RoundClockCountdown,
   //   'flip-clock': FlipClockCountdown,
   //   'minimal': MinimalCountdown,
-  // },
-  // hero: {
-  //   'video-bg': VideoBackgroundHero,
-  //   'parallax': ParallaxHero,
-  //   'split': SplitScreenHero,
   // },
   // gallery: {
   //   'masonry': MasonryGallery,
