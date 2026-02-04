@@ -503,6 +503,27 @@ function StandardWeddingPage() {
           <Footer />
         </Suspense>
       </PageWrapper>
+
+      {/* DEBUG: component_config aus Supabase anzeigen */}
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        background: 'red',
+        color: 'white',
+        padding: '15px',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        zIndex: 2147483647,
+        borderRadius: '8px',
+        maxWidth: '400px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        border: '3px solid yellow',
+      }}>
+        <strong>🔴 DEBUG WeddingPage:</strong><br/>
+        slug: {project?.slug || 'NULL'}<br/>
+        component_config: {JSON.stringify(project?.component_config) || 'UNDEFINED'}
+      </div>
     </>
   )
 }
