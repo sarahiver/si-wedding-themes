@@ -25,10 +25,10 @@ DELETE FROM projects WHERE slug IN (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-botanical', 'botanical', 'demo', 'Emma & Liam', '2025-06-21', 'English Garden Estate, London',
-  'Emma', 'Liam', '#EmmaLiamForever',
+  '#EmmaLiamForever',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
@@ -38,10 +38,10 @@ INSERT INTO projects (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-editorial', 'editorial', 'demo', 'Sofia & Alessandro', '2025-09-13', 'Villa Cimbrone, Ravello',
-  'Sofia', 'Alessandro', '#SofiaAlessandro2025',
+  '#SofiaAlessandro2025',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
@@ -51,10 +51,10 @@ INSERT INTO projects (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-contemporary', 'contemporary', 'demo', 'Yuki & Kenji', '2025-04-05', 'Tokyo Garden Palace',
-  'Yuki', 'Kenji', '#YukiKenji',
+  '#YukiKenji',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
@@ -64,10 +64,10 @@ INSERT INTO projects (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-luxe', 'luxe', 'demo', 'Charlotte & James', '2025-12-31', 'Blenheim Palace, Oxfordshire',
-  'Charlotte', 'James', '#CharlotteAndJames',
+  '#CharlotteAndJames',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
@@ -77,10 +77,10 @@ INSERT INTO projects (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-neon', 'neon', 'demo', 'Alex & Jordan', '2025-08-08', 'The Neon Factory, Berlin',
-  'Alex', 'Jordan', '#AlexJordan808',
+  '#AlexJordan808',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
@@ -90,10 +90,10 @@ INSERT INTO projects (
 -- ============================================
 INSERT INTO projects (
   slug, theme, status, couple_names, wedding_date, location,
-  name1, name2, hashtag, active_components, password_protected
+  hashtag, active_components, password_protected
 ) VALUES (
   'demo-video', 'video', 'demo', 'María & Carlos', '2025-07-19', 'Finca La Concepción, Málaga',
-  'María', 'Carlos', '#MariaCarlos2025',
+  '#MariaCarlos2025',
   ARRAY['hero', 'countdown', 'lovestory', 'timeline', 'locations', 'directions', 'accommodations', 'dresscode', 'rsvp', 'gallery', 'photoupload', 'guestbook', 'musicwishes', 'gifts', 'witnesses', 'faq', 'weddingabc'],
   true
 );
