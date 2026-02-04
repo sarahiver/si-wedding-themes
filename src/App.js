@@ -11,6 +11,9 @@ import { checkPasswordRequired } from './lib/supabase';
 // Central WeddingPage (handles all themes)
 import WeddingPage from './pages/WeddingPage';
 
+// Demo All Page (Component Showcase)
+import DemoAllPage from './pages/DemoAllPage';
+
 // Shared Components
 import ComingSoon from './components/shared/ComingSoon';
 import PasswordGate from './components/shared/PasswordGate';
@@ -302,6 +305,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/demoall" element={<DemoAllPage />} />
         <Route path="/:slug/*" element={<ProjectWrapper />} />
         <Route path="/" element={<LandingPage />} />
       </Routes>
