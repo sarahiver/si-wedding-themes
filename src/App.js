@@ -187,9 +187,9 @@ function ThemeRouter() {
   } = pages;
 
   // Status-basierte Sichtbarkeit
-  // Öffentlich: live, std, archive
+  // Öffentlich: live, std, archive, demo (für Marketing-Website)
   // Nicht-öffentlich: draft, in_progress → Coming Soon (außer mit Admin-Vorschau)
-  const publicStatuses = ['live', 'std', 'archive', 'archiv', 'save-the-date'];
+  const publicStatuses = ['live', 'std', 'archive', 'archiv', 'save-the-date', 'demo'];
   const isPublic = publicStatuses.includes(status);
 
   // Render basierend auf Status UND Passwortschutz
