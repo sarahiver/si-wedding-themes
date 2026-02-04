@@ -13,24 +13,18 @@ const glowPulse = keyframes`
 const Section = styled.section`
   position: relative;
   background: #0a0a0f;
-  padding: 80px 0;
+  padding: ${p => p.$totalCards === 1 ? '80px 0' : '0'};
+  height: ${p => p.$totalCards === 1 ? 'auto' : `${p.$totalCards * 100}vh`};
   overflow: hidden;
-
-  @media (min-width: 769px) {
-    height: ${p => p.$totalCards * 100}vh;
-    padding: 0;
-  }
 `;
 
 const StickyContainer = styled.div`
-  @media (min-width: 769px) {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-  }
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 `;
 
 const GridBG = styled.div`
@@ -44,18 +38,11 @@ const GridBG = styled.div`
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-  padding: 0 20px;
-
-  @media (min-width: 769px) {
-    position: absolute;
-    top: 40px;
-    left: 5%;
-    text-align: left;
-    margin-bottom: 0;
-    z-index: 10;
-  }
+  position: absolute;
+  top: 40px;
+  left: 5%;
+  text-align: left;
+  z-index: 10;
 `;
 
 const Eyebrow = styled.div`
@@ -84,6 +71,12 @@ const Title = styled.h2`
   }
 `;
 
+const MobileHeader = styled.div`
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 0 20px;
+`;
+
 /* ============================================
    MOBILE: Vertical Timeline
    ============================================ */
@@ -93,10 +86,6 @@ const MobileContainer = styled.div`
   flex-direction: column;
   gap: 30px;
   padding: 0 20px;
-
-  @media (min-width: 769px) {
-    display: none;
-  }
 `;
 
 const MobileCard = styled.div`
@@ -200,16 +189,12 @@ const MobileText = styled.p`
    ============================================ */
 
 const DesktopTrack = styled.div`
-  display: none;
-
-  @media (min-width: 769px) {
-    display: flex;
-    gap: 40px;
-    padding: 0 5%;
-    transform: translateX(${p => p.$offset}px);
-    transition: transform 0.1s linear;
-    will-change: transform;
-  }
+  display: flex;
+  gap: 40px;
+  padding: 0 5%;
+  transform: translateX(${p => p.$offset}px);
+  transition: transform 0.1s linear;
+  will-change: transform;
 `;
 
 const DesktopCard = styled.div`
@@ -329,17 +314,13 @@ const DesktopIndex = styled.div`
 `;
 
 const ProgressDots = styled.div`
-  display: none;
-
-  @media (min-width: 769px) {
-    display: flex;
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    gap: 15px;
-    z-index: 10;
-  }
+  display: flex;
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 15px;
+  z-index: 10;
 `;
 
 const Dot = styled.div`
@@ -355,21 +336,16 @@ const Dot = styled.div`
 `;
 
 const TerminalHint = styled.div`
-  display: none;
+  position: absolute;
+  bottom: 40px;
+  right: 5%;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.3);
+  z-index: 10;
 
-  @media (min-width: 769px) {
-    display: block;
-    position: absolute;
-    bottom: 40px;
-    right: 5%;
-    font-family: 'Space Grotesk', monospace;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.3);
-    z-index: 10;
-
-    span {
-      color: #00ff88;
-    }
+  span {
+    color: #00ff88;
   }
 `;
 
@@ -478,34 +454,45 @@ function LoveStory() {
   // Don't render if no chapters
   if (chapters.length === 0) return null;
 
+  // Mobile view
+  if (isMobile) {
+    return (
+      <Section id="story" $totalCards={1}>
+        <GridBG />
+        <MobileHeader>
+          <Eyebrow>Our Journey</Eyebrow>
+          <Title><span>{title}</span></Title>
+        </MobileHeader>
+        <MobileContainer>
+          {chapters.map((chapter, i) => (
+            <MobileCard key={i} $color={chapter.color}>
+              <MobileCardImage>
+                <img src={chapter.image} alt={chapter.title} loading="lazy" />
+              </MobileCardImage>
+              <MobileCardContent>
+                <MobileIndex $color={chapter.color}>0{i + 1}</MobileIndex>
+                <MobileYear $color={chapter.color}>{chapter.year}</MobileYear>
+                <MobileTitle>{chapter.title}</MobileTitle>
+                <MobileText>{chapter.text}</MobileText>
+              </MobileCardContent>
+            </MobileCard>
+          ))}
+        </MobileContainer>
+      </Section>
+    );
+  }
+
+  // Desktop view with horizontal scroll
   return (
-    <Section ref={sectionRef} id="story" $totalCards={isMobile ? 1 : chapters.length}>
-      <GridBG />
-
-      <Header>
-        <Eyebrow>Our Journey</Eyebrow>
-        <Title><span>{title}</span></Title>
-      </Header>
-
-      {/* MOBILE: Vertical Cards */}
-      <MobileContainer>
-        {chapters.map((chapter, i) => (
-          <MobileCard key={i} $color={chapter.color}>
-            <MobileCardImage>
-              <img src={chapter.image} alt={chapter.title} loading="lazy" />
-            </MobileCardImage>
-            <MobileCardContent>
-              <MobileIndex $color={chapter.color}>0{i + 1}</MobileIndex>
-              <MobileYear $color={chapter.color}>{chapter.year}</MobileYear>
-              <MobileTitle>{chapter.title}</MobileTitle>
-              <MobileText>{chapter.text}</MobileText>
-            </MobileCardContent>
-          </MobileCard>
-        ))}
-      </MobileContainer>
-
-      {/* DESKTOP: Horizontal Scroll */}
+    <Section ref={sectionRef} id="story" $totalCards={chapters.length}>
       <StickyContainer>
+        <GridBG />
+
+        <Header>
+          <Eyebrow>Our Journey</Eyebrow>
+          <Title><span>{title}</span></Title>
+        </Header>
+
         <DesktopTrack $offset={offset}>
           {chapters.map((chapter, i) => (
             <DesktopCard key={i} $color={chapter.color}>
