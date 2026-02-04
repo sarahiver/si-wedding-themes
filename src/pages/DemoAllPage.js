@@ -17,12 +17,18 @@ import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import { WeddingProvider } from "../context/WeddingContext"
 
 // ============================================
-// DEMO SLUG - Ein Demo-Projekt für alle Themes
-// Dieses Projekt muss in Supabase existieren mit status=demo
-// und allen Komponenten aktiviert
+// DEMO SLUGS - Ein Demo-Projekt pro Theme
+// Diese Projekte werden mit dem SQL-Script erstellt
 // ============================================
 
-const DEMO_SLUG = "lola-fredi" // Ändere dies auf deinen Demo-Projekt-Slug
+const DEMO_SLUGS = {
+  botanical: "demo-botanical",
+  editorial: "demo-editorial",
+  contemporary: "demo-contemporary",
+  luxe: "demo-luxe",
+  neon: "demo-neon",
+  video: "demo-video",
+}
 
 // ============================================
 // THEME COMPONENTS (Lazy loaded)
@@ -255,6 +261,7 @@ function ThemeSectionRenderer({ themeName }) {
   const GlobalStyles = themeGlobalStyles[themeName]
   const background = themeBackgrounds[themeName]
   const isDark = ['botanical', 'luxe', 'neon', 'video'].includes(themeName)
+  const demoSlug = DEMO_SLUGS[themeName]
 
   const componentNames = Object.keys(components)
 
@@ -274,7 +281,7 @@ function ThemeSectionRenderer({ themeName }) {
         </ComponentList>
       </ThemeHeader>
 
-      <WeddingProvider slug={DEMO_SLUG}>
+      <WeddingProvider slug={demoSlug}>
         <Suspense fallback={<LoadingFallback>Lade {themeNames[themeName]}...</LoadingFallback>}>
           {/* Hero */}
           <components.Hero />
