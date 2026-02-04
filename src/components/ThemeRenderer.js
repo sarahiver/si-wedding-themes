@@ -1,6 +1,7 @@
 // src/components/ThemeRenderer.js
 // Dynamically renders the correct theme based on project.theme from Supabase
 // NEU: Nutzt component_order für dynamische Reihenfolge
+// NEU: Unterstützt component_config für individuelle Design-Varianten
 
 import { useWedding } from "../context/WeddingContext"
 
@@ -293,6 +294,50 @@ const themes = {
 }
 
 // ============================================
+// COMPONENT VARIANTS REGISTRY
+// Hier werden alternative Designs pro Komponente registriert
+// Format: variants[componentId][variantId] = Component
+// ============================================
+const variants = {
+  // Beispiel-Struktur (Komponenten hier importieren wenn implementiert):
+  // countdown: {
+  //   'round-clock': RoundClockCountdown,
+  //   'flip-clock': FlipClockCountdown,
+  //   'minimal': MinimalCountdown,
+  // },
+  // hero: {
+  //   'video-bg': VideoBackgroundHero,
+  //   'parallax': ParallaxHero,
+  //   'split': SplitScreenHero,
+  // },
+  // gallery: {
+  //   'masonry': MasonryGallery,
+  //   'carousel': CarouselGallery,
+  //   'lightbox': LightboxGallery,
+  // },
+}
+
+// Helper: Hole Komponente mit Variant-Fallback
+const getComponentWithVariant = (themeComponents, componentName, componentConfig) => {
+  const config = componentConfig || {}
+  const variantId = config.variant
+
+  // 1. Prüfe ob eine Variante konfiguriert und registriert ist
+  if (variantId && variantId !== 'default') {
+    const componentVariants = variants[componentName.toLowerCase()]
+    if (componentVariants && componentVariants[variantId]) {
+      console.log(`🎨 Using variant "${variantId}" for ${componentName}`)
+      return componentVariants[variantId]
+    }
+    // Variante konfiguriert aber nicht implementiert - Log für Development
+    console.log(`⚠️ Variant "${variantId}" for ${componentName} not found, using default`)
+  }
+
+  // 2. Fallback auf Theme-Standard
+  return themeComponents[componentName]
+}
+
+// ============================================
 // DEFAULT COMPONENT ORDER (Fallback)
 // ============================================
 const DEFAULT_ORDER = [
@@ -318,6 +363,7 @@ const DEFAULT_ORDER = [
 // ============================================
 // COMPONENT RENDER MAP
 // Maps component IDs to their render functions
+// NEU: Unterstützt component_config für Varianten
 // ============================================
 const getComponentRenderer = (
   componentId,
@@ -325,26 +371,26 @@ const getComponentRenderer = (
   config,
   content,
   isComponentActive,
+  componentConfig = {},
 ) => {
-  const {
-    Hero,
-    Countdown,
-    LoveStory,
-    Timeline,
-    Locations,
-    Directions,
-    RSVP,
-    Dresscode,
-    Gifts,
-    Accommodations,
-    ContactWitnesses,
-    Gallery,
-    MusicWishes,
-    Guestbook,
-    FAQ,
-    WeddingABC,
-    PhotoUpload,
-  } = themeComponents
+  // Hole Komponenten mit Variant-Unterstützung
+  const Hero = getComponentWithVariant(themeComponents, 'Hero', componentConfig.hero)
+  const Countdown = getComponentWithVariant(themeComponents, 'Countdown', componentConfig.countdown)
+  const LoveStory = getComponentWithVariant(themeComponents, 'LoveStory', componentConfig.lovestory)
+  const Timeline = getComponentWithVariant(themeComponents, 'Timeline', componentConfig.timeline)
+  const Locations = getComponentWithVariant(themeComponents, 'Locations', componentConfig.locations)
+  const Directions = themeComponents.Directions
+  const RSVP = getComponentWithVariant(themeComponents, 'RSVP', componentConfig.rsvp)
+  const Dresscode = themeComponents.Dresscode
+  const Gifts = themeComponents.Gifts
+  const Accommodations = themeComponents.Accommodations
+  const ContactWitnesses = themeComponents.ContactWitnesses
+  const Gallery = getComponentWithVariant(themeComponents, 'Gallery', componentConfig.gallery)
+  const MusicWishes = themeComponents.MusicWishes
+  const Guestbook = themeComponents.Guestbook
+  const FAQ = themeComponents.FAQ
+  const WeddingABC = themeComponents.WeddingABC
+  const PhotoUpload = themeComponents.PhotoUpload
 
   const renderers = {
     hero: () =>
@@ -651,12 +697,15 @@ function ThemeRenderer({ pageType = "main" }) {
   const { Navigation, Footer } = themeComponents
 
   // NEU: Hole component_order aus project, Fallback auf DEFAULT_ORDER
-  // DEBUG
   const componentOrder = project?.component_order || DEFAULT_ORDER
+
+  // NEU: Hole component_config für individuelle Design-Varianten
+  const componentConfig = project?.component_config || {}
 
   // DEBUG - entferne nach Test
   console.log("🔍 component_order from DB:", project?.component_order)
   console.log("🔍 using componentOrder:", componentOrder)
+  console.log("🎨 component_config:", componentConfig)
 
   return (
     <>
@@ -665,6 +714,7 @@ function ThemeRenderer({ pageType = "main" }) {
 
       <main>
         {/* Render Komponenten in der Reihenfolge aus component_order */}
+        {/* NEU: component_config wird für Varianten-Unterstützung übergeben */}
         {componentOrder.map((componentId) => {
           const renderer = getComponentRenderer(
             componentId,
@@ -672,6 +722,7 @@ function ThemeRenderer({ pageType = "main" }) {
             config,
             content,
             isComponentActive,
+            componentConfig,
           )
           return renderer ? renderer() : null
         })}
