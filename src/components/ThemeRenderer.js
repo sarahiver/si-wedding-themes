@@ -715,6 +715,25 @@ function ThemeRenderer({ pageType = "main" }) {
       <Navigation sections={config.navItems} config={config} data={config} />
 
       <main>
+        {/* DEBUG: Sichtbare Info für Varianten-Testing */}
+        {componentConfig && Object.keys(componentConfig).length > 0 && (
+          <div style={{
+            position: 'fixed',
+            bottom: '10px',
+            right: '10px',
+            background: '#C41E3A',
+            color: 'white',
+            padding: '10px 15px',
+            fontSize: '12px',
+            fontFamily: 'monospace',
+            zIndex: 99999,
+            borderRadius: '4px',
+            maxWidth: '300px',
+          }}>
+            <strong>Component Config:</strong><br/>
+            {JSON.stringify(componentConfig, null, 0)}
+          </div>
+        )}
         {/* Render Komponenten in der Reihenfolge aus component_order */}
         {/* NEU: component_config wird für Varianten-Unterstützung übergeben */}
         {componentOrder.map((componentId) => {
