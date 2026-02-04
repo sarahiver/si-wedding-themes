@@ -375,6 +375,47 @@ export async function submitContactRequest(requestData) {
 }
 
 // ============================================
+// PASSWORD PROTECTION
+// ============================================
+
+/**
+ * Prüft ob ein Projekt Passwortschutz hat (ohne Passwort zu verraten)
+ */
+export async function checkPasswordRequired(slug) {
+  const { data, error } = await supabase
+    .rpc('check_password_required', { project_slug: slug });
+  
+  if (error) {
+    console.error('Error checking password requirement:', error);
+    return { required: false, error };
+  }
+  
+  return { required: data?.required || false, error: null };
+}
+
+/**
+ * Verifiziert das eingegebene Passwort serverseitig
+ * Das echte Passwort wird NIEMALS ans Frontend geschickt
+ */
+export async function verifyProjectPassword(slug, password) {
+  const { data, error } = await supabase
+    .rpc('verify_project_password', { 
+      project_slug: slug, 
+      input_password: password 
+    });
+  
+  if (error) {
+    console.error('Error verifying password:', error);
+    return { success: false, error: error.message };
+  }
+  
+  return { 
+    success: data?.success || false, 
+    error: data?.error || null 
+  };
+}
+
+// ============================================
 // DATA READY NOTIFICATION (Kunde -> Admin)
 // ============================================
 
