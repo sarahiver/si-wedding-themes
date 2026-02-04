@@ -28,6 +28,20 @@ import NeonLoadingScreen from "../themes/neon/LoadingScreen"
 // Special Components
 import BotanicalBackground from "../themes/botanical/BotanicalBackground"
 
+// ============================================
+// VARIANT IMPORTS
+// ============================================
+import SplitScreenHero from "../variants/hero/SplitScreenHero"
+
+// Variants Registry - hier neue Varianten registrieren
+const variants = {
+  hero: {
+    'split': SplitScreenHero,
+  },
+  // countdown: { 'round-clock': RoundClockCountdown, ... }
+  // gallery: { 'masonry': MasonryGallery, ... }
+}
+
 // Video Theme special import
 import VideoHorizontalScroll from "../themes/video/HorizontalScroll"
 
@@ -250,10 +264,10 @@ const PageWrapper = styled.div`
 const LOADING_DELAY = 500
 
 // ============================================
-// COMPONENT RENDERER
+// COMPONENT RENDERER (mit Varianten-Support)
 // ============================================
 
-function ComponentRenderer({ componentId, components, isComponentActive }) {
+function ComponentRenderer({ componentId, components, isComponentActive, componentConfig }) {
   const componentMap = {
     hero: { Component: components.Hero, alwaysShow: true },
     countdown: { Component: components.Countdown },
@@ -277,7 +291,20 @@ function ComponentRenderer({ componentId, components, isComponentActive }) {
   const config = componentMap[componentId]
   if (!config || !config.Component) return null
 
-  const { Component, alwaysShow } = config
+  const { alwaysShow } = config
+  let Component = config.Component
+
+  // Check for variant override
+  const variantConfig = componentConfig?.[componentId]
+  if (variantConfig?.variant && variantConfig.variant !== 'default') {
+    const componentVariants = variants[componentId]
+    if (componentVariants && componentVariants[variantConfig.variant]) {
+      Component = componentVariants[variantConfig.variant]
+      console.log(`🎨 Using variant "${variantConfig.variant}" for ${componentId}`)
+    } else {
+      console.log(`⚠️ Variant "${variantConfig.variant}" for ${componentId} not found, using default`)
+    }
+  }
 
   // Hero always shows, others check isComponentActive
   if (!alwaysShow && !isComponentActive(componentId)) return null
@@ -454,6 +481,9 @@ function StandardWeddingPage() {
   // Get component order from Supabase, fallback to default
   const componentOrder = project?.component_order || DEFAULT_ORDER
 
+  // Get component config for variants
+  const componentConfig = project?.component_config || {}
+
   // Show loading screen
   if (showLoading && !contentReady && LoadingScreen) {
     return (
@@ -495,6 +525,7 @@ function StandardWeddingPage() {
               componentId={componentId}
               components={components}
               isComponentActive={isComponentActive}
+              componentConfig={componentConfig}
             />
           ))}
         </main>
