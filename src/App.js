@@ -1,16 +1,19 @@
 // App.js - SI Wedding Themes
 // Status-based rendering: draft/in_progress → Coming Soon, live/std/archive → Content
 // Triple-click on Coming Soon logo shows admin preview login
+// NEW: Password protection support
 
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
+import { checkPasswordRequired } from './lib/supabase';
 
 // Central WeddingPage (handles all themes)
 import WeddingPage from './pages/WeddingPage';
 
 // Shared Components
 import ComingSoon from './components/shared/ComingSoon';
+import PasswordGate from './components/shared/PasswordGate';
 
 // GlobalStyles direkt importieren (nicht lazy) - verhindert Flash of unstyled content
 import BotanicalGlobalStyles from './themes/botanical/GlobalStyles';
@@ -111,10 +114,13 @@ function PreviewBanner({ status }) {
   );
 }
 
-// Theme Router - handles status-based rendering
+// Theme Router - handles status-based rendering AND password protection
 function ThemeRouter() {
-  const { project, isLoading, error, status, theme, projectId } = useWedding();
+  const { project, isLoading, error, status, theme, projectId, slug, coupleNames } = useWedding();
   const [hasPreviewAccess, setHasPreviewAccess] = useState(false);
+  const [passwordRequired, setPasswordRequired] = useState(false);
+  const [passwordChecked, setPasswordChecked] = useState(false);
+  const [hasPasswordAccess, setHasPasswordAccess] = useState(false);
   
   // Check sessionStorage für Admin-Vorschau
   useEffect(() => {
@@ -124,8 +130,30 @@ function ThemeRouter() {
     }
   }, [projectId]);
   
-  // WICHTIG: Warte bis project UND theme geladen sind
-  if (isLoading || !project) return <Loading />;
+  // Check ob Passwortschutz aktiv ist
+  useEffect(() => {
+    async function checkPassword() {
+      if (!slug) return;
+      
+      // Erst prüfen ob bereits Zugang gewährt wurde (Session)
+      const storedAccess = sessionStorage.getItem(`pw_access_${slug}`);
+      if (storedAccess === 'granted') {
+        setHasPasswordAccess(true);
+        setPasswordChecked(true);
+        return;
+      }
+      
+      // Passwortschutz-Status von Supabase abrufen
+      const { required } = await checkPasswordRequired(slug);
+      setPasswordRequired(required);
+      setPasswordChecked(true);
+    }
+    
+    checkPassword();
+  }, [slug]);
+  
+  // WICHTIG: Warte bis project UND theme UND password check geladen sind
+  if (isLoading || !project || !passwordChecked) return <Loading />;
   
   if (error) {
     return (
@@ -164,7 +192,7 @@ function ThemeRouter() {
   const publicStatuses = ['live', 'std', 'archive', 'archiv', 'save-the-date'];
   const isPublic = publicStatuses.includes(status);
 
-  // Render basierend auf Status
+  // Render basierend auf Status UND Passwortschutz
   const renderMain = () => {
     // Nicht öffentlich und kein Admin-Zugang → Coming Soon
     if (!isPublic && !hasPreviewAccess) {
@@ -173,6 +201,18 @@ function ThemeRouter() {
           onAdminAccess={() => {
             setHasPreviewAccess(true);
           }} 
+        />
+      );
+    }
+    
+    // Passwortschutz: Wenn aktiv und noch kein Zugang
+    if (passwordRequired && !hasPasswordAccess && !hasPreviewAccess) {
+      return (
+        <PasswordGate
+          slug={slug}
+          theme={themeName}
+          coupleNames={coupleNames}
+          onSuccess={() => setHasPasswordAccess(true)}
         />
       );
     }
