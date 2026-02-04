@@ -715,25 +715,26 @@ function ThemeRenderer({ pageType = "main" }) {
       <Navigation sections={config.navItems} config={config} data={config} />
 
       <main>
-        {/* DEBUG: Sichtbare Info für Varianten-Testing */}
-        {componentConfig && Object.keys(componentConfig).length > 0 && (
-          <div style={{
-            position: 'fixed',
-            bottom: '10px',
-            right: '10px',
-            background: '#C41E3A',
-            color: 'white',
-            padding: '10px 15px',
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            zIndex: 99999,
-            borderRadius: '4px',
-            maxWidth: '300px',
-          }}>
-            <strong>Component Config:</strong><br/>
-            {JSON.stringify(componentConfig, null, 0)}
-          </div>
-        )}
+        {/* DEBUG: IMMER anzeigen um zu sehen was aus DB kommt */}
+        <div style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: '#C41E3A',
+          color: 'white',
+          padding: '10px 15px',
+          fontSize: '11px',
+          fontFamily: 'monospace',
+          zIndex: 99999,
+          borderRadius: '4px',
+          maxWidth: '350px',
+          wordBreak: 'break-all',
+        }}>
+          <strong>DEBUG:</strong><br/>
+          slug: {project?.slug || 'NULL'}<br/>
+          config: {JSON.stringify(project?.component_config) || 'NULL'}<br/>
+          parsed: {JSON.stringify(componentConfig)}
+        </div>
         {/* Render Komponenten in der Reihenfolge aus component_order */}
         {/* NEU: component_config wird für Varianten-Unterstützung übergeben */}
         {componentOrder.map((componentId) => {
