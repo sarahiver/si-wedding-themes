@@ -715,26 +715,6 @@ function ThemeRenderer({ pageType = "main" }) {
       <Navigation sections={config.navItems} config={config} data={config} />
 
       <main>
-        {/* DEBUG: IMMER anzeigen um zu sehen was aus DB kommt */}
-        <div style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          background: '#C41E3A',
-          color: 'white',
-          padding: '10px 15px',
-          fontSize: '11px',
-          fontFamily: 'monospace',
-          zIndex: 99999,
-          borderRadius: '4px',
-          maxWidth: '350px',
-          wordBreak: 'break-all',
-        }}>
-          <strong>DEBUG:</strong><br/>
-          slug: {project?.slug || 'NULL'}<br/>
-          config: {JSON.stringify(project?.component_config) || 'NULL'}<br/>
-          parsed: {JSON.stringify(componentConfig)}
-        </div>
         {/* Render Komponenten in der Reihenfolge aus component_order */}
         {/* NEU: component_config wird für Varianten-Unterstützung übergeben */}
         {componentOrder.map((componentId) => {
@@ -757,6 +737,27 @@ function ThemeRenderer({ pageType = "main" }) {
         content={content.footer}
         slug={config.slug}
       />
+
+      {/* DEBUG BOX - ganz am Ende, außerhalb aller Container */}
+      <div id="debug-variant-box" style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        background: 'red',
+        color: 'white',
+        padding: '15px',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        zIndex: 2147483647,
+        borderRadius: '8px',
+        maxWidth: '400px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        border: '3px solid yellow',
+      }}>
+        <strong>🔴 DEBUG:</strong><br/>
+        slug: {project?.slug || 'NULL'}<br/>
+        component_config: {JSON.stringify(project?.component_config) || 'UNDEFINED'}
+      </div>
     </>
   )
 }
