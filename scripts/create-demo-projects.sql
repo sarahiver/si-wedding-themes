@@ -315,11 +315,11 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "Questions & Answers",
     "questions": [
-      {"q": "Can I bring my children?", "a": "We love your little ones, but this will be an adults-only celebration. We hope you understand!"},
-      {"q": "Is there parking?", "a": "Yes, free parking is available on site for all guests."},
-      {"q": "What if it rains?", "a": "The ceremony will be held in the orangery if the weather doesn''t cooperate. The party goes on!"},
-      {"q": "Are plus ones allowed?", "a": "If your invitation says ''and guest'', absolutely! Otherwise, we''ve kept numbers tight."},
-      {"q": "When should I arrive?", "a": "Please arrive by 13:30 for a 14:00 ceremony start."}
+      {"question": "Can I bring my children?", "answer": "We love your little ones, but this will be an adults-only celebration. We hope you understand!"},
+      {"question": "Is there parking?", "answer": "Yes, free parking is available on site for all guests."},
+      {"question": "What if it rains?", "answer": "The ceremony will be held in the orangery if the weather doesn''t cooperate. The party goes on!"},
+      {"question": "Are plus ones allowed?", "answer": "If your invitation says ''and guest'', absolutely! Otherwise, we''ve kept numbers tight."},
+      {"question": "When should I arrive?", "answer": "Please arrive by 13:30 for a 14:00 ceremony start."}
     ]
   }'::jsonb);
 
@@ -570,11 +570,11 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "Domande Frequenti",
     "questions": [
-      {"q": "I bambini sono invitati?", "a": "Questa sarà una celebrazione solo per adulti. Grazie per la comprensione!"},
-      {"q": "C''è parcheggio?", "a": "Sì, parcheggio gratuito disponibile. Navette dalla piazza principale."},
-      {"q": "Che lingua si parlerà?", "a": "Italiano e inglese. La cerimonia sarà bilingue."},
-      {"q": "Posso portare un accompagnatore?", "a": "Se il tuo invito include ''e accompagnatore'', certamente!"},
-      {"q": "A che ora devo arrivare?", "a": "Per favore arriva alle 15:30 per una cerimonia alle 16:00."}
+      {"question": "I bambini sono invitati?", "answer": "Questa sarà una celebrazione solo per adulti. Grazie per la comprensione!"},
+      {"question": "C''è parcheggio?", "answer": "Sì, parcheggio gratuito disponibile. Navette dalla piazza principale."},
+      {"question": "Che lingua si parlerà?", "answer": "Italiano e inglese. La cerimonia sarà bilingue."},
+      {"question": "Posso portare un accompagnatore?", "answer": "Se il tuo invito include ''e accompagnatore'', certamente!"},
+      {"question": "A che ora devo arrivare?", "answer": "Per favore arriva alle 15:30 per una cerimonia alle 16:00."}
     ]
   }'::jsonb);
 
@@ -690,10 +690,10 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "FAQ",
     "questions": [
-      {"q": "Will the ceremony be in Japanese?", "a": "Yes, but English translation will be provided."},
-      {"q": "Can I wear a kimono?", "a": "Absolutely! We would be honored."},
-      {"q": "Is there parking?", "a": "Yes, underground parking available (¥500/hour)."},
-      {"q": "What about shoes?", "a": "You may need to remove shoes in some areas. Slippers provided."}
+      {"question": "Will the ceremony be in Japanese?", "answer": "Yes, but English translation will be provided."},
+      {"question": "Can I wear a kimono?", "answer": "Absolutely! We would be honored."},
+      {"question": "Is there parking?", "answer": "Yes, underground parking available (¥500/hour)."},
+      {"question": "What about shoes?", "answer": "You may need to remove shoes in some areas. Slippers provided."}
     ]
   }'::jsonb),
   (proj_id, 'weddingabc', '{"title": "Wedding A-Z", "entries": [{"letter": "A", "title": "Arrival", "description": "Please arrive by 10:30"}, {"letter": "K", "title": "Kimono", "description": "Rental services available on request"}, {"letter": "S", "title": "Sakura", "description": "Peak cherry blossom season!"}]}'::jsonb),
@@ -795,10 +795,10 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "Frequently Asked Questions",
     "questions": [
-      {"q": "What time should we arrive?", "a": "Guests should arrive no later than 16:30 to be seated for the 17:00 ceremony."},
-      {"q": "Will there be fireworks?", "a": "Yes! A spectacular display at midnight to welcome the New Year and our marriage."},
-      {"q": "Is there a cloakroom?", "a": "Yes, staffed cloakroom facilities will be available throughout the evening."},
-      {"q": "Can we stay late?", "a": "The celebration continues until 2:00am with carriages at 2:30am."}
+      {"question": "What time should we arrive?", "answer": "Guests should arrive no later than 16:30 to be seated for the 17:00 ceremony."},
+      {"question": "Will there be fireworks?", "answer": "Yes! A spectacular display at midnight to welcome the New Year and our marriage."},
+      {"question": "Is there a cloakroom?", "answer": "Yes, staffed cloakroom facilities will be available throughout the evening."},
+      {"question": "Can we stay late?", "answer": "The celebration continues until 2:00am with carriages at 2:30am."}
     ]
   }'::jsonb),
   (proj_id, 'weddingabc', '{"title": "Wedding A-Z", "entries": [{"letter": "A", "title": "Arrival", "description": "Please arrive by 16:30"}, {"letter": "B", "title": "Black Tie", "description": "Strictly enforced"}, {"letter": "F", "title": "Fireworks", "description": "At midnight"}, {"letter": "N", "title": "New Year", "description": "We''ll count down together"}]}'::jsonb),
@@ -900,11 +900,11 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "Questions?",
     "questions": [
-      {"q": "Is this kid-friendly?", "a": "We love your kids, but this is an adults-only party. Get a sitter and let loose!"},
-      {"q": "What about dietary stuff?", "a": "We''ve got vegan, vegetarian, gluten-free - you name it. Just let us know in the RSVP."},
-      {"q": "Can I bring a plus one?", "a": "If your invite says ''and guest'', bring whoever makes you happy!"},
-      {"q": "How late does it go?", "a": "This is Berlin. The after-party goes until we say stop."},
-      {"q": "Will there be karaoke?", "a": "OBVIOUSLY. It''s not a party without it."}
+      {"question": "Is this kid-friendly?", "answer": "We love your kids, but this is an adults-only party. Get a sitter and let loose!"},
+      {"question": "What about dietary stuff?", "answer": "We''ve got vegan, vegetarian, gluten-free - you name it. Just let us know in the RSVP."},
+      {"question": "Can I bring a plus one?", "answer": "If your invite says ''and guest'', bring whoever makes you happy!"},
+      {"question": "How late does it go?", "answer": "This is Berlin. The after-party goes until we say stop."},
+      {"question": "Will there be karaoke?", "answer": "OBVIOUSLY. It''s not a party without it."}
     ]
   }'::jsonb),
   (proj_id, 'weddingabc', '{"title": "Party A-Z", "entries": [{"letter": "B", "title": "Berlin", "description": "Best city in the world"}, {"letter": "D", "title": "Dancing", "description": "All night long"}, {"letter": "K", "title": "Karaoke", "description": "Prepare your song!"}, {"letter": "L", "title": "Love", "description": "The whole point"}, {"letter": "N", "title": "Neon", "description": "Dress code: BRIGHT"}]}'::jsonb),
@@ -1007,11 +1007,11 @@ BEGIN
   (proj_id, 'faq', '{
     "title": "Preguntas Frecuentes",
     "questions": [
-      {"q": "¿Pueden venir los niños?", "a": "¡Claro! Los peques son bienvenidos. Habrá zona infantil con cuidadores."},
-      {"q": "¿Hay parking?", "a": "Sí, parking gratuito en la finca."},
-      {"q": "¿Y si hace calor?", "a": "La ceremonia es al atardecer y hay zonas con sombra y ventiladores."},
-      {"q": "¿Hasta qué hora dura?", "a": "¡Hasta que el cuerpo aguante! Oficialmente hasta las 5:00."},
-      {"q": "¿Habrá flamenco?", "a": "Pues claro, ¡estamos en Andalucía!"}
+      {"question": "¿Pueden venir los niños?", "answer": "¡Claro! Los peques son bienvenidos. Habrá zona infantil con cuidadores."},
+      {"question": "¿Hay parking?", "answer": "Sí, parking gratuito en la finca."},
+      {"question": "¿Y si hace calor?", "answer": "La ceremonia es al atardecer y hay zonas con sombra y ventiladores."},
+      {"question": "¿Hasta qué hora dura?", "answer": "¡Hasta que el cuerpo aguante! Oficialmente hasta las 5:00."},
+      {"question": "¿Habrá flamenco?", "answer": "Pues claro, ¡estamos en Andalucía!"}
     ]
   }'::jsonb),
   (proj_id, 'weddingabc', '{"title": "ABC de la Boda", "entries": [{"letter": "A", "title": "Llegada", "description": "Por favor llega a las 17:30"}, {"letter": "B", "title": "Baile", "description": "¡Prepara tus zapatos de bailar!"}, {"letter": "F", "title": "Flamenco", "description": "Sorpresa especial"}, {"letter": "T", "title": "Tapas", "description": "Lo mejor de Andalucía"}]}'::jsonb),
