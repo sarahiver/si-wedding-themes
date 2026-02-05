@@ -10,7 +10,7 @@
 //   />
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { loadGoogleMaps, isGoogleMapsAvailable, geocodeAddress } from '../../lib/googleMaps';
+import { loadGoogleMaps, isGoogleMapsAvailable, geocodeAddress } from '../../../../lib/googleMaps';
 
 // ============================================
 // PHOTON FALLBACK (OpenStreetMap, kostenlos)
