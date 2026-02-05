@@ -270,7 +270,8 @@ const BookButton = styled.a`
 
 const neonColors = ['#ff00ff', '#00ffff', '#00ff88', '#b347ff'];
 
-const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
+const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 
 function Accommodations() {
   const { content } = useWedding();
@@ -308,6 +309,8 @@ function Accommodations() {
         price_range: h.price_range || '',
         image: h.image || '',
         url: h.url || '',
+        maps_url: h.maps_url || '',
+        booking_url: h.booking_url || '',
         booking_code: h.booking_code || '',
         color: neonColors[i % neonColors.length]
       }))
@@ -346,7 +349,7 @@ function Accommodations() {
                   {hotel.address && (
                     <MetaItem>
                       <span>📍</span>
-                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer" $color={hotel.color}>
+                      <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer" $color={hotel.color}>
                         {hotel.address}
                       </AddressLink>
                     </MetaItem>
@@ -362,8 +365,8 @@ function Accommodations() {
               </ContentSection>
 
               <PriceSection>
-                {hotel.url && (
-                  <BookButton href={hotel.url} $color={hotel.color} target="_blank">
+                {getBookingUrl(hotel) && (
+                  <BookButton href={getBookingUrl(hotel)} $color={hotel.color} target="_blank">
                     Buchen →
                   </BookButton>
                 )}

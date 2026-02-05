@@ -154,7 +154,8 @@ const Button = styled.a`
   }
 `;
 
-const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
+const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 
 function Accommodations() {
   const { content } = useWedding();
@@ -192,7 +193,7 @@ function Accommodations() {
                   {hotel.address && (
                     <MetaItem>
                       <span>📍</span>
-                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                      <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">
                         {hotel.address}
                       </AddressLink>
                     </MetaItem>
@@ -205,8 +206,8 @@ function Accommodations() {
                     Code: <strong>{hotel.booking_code}</strong>
                   </BookingCode>
                 )}
-                {hotel.url && (
-                  <Button href={hotel.url} target="_blank" rel="noopener noreferrer">
+                {getBookingUrl(hotel) && (
+                  <Button href={getBookingUrl(hotel)} target="_blank" rel="noopener noreferrer">
                     Buchen →
                   </Button>
                 )}

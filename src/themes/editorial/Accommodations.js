@@ -260,7 +260,8 @@ const BookButton = styled.a`
 // HELPER
 // ============================================
 
-const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
+const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 
 // ============================================
 // COMPONENT
@@ -337,7 +338,7 @@ function Accommodations() {
                   {hotel.address && (
                     <MetaRow>
                       <span>📍</span>
-                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                      <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">
                         {hotel.address}
                       </AddressLink>
                     </MetaRow>
@@ -358,8 +359,8 @@ function Accommodations() {
                   </BookingCode>
                 )}
 
-                {hotel.url && (
-                  <BookButton href={hotel.url} target="_blank" rel="noopener noreferrer">
+                {getBookingUrl(hotel) && (
+                  <BookButton href={getBookingUrl(hotel)} target="_blank" rel="noopener noreferrer">
                     Jetzt buchen →
                   </BookButton>
                 )}

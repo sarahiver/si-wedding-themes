@@ -22,7 +22,8 @@ const CardPrice = styled.span`display: inline-block; font-family: var(--font-bod
 const BookingCode = styled.div`font-family: var(--font-body); font-size: 0.8rem; color: var(--luxe-pearl); background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.1); padding: 0.75rem; margin-bottom: 1rem; strong { color: var(--luxe-gold); }`;
 const CardLink = styled.a`display: inline-block; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-pearl); border-bottom: 1px solid var(--luxe-graphite); padding-bottom: 0.25rem; transition: all 0.3s ease; &:hover { color: var(--luxe-gold); border-color: var(--luxe-gold); }`;
 
-const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
+const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 const getImageUrl = (img) => img?.url || img || '';
 
 function Accommodations() {
@@ -63,7 +64,7 @@ function Accommodations() {
                 {hotel.address && (
                   <MetaItem>
                     <span>📍</span>
-                    <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                    <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">
                       {hotel.address}
                     </AddressLink>
                   </MetaItem>
@@ -72,7 +73,7 @@ function Accommodations() {
               </CardMeta>
               {hotel.price_range && <CardPrice>{hotel.price_range}</CardPrice>}
               {hotel.booking_code && <BookingCode>Buchungscode: <strong>{hotel.booking_code}</strong></BookingCode>}
-              {hotel.url && <CardLink href={hotel.url} target="_blank" rel="noopener">Buchen →</CardLink>}
+              {getBookingUrl(hotel) && <CardLink href={getBookingUrl(hotel)} target="_blank" rel="noopener">Buchen →</CardLink>}
             </Card>
           ))}
         </Grid>

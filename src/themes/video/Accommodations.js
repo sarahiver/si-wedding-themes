@@ -21,7 +21,8 @@ const Tag = styled.span`display: inline-block; font-family: var(--font-primary);
 const BookingCode = styled.div`font-family: var(--font-primary); font-size: 0.75rem; color: var(--video-gray); background: rgba(255,255,255,0.03); padding: 0.75rem; margin-bottom: 1rem; strong { color: var(--video-accent); }`;
 const CardLink = styled.a`display: inline-block; font-family: var(--font-primary); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--video-silver); padding: 0.6rem 1.2rem; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; &:hover { color: var(--video-accent); border-color: var(--video-accent); }`;
 
-const getMapsUrl = (address) => address ? `https://maps.google.com/?q=${encodeURIComponent(address)}` : null;
+const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
+const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 
 function Accommodations() {
   const { content } = useWedding();
@@ -61,7 +62,7 @@ function Accommodations() {
                   {hotel.address && (
                     <MetaItem>
                       <span>📍</span>
-                      <AddressLink href={getMapsUrl(hotel.address)} target="_blank" rel="noopener noreferrer">
+                      <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">
                         {hotel.address}
                       </AddressLink>
                     </MetaItem>
@@ -70,7 +71,7 @@ function Accommodations() {
                 </CardMeta>
                 {hotel.price_range && <Tag>{hotel.price_range}</Tag>}
                 {hotel.booking_code && <BookingCode>Buchungscode: <strong>{hotel.booking_code}</strong></BookingCode>}
-                {hotel.url && <CardLink href={hotel.url} target="_blank" rel="noopener noreferrer">Buchen →</CardLink>}
+                {getBookingUrl(hotel) && <CardLink href={getBookingUrl(hotel)} target="_blank" rel="noopener noreferrer">Buchen →</CardLink>}
               </CardBody>
             </Card>
           ))}

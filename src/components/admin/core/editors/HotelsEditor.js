@@ -1,10 +1,10 @@
-// core/editors/HotelsEditor.js - Schema-konform (Accommodations)
+// core/editors/HotelsEditor.js - Mit Google Maps Link + Buchungslink
 import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 import AddressSearch from './AddressSearch';
-import { generateMapsUrl } from '../../../../lib/googleMaps';
+import { generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 function HotelsEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
@@ -39,7 +39,7 @@ function HotelsEditor({ components: C }) {
               address: address,
               lat: lat,
               lng: lng,
-              url: item.url || generateMapsUrl(address),
+              maps_url: generateMapsUrl(address),
             });
           }}
           label="Adresse suchen"
@@ -78,12 +78,31 @@ function HotelsEditor({ components: C }) {
         />
       </C.FormGroup>
       <C.FormGroup>
-        <C.Label>Buchungslink</C.Label>
+        <C.Label>Google Maps Link</C.Label>
         <C.Input 
-          value={item.url || ''} 
-          onChange={(e) => onChange('url', e.target.value)}
-          placeholder="https://..."
+          value={item.maps_url || ''} 
+          onChange={(e) => onChange('maps_url', e.target.value)}
+          placeholder="https://maps.google.com/..."
         />
+        <C.HelpText>
+          {!item.maps_url && item.address
+            ? 'Wird automatisch aus der Adresse generiert'
+            : item.maps_url
+              ? '✓ Aus Adresssuche gesetzt – kann manuell angepasst werden'
+              : 'Adresse über Suche eingeben oder Link manuell eintragen'
+          }
+        </C.HelpText>
+      </C.FormGroup>
+      <C.FormGroup>
+        <C.Label>Buchungslink (optional)</C.Label>
+        <C.Input 
+          value={item.booking_url || item.url || ''} 
+          onChange={(e) => onChange('booking_url', e.target.value)}
+          placeholder="https://hotel-beispiel.de/buchen"
+        />
+        <C.HelpText>
+          Direkter Buchungslink zum Hotel – erscheint als „Buchen" Button
+        </C.HelpText>
       </C.FormGroup>
     </>
   );
@@ -118,7 +137,7 @@ function HotelsEditor({ components: C }) {
           items={content.hotels || []} 
           onItemsChange={(hotels) => update('hotels', hotels)} 
           renderItem={renderItem} 
-          createNewItem={() => ({ name: '', address: '', distance: '', price_range: '', booking_code: '', url: '', image: '' })} 
+          createNewItem={() => ({ name: '', address: '', distance: '', price_range: '', booking_code: '', maps_url: '', booking_url: '', url: '', image: '', lat: null, lng: null })} 
           addLabel="+ Hotel"
           maxItems={4}
         />
