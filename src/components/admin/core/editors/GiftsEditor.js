@@ -7,6 +7,19 @@ import ImageUploader from './ImageUploader';
 function GiftsEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.gifts || {};
+  
+  // Bestehende Items ohne ID migrieren
+  React.useEffect(() => {
+    const items = content.items || [];
+    const needsMigration = items.some(item => !item.id);
+    if (needsMigration && items.length > 0) {
+      const migratedItems = items.map(item => 
+        item.id ? item : { ...item, id: crypto.randomUUID() }
+      );
+      updateContent('gifts', { ...content, items: migratedItems });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  
   const update = (field, value) => updateContent('gifts', { ...content, [field]: value });
 
   const clearReservation = (index) => {
@@ -208,7 +221,7 @@ Verwendungszweck: Hochzeitsgeschenk"
           items={content.items || []}
           onItemsChange={(items) => update('items', items)}
           renderItem={renderItem}
-          createNewItem={() => ({ title: '', description: '', image: '', cost: '', link: '', reserved: false, reserved_by: '' })}
+          createNewItem={() => ({ id: crypto.randomUUID(), title: '', description: '', image: '', cost: '', link: '', reserved: false, reserved_by: '' })}
           addLabel="+ Wunsch hinzufügen"
           maxItems={20}
         />
