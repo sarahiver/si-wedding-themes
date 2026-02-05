@@ -3,6 +3,8 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
+import AddressSearch from './AddressSearch';
+import { generateMapsUrl } from '../../../../lib/googleMaps';
 
 function HotelsEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
@@ -29,7 +31,20 @@ function HotelsEditor({ components: C }) {
         />
       </C.FormGroup>
       <C.FormGroup>
-        <C.Label>Adresse</C.Label>
+        <AddressSearch
+          components={C}
+          address={item.address || ''}
+          onSelect={({ address, lat, lng }) => {
+            onChange({
+              address: address,
+              lat: lat,
+              lng: lng,
+              url: item.url || generateMapsUrl(address),
+            });
+          }}
+          label="Adresse suchen"
+          placeholder="z.B. Neuer Jungfernstieg 9-14, Hamburg"
+        />
         <C.Input 
           value={item.address || ''} 
           onChange={(e) => onChange('address', e.target.value)}
