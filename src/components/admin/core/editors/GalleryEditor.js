@@ -1,4 +1,4 @@
-// core/editors/GalleryEditor.js - Schema-konform
+// core/editors/GalleryEditor.js - Mit Drag&Drop, Captions & Sortierung
 import React from 'react';
 import { useAdmin } from '../AdminContext';
 import MultiImageUploader from './MultiImageUploader';
@@ -8,12 +8,17 @@ function GalleryEditor({ components: C }) {
   const content = contentStates.gallery || {};
   const update = (field, value) => updateContent('gallery', { ...content, [field]: value });
 
-  // Get image URLs (handle both string arrays and object arrays)
-  const imageUrls = (content.images || []).map(img => typeof img === 'string' ? img : img.url);
+  // Normalize images to { url, caption } format
+  const images = (content.images || []).map(img => 
+    typeof img === 'string' ? { url: img, caption: '' } : { url: img.url || '', caption: img.caption || '' }
+  );
 
-  const handleImagesChange = (urls) => {
-    // Store as simple URL strings (no captions needed per requirement)
-    update('images', urls.map(url => ({ url: typeof url === 'string' ? url : url.url })));
+  const handleImagesChange = (newImages) => {
+    // Store full objects with url + caption
+    update('images', newImages.map(img => ({ 
+      url: typeof img === 'string' ? img : img.url, 
+      caption: img.caption || '' 
+    })));
   };
 
   return (
@@ -30,14 +35,30 @@ function GalleryEditor({ components: C }) {
             placeholder="Galerie"
           />
         </C.FormGroup>
+
+        <C.FormGroup>
+          <C.Label>Untertitel</C.Label>
+          <C.Input 
+            value={content.subtitle || ''} 
+            onChange={(e) => update('subtitle', e.target.value)}
+            placeholder="Unsere schönsten Momente"
+          />
+        </C.FormGroup>
+        
+        <C.Divider />
         
         <C.SectionLabel>Bilder (max. 20)</C.SectionLabel>
+        <C.HelpText style={{ marginBottom: '1rem' }}>
+          Bilder per Drag &amp; Drop hochladen. Reihenfolge durch Ziehen ändern.
+        </C.HelpText>
+        
         <MultiImageUploader
           components={C}
-          images={imageUrls}
+          images={images}
           onImagesChange={handleImagesChange}
           folder={`${baseFolder}/gallery`}
           maxImages={20}
+          showCaptions={true}
         />
         
         <C.Divider />

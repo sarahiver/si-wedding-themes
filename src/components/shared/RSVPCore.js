@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useWedding } from '../../context/WeddingContext';
-import { submitRSVP } from '../../lib/supabase';
+import { submitRSVP, supabase } from '../../lib/supabase';
 
 /**
  * useRSVP - Hook for RSVP functionality
@@ -24,14 +24,13 @@ export function useRSVP() {
     attending: true,
     dietary: '',
     allergies: '',
-    songWish: '',
     message: '',
-    guests: [], // Array für zusätzliche Gäste mit {name, dietary, allergies}
+    guests: [],
     companionNames: '',
     childrenCount: 0,
     needsTransport: false,
     needsAccommodation: false,
-    customAnswer: '', // Antwort auf die optionale custom_question
+    customAnswer: '',
   });
 
   // Update form field
@@ -67,6 +66,24 @@ export function useRSVP() {
     return true;
   };
 
+  // Check if email already submitted for this project
+  const checkDuplicateEmail = async (email) => {
+    if (!projectId || projectId === 'demo') return false;
+    
+    try {
+      const { data } = await supabase
+        .from('rsvp_responses')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('email', email.trim().toLowerCase())
+        .maybeSingle();
+      
+      return !!data;
+    } catch {
+      return false;
+    }
+  };
+
   // Submit RSVP
   const submit = async () => {
     // In demo mode, just simulate success
@@ -89,7 +106,14 @@ export function useRSVP() {
     setError(null);
     
     try {
-      // Ernährung und Allergien: Nur Hauptperson, Begleitpersonen kommen aus guests JSON
+      // Check duplicate BEFORE submitting
+      const isDuplicate = await checkDuplicateEmail(formData.email);
+      if (isDuplicate) {
+        setError('Du hast bereits eine Rückmeldung gegeben.');
+        setSubmitting(false);
+        return { success: false, error: 'duplicate' };
+      }
+      
       const { data, error: submitError } = await submitRSVP(projectId, {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
@@ -97,9 +121,8 @@ export function useRSVP() {
         attending: formData.attending,
         dietary: (formData.dietary || '').trim(),
         allergies: (formData.allergies || '').trim(),
-        songWish: formData.songWish.trim(),
         message: formData.message.trim(),
-        guests: formData.guests, // Store full guests array as JSONB (inkl. dietary/allergies pro Person)
+        guests: formData.guests,
         custom_answer: formData.customAnswer?.trim() || '',
       });
       
@@ -111,9 +134,9 @@ export function useRSVP() {
     } catch (err) {
       console.error('RSVP submit error:', err);
       
-      // Handle duplicate email
+      // Handle duplicate email (fallback if DB constraint catches it)
       if (err.message?.includes('duplicate') || err.code === '23505') {
-        setError('Diese E-Mail-Adresse hat bereits geantwortet');
+        setError('Du hast bereits eine Rückmeldung gegeben.');
       } else {
         setError('Fehler beim Senden. Bitte versuche es erneut.');
       }
@@ -133,7 +156,6 @@ export function useRSVP() {
       attending: true,
       dietary: '',
       allergies: '',
-      songWish: '',
       message: '',
       guests: [],
       companionNames: '',
