@@ -3,9 +3,12 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 
 function CountdownEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContent, saveContent, isSaving, project } = useAdmin();
   const content = contentStates.countdown || {};
   const update = (field, value) => updateContent('countdown', { ...content, [field]: value });
+
+  // Wenn kein target_date gesetzt, aber wedding_date im Projekt vorhanden → vorbelegen
+  const displayDate = content.target_date || project?.wedding_date || '';
 
   return (
     <C.Panel>
@@ -26,9 +29,14 @@ function CountdownEditor({ components: C }) {
           <C.Label>Zieldatum *</C.Label>
           <C.Input
             type="date"
-            value={content.target_date ? content.target_date.split('T')[0] : ''}
+            value={displayDate ? displayDate.split('T')[0] : ''}
             onChange={(e) => update('target_date', e.target.value)}
           />
+          {!content.target_date && project?.wedding_date && (
+            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem', display: 'block' }}>
+              Übernommen vom Hochzeitsdatum. Wird beim Speichern gesetzt.
+            </span>
+          )}
         </C.FormGroup>
         
         <C.FormGroup>
@@ -44,7 +52,13 @@ function CountdownEditor({ components: C }) {
         </C.FormGroup>
         
         <C.Divider />
-        <C.Button onClick={() => saveContent('countdown')} disabled={isSaving}>
+        <C.Button onClick={() => {
+          // Wenn kein target_date gesetzt, aber displayDate vorhanden → übernehmen
+          if (!content.target_date && displayDate) {
+            updateContent('countdown', { ...content, target_date: displayDate.split('T')[0] });
+          }
+          saveContent('countdown');
+        }} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}
         </C.Button>
       </C.PanelContent>
