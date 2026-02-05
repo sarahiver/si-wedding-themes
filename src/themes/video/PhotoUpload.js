@@ -7,6 +7,8 @@ import SectionWrapper from './SectionWrapper';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
 const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const spin = keyframes`from { transform: rotate(0deg); } to { transform: rotate(360deg); }`;
+const shimmer = keyframes`0% { background-position: -200% 0; } 100% { background-position: 200% 0; }`;
 
 const Content = styled.div`text-align: center; max-width: 450px; width: 100%;`;
 const Eyebrow = styled.p`font-family: var(--font-primary); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
@@ -15,10 +17,12 @@ const Subtitle = styled.p`font-family: var(--font-primary); font-size: 1rem; col
 const DropZone = styled.div`padding: 4rem 2rem; border: 2px dashed ${p => p.$dragging ? 'var(--video-accent)' : 'rgba(255,255,255,0.2)'}; background: ${p => p.$dragging ? 'rgba(107, 140, 174, 0.1)' : 'rgba(255,255,255,0.02)'}; cursor: pointer; transition: all 0.3s ease; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s; &:hover { border-color: var(--video-accent); }`;
 const DropText = styled.p`font-family: var(--font-primary); font-size: 0.85rem; color: ${p => p.$dragging ? 'var(--video-accent)' : 'var(--video-silver)'};`;
 const HiddenInput = styled.input`display: none;`;
-const Progress = styled.div`margin-top: 1.5rem;`;
-const ProgressBar = styled.div`height: 2px; background: rgba(255,255,255,0.1);`;
-const ProgressFill = styled.div`height: 100%; background: var(--video-accent); width: ${p => p.$progress}%; transition: width 0.3s;`;
-const ProgressText = styled.p`font-family: var(--font-primary); font-size: 0.75rem; color: var(--video-gray); margin-top: 0.5rem;`;
+const Progress = styled.div`margin-top: 1.5rem; text-align: center;`;
+const Spinner = styled.div`width: 48px; height: 48px; margin: 0 auto 1.5rem; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--video-accent); border-radius: 50%; animation: ${spin} 0.8s linear infinite;`;
+const ProgressBar = styled.div`height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;`;
+const ProgressFill = styled.div`height: 100%; background: linear-gradient(90deg, var(--video-accent), #8ba8c4, var(--video-accent)); background-size: 200% 100%; animation: ${shimmer} 1.5s linear infinite; width: ${p => p.$progress}%; transition: width 0.3s;`;
+const ProgressPercent = styled.p`font-family: var(--font-primary); font-size: 1rem; color: var(--video-accent); margin-top: 0.75rem; font-weight: 500;`;
+const ProgressHint = styled.p`font-family: var(--font-primary); font-size: 0.75rem; color: var(--video-gray); margin-top: 0.5rem;`;
 const Success = styled.div`text-align: center; opacity: 0; animation: ${fadeIn} 0.8s ease forwards;`;
 const SuccessTitle = styled.h3`font-family: var(--font-accent); font-size: 2rem; font-style: italic; color: var(--video-white); margin-bottom: 0.5rem;`;
 const SuccessText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver); margin-bottom: 1rem;`;
@@ -84,7 +88,7 @@ function PhotoUpload() {
             <HiddenInput ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleChange} />
           </DropZone>
         )}
-        {uploading && <Progress><ProgressBar><ProgressFill $progress={progress} /></ProgressBar><ProgressText>{progress}%</ProgressText></Progress>}
+        {uploading && <Progress><Spinner /><ProgressBar><ProgressFill $progress={progress} /></ProgressBar><ProgressPercent>{progress}%</ProgressPercent><ProgressHint>Bitte warten, das Fenster nicht schließen...</ProgressHint></Progress>}
       </Content>
     </SectionWrapper>
   );

@@ -3,6 +3,7 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
+import PhoneInput from '../../../shared/PhoneInput';
 
 function WitnessesEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
@@ -38,10 +39,10 @@ function WitnessesEditor({ components: C }) {
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>Telefon</C.Label>
-        <C.Input 
-          value={item.phone || ''} 
-          onChange={(e) => onChange('phone', e.target.value)} 
-          placeholder="+49 123 456789"
+        <PhoneInput
+          value={item.phone || ''}
+          onChange={(val) => onChange('phone', val)}
+          placeholder="176 1234567"
         />
       </C.FormGroup>
       <C.FormGroup>
@@ -54,9 +55,9 @@ function WitnessesEditor({ components: C }) {
       </C.FormGroup>
       <C.FormGroup>
         <C.Label>WhatsApp-Nummer (falls abweichend)</C.Label>
-        <C.Input
+        <PhoneInput
           value={item.whatsapp || ''}
-          onChange={(e) => onChange('whatsapp', e.target.value)}
+          onChange={(val) => onChange('whatsapp', val)}
           placeholder="Leer = Telefonnummer verwenden"
         />
       </C.FormGroup>

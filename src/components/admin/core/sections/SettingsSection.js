@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAdmin } from '../AdminContext';
 import { updateProject } from '../../../../lib/supabase';
+import PhoneInput from '../../../shared/PhoneInput';
 
 // ============================================
 // STYLED COMPONENTS
@@ -231,11 +232,10 @@ export default function SettingsSection() {
           Kontakt-Telefon
           <Hint>Diese Telefonnummer wird auf der Kontakt-Seite angezeigt</Hint>
         </Label>
-        <Input
-          type="tel"
+        <PhoneInput
           value={displayPhone}
-          onChange={(e) => setDisplayPhone(e.target.value)}
-          placeholder="z.B. +49 123 456789"
+          onChange={(val) => setDisplayPhone(val)}
+          placeholder="176 1234567"
         />
       </FormGroup>
       

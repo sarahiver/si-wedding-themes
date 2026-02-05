@@ -5,6 +5,8 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { submitPhotoUpload } from '../../lib/supabase';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
+const spin = keyframes`from { transform: rotate(0deg); } to { transform: rotate(360deg); }`;
+const shimmer = keyframes`0% { background-position: -200% 0; } 100% { background-position: 200% 0; }`;
 
 const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-charcoal);`;
 const Container = styled.div`max-width: 450px; margin: 0 auto; text-align: center;`;
@@ -16,9 +18,12 @@ const DropZone = styled.div`padding: 4rem 2rem; background: ${p => p.$dragging ?
 const DropText = styled.p`font-family: var(--font-body); font-size: 0.9rem; color: ${p => p.$dragging ? 'var(--luxe-void)' : 'var(--luxe-pearl)'};`;
 const HiddenInput = styled.input`display: none;`;
 
-const Progress = styled.div`margin-top: 2rem;`;
-const ProgressBar = styled.div`height: 2px; background: var(--luxe-graphite); margin-top: 1rem;`;
-const ProgressFill = styled.div`height: 100%; background: var(--luxe-gold); width: ${p => p.$progress}%; transition: width 0.3s;`;
+const Progress = styled.div`margin-top: 2rem; text-align: center;`;
+const Spinner = styled.div`width: 48px; height: 48px; margin: 0 auto 1.5rem; border: 2px solid var(--luxe-graphite); border-top-color: var(--luxe-gold); border-radius: 50%; animation: ${spin} 0.8s linear infinite;`;
+const ProgressBar = styled.div`height: 4px; background: var(--luxe-graphite); margin-top: 1rem; border-radius: 2px; overflow: hidden;`;
+const ProgressFill = styled.div`height: 100%; background: linear-gradient(90deg, var(--luxe-gold), #d4a854, var(--luxe-gold)); background-size: 200% 100%; animation: ${shimmer} 1.5s linear infinite; width: ${p => p.$progress}%; transition: width 0.3s;`;
+const ProgressPercent = styled.p`font-family: var(--font-body); font-size: 1rem; color: var(--luxe-gold); margin-top: 0.75rem; letter-spacing: 0.1em;`;
+const ProgressHint = styled.p`font-family: var(--font-body); font-size: 0.75rem; color: var(--luxe-slate); margin-top: 0.5rem;`;
 
 const Success = styled.div`padding: 2rem;`;
 const SuccessText = styled.p`font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--luxe-cream);`;
@@ -73,7 +78,7 @@ function PhotoUpload() {
             <HiddenInput ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleChange} />
           </DropZone>
         )}
-        {uploading && <Progress><DropText>{progress}%</DropText><ProgressBar><ProgressFill $progress={progress} /></ProgressBar></Progress>}
+        {uploading && <Progress><Spinner /><DropText>Fotos werden hochgeladen</DropText><ProgressBar><ProgressFill $progress={progress} /></ProgressBar><ProgressPercent>{progress}%</ProgressPercent><ProgressHint>Bitte warten, das Fenster nicht schließen...</ProgressHint></Progress>}
       </Container>
     </Section>
   );
