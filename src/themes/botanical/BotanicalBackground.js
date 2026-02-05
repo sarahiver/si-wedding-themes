@@ -117,22 +117,24 @@ const LEAVES_CONFIG_DESKTOP = [
   { src: 1, layer: 3, top: '55%', right: '-5%', width: 270, rotate: -92, blur: 1, brightness: 0.55, opacity: 0.7, speed: 0.016 },
   { src: 2, layer: 3, top: '70%', left: '-4%', width: 260, rotate: 88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.014 },
   { src: 3, layer: 3, top: '35%', right: '-4%', width: 250, rotate: -88, scaleY: -1, blur: 1, brightness: 0.55, opacity: 0.65, speed: 0.017 },
-  // Foreground - 6
-  { src: 2, layer: 100, top: '-2%', left: '-2%', width: 400, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top left', baseScale: 0.88, maxScale: 1.08 },
-  { src: 1, layer: 100, top: '-2%', right: '-2%', width: 380, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.95, origin: 'top right', baseScale: 0.88, maxScale: 1.08 },
-  { src: 0, layer: 100, top: '35%', left: '-3%', width: 380, rotate: 95, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'left center', baseScale: 0.85, maxScale: 1.06 },
-  { src: 3, layer: 100, top: '40%', right: '-3%', width: 360, rotate: -95, blur: 0, brightness: 0.75, opacity: 0.88, origin: 'right center', baseScale: 0.85, maxScale: 1.06 },
-  { src: 3, layer: 100, bottom: '-2%', left: '-3%', width: 480, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom left', baseScale: 0.85, maxScale: 1.1 },
-  { src: 0, layer: 100, bottom: '-2%', right: '-3%', width: 450, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.92, origin: 'bottom right', baseScale: 0.85, maxScale: 1.1 },
+  // Foreground - 6 (statisch, kein Skalieren, nur minimale Parallax-Bewegung)
+  { src: 2, layer: 100, top: '-5%', left: '-8%', width: 320, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.95, speed: 0.003 },
+  { src: 1, layer: 100, top: '-5%', right: '-8%', width: 300, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.95, speed: 0.004 },
+  { src: 0, layer: 100, top: '35%', left: '-10%', width: 300, rotate: 95, blur: 0, brightness: 0.75, opacity: 0.88, speed: 0.002 },
+  { src: 3, layer: 100, top: '40%', right: '-10%', width: 280, rotate: -95, blur: 0, brightness: 0.75, opacity: 0.88, speed: 0.003 },
+  { src: 3, layer: 100, bottom: '-8%', left: '-10%', width: 380, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.92, speed: 0.002 },
+  { src: 0, layer: 100, bottom: '-8%', right: '-10%', width: 360, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.92, speed: 0.003 },
 ];
 
 const LEAVES_CONFIG_MOBILE = [
-  { src: 2, layer: 100, top: '-3%', left: '-3%', width: 180, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top left', baseScale: 0.92, maxScale: 1.05 },
-  { src: 1, layer: 100, top: '-3%', right: '-3%', width: 170, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, origin: 'top right', baseScale: 0.92, maxScale: 1.05 },
-  { src: 3, layer: 100, bottom: '-3%', left: '-4%', width: 220, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom left', baseScale: 0.9, maxScale: 1.06 },
-  { src: 0, layer: 100, bottom: '-3%', right: '-4%', width: 210, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.88, origin: 'bottom right', baseScale: 0.9, maxScale: 1.06 },
-  { src: 0, layer: 3, top: '30%', left: '-5%', width: 140, rotate: 95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.008 },
-  { src: 1, layer: 3, top: '50%', right: '-5%', width: 130, rotate: -95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.01 },
+  // Statisch an den Ecken, kein Skalieren
+  { src: 2, layer: 100, top: '-5%', left: '-8%', width: 140, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.9, speed: 0.002 },
+  { src: 1, layer: 100, top: '-5%', right: '-8%', width: 130, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, speed: 0.002 },
+  { src: 3, layer: 100, bottom: '-5%', left: '-10%', width: 170, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.88, speed: 0.001 },
+  { src: 0, layer: 100, bottom: '-5%', right: '-10%', width: 160, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.88, speed: 0.001 },
+  // Hintergrund-Blätter
+  { src: 0, layer: 3, top: '30%', left: '-8%', width: 120, rotate: 95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.004 },
+  { src: 1, layer: 3, top: '50%', right: '-8%', width: 110, rotate: -95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.005 },
 ];
 
 const HERO_LEAF = { src: 2, initialTop: -350, brightness: 0.85, opacity: 0.92, speed: 0.12, fadeStart: 200, fadeEnd: 600 };
@@ -195,8 +197,6 @@ function BotanicalBackground() {
   useEffect(() => {
     const updateLeaves = () => {
       const scrollY = lastScrollY.current;
-      const scrollProgress = scrollY / maxScrollRef.current;
-      
       const configs = LEAVES_CONFIG;
       const refs = leafRefs.current;
       
@@ -204,15 +204,10 @@ function BotanicalBackground() {
         const leaf = refs[i];
         if (!leaf) continue;
         const c = configs[i];
-        
-        if (c.speed !== undefined) {
-          // Parallax - only Y translation
-          leaf.style.transform = `translate3d(0,${scrollY * c.speed}px,0) rotate(${c.rotate}deg)${c.scaleX ? ' scaleX(-1)' : ''}${c.scaleY ? ' scaleY(-1)' : ''}`;
-        } else {
-          // Scale leaves
-          const scale = c.baseScale + scrollProgress * (c.maxScale - c.baseScale);
-          leaf.style.transform = `translate3d(0,0,0) rotate(${c.rotate}deg) scale(${scale})${c.scaleX ? ' scaleX(-1)' : ''}${c.scaleY ? ' scaleY(-1)' : ''}`;
-        }
+
+        // Alle Blätter: nur minimale Parallax-Bewegung
+        const yOffset = c.speed ? scrollY * c.speed : 0;
+        leaf.style.transform = `translate3d(0,${yOffset}px,0) rotate(${c.rotate}deg)${c.scaleX ? ' scaleX(-1)' : ''}${c.scaleY ? ' scaleY(-1)' : ''}`;
       }
       
       // Hero leaf
@@ -245,8 +240,7 @@ function BotanicalBackground() {
   const getLeafStyle = (c) => ({
     top: c.top, bottom: c.bottom, left: c.left, right: c.right,
     width: `${c.width}px`,
-    transform: `translate3d(0,0,0) rotate(${c.rotate}deg)${c.baseScale ? ` scale(${c.baseScale})` : ''}${c.scaleX ? ' scaleX(-1)' : ''}${c.scaleY ? ' scaleY(-1)' : ''}`,
-    transformOrigin: c.origin || 'center',
+    transform: `translate3d(0,0,0) rotate(${c.rotate}deg)${c.scaleX ? ' scaleX(-1)' : ''}${c.scaleY ? ' scaleY(-1)' : ''}`,
     filter: c.blur ? `blur(${c.blur}px) brightness(${c.brightness})` : `brightness(${c.brightness})`,
     opacity: c.opacity,
   });
