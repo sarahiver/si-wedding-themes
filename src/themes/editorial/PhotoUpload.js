@@ -209,11 +209,12 @@ const UploadHint = styled.span`
 const ProgressBar = styled.div`
   width: 100%;
   max-width: 400px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
   margin: 2rem auto 0;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 `;
 
 const ProgressFill = styled.div`
@@ -222,7 +223,9 @@ const ProgressFill = styled.div`
   background: linear-gradient(90deg, var(--editorial-red), #ff6b6b, var(--editorial-red));
   background-size: 200% 100%;
   animation: ${shimmer} 1.5s linear infinite;
-  transition: width 0.3s ease;
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(196, 30, 58, 0.6), 0 0 2px rgba(196, 30, 58, 0.8);
 `;
 
 const ProgressText = styled.p`
