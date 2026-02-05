@@ -451,7 +451,7 @@ function RSVP() {
 
   // Video URL
   const videoUrl = rsvpData.video_background || 
-    'https://res.cloudinary.com/si-weddings/video/upload/v1769608965/212698_small_yvnkfr.mp4';
+    'https://res.cloudinary.com/si-weddings/video/upload/v1770287435/212698_small_cibloj.mp4';
 
   return (
     <Section id="rsvp" ref={sectionRef}>
