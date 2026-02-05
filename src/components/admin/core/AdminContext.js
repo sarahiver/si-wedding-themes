@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useWedding } from '../../../context/WeddingContext';
 import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
+  getGiftReservations,
   updateProjectStatus, approveGuestbookEntry, deleteGuestbookEntry,
   deleteMusicWish, updateProjectContent, approvePhotoUpload, deletePhotoUpload,
   submitDataReady,
@@ -52,6 +53,7 @@ export function AdminProvider({ children }) {
   const [guestbookEntries, setGuestbookEntries] = useState([]);
   const [musicWishes, setMusicWishes] = useState([]);
   const [photoUploads, setPhotoUploads] = useState([]);
+  const [giftReservations, setGiftReservations] = useState([]);
   const [selectedPhotos, setSelectedPhotos] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -123,16 +125,18 @@ export function AdminProvider({ children }) {
     if (!projectId) return;
     setIsLoading(true);
     try {
-      const [r, g, m, p] = await Promise.all([
+      const [r, g, m, p, gr] = await Promise.all([
         getRSVPResponses(projectId),
         getGuestbookEntries(projectId, false),
         getMusicWishes(projectId),
         getPhotoUploads(projectId, false),
+        getGiftReservations(projectId).catch(() => ({ data: [] })),
       ]);
       setRsvpData(r.data || []);
       setGuestbookEntries(g.data || []);
       setMusicWishes(m.data || []);
       setPhotoUploads(p.data || []);
+      setGiftReservations(gr.data || []);
     } catch (e) {
       console.error('Error loading data:', e);
       showFeedback('error', 'Fehler beim Laden der Daten');
@@ -330,6 +334,7 @@ export function AdminProvider({ children }) {
     totalGuestbook: guestbookEntries.length,
     totalMusic: musicWishes.length,
     totalPhotos: photoUploads.length,
+    giftsReserved: giftReservations.length,
   };
 
   // NAV ITEMS
@@ -397,6 +402,7 @@ export function AdminProvider({ children }) {
       checkActive('guestbook') && { id: 'guestbook', label: 'Gästebuch', icon: '📝', badge: stats.pendingGuestbook, warning: true },
       checkActive('musicwishes') && { id: 'music', label: 'Musik', icon: '🎵', badge: stats.totalMusic },
       checkActive('photoupload') && { id: 'photos', label: 'Fotos', icon: '📷', badge: stats.totalPhotos },
+      checkActive('gifts') && { id: 'gifts-overview', label: 'Geschenke', icon: '🎁', badge: stats.giftsReserved },
     ].filter(Boolean)},
     { section: 'Inhalte', items: contentEditors },
     { section: 'Seiten-Varianten', items: [
@@ -423,7 +429,7 @@ export function AdminProvider({ children }) {
     isLoading, isSaving,
     
     // Data
-    rsvpData, guestbookEntries, musicWishes, photoUploads,
+    rsvpData, guestbookEntries, musicWishes, photoUploads, giftReservations,
     selectedPhotos, searchTerm, setSearchTerm,
     loadData,
     

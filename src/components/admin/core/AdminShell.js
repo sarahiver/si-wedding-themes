@@ -8,6 +8,7 @@ import RSVPSection from './sections/RSVPSection';
 import GuestbookSection from './sections/GuestbookSection';
 import MusicSection from './sections/MusicSection';
 import PhotosSection from './sections/PhotosSection';
+import GiftsSection from './sections/GiftsSection';
 import StatusSection from './sections/StatusSection';
 import SettingsSection from './sections/SettingsSection';
 
@@ -32,6 +33,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'guestbook': 'Gästebuch',
     'music': 'Musikwünsche',
     'photos': 'Gäste-Fotos',
+    'gifts-overview': 'Geschenke-Reservierungen',
     'edit-hero': 'Hero',
     'edit-countdown': 'Countdown',
     'edit-lovestory': 'Love Story',
@@ -83,6 +85,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'guestbook': return <GuestbookSection components={C} />;
       case 'music': return <MusicSection components={C} />;
       case 'photos': return <PhotosSection components={C} />;
+      case 'gifts-overview': return <GiftsSection components={C} />;
       case 'edit-hero': return <Editors.HeroEditor components={C} />;
       case 'edit-countdown': return <Editors.CountdownEditor components={C} />;
       case 'edit-lovestory': return <Editors.LovestoryEditor components={C} />;
