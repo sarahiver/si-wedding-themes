@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
-import FeedbackModal from '../../components/shared/FeedbackModal';
 
 // ============================================
 // ANIMATIONS
@@ -342,6 +341,42 @@ const ErrorMessage = styled.p`
   margin-bottom: 1rem;
 `;
 
+const SuccessState = styled.div`
+  text-align: center;
+  padding: 3rem 2rem;
+  opacity: 0;
+  animation: ${fadeInUp} 0.8s ease forwards;
+`;
+
+const SuccessIcon = styled.div`
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 300;
+  color: var(--text-light);
+  margin-bottom: 0.75rem;
+`;
+
+const SuccessText = styled.p`
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.7;
+`;
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -367,7 +402,6 @@ function RSVP() {
   } = useRSVP(weddingId);
   
   const [visible, setVisible] = useState(false);
-  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -381,28 +415,6 @@ function RSVP() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (submitted) {
-      setModalState({
-        isOpen: true,
-        type: 'success',
-        message: formData.attending 
-          ? 'Vielen Dank! Wir freuen uns auf euch!' 
-          : 'Schade, dass ihr nicht dabei sein könnt. Danke für die Rückmeldung!',
-      });
-    }
-  }, [submitted, formData.attending]);
-
-  useEffect(() => {
-    if (error) {
-      setModalState({
-        isOpen: true,
-        type: 'error',
-        message: error,
-      });
-    }
-  }, [error]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -430,6 +442,17 @@ function RSVP() {
         </Header>
         
         <GlassCard $visible={visible}>
+          {submitted ? (
+            <SuccessState>
+              <SuccessIcon>{formData.attending ? '✓' : '♡'}</SuccessIcon>
+              <SuccessTitle>{formData.attending ? 'Danke!' : 'Schade!'}</SuccessTitle>
+              <SuccessText>
+                {formData.attending 
+                  ? 'Vielen Dank! Wir freuen uns auf euch!' 
+                  : 'Schade, dass ihr nicht dabei sein könnt. Danke für die Rückmeldung!'}
+              </SuccessText>
+            </SuccessState>
+          ) : (
           <form onSubmit={handleSubmit}>
             <AttendanceToggle>
               <ToggleButton
@@ -615,16 +638,9 @@ function RSVP() {
               {submitting ? 'Wird gesendet...' : 'Absenden'}
             </SubmitButton>
           </form>
+          )}
         </GlassCard>
       </Container>
-      
-      <FeedbackModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
-        type={modalState.type}
-        message={modalState.message}
-        autoClose={modalState.type === 'success' ? 4000 : 0}
-      />
     </Section>
   );
 }

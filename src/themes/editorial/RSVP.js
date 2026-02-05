@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
-import FeedbackModal from '../../components/shared/FeedbackModal';
 
 // ============================================
 // ANIMATIONS
@@ -363,6 +362,43 @@ const GuestFields = styled.div`
 
 const GuestField = styled.div``;
 
+const SuccessState = styled.div`
+  text-align: center;
+  padding: clamp(3rem, 8vw, 6rem) 2rem;
+  opacity: 0;
+  animation: ${fadeInUp} 0.8s ease forwards;
+`;
+
+const SuccessIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border: 2px solid var(--editorial-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--editorial-red);
+`;
+
+const SuccessTitle = styled.h3`
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--editorial-white);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+`;
+
+const SuccessText = styled.p`
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+`;
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -388,7 +424,6 @@ function RSVP() {
   } = useRSVP();
   
   const [visible, setVisible] = useState(false);
-  const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -402,28 +437,6 @@ function RSVP() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (submitted) {
-      setModalState({
-        isOpen: true,
-        type: 'success',
-        message: formData.attending 
-          ? 'Vielen Dank! Wir freuen uns auf euch!' 
-          : 'Schade, dass ihr nicht dabei sein könnt. Danke für die Rückmeldung!',
-      });
-    }
-  }, [submitted, formData.attending]);
-
-  useEffect(() => {
-    if (error) {
-      setModalState({
-        isOpen: true,
-        type: 'error',
-        message: error,
-      });
-    }
-  }, [error]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -452,14 +465,25 @@ function RSVP() {
         <Header>
           <Eyebrow $visible={visible}>Seid ihr dabei?</Eyebrow>
           <Title $visible={visible}>{title}</Title>
-          <Description $visible={visible}>{description}</Description>
-          {deadline && (
+          {!submitted && <Description $visible={visible}>{description}</Description>}
+          {!submitted && deadline && (
             <Deadline $visible={visible}>
               Bitte antwortet bis {formatDeadline(deadline)}
             </Deadline>
           )}
         </Header>
         
+        {submitted ? (
+          <SuccessState>
+            <SuccessIcon>{formData.attending ? '✓' : '✗'}</SuccessIcon>
+            <SuccessTitle>{formData.attending ? 'Danke!' : 'Schade!'}</SuccessTitle>
+            <SuccessText>
+              {formData.attending 
+                ? 'Vielen Dank! Wir freuen uns auf euch!' 
+                : 'Schade, dass ihr nicht dabei sein könnt. Danke für die Rückmeldung!'}
+            </SuccessText>
+          </SuccessState>
+        ) : (
         <Form $visible={visible} onSubmit={handleSubmit}>
           <AttendanceToggle>
             <ToggleButton
@@ -661,15 +685,8 @@ function RSVP() {
             {submitting ? 'Wird gesendet...' : 'Absenden'}
           </SubmitButton>
         </Form>
+        )}
       </Container>
-      
-      <FeedbackModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
-        type={modalState.type}
-        message={modalState.message}
-        autoClose={modalState.type === 'success' ? 4000 : 0}
-      />
     </Section>
   );
 }
