@@ -313,6 +313,7 @@ export const Main = styled.main`
   flex: 1;
   margin-left: 280px;
   padding: 2rem;
+  max-width: 900px;
   min-height: 100vh;
   background: var(--admin-bg);
   

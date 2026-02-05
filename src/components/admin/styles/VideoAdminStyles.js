@@ -230,6 +230,7 @@ export const Main = styled.main`
   flex: 1;
   margin-left: 260px;
   padding: 2rem;
+  max-width: 900px;
   height: 100vh;
   overflow-y: auto;
   background: #0A0A0A;

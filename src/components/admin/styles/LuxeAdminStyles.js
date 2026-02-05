@@ -99,7 +99,7 @@ export const NavItem = styled.button`
 
 export const NavBadge = styled.span`margin-left: auto; font-size: 0.55rem; font-weight: 600; padding: 0.15rem 0.5rem; background: ${p => p.$warning ? 'rgba(255, 107, 107, 0.2)' : '#C9A86C'}; color: ${p => p.$warning ? '#FF6B6B' : '#1A1A1A'};`;
 export const NavDivider = styled.div`height: 1px; background: #333; margin: 1rem 1.5rem;`;
-export const Main = styled.main`flex: 1; margin-left: 280px; padding: 2rem; @media (max-width: 968px) { margin-left: 0; }`;
+export const Main = styled.main`flex: 1; margin-left: 280px; padding: 2rem; max-width: 900px; @media (max-width: 968px) { margin-left: 0; }`;
 export const Header = styled.header`display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #333;`;
 export const PageTitle = styled.h1`font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 400; letter-spacing: 0.05em; color: #F5F3EF;`;
 export const MobileMenuToggle = styled.button`display: none; position: fixed; top: 1rem; right: 1rem; z-index: 101; background: #242424; border: 1px solid #333; color: #F5F3EF; padding: 0.75rem; cursor: pointer; @media (max-width: 968px) { display: block; }`;

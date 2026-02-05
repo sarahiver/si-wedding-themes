@@ -255,11 +255,13 @@ export const Main = styled.main`
   margin-left: 280px;
   padding: 2rem;
   min-height: 100vh;
+  max-width: 900px;
   
   @media (max-width: 968px) {
     margin-left: 0;
     padding: 1.5rem;
     padding-top: 4rem;
+    max-width: 100%;
   }
 `;
 
