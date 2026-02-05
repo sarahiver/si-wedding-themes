@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { downloadLocationsPDF } from '../../lib/locationsPdf';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); }`;
@@ -28,31 +29,6 @@ const CardTime = styled.p`font-family: var(--font-body); font-size: 0.75rem; let
 
 const ExportSection = styled.div`margin-top: 1.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
 const ExportButton = styled.button`display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem; background: transparent; border: 1px solid var(--luxe-gold); font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); cursor: pointer; transition: all 0.3s ease; &:hover { background: var(--luxe-gold); color: var(--luxe-void); }`;
-
-const generateKML = (locations, coupleName) => {
-  const placemarks = locations.map((loc, i) => `
-    <Placemark>
-      <name>${loc.name || `Location ${i + 1}`}</name>
-      <description>${loc.type || ''}</description>
-      <address>${(loc.address || '').replace(/\n/g, ', ')}</address>
-    </Placemark>`).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document><name>${coupleName} - Hochzeitslocations</name>${placemarks}</Document>
-</kml>`;
-};
-
-const downloadKML = (locations, coupleName) => {
-  const blob = new Blob([generateKML(locations, coupleName)], { type: 'application/vnd.google-earth.kml+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${coupleName.replace(/\s+/g, '_')}_Hochzeit_Locations.kml`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
 
 function Locations() {
   const { content, project } = useWedding();
@@ -88,8 +64,8 @@ function Locations() {
         <Eyebrow $visible={visible}>Wo wir feiern</Eyebrow>
         <Title $visible={visible}>{title}</Title>
         <ExportSection $visible={visible}>
-          <ExportButton onClick={() => downloadKML(locations, coupleName)}>
-            <span>📥</span> Für Google Maps speichern
+          <ExportButton onClick={() => downloadLocationsPDF(locations, coupleName)}>
+            <span>📄</span> Locations als PDF
           </ExportButton>
         </ExportSection>
       </Header>

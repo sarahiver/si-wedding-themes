@@ -1,140 +1,24 @@
-// core/editors/LocationsEditor.js - Mit Google Maps, Icon-Picker & Export
-import React, { useState, useCallback } from 'react';
+// core/editors/LocationsEditor.js - Mit Google Maps, Icon-Picker & PDF Export
+import React, { useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 import AddressSearch from './AddressSearch';
 import IconPicker from './IconPicker';
 import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
+import { downloadLocationsPDF } from '../../../../lib/locationsPdf';
 
 // ============================================
-// EXPORT HELPERS
-// ============================================
-
-/**
- * Öffnet Google Maps Route mit allen Locations als Stops
- */
-function buildGoogleMapsListUrl(locations) {
-  if (!locations.length) return '';
-  let url = 'https://www.google.com/maps/dir/';
-  locations.forEach((loc) => {
-    const addr = loc.lat && loc.lng
-      ? `${loc.lat},${loc.lng}`
-      : encodeURIComponent(loc.address || loc.name);
-    url += addr + '/';
-  });
-  return url;
-}
-
-/**
- * Generiert KML-Datei für Import in Google My Maps / Google Earth
- */
-function generateKML(locations, coupleNames) {
-  const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const typeLabels = { ceremony: 'Trauung', reception: 'Empfang', party: 'Feier' };
-
-  const marks = locations
-    .filter((l) => l.name && (l.address || (l.lat && l.lng)))
-    .map((l) => {
-      const desc = [typeLabels[l.type] || l.type, l.time, l.address, l.description].filter(Boolean).join('\n');
-      const coords = l.lat && l.lng ? `${l.lng},${l.lat},0` : '0,0,0';
-      return `    <Placemark>
-      <name>${esc(l.icon ? l.icon + ' ' + l.name : l.name)}</name>
-      <description>${esc(desc)}</description>
-      <Point><coordinates>${coords}</coordinates></Point>
-    </Placemark>`;
-    })
-    .join('\n');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>Hochzeit ${esc(coupleNames)}</name>
-    <description>Locations der Hochzeit</description>
-${marks}
-  </Document>
-</kml>`;
-}
-
-/**
- * Generiert druckbare HTML-Übersicht der Locations
- */
-function generateLocationsPDF(locations, coupleNames) {
-  const typeLabels = { ceremony: 'Trauung', reception: 'Empfang', party: 'Feier' };
-
-  const rows = locations
-    .filter((l) => l.name)
-    .map((l) => {
-      const type = typeLabels[l.type] || l.type || '';
-      const link = l.maps_url || (l.address ? generateMapsUrl(l.address) : '');
-      return `<tr>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:1.4em;text-align:center;width:50px">${l.icon || '📍'}</td>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb">
-          <strong>${l.name}</strong><br>
-          <span style="color:#6b7280;font-size:0.85em">${type}${l.time ? ' · ' + l.time : ''}</span>
-        </td>
-        <td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;color:#374151;font-size:0.9em">
-          ${l.address || '—'}
-          ${link ? '<br><a href="' + link + '" style="color:#2563eb;font-size:0.85em">→ Google Maps</a>' : ''}
-        </td>
-      </tr>`;
-    })
-    .join('');
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Locations – ${coupleNames}</title>
-<style>@media print{body{margin:0}}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:40px;color:#111;max-width:800px;margin:0 auto}
-h1{font-size:1.5em;font-weight:600;margin-bottom:.25em}p.sub{color:#6b7280;font-size:.9em;margin-bottom:2em}
-table{width:100%;border-collapse:collapse}.foot{margin-top:3em;padding-top:1em;border-top:1px solid #e5e7eb;font-size:.75em;color:#9ca3af;text-align:center}</style>
-</head><body><h1>📍 Locations</h1><p class="sub">Hochzeit ${coupleNames}</p><table>${rows}</table>
-<div class="foot">siwedding.de</div></body></html>`;
-}
-
-// ============================================
-// EXPORT BAR
+// EXPORT BAR (nur PDF)
 // ============================================
 
 function ExportBar({ locations, coupleNames }) {
-  const [active, setActive] = useState('');
-
   const validLocs = locations.filter((l) => l.name && (l.address || (l.lat && l.lng)));
   if (!validLocs.length) return null;
 
-  const go = (key, fn) => {
-    setActive(key);
-    fn();
-    setTimeout(() => setActive(''), 800);
+  const handlePDF = () => {
+    downloadLocationsPDF(validLocs, coupleNames);
   };
-
-  const handleMaps = () => go('maps', () => {
-    const url = buildGoogleMapsListUrl(validLocs);
-    if (url) window.open(url, '_blank');
-  });
-
-  const handleKML = () => go('kml', () => {
-    const kml = generateKML(validLocs, coupleNames);
-    const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Hochzeit_${(coupleNames || '').replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '_')}_Locations.kml`;
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  const handlePDF = () => go('pdf', () => {
-    const html = generateLocationsPDF(validLocs, coupleNames);
-    const win = window.open('', '_blank');
-    if (win) { win.document.write(html); win.document.close(); setTimeout(() => win.print(), 300); }
-  });
-
-  const btn = (key) => ({
-    display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-    padding: '0.5rem 0.85rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em',
-    color: active === key ? '#10B981' : 'rgba(255,255,255,0.7)',
-    background: active === key ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
-    border: `1px solid ${active === key ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
-    borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase',
-  });
 
   return (
     <div style={{
@@ -147,14 +31,18 @@ function ExportBar({ locations, coupleNames }) {
       }}>
         Exportieren ({validLocs.length} Location{validLocs.length !== 1 ? 's' : ''})
       </div>
-      <button style={btn('maps')} onClick={handleMaps} title="Alle Locations in Google Maps öffnen (Route)">
-        🗺️ Google Maps
-      </button>
-      <button style={btn('kml')} onClick={handleKML} title="KML herunterladen – Import in Google My Maps / Earth">
-        📥 KML
-      </button>
-      <button style={btn('pdf')} onClick={handlePDF} title="Druckbare Übersicht als PDF">
-        🖨️ PDF / Drucken
+      <button
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+          padding: '0.5rem 0.85rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em',
+          color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px',
+          cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase',
+        }}
+        onClick={handlePDF}
+        title="Druckbare Übersicht als PDF"
+      >
+        📄 PDF / Drucken
       </button>
     </div>
   );

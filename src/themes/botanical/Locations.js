@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { downloadLocationsPDF } from '../../lib/locationsPdf';
 
 // ============================================
 // ANIMATIONS
@@ -224,46 +225,6 @@ const ExportButton = styled.button`
   }
 `;
 
-// ============================================
-// HELPER: Generate KML for Google Maps
-// ============================================
-
-const generateKML = (locations, coupleName) => {
-  const placemarks = locations.map((loc, i) => {
-    const name = loc.title || loc.name || `Location ${i + 1}`;
-    const description = loc.subtitle || loc.type || '';
-    const address = (loc.address || '').replace(/\n/g, ', ');
-
-    return `
-    <Placemark>
-      <name>${name}</name>
-      <description>${description}${address ? `\n${address}` : ''}</description>
-      <address>${address}</address>
-    </Placemark>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>${coupleName} - Hochzeitslocations</name>
-    <description>Alle Locations für unsere Hochzeit</description>
-    ${placemarks}
-  </Document>
-</kml>`;
-};
-
-const downloadKML = (locations, coupleName) => {
-  const kml = generateKML(locations, coupleName);
-  const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${coupleName.replace(/\s+/g, '_')}_Hochzeit_Locations.kml`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
 
 // ============================================
 // COMPONENT
@@ -276,7 +237,7 @@ function Locations() {
   const title = locationsData.title || 'Locations';
   const locations = locationsData.locations || [];
 
-  // Get couple names for KML filename
+  // Get couple names for PDF
   const name1 = project?.partner1_name || 'Partner1';
   const name2 = project?.partner2_name || 'Partner2';
   const coupleName = `${name1} & ${name2}`;
@@ -328,7 +289,7 @@ function Locations() {
   }, []);
 
   const handleExport = () => {
-    downloadKML(displayLocations, coupleName);
+    downloadLocationsPDF(displayLocations, coupleName);
   };
 
   return (
@@ -339,7 +300,7 @@ function Locations() {
           <Title $visible={visible}>{title}</Title>
           <ExportSection $visible={visible}>
             <ExportButton onClick={handleExport}>
-              <span>📥</span> Für Google Maps speichern
+              <span>📄</span> Locations als PDF
             </ExportButton>
           </ExportSection>
         </Header>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { downloadLocationsPDF } from '../../lib/locationsPdf';
 import SectionWrapper from './SectionWrapper';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
@@ -47,41 +48,6 @@ const ExportButton = styled.button`
   }
 `;
 
-const generateKML = (locations, coupleName) => {
-  const placemarks = locations.map((loc, i) => {
-    const name = loc.name || `Location ${i + 1}`;
-    const description = loc.type || '';
-    const address = (loc.address || '').replace(/\n/g, ', ');
-    return `
-    <Placemark>
-      <name>${name}</name>
-      <description>${description}${address ? `\n${address}` : ''}</description>
-      <address>${address}</address>
-    </Placemark>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>${coupleName} - Hochzeitslocations</name>
-    ${placemarks}
-  </Document>
-</kml>`;
-};
-
-const downloadKML = (locations, coupleName) => {
-  const kml = generateKML(locations, coupleName);
-  const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${coupleName.replace(/\s+/g, '_')}_Hochzeit_Locations.kml`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
 function Locations() {
   const { content, project } = useWedding();
   const data = content?.locations || {};
@@ -103,7 +69,7 @@ function Locations() {
     return () => observer.disconnect();
   }, []);
 
-  const handleExport = () => downloadKML(locations, coupleName);
+  const handleExport = () => downloadLocationsPDF(locations, coupleName);
 
   return (
     <SectionWrapper id="locations">
@@ -113,7 +79,7 @@ function Locations() {
           <Title $visible={visible}>{title}</Title>
           <ExportSection $visible={visible}>
             <ExportButton onClick={handleExport}>
-              <span>📥</span> Für Google Maps speichern
+              <span>📄</span> Locations als PDF
             </ExportButton>
           </ExportSection>
         </Header>

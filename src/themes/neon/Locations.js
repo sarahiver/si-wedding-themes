@@ -1,4 +1,5 @@
 import { useWedding } from '../../context/WeddingContext';
+import { downloadLocationsPDF } from '../../lib/locationsPdf';
 // src/components/Locations.js - Neon Theme
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
@@ -354,31 +355,6 @@ const ExportButton = styled.button`
   }
 `;
 
-const generateKML = (locations, coupleName) => {
-  const placemarks = locations.map((loc, i) => `
-    <Placemark>
-      <name>${loc.name || `Location ${i + 1}`}</name>
-      <description>${loc.type || ''}</description>
-      <address>${(loc.address || '').replace(/\n/g, ', ')}</address>
-    </Placemark>`).join('');
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document><name>${coupleName} - Wedding Locations</name>${placemarks}</Document>
-</kml>`;
-};
-
-const downloadKML = (locations, coupleName) => {
-  const blob = new Blob([generateKML(locations, coupleName)], { type: 'application/vnd.google-earth.kml+xml' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${coupleName.replace(/\s+/g, '_')}_Wedding_Locations.kml`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
 function Locations() {
   const { content, project } = useWedding();
   const locationsData = content?.locations || {};
@@ -431,8 +407,8 @@ function Locations() {
       <Header>
         <HeaderTitle>Die <span>Locations</span></HeaderTitle>
         <ExportContainer>
-          <ExportButton onClick={() => downloadKML(locations, coupleName)}>
-            <span>📥</span> Für Google Maps speichern
+          <ExportButton onClick={() => downloadLocationsPDF(locations, coupleName)}>
+            <span>📄</span> Locations als PDF
           </ExportButton>
         </ExportContainer>
       </Header>
