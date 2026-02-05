@@ -1,6 +1,6 @@
 // core/editors/AddressSearch.js
 // Reusable Address Autocomplete für Admin-Editoren
-// Primär: Google Places API | Fallback: Photon (OpenStreetMap)
+// Google Places API – kein OSM/Photon Fallback mehr
 //
 // Usage:
 //   <AddressSearch
@@ -10,50 +10,7 @@
 //   />
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { loadGoogleMaps, isGoogleMapsAvailable, geocodeAddress } from '../../../../lib/googleMaps';
-
-// ============================================
-// PHOTON FALLBACK (OpenStreetMap, kostenlos)
-// ============================================
-
-async function fetchPhotonSuggestions(input, signal) {
-  if (!input || input.length < 3) return [];
-  try {
-    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}&lang=de&limit=5&lat=53.55&lon=9.99`;
-    const resp = await fetch(url, { signal });
-    if (!resp.ok) return [];
-    const data = await resp.json();
-    return (data.features || [])
-      .filter(f => {
-        const t = f.properties?.osm_value;
-        return t !== 'country' && t !== 'state' && t !== 'continent';
-      })
-      .slice(0, 5)
-      .map(f => {
-        const p = f.properties || {};
-        const street = p.street || p.name || '';
-        const nr = p.housenumber || '';
-        const zip = p.postcode || '';
-        const city = p.city || p.town || p.village || '';
-        const country = p.country || '';
-        const mainText = [street, nr].filter(Boolean).join(' ') || p.name || '';
-        const subText = [zip, city, country !== 'Deutschland' ? country : ''].filter(Boolean).join(', ');
-        const fullAddress = [street, nr, zip, city].filter(Boolean).join(', ');
-        const coords = f.geometry?.coordinates;
-        return {
-          id: `photon-${p.osm_id || Math.random()}`,
-          mainText,
-          subText,
-          address: fullAddress || mainText,
-          lat: coords?.[1] || null,
-          lng: coords?.[0] || null,
-        };
-      });
-  } catch (err) {
-    if (err.name === 'AbortError') return [];
-    return [];
-  }
-}
+import { loadGoogleMaps, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 // ============================================
 // COMPONENT
@@ -64,15 +21,14 @@ export default function AddressSearch({ components: C, address, onSelect, label,
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [useGoogle, setUseGoogle] = useState(false);
-  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const autocompleteService = useRef(null);
   const placesService = useRef(null);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const debounceTimer = useRef(null);
-  const abortRef = useRef(null);
 
   // Google Maps laden
   useEffect(() => {
@@ -81,10 +37,10 @@ export default function AddressSearch({ components: C, address, onSelect, label,
       .then((maps) => {
         autocompleteService.current = new maps.places.AutocompleteService();
         placesService.current = new maps.places.PlacesService(document.createElement('div'));
-        setUseGoogle(true);
+        setIsReady(true);
       })
       .catch(() => {
-        console.info('Google Places nicht verfügbar – Photon (OSM) wird verwendet');
+        console.warn('Google Places nicht verfügbar');
       });
   }, []);
 
@@ -101,8 +57,8 @@ export default function AddressSearch({ components: C, address, onSelect, label,
   }, []);
 
   // Google-Suche
-  const fetchGoogle = useCallback((input) => {
-    if (!autocompleteService.current || input.length < 3) {
+  const fetchSuggestions = useCallback((input) => {
+    if (!isReady || !autocompleteService.current || input.length < 3) {
       setSuggestions([]);
       setShowDropdown(false);
       return;
@@ -116,7 +72,6 @@ export default function AddressSearch({ components: C, address, onSelect, label,
             mainText: p.structured_formatting?.main_text || '',
             subText: p.structured_formatting?.secondary_text || '',
             placeId: p.place_id,
-            isGoogle: true,
           })));
           setShowDropdown(true);
         } else {
@@ -125,62 +80,39 @@ export default function AddressSearch({ components: C, address, onSelect, label,
         }
       }
     );
-  }, []);
-
-  // Photon-Suche
-  const fetchPhoton = useCallback(async (input) => {
-    if (abortRef.current) abortRef.current.abort();
-    abortRef.current = new AbortController();
-    const results = await fetchPhotonSuggestions(input, abortRef.current.signal);
-    if (results.length > 0) {
-      setSuggestions(results);
-      setShowDropdown(true);
-    } else {
-      setSuggestions([]);
-      setShowDropdown(false);
-    }
-  }, []);
+  }, [isReady]);
 
   const handleInput = (e) => {
     const val = e.target.value;
     setSearchValue(val);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
-      if (useGoogle) fetchGoogle(val);
-      else fetchPhoton(val);
+      fetchSuggestions(val);
     }, 300);
   };
 
   const handleSelect = async (suggestion) => {
+    if (!placesService.current) return;
+
     setShowDropdown(false);
     setSearchValue('');
     setActiveIndex(-1);
+    setIsLoading(true);
 
-    if (suggestion.isGoogle && placesService.current) {
-      // Google: Details abrufen für Koordinaten + formatierte Adresse
-      setIsGeocoding(true);
-      placesService.current.getDetails(
-        { placeId: suggestion.placeId, fields: ['geometry', 'formatted_address', 'address_components'] },
-        (place, status) => {
-          setIsGeocoding(false);
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-            const loc = place.geometry?.location;
-            onSelect({
-              address: place.formatted_address || suggestion.mainText,
-              lat: loc?.lat() || null,
-              lng: loc?.lng() || null,
-            });
-          }
+    placesService.current.getDetails(
+      { placeId: suggestion.placeId, fields: ['geometry', 'formatted_address', 'address_components'] },
+      (place, status) => {
+        setIsLoading(false);
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+          const loc = place.geometry?.location;
+          onSelect({
+            address: place.formatted_address || suggestion.mainText,
+            lat: loc?.lat() || null,
+            lng: loc?.lng() || null,
+          });
         }
-      );
-    } else {
-      // Photon: Daten sind direkt verfügbar
-      onSelect({
-        address: suggestion.address || suggestion.mainText,
-        lat: suggestion.lat,
-        lng: suggestion.lng,
-      });
-    }
+      }
+    );
   };
 
   // Keyboard
@@ -202,7 +134,7 @@ export default function AddressSearch({ components: C, address, onSelect, label,
 
   useEffect(() => { setActiveIndex(-1); }, [suggestions]);
 
-  const provider = useGoogle ? 'Google' : 'OpenStreetMap';
+  const apiAvailable = isGoogleMapsAvailable();
 
   // Inline Styles (kompatibel mit allen Admin-Themes)
   const styles = {
@@ -210,7 +142,8 @@ export default function AddressSearch({ components: C, address, onSelect, label,
     labelRow: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' },
     badge: {
       fontSize: '0.55rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)',
+      color: apiAvailable ? '#10B981' : '#F59E0B',
+      background: apiAvailable ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
       padding: '0.15rem 0.4rem', borderRadius: '2px',
     },
     inputWrap: { position: 'relative', display: 'flex', alignItems: 'center' },
@@ -220,9 +153,17 @@ export default function AddressSearch({ components: C, address, onSelect, label,
     },
     input: {
       width: '100%', padding: '0.6rem 0.8rem 0.6rem 2.25rem',
-      background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.15)',
+      background: apiAvailable ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+      border: '1px dashed rgba(255,255,255,0.15)',
       borderRadius: '4px', color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem',
       fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.2s',
+      opacity: apiAvailable ? 1 : 0.5,
+      cursor: apiAvailable ? 'text' : 'not-allowed',
+    },
+    loading: {
+      position: 'absolute', right: '0.75rem', color: 'rgba(255,255,255,0.3)',
+      display: 'flex', alignItems: 'center',
+      animation: 'spin 1s linear infinite',
     },
     dropdown: {
       position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
@@ -239,8 +180,8 @@ export default function AddressSearch({ components: C, address, onSelect, label,
     itemIcon: { color: 'rgba(255,255,255,0.3)', flexShrink: 0, display: 'flex' },
     mainText: { fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.85)' },
     subText: { fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-    geocoding: {
-      fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginTop: '0.3rem',
+    hint: {
+      fontSize: '0.7rem', color: 'rgba(245,158,11,0.7)', fontStyle: 'italic', marginTop: '0.3rem',
     },
   };
 
@@ -248,7 +189,7 @@ export default function AddressSearch({ components: C, address, onSelect, label,
     <div style={styles.wrapper}>
       <div style={styles.labelRow}>
         <C.Label style={{ marginBottom: 0 }}>{label || 'Adresse suchen'}</C.Label>
-        <span style={styles.badge}>{provider}</span>
+        <span style={styles.badge}>{apiAvailable ? 'Google Maps' : 'API-Key fehlt'}</span>
       </div>
 
       <div style={styles.inputWrap}>
@@ -264,13 +205,23 @@ export default function AddressSearch({ components: C, address, onSelect, label,
           onChange={handleInput}
           onKeyDown={handleKeyDown}
           onFocus={() => { if (suggestions.length) setShowDropdown(true); }}
-          placeholder={placeholder || 'z.B. Schlossstraße 1, Heidelberg'}
+          placeholder={apiAvailable ? (placeholder || 'z.B. Schlossstraße 1, Heidelberg') : 'Google Maps API-Key in Vercel hinterlegen'}
           style={styles.input}
+          disabled={!apiAvailable}
         />
+        {isLoading && (
+          <span style={styles.loading}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
+            </svg>
+          </span>
+        )}
       </div>
 
-      {isGeocoding && (
-        <div style={styles.geocoding}>Koordinaten werden geladen...</div>
+      {!apiAvailable && (
+        <div style={styles.hint}>
+          REACT_APP_GOOGLE_MAPS_API_KEY in Vercel setzen für Autocomplete + Karten
+        </div>
       )}
 
       {showDropdown && suggestions.length > 0 && (
