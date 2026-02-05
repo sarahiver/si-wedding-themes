@@ -89,39 +89,18 @@ export function useRSVP() {
     setError(null);
     
     try {
-      // Combine dietary/allergies info from all guests
-      let dietaryInfo = formData.dietary || '';
-      let allergiesInfo = formData.allergies || '';
-      
-      if (formData.guests && formData.guests.length > 0) {
-        const guestDetails = formData.guests
-          .filter((g, i) => i > 0 && (g.name || g.dietary || g.allergies))
-          .map((g, i) => {
-            const parts = [];
-            if (g.name) parts.push(g.name);
-            if (g.dietary) parts.push(`Ernährung: ${g.dietary}`);
-            if (g.allergies) parts.push(`Allergien: ${g.allergies}`);
-            return parts.join(', ');
-          })
-          .filter(Boolean);
-        
-        if (guestDetails.length > 0) {
-          const guestInfo = guestDetails.join(' | ');
-          dietaryInfo = dietaryInfo ? `${dietaryInfo} | Begleitung: ${guestInfo}` : `Begleitung: ${guestInfo}`;
-        }
-      }
-      
+      // Ernährung und Allergien: Nur Hauptperson, Begleitpersonen kommen aus guests JSON
       const { data, error: submitError } = await submitRSVP(projectId, {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         persons: formData.persons,
         attending: formData.attending,
-        dietary: dietaryInfo.trim(),
-        allergies: allergiesInfo.trim(),
+        dietary: (formData.dietary || '').trim(),
+        allergies: (formData.allergies || '').trim(),
         songWish: formData.songWish.trim(),
         message: formData.message.trim(),
-        guests: formData.guests, // Store full guests array as JSONB
-        custom_answer: formData.customAnswer?.trim() || '', // Antwort auf custom_question
+        guests: formData.guests, // Store full guests array as JSONB (inkl. dietary/allergies pro Person)
+        custom_answer: formData.customAnswer?.trim() || '',
       });
       
       if (submitError) throw submitError;
