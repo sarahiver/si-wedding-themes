@@ -3,7 +3,7 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import AddressSearch from './AddressSearch';
-import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../lib/googleMaps';
+import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 // Transportmittel-Optionen mit Icon und Label
 const TRANSPORT_OPTIONS = [
