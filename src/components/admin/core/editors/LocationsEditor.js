@@ -4,7 +4,7 @@ import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 import AddressSearch from './AddressSearch';
-import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../lib/googleMaps';
+import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 function LocationsEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
