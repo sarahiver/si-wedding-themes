@@ -51,7 +51,7 @@ const CitrusFooter = ({
         {/* Main Section */}
         <MainSection>
           <Names>{coupleNames}</Names>
-          <Date>{date}</Date>
+          <WeddingDate>{date}</WeddingDate>
 
           {hashtag && (
             <Hashtag>
@@ -177,7 +177,7 @@ const Names = styled.h2`
   animation: ${float} 4s ease-in-out infinite;
 `;
 
-const Date = styled.p`
+const WeddingDate = styled.p`
   font-family: ${fonts.body};
   font-size: clamp(1.1rem, 2.5vw, 1.4rem);
   font-weight: 300;
