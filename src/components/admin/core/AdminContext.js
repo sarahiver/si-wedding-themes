@@ -66,8 +66,8 @@ export function AdminProvider({ children }) {
   // Content States - Schema-compliant
   const [contentStates, setContentStates] = useState({});
   
-  // Config
-  const adminPassword = project?.admin_password || 'admin123';
+  // Config - KEIN unsicherer Fallback mehr!
+  const adminPassword = project?.admin_password || null;
   const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
   const baseFolder = `siwedding/${slug || 'default'}`;
@@ -158,6 +158,11 @@ export function AdminProvider({ children }) {
 
   // AUTH
   const login = useCallback((password) => {
+    // Kein Passwort konfiguriert
+    if (!adminPassword) {
+      setLoginError('Kein Admin-Passwort konfiguriert. Bitte kontaktiere den Support.');
+      return false;
+    }
     if (password === adminPassword) {
       setIsLoggedIn(true);
       setLoginError('');
