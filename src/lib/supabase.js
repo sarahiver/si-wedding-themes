@@ -4,11 +4,30 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase nicht konfiguriert');
+// Handle missing env vars gracefully (for demo/development)
+let supabase = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  console.warn('⚠️ Supabase nicht konfiguriert - Demo-Modus aktiv');
+  // Create a mock client that returns empty results
+  supabase = {
+    from: () => ({
+      select: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      insert: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      update: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      delete: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      upsert: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      eq: function() { return this; },
+      single: function() { return { data: null, error: { message: 'Supabase not configured' } }; },
+      order: function() { return this; },
+    }),
+    rpc: () => ({ data: null, error: { message: 'Supabase not configured' } }),
+  };
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export { supabase };
 
 // ============================================
 // PROJECT
