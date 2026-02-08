@@ -409,7 +409,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       }, 150);
 
       // Threshold before changing section (higher = less sensitive)
-      const threshold = 150;
+      const threshold = 350;
 
       // Update scroll indicator
       const accum = scrollAccumulatorRef.current;
