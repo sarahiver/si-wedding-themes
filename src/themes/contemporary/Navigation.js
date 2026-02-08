@@ -171,6 +171,10 @@ const MobileMenu = styled.div`
   left: 1rem;
   right: 1rem;
   max-width: 1200px;
+  max-height: calc(100vh - 6.5rem);
+  max-height: calc(100dvh - 6.5rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 0 auto;
   background: var(--white);
   border: 3px solid var(--black);
@@ -184,9 +188,11 @@ const MobileMenu = styled.div`
   transform: translateY(${p => p.$open ? 0 : '-10px'});
   transition: all 0.3s ease;
   z-index: 999;
-  
+
   @media (max-width: 768px) {
     top: 5rem;
+    max-height: calc(100vh - 6rem);
+    max-height: calc(100dvh - 6rem);
   }
 `;
 

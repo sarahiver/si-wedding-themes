@@ -12,8 +12,8 @@ const fadeInDown = keyframes`
 `;
 
 const menuSlideIn = keyframes`
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 `;
 
 // ============================================
@@ -174,10 +174,13 @@ const MobileMenuOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2rem;
   opacity: 0;
   visibility: hidden;
   transition: all 0.4s ease;
-  
+
   ${p => p.$open && css`
     opacity: 1;
     visibility: visible;
@@ -185,11 +188,6 @@ const MobileMenuOverlay = styled.div`
 `;
 
 const MobileMenuContent = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
   /* Liquid Glass card for menu */
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(40px) saturate(180%);
@@ -198,7 +196,12 @@ const MobileMenuContent = styled.div`
   border-radius: 32px;
   padding: 2.5rem;
   min-width: 280px;
-  
+  max-height: calc(100vh - 4rem);
+  max-height: calc(100dvh - 4rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: auto;
+
   animation: ${p => p.$open ? menuSlideIn : 'none'} 0.4s ease;
 `;
 

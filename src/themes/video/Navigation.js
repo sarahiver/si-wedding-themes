@@ -124,6 +124,7 @@ const MobileMenu = styled.div`
   width: 100%;
   max-width: 400px;
   height: 100vh;
+  height: 100dvh;
   background: #1A1A1A;
   padding: 100px 40px 40px;
   transform: translateX(${p => p.$open ? '0' : '100%'});
@@ -132,6 +133,8 @@ const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 `;
 
 const MobileNavLink = styled.a`

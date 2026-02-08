@@ -156,18 +156,21 @@ const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   gap: 30px;
+  padding: 100px 2rem 2rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transform: translateX(${p => p.$open ? '0' : '100%'});
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  
+
   /* Grid Background */
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: 
+    background-image:
       linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0,255,255,0.05) 1px, transparent 1px);
     background-size: 30px 30px;
