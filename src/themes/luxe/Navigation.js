@@ -73,10 +73,9 @@ const FullscreenMenu = styled.div`
   background: var(--luxe-void);
   z-index: 999;
   display: flex;
-  align-items: center;
-  justify-content: center;
   overflow-y: auto;
-  padding: 2rem 0;
+  -webkit-overflow-scrolling: touch;
+  padding: 5rem 2rem 2rem;
   opacity: ${p => p.$open ? 1 : 0};
   visibility: ${p => p.$open ? 'visible' : 'hidden'};
   transition: opacity 0.6s var(--ease-out-expo), visibility 0.6s;
@@ -84,6 +83,7 @@ const FullscreenMenu = styled.div`
 
 const MenuContent = styled.div`
   text-align: center;
+  margin: auto;
 `;
 
 const MenuList = styled.ul`
@@ -99,15 +99,15 @@ const MenuItem = styled.li`
 const MenuLink = styled.a`
   display: inline-block;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(1.3rem, 3.5vw, 2.5rem);
   font-weight: 300;
   font-style: italic;
   color: var(--luxe-cream);
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   transform: translateY(${p => p.$open ? '0' : '100%'});
   transition: transform 0.8s var(--ease-out-expo), color 0.3s ease;
   transition-delay: ${p => p.$delay || '0s'};
-  
+
   &:hover {
     color: var(--luxe-gold);
   }
