@@ -321,32 +321,47 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
 // ============================================
 
 function VideoWeddingPage() {
-  const { project, content, isLoading } = useWedding()
+  const { project, content, isLoading, isComponentActive } = useWedding()
   const components = themeComponents.video
 
   const heroContent = content?.hero || {}
   const background = heroContent.background_media || null
   const backgroundMobile = heroContent.background_media_mobile || null
 
-  // Video theme sections for navigation
+  // Component map: componentId → { Component, sectionId, label }
+  const videoComponentMap = {
+    hero: { Component: components.Hero, sectionId: "hero", label: "Start", alwaysShow: true },
+    countdown: { Component: components.Countdown, sectionId: "countdown", label: "Countdown" },
+    lovestory: { Component: components.LoveStory, sectionId: "story", label: "Geschichte" },
+    timeline: { Component: components.Timeline, sectionId: "timeline", label: "Ablauf" },
+    locations: { Component: components.Locations, sectionId: "locations", label: "Location" },
+    directions: { Component: components.Directions, sectionId: "directions", label: "Anfahrt" },
+    accommodations: { Component: components.Accommodations, sectionId: "accommodations", label: "Hotels" },
+    dresscode: { Component: components.Dresscode, sectionId: "dresscode", label: "Dresscode" },
+    rsvp: { Component: components.RSVP, sectionId: "rsvp", label: "RSVP" },
+    gallery: { Component: components.Gallery, sectionId: "gallery", label: "Galerie" },
+    photoupload: { Component: components.PhotoUpload, sectionId: "photos", label: "Fotos" },
+    guestbook: { Component: components.Guestbook, sectionId: "guestbook", label: "Gästebuch" },
+    musicwishes: { Component: components.MusicWishes, sectionId: "music", label: "Musik" },
+    gifts: { Component: components.Gifts, sectionId: "gifts", label: "Geschenke" },
+    witnesses: { Component: components.ContactWitnesses, sectionId: "witnesses", label: "Trauzeugen" },
+    faq: { Component: components.FAQ, sectionId: "faq", label: "FAQ" },
+    weddingabc: { Component: components.WeddingABC, sectionId: "abc", label: "ABC" },
+  }
+
+  // Build dynamic order from Supabase, filtered by active state
+  const componentOrder = project?.component_order || DEFAULT_ORDER
+  const activeEntries = componentOrder
+    .filter(id => {
+      const entry = videoComponentMap[id]
+      if (!entry) return false
+      return entry.alwaysShow || isComponentActive(id)
+    })
+    .map(id => videoComponentMap[id])
+
+  // Always add footer at the end
   const sections = [
-    { id: "hero", label: "Start" },
-    { id: "countdown", label: "Countdown" },
-    { id: "story", label: "Geschichte" },
-    { id: "timeline", label: "Ablauf" },
-    { id: "locations", label: "Location" },
-    { id: "gallery", label: "Galerie" },
-    { id: "rsvp", label: "RSVP" },
-    { id: "dresscode", label: "Dresscode" },
-    { id: "gifts", label: "Geschenke" },
-    { id: "accommodations", label: "Hotels" },
-    { id: "directions", label: "Anfahrt" },
-    { id: "faq", label: "FAQ" },
-    { id: "abc", label: "ABC" },
-    { id: "guestbook", label: "Gaestebuch" },
-    { id: "music", label: "Musik" },
-    { id: "photos", label: "Fotos" },
-    { id: "witnesses", label: "Trauzeugen" },
+    ...activeEntries.map(e => ({ id: e.sectionId, label: e.label })),
     { id: "footer", label: "Ende" },
   ]
 
@@ -383,23 +398,9 @@ function VideoWeddingPage() {
           background={background}
           backgroundMobile={backgroundMobile}
         >
-          <components.Hero />
-          <components.Countdown />
-          <components.LoveStory />
-          <components.Timeline />
-          <components.Locations />
-          <components.Gallery />
-          <components.RSVP />
-          <components.Dresscode />
-          <components.Gifts />
-          <components.Accommodations />
-          <components.Directions />
-          <components.FAQ />
-          <components.WeddingABC />
-          <components.Guestbook />
-          <components.MusicWishes />
-          <components.PhotoUpload />
-          <components.ContactWitnesses />
+          {activeEntries.map(entry => (
+            <entry.Component key={entry.sectionId} />
+          ))}
           <components.Footer />
         </VideoHorizontalScroll>
       </Suspense>
