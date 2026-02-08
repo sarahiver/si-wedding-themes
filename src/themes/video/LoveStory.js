@@ -12,8 +12,8 @@ const Timeline = styled.div`display: flex; flex-direction: column; gap: 2.5rem; 
 
 const Item = styled.div`
   display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
   align-items: start;
   opacity: 0;
   animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
@@ -21,19 +21,22 @@ const Item = styled.div`
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.5rem;
   }
 `;
 
 const Year = styled.span`
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--video-accent);
-  line-height: 1;
+  line-height: 1.2;
+  min-width: 100px;
+  white-space: nowrap;
 
   @media (max-width: 600px) {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
+    min-width: unset;
   }
 `;
 
