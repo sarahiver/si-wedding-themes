@@ -13,12 +13,39 @@ const Block = styled.div`padding: 1.5rem; background: rgba(255,255,255,0.03); bo
 const BlockIcon = styled.div`font-size: 1.75rem; margin-bottom: 1rem;`;
 const BlockTitle = styled.h4`font-family: var(--font-primary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--video-accent); margin-bottom: 0.75rem;`;
 const BlockText = styled.p`font-family: var(--font-primary); font-size: 0.9rem; color: var(--video-silver); line-height: 1.8;`;
+const MapEmbed = styled.div`
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-top: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.25s;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    filter: grayscale(100%) brightness(0.7) contrast(1.2);
+    transition: filter 0.4s ease;
+  }
+
+  &:hover iframe {
+    filter: grayscale(0%) brightness(1) contrast(1);
+  }
+`;
+
 const MapBtn = styled.a`display: inline-block; margin-top: 2rem; padding: 1rem 2rem; font-family: var(--font-primary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--video-white); background: var(--video-accent); transition: background 0.3s ease; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.3s; &:hover { background: var(--video-accent-light); }`;
 
 function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
   const title = data.title || 'Anfahrt';
+  const mapsEmbed = data.maps_embed || '';
   const mapsUrl = data.maps_url || '';
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -76,6 +103,17 @@ function Directions() {
             </Block>
           ))}
         </Grid>
+        {mapsEmbed && (
+          <MapEmbed $visible={visible}>
+            <iframe
+              src={mapsEmbed}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Anfahrtskarte"
+            />
+          </MapEmbed>
+        )}
         {mapsUrl && <MapBtn href={mapsUrl} target="_blank" rel="noopener noreferrer" $visible={visible}>Route anzeigen</MapBtn>}
       </Content>
     </SectionWrapper>

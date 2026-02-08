@@ -16,12 +16,38 @@ const BlockIcon = styled.div`font-size: 2rem; margin-bottom: 1rem;`;
 const BlockTitle = styled.h4`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem;`;
 const BlockText = styled.p`font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8; color: var(--luxe-pearl);`;
 
+const MapEmbed = styled.div`
+  margin-top: 2.5rem;
+  position: relative;
+  padding-top: 45%;
+  overflow: hidden;
+  border: 1px solid rgba(212,175,55,0.15);
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: 0.3s;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    filter: grayscale(80%) sepia(20%) brightness(0.7) contrast(1.1);
+    transition: filter 0.4s ease;
+  }
+
+  &:hover iframe {
+    filter: grayscale(0%) sepia(0%) brightness(1) contrast(1);
+  }
+`;
+
 const MapBtn = styled.a`display: inline-block; margin-top: 2rem; padding: 1rem 2rem; font-family: var(--font-body); font-size: 0.7rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-void); background: var(--luxe-gold); transition: background 0.3s ease; &:hover { background: var(--luxe-champagne); }`;
 
 function Directions() {
   const { content } = useWedding();
   const data = content?.directions || {};
   const title = data.title || 'Anfahrt';
+  const mapsEmbed = data.maps_embed || '';
   const mapsUrl = data.maps_url || '';
 
   const [visible, setVisible] = useState(false);
@@ -79,6 +105,17 @@ function Directions() {
             </Block>
           ))}
         </Content>
+        {mapsEmbed && (
+          <MapEmbed $visible={visible}>
+            <iframe
+              src={mapsEmbed}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Anfahrtskarte"
+            />
+          </MapEmbed>
+        )}
         {mapsUrl && <div style={{ textAlign: 'center' }}><MapBtn href={mapsUrl} target="_blank" rel="noopener">Route anzeigen</MapBtn></div>}
       </Container>
     </Section>

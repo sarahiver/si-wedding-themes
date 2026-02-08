@@ -139,6 +139,36 @@ const ItemText = styled.p`
   margin: 0;
 `;
 
+const MapEmbed = styled.div`
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  padding-top: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  opacity: 0;
+
+  ${p => p.$visible && css`
+    animation: ${fadeInUp} 0.8s ease forwards;
+    animation-delay: 0.15s;
+  `}
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    filter: brightness(0.85) contrast(1.1) saturate(0.7);
+    transition: filter 0.4s ease;
+  }
+
+  &:hover iframe {
+    filter: brightness(1) contrast(1) saturate(1);
+  }
+`;
+
 const Note = styled.div`
   margin-top: 2rem;
   padding: 1.25rem 1.5rem;
@@ -165,6 +195,7 @@ function Directions() {
 
   const title = directionsData.title || 'Anfahrt';
   const note = directionsData.note || '';
+  const mapsEmbed = directionsData.maps_embed || '';
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -222,6 +253,18 @@ function Directions() {
           <Eyebrow $visible={visible}>So kommt ihr hin</Eyebrow>
           <Title $visible={visible}>{title}</Title>
         </Header>
+
+        {mapsEmbed && (
+          <MapEmbed $visible={visible}>
+            <iframe
+              src={mapsEmbed}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Anfahrtskarte"
+            />
+          </MapEmbed>
+        )}
 
         <GlassCard $visible={visible}>
           <DirectionsGrid>
