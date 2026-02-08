@@ -103,8 +103,27 @@ const ScrollTop = styled.button`
   }
 `;
 
+const AdminLink = styled.button`
+  display: block;
+  margin: 1.5rem auto 0;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--text-light);
+  }
+`;
+
 function Footer() {
-  const { coupleNames, weddingDate, content } = useWedding();
+  const { coupleNames, weddingDate, content, slug } = useWedding();
   const footerData = content?.footer || {};
 
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Anna', 'Thomas'];
@@ -125,6 +144,11 @@ function Footer() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleAdminClick = () => {
+    const adminPath = slug ? `/${slug}/admin` : '/admin';
+    window.location.href = adminPath;
+  };
+
   return (
     <FooterSection>
       <Names>
@@ -139,6 +163,8 @@ function Footer() {
       {hashtag && <Hashtag>#{hashtag}</Hashtag>}
 
       <Divider />
+
+      <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
 
       <Credits>
         Powered by <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I.</a>

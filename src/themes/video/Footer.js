@@ -122,16 +122,9 @@ const PoweredBy = styled.a`
   &:hover { color: var(--video-accent); }
 `;
 
-// Admin Modal
-const Overlay = styled.div`position: fixed; inset: 0; background: rgba(10,10,10,0.95); z-index: 3000; display: ${p => p.$open ? 'flex' : 'none'}; align-items: center; justify-content: center;`;
-const Modal = styled.div`background: var(--video-charcoal); padding: 3rem; max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.1); position: relative;`;
-const ModalTitle = styled.h3`font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--video-white); margin-bottom: 2rem; text-align: center; text-transform: uppercase; letter-spacing: 0.1em;`;
-const ModalInput = styled.input`width: 100%; padding: 1rem; font-family: var(--font-primary); font-size: 0.9rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--video-white); margin-bottom: 1rem; &:focus { outline: none; border-color: var(--video-accent); }`;
-const ModalBtn = styled.button`width: 100%; padding: 1rem; font-family: var(--font-primary); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--video-white); background: var(--video-accent); &:hover { background: var(--video-accent-light); }`;
-const CloseBtn = styled.button`position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: var(--video-gray); &:hover { color: var(--video-white); }`;
 
-function Footer({ onAdminLogin }) {
-  const { project, content } = useWedding();
+function Footer() {
+  const { project, content, slug } = useWedding();
   const footerData = content?.footer || {};
   const name1 = project?.partner1_name || 'Emma';
   const name2 = project?.partner2_name || 'Noah';
@@ -140,9 +133,6 @@ function Footer({ onAdminLogin }) {
   const tagline = footerData.tagline;
   
   const [visible, setVisible] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const sectionRef = useRef(null);
 
   const formattedDate = date ? new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -153,10 +143,9 @@ function Footer({ onAdminLogin }) {
     return () => observer.disconnect();
   }, []);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (onAdminLogin) onAdminLogin(username, password);
-    setShowLogin(false);
+  const handleAdminClick = () => {
+    const adminPath = slug ? `/${slug}/admin` : '/admin';
+    window.location.href = adminPath;
   };
 
   return (
@@ -168,22 +157,10 @@ function Footer({ onAdminLogin }) {
         <Quote $visible={visible}>"Danke, dass ihr Teil unserer Geschichte seid"</Quote>
         {tagline && <Tagline $visible={visible}>{tagline}</Tagline>}
         {hashtag && <Hashtag $visible={visible}>#{hashtag}</Hashtag>}
-        <AdminBtn $visible={visible} onClick={() => setShowLogin(true)}>Admin</AdminBtn>
+        <AdminBtn $visible={visible} onClick={handleAdminClick}>Admin</AdminBtn>
         <Copyright $visible={visible}>© {new Date().getFullYear()} {name1} & {name2}</Copyright>
         <PoweredBy $visible={visible} href="https://siwedding.de" target="_blank" rel="noopener noreferrer">Powered by S&I.</PoweredBy>
       </Content>
-      
-      <Overlay $open={showLogin} onClick={() => setShowLogin(false)}>
-        <Modal onClick={e => e.stopPropagation()}>
-          <CloseBtn onClick={() => setShowLogin(false)}>×</CloseBtn>
-          <ModalTitle>Login</ModalTitle>
-          <form onSubmit={handleLogin}>
-            <ModalInput type="text" placeholder="Benutzername" value={username} onChange={e => setUsername(e.target.value)} autoComplete="username" />
-            <ModalInput type="password" placeholder="Passwort" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
-            <ModalBtn type="submit">Anmelden</ModalBtn>
-          </form>
-        </Modal>
-      </Overlay>
     </SectionWrapper>
   );
 }

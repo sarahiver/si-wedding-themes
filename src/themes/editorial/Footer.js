@@ -304,8 +304,27 @@ const Hashtag = styled.p`
 // COMPONENT
 // ============================================
 
+const AdminLink = styled.button`
+  display: block;
+  margin: 1.5rem auto 0;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--editorial-red);
+  }
+`;
+
 function Footer() {
-  const { coupleNames, weddingDate, isComponentActive, content } = useWedding();
+  const { coupleNames, weddingDate, isComponentActive, content, slug } = useWedding();
   const footerData = content?.footer || {};
   const hashtag = footerData.hashtag;
   const tagline = footerData.tagline;
@@ -323,6 +342,11 @@ function Footer() {
     return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
   
+  const handleAdminClick = () => {
+    const adminPath = slug ? `/${slug}/admin` : '/admin';
+    window.location.href = adminPath;
+  };
+
   const navItems = [
     { id: 'top', label: 'Start', always: true },
     { id: 'lovestory', label: 'Geschichte' },
@@ -387,10 +411,12 @@ function Footer() {
           <BackToTopText>Nach oben</BackToTopText>
         </BackToTop>
         
+        <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
+
         <Copyright $visible={visible}>
           © {new Date().getFullYear()} {names[0]} & {names[1]}
         </Copyright>
-        
+
         <PoweredBy href="https://siwedding.de" target="_blank" rel="noopener noreferrer">
           Powered by IverLasting
         </PoweredBy>

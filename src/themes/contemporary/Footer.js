@@ -149,94 +149,9 @@ const Hashtag = styled.span`
   margin-bottom: 1rem;
 `;
 
-// Login Modal
-const ModalOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 2rem;
-`;
 
-const Modal = styled.div`
-  background: var(--white);
-  padding: 2.5rem;
-  border: 4px solid var(--black);
-  box-shadow: var(--shadow-xl);
-  max-width: 400px;
-  width: 100%;
-`;
-
-const ModalTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  text-align: center;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 1.25rem;
-`;
-
-const Label = styled.label`
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gray-600);
-  margin-bottom: 0.5rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 1rem;
-  font-size: 1rem;
-  background: var(--gray-100);
-  border: 3px solid var(--black);
-  
-  &:focus {
-    outline: none;
-    box-shadow: var(--shadow-sm);
-  }
-`;
-
-const ModalButtons = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-`;
-
-const ModalButton = styled.button`
-  flex: 1;
-  padding: 1rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  border: 3px solid var(--black);
-  cursor: pointer;
-  background: ${p => p.$primary ? 'var(--coral)' : 'var(--white)'};
-  color: ${p => p.$primary ? 'var(--white)' : 'var(--black)'};
-  
-  &:hover {
-    transform: ${p => p.$primary ? 'translate(-2px, -2px)' : 'none'};
-    box-shadow: ${p => p.$primary ? 'var(--shadow-md)' : 'none'};
-  }
-`;
-
-const ErrorMessage = styled.p`
-  color: var(--coral);
-  font-size: 0.85rem;
-  text-align: center;
-  margin-top: 1rem;
-`;
-
-function Footer({ onAdminLogin }) {
-  const { project, content } = useWedding();
+function Footer() {
+  const { project, content, slug } = useWedding();
   const footerData = content?.footer || {};
   
   const name1 = project?.partner1_name || 'Sophie';
@@ -246,9 +161,6 @@ function Footer({ onAdminLogin }) {
   const tagline = footerData.tagline;
   
   const [visible, setVisible] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
-  const [error, setError] = useState('');
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -260,13 +172,9 @@ function Footer({ onAdminLogin }) {
     return () => observer.disconnect();
   }, []);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Simple check - real auth would be handled by AdminContext
-    if (onAdminLogin) {
-      onAdminLogin(credentials);
-    }
-    setShowModal(false);
+  const handleAdminClick = () => {
+    const adminPath = slug ? `/${slug}/admin` : '/admin';
+    window.location.href = adminPath;
   };
 
   return (
@@ -290,8 +198,8 @@ function Footer({ onAdminLogin }) {
             <FooterLink href="#faq">FAQ</FooterLink>
           </FooterLinks>
           
-          <AdminButton onClick={() => setShowModal(true)}>
-            🔐 Admin Login
+          <AdminButton onClick={handleAdminClick}>
+            Admin
           </AdminButton>
           
           <Copyright>
@@ -303,38 +211,6 @@ function Footer({ onAdminLogin }) {
         </Container>
       </Section>
       
-      {showModal && (
-        <ModalOverlay onClick={() => setShowModal(false)}>
-          <Modal onClick={e => e.stopPropagation()}>
-            <ModalTitle>🔐 Admin</ModalTitle>
-            <form onSubmit={handleLogin}>
-              <FormGroup>
-                <Label>Benutzername</Label>
-                <Input 
-                  type="text" 
-                  value={credentials.username}
-                  onChange={e => setCredentials({ ...credentials, username: e.target.value })}
-                  required
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Passwort</Label>
-                <Input 
-                  type="password" 
-                  value={credentials.password}
-                  onChange={e => setCredentials({ ...credentials, password: e.target.value })}
-                  required
-                />
-              </FormGroup>
-              {error && <ErrorMessage>{error}</ErrorMessage>}
-              <ModalButtons>
-                <ModalButton type="button" onClick={() => setShowModal(false)}>Abbrechen</ModalButton>
-                <ModalButton type="submit" $primary>Login</ModalButton>
-              </ModalButtons>
-            </form>
-          </Modal>
-        </ModalOverlay>
-      )}
     </>
   );
 }
