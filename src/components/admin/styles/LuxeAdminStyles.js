@@ -126,6 +126,7 @@ export const SectionLabel = styled.div`font-family: 'Montserrat', sans-serif; fo
 export const Input = styled.input`width: 100%; padding: 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; border: 1px solid ${p => p.$error ? '#FF6B6B' : '#333'}; background: #1A1A1A; color: #F5F3EF; box-sizing: border-box; &:focus { outline: none; border-color: #C9A86C; }`;
 export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F3EF; min-height: 100px; resize: vertical; box-sizing: border-box; &:focus { outline: none; border-color: #C9A86C; }`;
 export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input { width: 18px; height: 18px; accent-color: #C9A86C; }`;
+export const CheckboxLabel = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input[type="checkbox"] { width: 18px; height: 18px; accent-color: #C9A86C; }`;
 export const ErrorText = styled.span`font-size: 0.75rem; color: #FF6B6B; margin-top: 0.25rem; display: block;`;
 export const HelpText = styled.span`font-size: 0.75rem; color: #666; margin-top: 0.25rem; display: block;`;
 export const Select = styled.select`width: 100%; padding: 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F3EF; box-sizing: border-box; cursor: pointer; &:focus { outline: none; border-color: #C9A86C; } option { background: #1A1A1A; color: #F5F3EF; }`;
@@ -212,7 +213,7 @@ export const LuxeAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,

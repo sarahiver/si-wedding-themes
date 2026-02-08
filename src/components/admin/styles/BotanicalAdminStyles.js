@@ -577,6 +577,20 @@ export const Checkbox = styled.input`
   cursor: pointer;
 `;
 
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--admin-text);
+  cursor: pointer;
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--admin-accent);
+  }
+`;
+
 export const ErrorText = styled.span`
   font-size: 0.75rem;
   color: var(--admin-error);
@@ -1373,7 +1387,7 @@ export const BotanicalAdminComponents = {
   TableWrapper, Table, Th, Td, StatusBadge,
   
   // Forms
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
   
   // Buttons
   Button, SmallButton, ButtonGroup,

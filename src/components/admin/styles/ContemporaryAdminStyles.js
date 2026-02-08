@@ -78,6 +78,7 @@ export const SectionLabel = styled.div`font-size: 1rem; font-weight: 700; text-t
 export const Input = styled.input`width: 100%; padding: 1rem; font-size: 1rem; color: #0D0D0D; background: #F5F5F5; border: 3px solid ${p => p.$error ? '#FF6B6B' : '#0D0D0D'}; box-sizing: border-box; &:focus { outline: none; background: #FAFAFA; box-shadow: 4px 4px 0 #0D0D0D; }`;
 export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-size: 1rem; color: #0D0D0D; background: #F5F5F5; border: 3px solid #0D0D0D; min-height: 120px; resize: vertical; box-sizing: border-box; &:focus { outline: none; background: #FAFAFA; box-shadow: 4px 4px 0 #0D0D0D; }`;
 export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; cursor: pointer; input { width: 20px; height: 20px; accent-color: #FF6B6B; }`;
+export const CheckboxLabel = styled.label`display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: #404040; cursor: pointer; input[type="checkbox"] { width: 20px; height: 20px; accent-color: #FF6B6B; }`;
 export const Select = styled.select`width: 100%; padding: 1rem; font-size: 1rem; color: #0D0D0D; background: #F5F5F5; border: 3px solid #0D0D0D; cursor: pointer; &:focus { outline: none; box-shadow: 4px 4px 0 #0D0D0D; }`;
 export const ErrorText = styled.span`font-size: 0.8rem; color: #FF6B6B; margin-top: 0.25rem; display: block;`;
 export const HelpText = styled.span`font-size: 0.8rem; color: #404040; margin-top: 0.25rem; display: block;`;
@@ -176,7 +177,7 @@ const ContemporaryAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,

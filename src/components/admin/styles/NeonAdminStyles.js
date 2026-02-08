@@ -131,6 +131,7 @@ export const SectionLabel = styled.div`font-family: 'Space Grotesk', sans-serif;
 export const Input = styled.input`width: 100%; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; border: 1px solid ${p => p.$error ? '#FF3366' : '#222'}; background: #0A0A0A; color: #FFF; box-sizing: border-box; transition: all 0.3s; &:focus { outline: none; border-color: #FF3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }`;
 export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; border: 1px solid #222; background: #0A0A0A; color: #FFF; min-height: 100px; resize: vertical; box-sizing: border-box; &:focus { outline: none; border-color: #FF3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }`;
 export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input { width: 18px; height: 18px; accent-color: #FF3366; }`;
+export const CheckboxLabel = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input[type="checkbox"] { width: 18px; height: 18px; accent-color: #FF3366; }`;
 export const ErrorText = styled.span`font-size: 0.75rem; color: #FF3366; margin-top: 0.25rem; display: block;`;
 export const HelpText = styled.span`font-size: 0.75rem; color: #555; margin-top: 0.25rem; display: block;`;
 export const Select = styled.select`width: 100%; padding: 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; border: 1px solid #222; background: #0A0A0A; color: #FFF; box-sizing: border-box; cursor: pointer; &:focus { outline: none; border-color: #FF3366; box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); } option { background: #0A0A0A; color: #FFF; }`;
@@ -217,7 +218,7 @@ export const NeonAdminComponents = {
   StatsGrid, StatCard, StatNumber, StatLabel,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
-  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, ErrorText, HelpText, Select, FormRow,
+  FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
   Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
