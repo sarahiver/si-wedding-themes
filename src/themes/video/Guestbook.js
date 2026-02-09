@@ -35,7 +35,7 @@ function Guestbook() {
   }, []);
 
   useEffect(() => {
-    if (project?.id) getGuestbookEntries(project.id).then(data => setEntries(Array.isArray(data) ? data : []));
+    if (project?.id) getGuestbookEntries(project.id).then(result => setEntries(Array.isArray(result?.data) ? result.data : []));
   }, [project?.id]);
 
   const handleSubmit = async (e) => {
@@ -45,8 +45,8 @@ function Guestbook() {
     try {
       await submitGuestbookEntry(project.id, { name, message });
       setName(''); setMessage('');
-      const data = await getGuestbookEntries(project.id);
-      setEntries(Array.isArray(data) ? data : []);
+      const result = await getGuestbookEntries(project.id);
+      setEntries(Array.isArray(result?.data) ? result.data : []);
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
