@@ -15,7 +15,7 @@ const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5re
 
 const LocationsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); @media (max-width: 600px) { grid-template-columns: 1fr; }`;
 
-const LocationCard = styled.div`position: relative; min-height: 70vh; display: flex; flex-direction: column; @media (max-width: 600px) { min-height: 60vh; }`;
+const LocationCard = styled.div`position: relative; min-height: ${p => p.$hasImage ? '70vh' : 'auto'}; display: flex; flex-direction: column; @media (max-width: 600px) { min-height: ${p => p.$hasImage ? '60vh' : 'auto'}; }`;
 
 const ImageSection = styled.div`flex: 1; position: relative; overflow: hidden;`;
 const Image = styled.div`position: absolute; inset: 0; background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-graphite) 100%)'}; background-size: cover; background-position: center; opacity: 0; transform: scale(1.1); animation: ${p => p.$visible ? css`${scaleReveal} 1.2s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => p.$delay || '0s'};`;
@@ -30,6 +30,8 @@ const CardTime = styled.p`font-family: var(--font-body); font-size: 0.75rem; let
 const ExportSection = styled.div`margin-top: 1.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
 const ExportButton = styled.button`display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem; background: transparent; border: 1px solid var(--luxe-gold); font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); cursor: pointer; transition: all 0.3s ease; &:hover { background: var(--luxe-gold); color: var(--luxe-void); }`;
 
+const typeLabels = { ceremony: 'Trauung', reception: 'Empfang', party: 'Feier' };
+
 function Locations() {
   const { content, project } = useWedding();
   const data = content?.locations || {};
@@ -39,15 +41,18 @@ function Locations() {
   const name2 = project?.partner2_name || 'Partner2';
   const coupleName = `${name1} & ${name2}`;
 
-  // FIX: Proper array validation and default locations
   const defaultLocations = [
-    { name: 'Villa Rothschild', type: 'Zeremonie', address: 'Im Rothschildpark 1\n61462 Koenigstein', time: '15:00 Uhr', image: '' },
-    { name: 'Schloss Johannisberg', type: 'Empfang & Dinner', address: 'Schloss Johannisberg\n65366 Geisenheim', time: '18:00 Uhr', image: '' }
+    { name: 'Villa Rothschild', type: 'ceremony', address: 'Im Rothschildpark 1\n61462 Koenigstein', time: '15:00 Uhr', image: '' },
+    { name: 'Schloss Johannisberg', type: 'reception', address: 'Schloss Johannisberg\n65366 Geisenheim', time: '18:00 Uhr', image: '' }
   ];
   const locations = Array.isArray(data.locations) && data.locations.length > 0 ? data.locations : defaultLocations;
 
-  // FIX: Handle both string and object formats for images
-  const getImageUrl = (img) => img?.url || img || '';
+  const getImageUrl = (img) => {
+    if (!img) return '';
+    if (typeof img === 'string') return img;
+    return img.url || img.secure_url || img.src || '';
+  };
+  const getTypeLabel = (type) => typeLabels[type] || type || '';
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -70,17 +75,22 @@ function Locations() {
         </ExportSection>
       </Header>
       <LocationsGrid>
-        {locations.map((loc, i) => (
-          <LocationCard key={i}>
-            <ImageSection><Image $image={getImageUrl(loc.image)} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
-            <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
-              <TypeBadge>{loc.type}</TypeBadge>
-              <CardTitle>{loc.name}</CardTitle>
-              <CardAddress>{loc.address}</CardAddress>
-              <CardTime>{loc.time}</CardTime>
-            </ContentSection>
-          </LocationCard>
-        ))}
+        {locations.map((loc, i) => {
+          const imageUrl = getImageUrl(loc.image);
+          return (
+            <LocationCard key={i} $hasImage={!!imageUrl}>
+              {imageUrl && (
+                <ImageSection><Image $image={imageUrl} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
+              )}
+              <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
+                <TypeBadge>{getTypeLabel(loc.type)}</TypeBadge>
+                <CardTitle>{loc.name}</CardTitle>
+                <CardAddress>{loc.address}</CardAddress>
+                {loc.time && <CardTime>{loc.time}</CardTime>}
+              </ContentSection>
+            </LocationCard>
+          );
+        })}
       </LocationsGrid>
     </Section>
   );
