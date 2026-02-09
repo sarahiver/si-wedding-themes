@@ -11,7 +11,14 @@ const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font
 const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 const Description = styled.p`font-family: var(--font-body); font-size: 1rem; color: var(--luxe-pearl); margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.8; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.15s;`;
 
-const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;`;
+/* Desktop: Grid */
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  @media (max-width: 768px) { display: none; }
+`;
+
 const Card = styled.div`opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
 const CardImage = styled.div`aspect-ratio: 16/10; background: ${p => p.$image ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; margin-bottom: 1.5rem; overflow: hidden;`;
 const CardTitle = styled.h3`font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--luxe-cream); margin-bottom: 0.75rem;`;
@@ -22,9 +29,95 @@ const CardPrice = styled.span`display: inline-block; font-family: var(--font-bod
 const BookingCode = styled.div`font-family: var(--font-body); font-size: 0.8rem; color: var(--luxe-pearl); background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.1); padding: 0.75rem; margin-bottom: 1rem; strong { color: var(--luxe-gold); }`;
 const CardLink = styled.a`display: inline-block; font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-pearl); border-bottom: 1px solid var(--luxe-graphite); padding-bottom: 0.25rem; transition: all 0.3s ease; &:hover { color: var(--luxe-gold); border-color: var(--luxe-gold); }`;
 
+/* Mobile: Accordion */
+const AccordionList = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+`;
+
+const AccordionItem = styled.div`
+  border-bottom: 1px solid rgba(212,175,55,0.1);
+  opacity: 0;
+  animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};
+  animation-delay: ${p => 0.2 + p.$index * 0.1}s;
+`;
+
+const AccordionHeader = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+`;
+
+const AccordionHeaderLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+const AccordionName = styled.span`
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--luxe-cream);
+`;
+
+const AccordionMeta = styled.span`
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--luxe-slate);
+`;
+
+const AccordionChevron = styled.span`
+  font-size: 1.25rem;
+  color: var(--luxe-gold);
+  transition: transform 0.3s ease;
+  transform: rotate(${p => p.$open ? '180deg' : '0deg'});
+`;
+
+const AccordionBody = styled.div`
+  max-height: ${p => p.$open ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease-out-expo);
+`;
+
+const AccordionContent = styled.div`
+  padding: 0 0 1.5rem;
+`;
+
 const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
 const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 const getImageUrl = (img) => img?.url || img || '';
+
+function HotelDetails({ hotel }) {
+  return (
+    <>
+      {getImageUrl(hotel.image) && <CardImage $image={getImageUrl(hotel.image)} style={{ marginBottom: '1rem' }} />}
+      <CardMeta>
+        {hotel.address && (
+          <MetaItem>
+            <span>📍</span>
+            <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">{hotel.address}</AddressLink>
+          </MetaItem>
+        )}
+        {hotel.distance && <MetaItem><span>🚶</span><span>{hotel.distance}</span></MetaItem>}
+      </CardMeta>
+      {hotel.price_range && <CardPrice>{hotel.price_range}</CardPrice>}
+      {hotel.booking_code && <BookingCode>Buchungscode: <strong>{hotel.booking_code}</strong></BookingCode>}
+      {getBookingUrl(hotel) && <CardLink href={getBookingUrl(hotel)} target="_blank" rel="noopener">Buchen →</CardLink>}
+    </>
+  );
+}
 
 function Accommodations() {
   const { content } = useWedding();
@@ -39,7 +132,10 @@ function Accommodations() {
   const hotels = Array.isArray(data.hotels) && data.hotels.length > 0 ? data.hotels : defaultHotels;
 
   const [visible, setVisible] = useState(false);
+  const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
+
+  const toggle = (i) => setOpenIndex(prev => prev === i ? null : i);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setVisible(true); }, { threshold: 0.2 });
@@ -55,6 +151,8 @@ function Accommodations() {
           <Title $visible={visible}>{title}</Title>
           {description && <Description $visible={visible}>{description}</Description>}
         </Header>
+
+        {/* Desktop: Grid Cards */}
         <Grid>
           {hotels.map((hotel, i) => (
             <Card key={i} $visible={visible} $index={i}>
@@ -64,9 +162,7 @@ function Accommodations() {
                 {hotel.address && (
                   <MetaItem>
                     <span>📍</span>
-                    <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">
-                      {hotel.address}
-                    </AddressLink>
+                    <AddressLink href={getMapsUrl(hotel)} target="_blank" rel="noopener noreferrer">{hotel.address}</AddressLink>
                   </MetaItem>
                 )}
                 {hotel.distance && <MetaItem><span>🚶</span><span>{hotel.distance}</span></MetaItem>}
@@ -77,6 +173,26 @@ function Accommodations() {
             </Card>
           ))}
         </Grid>
+
+        {/* Mobile: Accordion */}
+        <AccordionList>
+          {hotels.map((hotel, i) => (
+            <AccordionItem key={i} $visible={visible} $index={i}>
+              <AccordionHeader onClick={() => toggle(i)}>
+                <AccordionHeaderLeft>
+                  <AccordionName>{hotel.name}</AccordionName>
+                  {hotel.price_range && <AccordionMeta>{hotel.price_range} {hotel.distance ? `· ${hotel.distance}` : ''}</AccordionMeta>}
+                </AccordionHeaderLeft>
+                <AccordionChevron $open={openIndex === i}>▾</AccordionChevron>
+              </AccordionHeader>
+              <AccordionBody $open={openIndex === i}>
+                <AccordionContent>
+                  <HotelDetails hotel={hotel} />
+                </AccordionContent>
+              </AccordionBody>
+            </AccordionItem>
+          ))}
+        </AccordionList>
       </Container>
     </Section>
   );
