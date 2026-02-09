@@ -54,6 +54,8 @@ const LettersGrid = styled.div`
   justify-content: center;
   gap: 0.75rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) { display: none; }
 `;
 
 const LetterButton = styled.button`
@@ -192,6 +194,69 @@ const EmptyHint = styled.div`
 
 const colors = ['var(--coral)', 'var(--electric)', 'var(--purple)', 'var(--pink)', 'var(--black)'];
 
+/* Mobile Accordion */
+const AccordionList = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const AccordionItem = styled.div`
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+`;
+
+const AccordionHeader = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 1rem;
+`;
+
+const AccordionHeaderText = styled.div`
+  flex: 1;
+`;
+
+const AccordionTitle = styled.span`
+  font-family: var(--font-primary, sans-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--black, #000);
+  display: block;
+`;
+
+const AccordionMeta = styled.span`
+  font-size: 0.75rem;
+  color: var(--gray-500, #888);
+  margin-top: 0.15rem;
+  display: block;
+`;
+
+const AccordionChevron = styled.span`
+  font-size: 1rem;
+  color: var(--electric, #4444FF);
+  transition: transform 0.3s ease;
+  transform: rotate(${p => p.$open ? '180deg' : '0deg'});
+`;
+
+const AccordionBody = styled.div`
+  max-height: ${p => p.$open ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+`;
+
+const AccordionContent = styled.div`
+  padding: 0 0 1.25rem;
+`;
+
+
 function WeddingABC() {
   const { content } = useWedding();
   const abcData = content?.weddingabc || {};
@@ -200,6 +265,9 @@ function WeddingABC() {
   const items = abcData.entries || [];
 
   const [activeLetter, setActiveLetter] = useState(null);
+
+  const [openIndex, setOpenIndex] = useState(null);
+  const toggle = (i) => setOpenIndex(prev => prev === i ? null : i);
 
   // Keine Default-Einträge - zeige nichts wenn keine Einträge angelegt
   if (items.length === 0) return null;
@@ -245,6 +313,30 @@ function WeddingABC() {
             );
           })}
         </LettersGrid>
+
+        {/* Mobile Accordion */}
+        <AccordionList>
+          {alphabet.map((letter, i) => {
+            const item = items.find(e => (e.letter || '').toUpperCase() === letter);
+            if (!item) return null;
+            return (
+              <AccordionItem key={i}>
+                <AccordionHeader onClick={() => toggle(i)}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: '700', minWidth: '2rem' }}>{letter}</span>
+                  <AccordionHeaderText>
+                    <AccordionTitle>{item.word}</AccordionTitle>
+                  </AccordionHeaderText>
+                  <AccordionChevron $open={openIndex === i}>▾</AccordionChevron>
+                </AccordionHeader>
+                <AccordionBody $open={openIndex === i}>
+                  <AccordionContent style={{ paddingLeft: '3rem' }}>
+                    {item.description}
+                  </AccordionContent>
+                </AccordionBody>
+              </AccordionItem>
+            );
+          })}
+        </AccordionList>
         
         {activeContent ? (
           <ContentPanel key={activeLetter}>

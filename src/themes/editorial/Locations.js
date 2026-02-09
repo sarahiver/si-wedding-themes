@@ -87,6 +87,18 @@ const LocationsGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: clamp(6rem, 12vw, 10rem);
+
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const LocationCard = styled.article`
@@ -111,6 +123,12 @@ const LocationCard = styled.article`
       > *:first-child { order: 1; }
       > *:last-child { order: 2; }
     }
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
   }
 `;
 

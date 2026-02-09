@@ -135,6 +135,18 @@ const TipsList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const TipItem = styled.div`
@@ -148,6 +160,12 @@ const TipItem = styled.div`
   span:first-child {
     font-size: 1.2rem;
     flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
   }
 `;
 

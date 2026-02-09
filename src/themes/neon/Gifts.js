@@ -197,6 +197,18 @@ const GiftsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const GiftCard = styled.div`
@@ -210,6 +222,12 @@ const GiftCard = styled.div`
     border-color: rgba(255,0,255,0.4);
     box-shadow: 0 0 30px rgba(255,0,255,0.2);
     transform: translateY(-5px);
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 80vw;
+    max-width: 80vw;
+    scroll-snap-align: center;
   }
 `;
 

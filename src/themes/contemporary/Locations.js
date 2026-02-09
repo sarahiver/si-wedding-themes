@@ -52,6 +52,18 @@ const Grid = styled.div`
   @media (max-width: 400px) {
     grid-template-columns: 1fr;
   }
+
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const colors = ['var(--coral)', 'var(--electric)', 'var(--yellow)', 'var(--purple)'];
@@ -68,6 +80,12 @@ const Card = styled.div`
   &:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-xl);
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
   }
 `;
 

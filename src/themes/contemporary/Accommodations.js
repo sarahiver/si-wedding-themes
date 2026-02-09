@@ -1,5 +1,5 @@
 // Contemporary Accommodations
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -49,6 +49,8 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
+
+  @media (max-width: 768px) { display: none; }
 `;
 
 const Card = styled.div`
@@ -157,6 +159,69 @@ const Button = styled.a`
 const getMapsUrl = (hotel) => hotel.maps_url || (hotel.address ? `https://maps.google.com/?q=${encodeURIComponent(hotel.address)}` : null);
 const getBookingUrl = (hotel) => hotel.booking_url || hotel.url || '';
 
+/* Mobile Accordion */
+const AccordionList = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const AccordionItem = styled.div`
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+`;
+
+const AccordionHeader = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 1rem;
+`;
+
+const AccordionHeaderText = styled.div`
+  flex: 1;
+`;
+
+const AccordionTitle = styled.span`
+  font-family: var(--font-primary, sans-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--black, #000);
+  display: block;
+`;
+
+const AccordionMeta = styled.span`
+  font-size: 0.75rem;
+  color: var(--gray-500, #888);
+  margin-top: 0.15rem;
+  display: block;
+`;
+
+const AccordionChevron = styled.span`
+  font-size: 1rem;
+  color: var(--electric, #4444FF);
+  transition: transform 0.3s ease;
+  transform: rotate(${p => p.$open ? '180deg' : '0deg'});
+`;
+
+const AccordionBody = styled.div`
+  max-height: ${p => p.$open ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+`;
+
+const AccordionContent = styled.div`
+  padding: 0 0 1.25rem;
+`;
+
+
 function Accommodations() {
   const { content } = useWedding();
   const data = content?.accommodations || {};
@@ -171,6 +236,9 @@ function Accommodations() {
   ];
 
   const items = hotels.length > 0 ? hotels : defaultHotels;
+
+  const [openIndex, setOpenIndex] = useState(null);
+  const toggle = (i) => setOpenIndex(prev => prev === i ? null : i);
 
   return (
     <Section id="accommodations">
@@ -215,6 +283,28 @@ function Accommodations() {
             </Card>
           ))}
         </Grid>
+
+        {/* Mobile Accordion */}
+        <AccordionList>
+          {items.map((hotel, i) => (
+            <AccordionItem key={i}>
+              <AccordionHeader onClick={() => toggle(i)}>
+                <AccordionHeaderText>
+                  <AccordionTitle>{hotel.name}</AccordionTitle>
+                  <AccordionMeta>{hotel.price_range ? `${hotel.price_range} · ` : ''}{hotel.distance || ''}</AccordionMeta>
+                </AccordionHeaderText>
+                <AccordionChevron $open={openIndex === i}>▾</AccordionChevron>
+              </AccordionHeader>
+              <AccordionBody $open={openIndex === i}>
+                <AccordionContent>
+                  {hotel.address && <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>📍 {hotel.address}</p>}
+                  {hotel.booking_code && <p style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>Code: <strong>{hotel.booking_code}</strong></p>}
+                  {(hotel.booking_url || hotel.url) && <a href={hotel.booking_url || hotel.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.8rem' }}>Buchen →</a>}
+                </AccordionContent>
+              </AccordionBody>
+            </AccordionItem>
+          ))}
+        </AccordionList>
       </Container>
     </Section>
   );

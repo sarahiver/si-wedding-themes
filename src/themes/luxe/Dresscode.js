@@ -18,8 +18,8 @@ const Swatch = styled.div`text-align: center;`;
 const Color = styled.div`width: 50px; height: 50px; background: ${p => p.$hex}; margin-bottom: 0.5rem;`;
 const ColorName = styled.span`font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--luxe-pearl);`;
 
-const Guidelines = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; text-align: left; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.4s; @media (max-width: 600px) { grid-template-columns: 1fr; }`;
-const GuideSection = styled.div``;
+const Guidelines = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; text-align: left; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.4s; @media (max-width: 600px) { grid-template-columns: 1fr; } @media (max-width: 768px) { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem; margin: 0 calc(-1 * var(--section-padding-x)); padding: 0 var(--section-padding-x); scrollbar-width: none; -ms-overflow-style: none; &::-webkit-scrollbar { display: none; } }`;
+const GuideSection = styled.div`@media (max-width: 768px) { flex: 0 0 85vw; max-width: 85vw; scroll-snap-align: center; }`;
 const GuideTitle = styled.h4`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: ${p => p.$type === 'do' ? 'var(--luxe-gold)' : 'var(--luxe-slate)'}; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--luxe-charcoal);`;
 const GuideList = styled.ul`list-style: none;`;
 const GuideItem = styled.li`font-family: var(--font-body); font-size: 0.85rem; color: var(--luxe-pearl); padding: 0.5rem 0 0.5rem 1.5rem; position: relative; &::before { content: '${p => p.$type === 'do' ? '✓' : '×'}'; position: absolute; left: 0; color: ${p => p.$type === 'do' ? 'var(--luxe-gold)' : 'var(--luxe-slate)'}; }`;

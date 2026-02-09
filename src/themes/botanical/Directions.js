@@ -102,6 +102,18 @@ const DirectionsGrid = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
+
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 `;
 
 const DirectionItem = styled.div`
@@ -114,6 +126,12 @@ const DirectionItem = styled.div`
   &:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
   }
 `;
 

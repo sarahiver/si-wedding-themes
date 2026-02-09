@@ -13,9 +13,27 @@ const Header = styled.div`text-align: center; padding: var(--section-padding-y) 
 const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
 const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 300; font-style: italic; color: var(--luxe-cream); opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.1s;`;
 
-const LocationsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); @media (max-width: 600px) { grid-template-columns: 1fr; }`;
+const LocationsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); @media (max-width: 600px) { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0.75rem;
+    margin: 0 calc(-1 * var(--section-padding-x, 24px));
+    padding: 0 var(--section-padding-x, 24px);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+`;
 
-const LocationCard = styled.div`position: relative; min-height: ${p => p.$hasImage ? '70vh' : 'auto'}; display: flex; flex-direction: column; @media (max-width: 600px) { min-height: ${p => p.$hasImage ? '60vh' : 'auto'}; }`;
+const LocationCard = styled.div`position: relative; min-height: ${p => p.$hasImage ? '70vh' : 'auto'}; display: flex; flex-direction: column; @media (max-width: 600px) { min-height: ${p => p.$hasImage ? '60vh' : 'auto'}; }
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
+  }
+`;
 
 const ImageSection = styled.div`flex: 1; position: relative; overflow: hidden;`;
 const Image = styled.div`position: absolute; inset: 0; background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-graphite) 100%)'}; background-size: cover; background-position: center; opacity: 0; transform: scale(1.1); animation: ${p => p.$visible ? css`${scaleReveal} 1.2s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => p.$delay || '0s'};`;

@@ -107,6 +107,8 @@ const Subtitle = styled.p`
 `;
 
 const ABCGrid = styled.div`
+  @media (max-width: 768px) { display: none; }
+
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 15px;
@@ -313,6 +315,21 @@ const Counter = styled.span`
   color: rgba(255, 255, 255, 0.5);
 `;
 
+
+/* Mobile Accordion */
+const AccordionList = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+const AccordionItem = styled.div`border-bottom: 1px solid rgba(0,255,255,0.15);`;
+const AccordionHeader = styled.button`width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 0; background: none; border: none; cursor: pointer; text-align: left; gap: 1rem;`;
+const AccordionChevron = styled.span`font-size: 1rem; color: #00ffff; transition: transform 0.3s ease; transform: rotate(${p => p.$open ? '180deg' : '0deg'});`;
+const AccordionBody = styled.div`max-height: ${p => p.$open ? '300px' : '0'}; overflow: hidden; transition: max-height 0.4s ease;`;
+const AccordionContent = styled.div`padding: 0 0 1.25rem 3rem; font-size: 0.85rem; line-height: 1.7; color: rgba(255,255,255,0.7);`;
+
 const WeddingABC = () => {
   const { content } = useWedding();
   const abcData = content?.weddingabc || {};
@@ -324,6 +341,8 @@ const WeddingABC = () => {
   }));
 
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState(null);
+  const toggle = (i) => setOpenIndex(prev => prev === i ? null : i);
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -402,6 +421,22 @@ const WeddingABC = () => {
             </LetterCard>
           ))}
         </ABCGrid>
+        {/* Mobile Accordion */}
+        <AccordionList>
+          {abcItems.map((item, i) => (
+            <AccordionItem key={i}>
+              <AccordionHeader onClick={() => toggle(i)}>
+                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#00ffff', minWidth: '2rem' }}>{item.letter}</span>
+                <span style={{ flex: 1, fontSize: '1rem', fontWeight: '600', color: '#fff' }}>{item.word}</span>
+                <AccordionChevron $open={openIndex === i}>▾</AccordionChevron>
+              </AccordionHeader>
+              <AccordionBody $open={openIndex === i}>
+                <AccordionContent>{item.description}</AccordionContent>
+              </AccordionBody>
+            </AccordionItem>
+          ))}
+        </AccordionList>
+
       </Container>
       
       <Modal isOpen={selectedIndex !== null} onClick={() => setSelectedIndex(null)}>
