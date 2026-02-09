@@ -44,7 +44,7 @@ async function getProjectEmail(projectId) {
     return null;
   }
 
-  const url = `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}&select=*`;
+  const url = `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}&select=client_email,admin_email,couple_names,slug,client_name`;
   console.log(`[notify] Fetching: ${url.replace(SUPABASE_SERVICE_KEY, '***')}`);
 
   const response = await fetch(url, {
@@ -63,8 +63,11 @@ async function getProjectEmail(projectId) {
   const data = await response.json();
   console.log(`[notify] Supabase returned ${data.length} rows`);
   if (data[0]) {
-    console.log(`[notify] Project keys: ${Object.keys(data[0]).join(', ')}`);
-    console.log(`[notify] customer_email: ${data[0].customer_email || 'EMPTY'}`);
+    console.log(`[notify] client_email: ${data[0].client_email || 'EMPTY'}, admin_email: ${data[0].admin_email || 'EMPTY'}`);
+  }
+  // Prefer admin_email (notification target), fallback to client_email
+  if (data[0]) {
+    data[0].notification_email = data[0].admin_email || data[0].client_email || null;
   }
   return data[0] || null;
 }
@@ -286,9 +289,9 @@ export default async function handler(req, res) {
 
     // 1. Get project data (customer_email)
     const project = await getProjectEmail(projectId);
-    console.log(`[notify] Project lookup:`, project ? `email=${project.customer_email}, name=${project.couple_names}` : 'NOT FOUND');
+    console.log(`[notify] Project lookup:`, project ? `email=${project.notification_email}, name=${project.couple_names}` : 'NOT FOUND');
     
-    if (!project || !project.customer_email) {
+    if (!project || !project.notification_email) {
       // No email configured — silently succeed (don't break guest actions)
       return res.status(200).json({ success: true, sent: false, reason: 'no_email' });
     }
@@ -309,9 +312,9 @@ export default async function handler(req, res) {
     });
 
     // 3. Send
-    console.log(`[notify] Sending to ${project.customer_email}: ${subject}`);
+    console.log(`[notify] Sending to ${project.notification_email}: ${subject}`);
     const sent = await sendEmail(
-      project.customer_email,
+      project.notification_email,
       projectName,
       `[${projectName}] ${subject}`,
       html
