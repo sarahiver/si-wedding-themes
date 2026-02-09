@@ -351,19 +351,13 @@ function Gifts() {
   const registryUrl = giftsData.registry_url || '';
   const items = giftsData.items || [];
 
-  const { reservations, reserveGiftItem } = useGifts();
+  const { reservations, reserveGiftItem, isItemReserved, loading: reservationsLoading } = useGifts();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
   const [reserverName, setReserverName] = useState('');
   const [reserverEmail, setReserverEmail] = useState('');
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
-
-  const isReserved = (itemId) => {
-    const item = items.find(i => i.id === itemId);
-    if (item?.reserved) return true;
-    return reservations.some(r => r.item_id === itemId);
-  };
 
   const handleReserveClick = (gift) => {
     setSelectedGift(gift);
@@ -444,7 +438,7 @@ function Gifts() {
 
             <GiftsGrid>
               {items.map(gift => {
-                const reserved = isReserved(gift.id);
+                const reserved = isItemReserved(gift.id);
 
                 return (
                   <GiftCard key={gift.id} $reserved={reserved}>

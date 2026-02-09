@@ -52,7 +52,14 @@ export function useGifts() {
     loadReservations();
   }, [loadReservations]);
 
-  const isItemReserved = (itemId) => reservations.some(r => r.item_id === itemId);
+  const isItemReserved = (itemId) => {
+    // Check DB reservations
+    if (reservations.some(r => r.item_id === itemId)) return true;
+    // Also check content-level reserved flag (set manually in admin editor)
+    const item = items.find(i => i.id === itemId);
+    if (item?.reserved) return true;
+    return false;
+  };
   const getReservation = (itemId) => reservations.find(r => r.item_id === itemId);
 
   const updateField = (field, value) => {
@@ -131,12 +138,15 @@ export function useGifts() {
     ...item,
     isReserved: isItemReserved(item.id),
     reservation: getReservation(item.id),
+    reservedBy: getReservation(item.id)?.reserved_by || item.reserved_by || '',
   }));
+
+  const reservedCount = itemsWithStatus.filter(i => i.isReserved).length;
 
   return {
     items: itemsWithStatus, reservations, loading, submitting, error, success, formData, selectedItem, isDemo,
     bankDetails, paypalLink, registryUrl,
-    stats: { total: items.length, reserved: reservations.length, available: items.length - reservations.length },
+    stats: { total: items.length, reserved: reservedCount, available: items.length - reservedCount },
     updateField, reserve, reserveGiftItem, isItemReserved, openReservationModal, closeReservationModal, loadReservations,
   };
 }

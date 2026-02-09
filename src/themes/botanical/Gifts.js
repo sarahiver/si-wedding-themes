@@ -412,7 +412,7 @@ function Gifts() {
   const registryUrl = giftsData.registry_url || '';
   const items = giftsData.items || [];
 
-  const { reservations, reserveGiftItem } = useGifts();
+  const { reservations, reserveGiftItem, isItemReserved, loading: reservationsLoading } = useGifts();
 
   const [visible, setVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -421,12 +421,6 @@ function Gifts() {
   const [reserverEmail, setReserverEmail] = useState('');
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
   const sectionRef = useRef(null);
-
-  const isReserved = (itemId) => {
-    const item = items.find(i => i.id === itemId);
-    if (item?.reserved) return true;
-    return reservations.some(r => r.item_id === itemId);
-  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -516,7 +510,7 @@ function Gifts() {
 
             <GiftsGrid $visible={visible}>
               {items.map(gift => {
-                const reserved = isReserved(gift.id);
+                const reserved = isItemReserved(gift.id);
 
                 return (
                   <GiftCard key={gift.id} $reserved={reserved}>
