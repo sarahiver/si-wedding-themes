@@ -39,20 +39,33 @@ function getCorsHeaders(origin) {
 // SUPABASE: Fetch project data to get customer_email
 // ============================================
 async function getProjectEmail(projectId) {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return null;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    console.log('[notify] Missing SUPABASE_URL or SUPABASE_SERVICE_KEY');
+    return null;
+  }
 
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}&select=customer_email,couple_names,slug,internal_name`,
-    {
-      headers: {
-        'apikey': SUPABASE_SERVICE_KEY,
-        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-      },
-    }
-  );
+  const url = `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}&select=*`;
+  console.log(`[notify] Fetching: ${url.replace(SUPABASE_SERVICE_KEY, '***')}`);
 
-  if (!response.ok) return null;
+  const response = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error(`[notify] Supabase error ${response.status}: ${errText}`);
+    return null;
+  }
+  
   const data = await response.json();
+  console.log(`[notify] Supabase returned ${data.length} rows`);
+  if (data[0]) {
+    console.log(`[notify] Project keys: ${Object.keys(data[0]).join(', ')}`);
+    console.log(`[notify] customer_email: ${data[0].customer_email || 'EMPTY'}`);
+  }
   return data[0] || null;
 }
 
@@ -252,7 +265,8 @@ export default async function handler(req, res) {
   try {
     const { projectId, type, ...body } = req.body;
 
-    console.log(`[notify] Received: type=${type}, projectId=${projectId}`);
+    console.log(`[notify] Received: type=${type}, projectId=${projectId}, bodyKeys=${Object.keys(body).join(',')}`);
+    console.log(`[notify] ENV check: SUPABASE_URL=${SUPABASE_URL ? 'SET' : 'MISSING'}, SERVICE_KEY=${SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING'}, BREVO=${BREVO_API_KEY ? 'SET' : 'MISSING'}`);
 
     if (!projectId || !type) {
       console.log('[notify] Missing projectId or type');
