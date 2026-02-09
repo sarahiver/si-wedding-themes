@@ -346,7 +346,7 @@ export async function deletePhotoUpload(photoId) {
 // GIFT RESERVATIONS
 // ============================================
 
-export async function reserveGift(projectId, itemId, reservedBy, reserverEmail = null) {
+export async function reserveGift(projectId, itemId, reservedBy, reserverEmail = null, giftName = null) {
   const { data, error } = await supabase
     .from('gift_reservations')
     .insert({
@@ -358,11 +358,11 @@ export async function reserveGift(projectId, itemId, reservedBy, reserverEmail =
     .select()
     .single();
 
-  // Fire-and-forget notification (giftName wird vom Frontend mitgegeben wenn möglich)
+  // Fire-and-forget notification
   if (data && !error) {
     notifyGiftReserved(projectId, {
       name: reservedBy,
-      giftName: data.item_id, // item_id als Fallback, Frontend kann giftName übergeben
+      giftName: giftName || itemId,
     });
   }
   

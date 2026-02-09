@@ -103,7 +103,9 @@ export function useGifts() {
         return { success: true, data: { demo: true } };
       }
 
-      const { data, error: submitError } = await reserveGift(projectId, itemId, name.trim(), email);
+      const giftItem = items.find(i => i.id === itemId);
+      const giftName = giftItem?.name || giftItem?.title || itemId;
+      const { data, error: submitError } = await reserveGift(projectId, itemId, name.trim(), email, giftName);
       if (submitError) throw submitError;
 
       setSuccess(true);
