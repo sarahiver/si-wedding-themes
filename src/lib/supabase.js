@@ -1,5 +1,6 @@
 // src/lib/supabase.js
 import { createClient } from '@supabase/supabase-js';
+import { notifyRSVP, notifyGuestbook, notifyMusicWish, notifyGiftReserved, notifyPhotoUpload } from './notifications';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -115,6 +116,17 @@ export async function submitRSVP(projectId, rsvpData) {
     .select()
     .single();
 
+  // Fire-and-forget notification
+  if (data && !error) {
+    notifyRSVP(projectId, {
+      name: rsvpData.name,
+      attending: rsvpData.attending,
+      persons: rsvpData.persons || 1,
+      dietary: rsvpData.dietary,
+      message: rsvpData.message,
+    });
+  }
+
   return { data, error };
 }
 
@@ -173,6 +185,14 @@ export async function submitGuestbookEntry(projectId, entryData) {
     })
     .select()
     .single();
+
+  // Fire-and-forget notification
+  if (data && !error) {
+    notifyGuestbook(projectId, {
+      name: entryData.name,
+      message: entryData.message,
+    });
+  }
   
   return { data, error };
 }
@@ -227,6 +247,15 @@ export async function submitMusicWish(projectId, wishData) {
     })
     .select()
     .single();
+
+  // Fire-and-forget notification
+  if (data && !error) {
+    notifyMusicWish(projectId, {
+      name: wishData.name,
+      artist: wishData.artist,
+      songTitle: wishData.song_title || wishData.songTitle,
+    });
+  }
   
   return { data, error };
 }
@@ -267,6 +296,13 @@ export async function submitPhotoUpload(projectId, photoData) {
     })
     .select()
     .single();
+
+  // Fire-and-forget notification
+  if (data && !error) {
+    notifyPhotoUpload(projectId, {
+      name: photoData.uploadedBy || 'Gast',
+    });
+  }
   
   return { data, error };
 }
@@ -321,6 +357,14 @@ export async function reserveGift(projectId, itemId, reservedBy, reserverEmail =
     })
     .select()
     .single();
+
+  // Fire-and-forget notification (giftName wird vom Frontend mitgegeben wenn möglich)
+  if (data && !error) {
+    notifyGiftReserved(projectId, {
+      name: reservedBy,
+      giftName: data.item_id, // item_id als Fallback, Frontend kann giftName übergeben
+    });
+  }
   
   return { data, error };
 }
