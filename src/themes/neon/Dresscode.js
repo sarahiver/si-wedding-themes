@@ -101,14 +101,10 @@ const CardsGrid = styled.div`
   gap: 40px;
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-
-  @media (max-width: 768px) {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    gap: 0.75rem;
+    gap: 1rem;
     margin: 0 calc(-1 * var(--section-padding-x, 24px));
     padding: 0 var(--section-padding-x, 24px);
     scrollbar-width: none;
@@ -127,6 +123,13 @@ const DressCard = styled.div`
   animation-delay: ${p => p.$delay || '0s'};
   opacity: 0;
   transition: all 0.4s ease;
+
+  @media (max-width: 768px) {
+    flex: 0 0 85vw;
+    max-width: 85vw;
+    scroll-snap-align: center;
+    padding: 30px 25px;
+  }
   
   &::before {
     content: '';

@@ -5,6 +5,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
 
 const Section = styled.section`
+  overflow: hidden;
   padding: clamp(4rem, 10vh, 8rem) 2rem;
   background: var(--white);
   position: relative;

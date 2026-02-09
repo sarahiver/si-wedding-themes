@@ -117,6 +117,8 @@ const GlassCard = styled.div`
   padding: clamp(1.5rem, 3vw, 2rem);
   position: relative;
   overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
   
   /* Top highlight */
   &::after {

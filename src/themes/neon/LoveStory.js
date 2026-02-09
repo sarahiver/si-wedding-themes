@@ -71,6 +71,11 @@ const HorizontalTrack = styled.div`
   padding: 0 5%;
   transform: translateX(${p => p.$offset}px);
   transition: transform 0.1s linear;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+    padding: 0 7.5%;
+  }
 `;
 
 const Card = styled.div`
@@ -83,6 +88,12 @@ const Card = styled.div`
   position: relative;
   display: flex;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 85vw;
+    height: 65vh;
+    flex-direction: column;
+  }
   
   &::before {
     content: '';
@@ -337,9 +348,10 @@ function LoveStory() {
   }, [chapters.length]);
 
   // Calculate horizontal offset based on scroll progress
-  const cardWidth = 900 + 40; // card width + gap
+  const isMobile = viewportWidth <= 768;
+  const cardWidth = isMobile ? (viewportWidth * 0.85 + 20) : (900 + 40); // card width + gap
   const totalWidth = cardWidth * chapters.length;
-  const maxOffset = totalWidth - viewportWidth + 100;
+  const maxOffset = totalWidth - viewportWidth + (isMobile ? 40 : 100);
   const offset = -scrollProgress * maxOffset;
 
   return (

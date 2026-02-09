@@ -6,7 +6,7 @@ import { useWedding } from '../../context/WeddingContext';
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); }`;
 
-const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-anthracite);`;
+const Section = styled.section`overflow: hidden; padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-anthracite);`;
 const Container = styled.div`max-width: var(--container-max); margin: 0 auto;`;
 
 const Header = styled.div`text-align: center; margin-bottom: 4rem;`;

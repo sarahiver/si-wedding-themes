@@ -6,6 +6,7 @@ import { useGifts } from '../../components/shared/GiftsCore';
 import FeedbackModal from '../../components/shared/FeedbackModal';
 
 const Section = styled.section`
+  overflow: hidden;
   padding: clamp(4rem, 10vh, 8rem) 2rem;
   background: var(--pink);
 `;

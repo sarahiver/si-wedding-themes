@@ -4,7 +4,7 @@ import { useWedding } from '../../context/WeddingContext';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
-const Section = styled.section`padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-charcoal);`;
+const Section = styled.section`overflow: hidden; padding: var(--section-padding-y) var(--section-padding-x); background: var(--luxe-charcoal);`;
 const Container = styled.div`max-width: var(--container-narrow); margin: 0 auto;`;
 const Header = styled.div`text-align: center; margin-bottom: 3rem;`;
 const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;

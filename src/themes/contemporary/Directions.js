@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
 const Section = styled.section`
+  overflow: hidden;
   padding: clamp(4rem, 10vh, 8rem) 2rem;
   background: var(--gray-100);
 `;

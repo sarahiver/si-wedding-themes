@@ -39,6 +39,7 @@ const GlobalStyles = createGlobalStyle`
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     /* scroll-snap-type removed - causes conflicts with horizontal scroll components */
   }

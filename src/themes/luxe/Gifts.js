@@ -10,6 +10,7 @@ const Section = styled.section`
   padding: var(--section-padding-y) var(--section-padding-x);
   background: var(--luxe-cream);
   color: var(--luxe-anthracite);
+  overflow: hidden;
 `;
 
 const Container = styled.div`

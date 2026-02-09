@@ -15,6 +15,7 @@ const glowPulse = keyframes`
 `;
 
 const Section = styled.section`
+  overflow: hidden;
   position: relative;
   background: #0a0a0f;
 `;

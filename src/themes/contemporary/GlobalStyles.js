@@ -85,6 +85,7 @@ const ContemporaryGlobalStyles = createGlobalStyle`
   
   html { scroll-behavior: smooth; }
   
+    overflow-x: hidden;
   body {
     font-family: var(--font-main);
     background: var(--white);

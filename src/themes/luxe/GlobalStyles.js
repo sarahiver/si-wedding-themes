@@ -101,6 +101,7 @@ const LuxeGlobalStyles = createGlobalStyle`
   html {
     scroll-behavior: smooth;
     font-size: 16px;
+    overflow-x: hidden;
     
     @media (max-width: 768px) {
       font-size: 15px;

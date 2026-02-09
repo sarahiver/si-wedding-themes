@@ -7,7 +7,7 @@ import { downloadLocationsPDF } from '../../lib/locationsPdf';
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); }`;
 
-const Section = styled.section`background: var(--luxe-void);`;
+const Section = styled.section`overflow: hidden; background: var(--luxe-void);`;
 
 const Header = styled.div`text-align: center; padding: var(--section-padding-y) var(--section-padding-x) 3rem; display: flex; flex-direction: column; align-items: center;`;
 const Eyebrow = styled.p`font-family: var(--font-body); font-size: 0.65rem; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; color: var(--luxe-gold); margin-bottom: 1rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'};`;
