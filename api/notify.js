@@ -252,7 +252,10 @@ export default async function handler(req, res) {
   try {
     const { projectId, type, ...body } = req.body;
 
+    console.log(`[notify] Received: type=${type}, projectId=${projectId}`);
+
     if (!projectId || !type) {
+      console.log('[notify] Missing projectId or type');
       return res.status(400).json({ error: 'projectId and type required' });
     }
 
@@ -269,6 +272,8 @@ export default async function handler(req, res) {
 
     // 1. Get project data (customer_email)
     const project = await getProjectEmail(projectId);
+    console.log(`[notify] Project lookup:`, project ? `email=${project.customer_email}, name=${project.couple_names}` : 'NOT FOUND');
+    
     if (!project || !project.customer_email) {
       // No email configured — silently succeed (don't break guest actions)
       return res.status(200).json({ success: true, sent: false, reason: 'no_email' });
@@ -290,12 +295,14 @@ export default async function handler(req, res) {
     });
 
     // 3. Send
+    console.log(`[notify] Sending to ${project.customer_email}: ${subject}`);
     const sent = await sendEmail(
       project.customer_email,
       projectName,
       `[${projectName}] ${subject}`,
       html
     );
+    console.log(`[notify] Send result: ${sent}`);
 
     return res.status(200).json({ success: true, sent });
 
