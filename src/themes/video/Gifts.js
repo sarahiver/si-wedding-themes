@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useGifts } from '../../components/shared/GiftsCore';
@@ -401,22 +401,12 @@ function Gifts() {
 
   const { reservations, reserveGiftItem, isItemReserved, loading: reservationsLoading } = useGifts();
 
-  const [visible, setVisible] = useState(false);
+  const [visible] = useState(true); // SectionWrapper handles fade-in
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
   const [reserverName, setReserverName] = useState('');
   const [reserverEmail, setReserverEmail] = useState('');
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.3 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const handleReserveClick = (gift) => {
     setSelectedGift(gift);
@@ -450,7 +440,7 @@ function Gifts() {
 
   return (
     <SectionWrapper id="gifts">
-      <Content ref={sectionRef}>
+      <Content>
         <Header>
           <Eyebrow $visible={visible}>Aufmerksamkeit</Eyebrow>
           <Title $visible={visible}>{title}</Title>
