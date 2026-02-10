@@ -1,6 +1,6 @@
 // src/lib/supabase.js
 import { createClient } from '@supabase/supabase-js';
-import { notifyRSVP, notifyGuestbook, notifyMusicWish, notifyGiftReserved, notifyPhotoUpload } from './notifications';
+import { notifyRSVP, notifyGuestbook, notifyMusicWish, notifyGiftReserved } from './notifications';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -297,13 +297,6 @@ export async function submitPhotoUpload(projectId, photoData) {
     .select()
     .single();
 
-  // Fire-and-forget notification
-  if (data && !error) {
-    notifyPhotoUpload(projectId, {
-      name: photoData.uploadedBy || 'Gast',
-    });
-  }
-  
   return { data, error };
 }
 

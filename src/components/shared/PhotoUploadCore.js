@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { uploadToCloudinary, uploadMultipleToCloudinary } from '../../lib/cloudinary';
 import { submitPhotoUpload, getPhotoUploads } from '../../lib/supabase';
+import { notifyPhotoUpload } from '../../lib/notifications';
 
 export function usePhotoUpload(options = {}) {
   const { maxFiles = 10, maxSizeMB = 10 } = options;
@@ -107,6 +108,7 @@ export function usePhotoUpload(options = {}) {
         }
       });
       
+      let uploadedCount = 0;
       for (const result of results) {
         if (result.url && !result.error) {
           await submitPhotoUpload(projectId, {
@@ -114,9 +116,15 @@ export function usePhotoUpload(options = {}) {
             cloudinaryPublicId: result.publicId,
             uploadedBy: 'Guest',
           });
+          uploadedCount++;
         }
       }
-      
+
+      // Single notification for the entire upload batch
+      if (uploadedCount > 0) {
+        notifyPhotoUpload(projectId, { name: 'Gast' });
+      }
+
       setSuccess(true);
       setProgress(100);
       await loadPhotos();
