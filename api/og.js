@@ -143,7 +143,7 @@ export default async function handler(req, res) {
   const overlayUrl = buildOgImageUrl(coupleNames, dateFormatted, heroImage);
   const ogImage = overlayUrl || FALLBACK_OG_IMAGES[theme] || DEFAULT_FALLBACK;
 
-  const canonicalUrl = `https://${esc(slug)}.siwedding.de`;
+  const canonicalUrl = `https://www.siwedding.de/${esc(slug)}`;
 
   const html = `<!DOCTYPE html>
 <html lang="de">
