@@ -254,7 +254,10 @@ export default async function handler(req, res) {
   const corsHeaders = getCorsHeaders(origin);
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).set(corsHeaders).end();
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+    return res.status(200).end();
   }
 
   Object.entries(corsHeaders).forEach(([key, value]) => {
