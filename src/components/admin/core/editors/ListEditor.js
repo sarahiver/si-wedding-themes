@@ -11,13 +11,14 @@ import React from 'react';
  * @param {Function} props.createNewItem - Factory function for new items
  * @param {string} props.addLabel - Label for add button
  */
-function ListEditor({ 
-  components: C, 
-  items = [], 
-  onItemsChange, 
-  renderItem, 
-  createNewItem, 
-  addLabel = '+ Hinzufügen' 
+function ListEditor({
+  components: C,
+  items = [],
+  onItemsChange,
+  renderItem,
+  createNewItem,
+  addLabel = '+ Hinzufügen',
+  maxItems
 }) {
   // Support multiple update modes:
   // 1. onChange('field', value) - single field update for objects
@@ -74,9 +75,11 @@ function ListEditor({
           {renderItem(item, index, (field, value) => updateItem(index, field, value))}
         </C.ItemCard>
       ))}
-      <C.SmallButton onClick={addItem} style={{ marginBottom: '1.5rem' }}>
-        {addLabel}
-      </C.SmallButton>
+      {(!maxItems || items.length < maxItems) && (
+        <C.SmallButton onClick={addItem} style={{ marginBottom: '1.5rem' }}>
+          {addLabel}
+        </C.SmallButton>
+      )}
     </>
   );
 }

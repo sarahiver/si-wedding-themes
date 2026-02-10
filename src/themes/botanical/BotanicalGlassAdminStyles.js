@@ -722,11 +722,11 @@ export const EntryActions = styled.div`
 `;
 
 export const ItemCard = styled.div`
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-glass-border);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 14px;
   padding: 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 export const ItemHeader = styled.div`
@@ -734,11 +734,14 @@ export const ItemHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--admin-glass-border);
 `;
 
 export const ItemNumber = styled.span`
   font-family: var(--admin-font-display);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--admin-accent);
 `;
 
