@@ -300,9 +300,6 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
     const componentVariants = variants[componentId]
     if (componentVariants && componentVariants[variantConfig.variant]) {
       Component = componentVariants[variantConfig.variant]
-      console.log(`🎨 Using variant "${variantConfig.variant}" for ${componentId}`)
-    } else {
-      console.log(`⚠️ Variant "${variantConfig.variant}" for ${componentId} not found, using default`)
     }
   }
 

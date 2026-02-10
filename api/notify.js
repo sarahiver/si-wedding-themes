@@ -17,13 +17,13 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3001',
 ];
 
-// Also allow any *.vercel.app and custom domains
+// Also allow *.vercel.app (preview deployments) and *.siwedding.de (customer subdomains)
 function isAllowedOrigin(origin) {
   if (!origin) return false;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
   if (origin.endsWith('.vercel.app')) return true;
-  // Allow any origin for now since wedding sites have custom domains
-  return true;
+  if (origin.endsWith('.siwedding.de')) return true;
+  return false;
 }
 
 function getCorsHeaders(origin) {

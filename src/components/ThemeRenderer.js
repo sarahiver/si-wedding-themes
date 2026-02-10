@@ -328,11 +328,8 @@ const getComponentWithVariant = (themeComponents, componentName, componentConfig
   if (variantId && variantId !== 'default') {
     const componentVariants = variants[componentName.toLowerCase()]
     if (componentVariants && componentVariants[variantId]) {
-      console.log(`🎨 Using variant "${variantId}" for ${componentName}`)
       return componentVariants[variantId]
     }
-    // Variante konfiguriert aber nicht implementiert - Log für Development
-    console.log(`⚠️ Variant "${variantId}" for ${componentName} not found, using default`)
   }
 
   // 2. Fallback auf Theme-Standard
@@ -635,7 +632,6 @@ const getComponentRenderer = (
 // MAIN THEME RENDERER
 // ============================================
 function ThemeRenderer({ pageType = "main" }) {
-  console.log("🚀 ThemeRenderer LOADED") // <-- ganz oben
   const { project, content, isComponentActive } = useWedding()
 
   // Get theme name, fallback to editorial
@@ -703,11 +699,6 @@ function ThemeRenderer({ pageType = "main" }) {
 
   // NEU: Hole component_config für individuelle Design-Varianten
   const componentConfig = project?.component_config || {}
-
-  // DEBUG - entferne nach Test
-  console.log("🔍 component_order from DB:", project?.component_order)
-  console.log("🔍 using componentOrder:", componentOrder)
-  console.log("🎨 component_config:", componentConfig)
 
   return (
     <>
