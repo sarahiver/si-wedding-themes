@@ -40,15 +40,11 @@ function GuestListSection({ components: C }) {
   const { guestList = [], rsvpData = [], projectId, project, loadData, showFeedback, searchTerm, setSearchTerm, hasArchive, checkActive } = useAdmin();
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [sendingPostWedding, setSendingPostWedding] = useState(false);
+  const [sendingThank, setSendingThank] = useState(false);
+  const [sendingPhoto, setSendingPhoto] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [sendProgress, setSendProgress] = useState({ sent: 0, total: 0 });
-  const [showPostWeddingPanel, setShowPostWeddingPanel] = useState(false);
-
-  // Default post-wedding thank-you text (editable by the couple)
-  const DEFAULT_THANKYOU_TEXT = 'wir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.\n\nDanke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: pures Glück.\n\nWir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛';
-  const [thankYouText, setThankYouText] = useState(DEFAULT_THANKYOU_TEXT);
 
   // RSVP-Abgleich: welche E-Mails haben bereits geantwortet?
   const rsvpEmails = useMemo(() => {
@@ -95,18 +91,18 @@ function GuestListSection({ components: C }) {
   // Pending guests (for reminder)
   const pendingGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'pending'), [enrichedGuests]);
 
-  // Confirmed guests (for post-wedding email)
+  // Confirmed guests (for post-wedding thank you & photo reminder)
   const confirmedGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'confirmed'), [enrichedGuests]);
 
-  // Has photo upload feature active?
+  // Has photo upload feature?
   const hasPhotoUpload = checkActive?.('photoupload');
 
-  // Send combined post-wedding email (thank you + photo reminder)
-  const handleSendPostWedding = useCallback(async () => {
+  // Send "Thank You" email to all confirmed guests
+  const handleSendThankYou = useCallback(async () => {
     if (confirmedGuests.length === 0) return;
-    if (!window.confirm(`💌 Nachricht an ${confirmedGuests.length} Gäste senden, die zugesagt haben?`)) return;
+    if (!window.confirm(`💌 Danke-Mail an ${confirmedGuests.length} Gäste senden, die zugesagt haben?`)) return;
 
-    setSendingPostWedding(true);
+    setSendingThank(true);
     try {
       const response = await fetch('/api/reminder', {
         method: 'POST',
@@ -114,14 +110,12 @@ function GuestListSection({ components: C }) {
         body: JSON.stringify({
           projectId,
           guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
-          type: 'post_wedding',
-          customText: thankYouText,
-          includePhotoReminder: !!hasPhotoUpload,
+          type: 'thank_you',
         }),
       });
       const result = await response.json();
       if (result.success) {
-        showFeedback('success', `💌 ${result.sent} Nachrichten versendet!`);
+        showFeedback('success', `💌 ${result.sent} Danke-Mails versendet!`);
         await loadData();
       } else {
         showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
@@ -129,8 +123,37 @@ function GuestListSection({ components: C }) {
     } catch (err) {
       showFeedback('error', 'Netzwerkfehler: ' + err.message);
     }
-    setSendingPostWedding(false);
-  }, [projectId, confirmedGuests, thankYouText, hasPhotoUpload, showFeedback, loadData]);
+    setSendingThank(false);
+  }, [projectId, confirmedGuests, showFeedback, loadData]);
+
+  // Send "Photo Reminder" email to all confirmed guests
+  const handleSendPhotoReminder = useCallback(async () => {
+    if (confirmedGuests.length === 0) return;
+    if (!window.confirm(`📸 Foto-Erinnerung an ${confirmedGuests.length} Gäste senden?`)) return;
+
+    setSendingPhoto(true);
+    try {
+      const response = await fetch('/api/reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId,
+          guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+          type: 'photo_reminder',
+        }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showFeedback('success', `📸 ${result.sent} Foto-Erinnerungen versendet!`);
+        await loadData();
+      } else {
+        showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+      }
+    } catch (err) {
+      showFeedback('error', 'Netzwerkfehler: ' + err.message);
+    }
+    setSendingPhoto(false);
+  }, [projectId, confirmedGuests, showFeedback, loadData]);
 
   // CSV Upload Handler
   const handleFileUpload = useCallback(async (e) => {
@@ -278,175 +301,34 @@ function GuestListSection({ components: C }) {
         </div>
       </C.ActionBar>
 
-      {/* Post-Wedding Email (only if Archive feature is available + confirmed guests exist) */}
-      {hasArchive && stats.confirmed > 0 && (
-        <C.Card style={{ marginBottom: '1rem', padding: '1.25rem', background: 'linear-gradient(135deg, rgba(201,169,98,0.08), rgba(201,169,98,0.02))', border: '1px solid rgba(201,169,98,0.15)' }}>
-          <div
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
-            onClick={() => setShowPostWeddingPanel(!showPostWeddingPanel)}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>💌</span>
-              <div>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit – Danke sagen</h3>
-                <p style={{ fontSize: '0.75rem', opacity: 0.5, margin: '0.15rem 0 0 0' }}>
-                  Persönliche Nachricht an alle {stats.confirmed} Gäste, die zugesagt haben
-                </p>
-              </div>
-            </div>
-            <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: showPostWeddingPanel ? 'rotate(180deg)' : 'none' }}>▾</span>
+      {/* Post-Wedding Emails */}
+      {stats.confirmed > 0 && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', background: 'linear-gradient(135deg, rgba(201,169,98,0.08), rgba(201,169,98,0.02))' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>💌</span>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit</h3>
           </div>
-
-          {showPostWeddingPanel && (
-            <div style={{ marginTop: '1rem' }}>
-              <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '0.75rem' }}>
-                Schreibt euren Gästen eine persönliche Danke-Nachricht. Der Text wird im Design eurer Website verschickt.
-                {hasPhotoUpload && ' Am Ende der Mail wird automatisch an den Foto-Upload auf eurer Website erinnert.'}
-              </p>
-
-              {/* Greeting preview */}
-              <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '0.25rem', fontStyle: 'italic' }}>
-                „Liebe/r [Gastname],"
-              </div>
-
-              {/* Editable text area */}
-              <textarea
-                value={thankYouText}
-                onChange={(e) => setThankYouText(e.target.value)}
-                style={{
-                  width: '100%',
-                  minHeight: '180px',
-                  padding: '0.85rem',
-                  fontSize: '0.85rem',
-                  lineHeight: 1.7,
-                  border: '1px solid rgba(128,128,128,0.2)',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.05)',
-                  color: 'inherit',
-                  fontFamily: 'inherit',
-                  resize: 'vertical',
-                  marginBottom: '0.5rem',
-                }}
-              />
-
-              {/* Signature preview */}
-              <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '0.75rem', fontStyle: 'italic' }}>
-                „In Liebe, [Eure Namen]"
-              </div>
-
-              {/* Photo reminder preview */}
-              {hasPhotoUpload && (
-                <div style={{ padding: '0.75rem', background: 'rgba(59,130,246,0.06)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.12)', marginBottom: '1rem' }}>
-                  <p style={{ fontSize: '0.78rem', opacity: 0.5, margin: 0, lineHeight: 1.5 }}>
-                    📸 <em>Am Ende der Mail erscheint automatisch:</em> „Habt ihr noch Fotos von unserem Tag? Wir würden sie so gerne sehen! Ladet sie einfach auf unserer Website hoch – jedes Bild ist für uns ein kleiner Schatz."
-                  </p>
-                </div>
-              )}
-
-              {/* Reset + Send */}
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <C.ActionButton
-                  onClick={handleSendPostWedding}
-                  disabled={sendingPostWedding || !thankYouText.trim()}
-                  $primary
-                >
-                  {sendingPostWedding ? '⏳ Wird gesendet...' : `💌 An ${stats.confirmed} Gäste senden`}
-                </C.ActionButton>
-                {thankYouText !== DEFAULT_THANKYOU_TEXT && (
-                  <button
-                    onClick={() => setThankYouText(DEFAULT_THANKYOU_TEXT)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78rem', opacity: 0.4, textDecoration: 'underline' }}
-                  >
-                    Auf Vorlage zurücksetzen
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </C.Card>
-      )}
-
-      {/* Post-Wedding Email (only if Archive feature is available + confirmed guests) */}
-      {hasArchive && stats.confirmed > 0 && (
-        <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', border: '1px solid rgba(201,169,98,0.25)', background: 'linear-gradient(135deg, rgba(201,169,98,0.06), rgba(201,169,98,0.01))' }}>
-          <div
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
-            onClick={() => setShowPostWeddingEditor(!showPostWeddingEditor)}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>💌</span>
-              <div>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit – Danke sagen</h3>
-                <p style={{ fontSize: '0.78rem', opacity: 0.5, margin: '2px 0 0 0' }}>
-                  Persönliche Danke-Mail an {stats.confirmed} Gäste{hasPhotoUpload ? ' (inkl. Foto-Erinnerung)' : ''}
-                </p>
-              </div>
-            </div>
-            <span style={{ fontSize: '1.2rem', opacity: 0.4, transition: 'transform 0.2s', transform: showPostWeddingEditor ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+          <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '1rem' }}>
+            Verschickt persönliche Nachrichten an alle Gäste, die zugesagt haben ({stats.confirmed} Gäste). Perfekt für die Tage und Wochen nach eurer Feier.
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <C.ActionButton
+              onClick={handleSendThankYou}
+              disabled={sendingThank}
+              style={{ background: 'rgba(201,169,98,0.15)', border: '1px solid rgba(201,169,98,0.3)' }}
+            >
+              {sendingThank ? '⏳ Wird gesendet...' : `💛 Danke sagen (${stats.confirmed})`}
+            </C.ActionButton>
+            {hasArchive && hasPhotoUpload && (
+              <C.ActionButton
+                onClick={handleSendPhotoReminder}
+                disabled={sendingPhoto}
+                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}
+              >
+                {sendingPhoto ? '⏳ Wird gesendet...' : `📸 Foto-Erinnerung (${stats.confirmed})`}
+              </C.ActionButton>
+            )}
           </div>
-
-          {showPostWeddingEditor && (
-            <div style={{ marginTop: '1rem' }}>
-              <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '0.75rem' }}>
-                Euer persönlicher Text wird an alle Gäste verschickt, die zugesagt haben. Passt ihn nach Herzenslust an – er sollte sich nach euch anfühlen.
-                {hasPhotoUpload && ' Am Ende der Mail werden eure Gäste automatisch daran erinnert, ihre Fotos hochzuladen.'}
-              </p>
-
-              <textarea
-                value={thankYouText}
-                onChange={e => setThankYouText(e.target.value)}
-                rows={8}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  fontSize: '0.88rem',
-                  lineHeight: 1.7,
-                  border: '1px solid rgba(128,128,128,0.2)',
-                  borderRadius: '8px',
-                  background: 'rgba(128,128,128,0.05)',
-                  color: 'inherit',
-                  fontFamily: 'inherit',
-                  resize: 'vertical',
-                  boxSizing: 'border-box',
-                }}
-                placeholder="Euer Dankestext..."
-              />
-
-              {thankYouText !== DEFAULT_THANKYOU_TEXT && (
-                <button
-                  onClick={() => setThankYouText(DEFAULT_THANKYOU_TEXT)}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: '0.75rem', opacity: 0.4, padding: '4px 0', marginTop: '4px',
-                    color: 'inherit', textDecoration: 'underline',
-                  }}
-                >
-                  ↩ Originaltext wiederherstellen
-                </button>
-              )}
-
-              {hasPhotoUpload && (
-                <div style={{
-                  marginTop: '0.75rem', padding: '0.75rem 1rem',
-                  background: 'rgba(59,130,246,0.06)', borderRadius: '8px',
-                  fontSize: '0.78rem', opacity: 0.6, lineHeight: 1.6,
-                  borderLeft: '3px solid rgba(59,130,246,0.3)',
-                }}>
-                  📸 <strong>Foto-Erinnerung wird automatisch angefügt:</strong> „Habt ihr noch Fotos von unserem Tag? Ladet sie einfach auf unserer Website hoch – jedes Bild ist uns ein kleiner Schatz."
-                </div>
-              )}
-
-              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <C.ActionButton
-                  $primary
-                  onClick={handleSendPostWedding}
-                  disabled={sendingPostWedding || !thankYouText.trim()}
-                >
-                  {sendingPostWedding ? '⏳ Wird gesendet...' : `💌 Danke-Mail senden (${stats.confirmed} Gäste)`}
-                </C.ActionButton>
-              </div>
-            </div>
-          )}
         </C.Card>
       )}
 
