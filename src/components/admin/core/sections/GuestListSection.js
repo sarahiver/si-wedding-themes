@@ -37,7 +37,7 @@ function parseCSV(text) {
 }
 
 function GuestListSection({ components: C }) {
-  const { guestList, rsvpData, projectId, loadData, showFeedback, searchTerm, setSearchTerm } = useAdmin();
+  const { guestList = [], rsvpData = [], projectId, loadData, showFeedback, searchTerm, setSearchTerm } = useAdmin();
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
