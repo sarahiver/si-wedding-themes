@@ -343,8 +343,8 @@ export function AdminProvider({ children }) {
     totalMusic: musicWishes.length,
     totalPhotos: photoUploads.length,
     giftsReserved: giftReservations.length,
-    guestListTotal: guestList.length,
-    guestListPending: guestList.filter(g => !rsvpData.find(r => r.email?.toLowerCase() === g.email?.toLowerCase())).length,
+    guestListTotal: (guestList || []).length,
+    guestListPending: (guestList || []).filter(g => !(rsvpData || []).find(r => r.email?.toLowerCase() === g.email?.toLowerCase())).length,
   };
 
   // NAV ITEMS
