@@ -237,18 +237,18 @@ function GuestListSection({ components: C }) {
 
       {/* Confirm Clear */}
       {showConfirmClear && (
-        <C.Card style={{ marginBottom: '1rem', padding: '1rem', border: '2px solid #ef4444' }}>
+        <C.Panel style={{ marginBottom: '1rem', padding: '1rem', border: '2px solid #ef4444' }}>
           <p style={{ marginBottom: '0.75rem' }}>⚠️ Alle {stats.total} Gäste aus der Liste entfernen? RSVP-Antworten bleiben erhalten.</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <C.ActionButton $danger onClick={handleClearAll}>Ja, alle löschen</C.ActionButton>
             <C.ActionButton onClick={() => setShowConfirmClear(false)}>Abbrechen</C.ActionButton>
           </div>
-        </C.Card>
+        </C.Panel>
       )}
 
       {/* Upload Section */}
       {showUpload && (
-        <C.Card style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
+        <C.Panel style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
             Lade eine CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
@@ -272,12 +272,12 @@ function GuestListSection({ components: C }) {
             style={{ fontSize: '0.9rem' }}
           />
           {uploading && <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>⏳ Importiere...</p>}
-        </C.Card>
+        </C.Panel>
       )}
 
       {/* Empty State with visual guide */}
       {stats.total === 0 && !showUpload && (
-        <C.Card style={{ padding: '2rem' }}>
+        <C.Panel style={{ padding: '2rem' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📋</div>
@@ -341,12 +341,12 @@ function GuestListSection({ components: C }) {
               📤 CSV importieren
             </C.ActionButton>
           </div>
-        </C.Card>
+        </C.Panel>
       )}
 
       {/* Guest Table */}
       {stats.total > 0 && (
-        <C.Card style={{ overflow: 'auto' }}>
+        <C.Panel style={{ overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid rgba(128,128,128,0.2)' }}>
@@ -388,7 +388,7 @@ function GuestListSection({ components: C }) {
           {filteredGuests.length === 0 && searchTerm && (
             <p style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>Keine Ergebnisse für "{searchTerm}"</p>
           )}
-        </C.Card>
+        </C.Panel>
       )}
     </>
   );
