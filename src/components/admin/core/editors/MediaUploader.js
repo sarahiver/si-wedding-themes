@@ -38,8 +38,6 @@ function MediaUploader({
       formData.append('folder', folder);
       formData.append('asset_folder', folder);
     }
-    console.log('[MediaUploader] Upload →', { folder, cloudName, uploadPreset });
-    
     const xhr = new XMLHttpRequest();
     
     xhr.upload.onprogress = (e) => {
