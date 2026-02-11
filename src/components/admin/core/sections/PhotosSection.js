@@ -4,10 +4,10 @@ import { useAdmin } from '../AdminContext';
 import { deletePhotoUpload } from '../../../../lib/supabase';
 
 function PhotosSection({ components: C }) {
-  const { 
-    photoUploads, selectedPhotos, 
+  const {
+    photoUploads, selectedPhotos,
     togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
-    deletePhoto, showFeedback, loadData
+    deletePhoto, showFeedback, loadData, projectId
   } = useAdmin();
   
   const [downloading, setDownloading] = useState(false);
@@ -80,12 +80,14 @@ function PhotosSection({ components: C }) {
       // Step 2: Auto-delete from Cloudinary + Supabase
       setDeleting(true);
       showFeedback('success', `Download fertig! Lösche ${successCount} Fotos aus Datenschutzgründen...`);
-      
+
+      let deleteErrors = 0;
+
       // Collect public_ids for Cloudinary batch delete
       const publicIds = photosToDownload
         .filter(p => p.cloudinary_public_id)
         .map(p => p.cloudinary_public_id);
-      
+
       // Delete from Cloudinary via API route
       if (publicIds.length > 0) {
         try {
@@ -94,29 +96,46 @@ function PhotosSection({ components: C }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ public_ids: publicIds }),
           });
-          
+
           if (!deleteResponse.ok) {
             const errData = await deleteResponse.json().catch(() => ({}));
             console.error('Cloudinary delete failed:', errData);
+            deleteErrors++;
+          } else {
+            const result = await deleteResponse.json();
+            console.log('Cloudinary delete result:', result);
           }
         } catch (err) {
           console.error('Cloudinary delete error:', err);
+          deleteErrors++;
         }
+      } else {
+        console.warn('Keine cloudinary_public_id vorhanden — Cloudinary-Löschung übersprungen');
       }
-      
-      // Delete from Supabase
+
+      // Delete from Supabase (direkt, ohne deletePhoto aus Context)
       for (const photo of photosToDownload) {
         try {
-          await deletePhoto(photo.id, true); // skipConfirm = true
+          const { error } = await deletePhotoUpload(photo.id);
+          if (error) {
+            console.error('Supabase delete error for', photo.id, ':', error);
+            deleteErrors++;
+          }
         } catch (err) {
           console.error('Supabase delete error:', err);
+          deleteErrors++;
         }
       }
-      
+
       await loadData();
       deselectAllPhotos();
       setDeleting(false);
-      showFeedback('success', `${successCount} Fotos heruntergeladen und gelöscht ✓`);
+
+      if (deleteErrors > 0) {
+        showFeedback('error', `Download fertig, aber ${deleteErrors} Fehler beim Löschen. Prüfe die Browser-Konsole.`);
+      } else {
+        showFeedback('success', `${successCount} Fotos heruntergeladen und gelöscht ✓`);
+      }
       
     } catch (err) {
       console.error('Download/delete error:', err);
