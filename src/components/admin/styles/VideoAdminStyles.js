@@ -1112,6 +1112,12 @@ export const LogoIcon = styled.div`
 `;
 
 // ============================================
+export const Card = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.25rem;
+`;
 // EXPORT ALL COMPONENTS
 // ============================================
 export const VideoAdminComponents = {
@@ -1124,7 +1130,7 @@ export const VideoAdminComponents = {
   Main, Header, PageTitle, MobileMenuToggle, SidebarOverlay,
   
   // Stats
-  StatsGrid, StatCard, StatNumber, StatLabel,
+  StatsGrid, StatCard, StatNumber, StatLabel, Card,
   
   // Panels
   Panel, PanelHeader, PanelTitle, PanelContent,

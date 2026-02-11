@@ -205,12 +205,19 @@ export const LogoIcon = () => (
   </svg>
 );
 
+export const Card = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.25rem;
+`;
+
 export const LuxeAdminComponents = {
   LoginContainer, LoginBox, LoginLogo, LoginForm, LoginError, LoginButton, BackLink,
   DashboardContainer, Sidebar, SidebarHeader, SidebarLogo, SidebarSub,
   NavSection, NavSectionTitle, NavItem, NavBadge, NavDivider,
   Main, Header, PageTitle, MobileMenuToggle,
-  StatsGrid, StatCard, StatNumber, StatLabel,
+  StatsGrid, StatCard, StatNumber, StatLabel, Card,
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
   FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
