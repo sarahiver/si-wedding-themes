@@ -51,8 +51,9 @@ function PhotoUpload() {
     setUploading(true);
     for (let i = 0; i < files.length; i++) {
       try {
-        const result = await uploadToCloudinary(files[i]);
-        if (result.url && project?.id) await submitPhotoUpload(project.id, { cloudinaryUrl: result.url, cloudinaryPublicId: result.public_id, uploadedBy: 'Guest' });
+        const folder = project?.slug ? `siwedding/${project.slug}/photos` : '';
+        const result = await uploadToCloudinary(files[i], folder);
+        if (result.url && project?.id) await submitPhotoUpload(project.id, { cloudinaryUrl: result.url, cloudinaryPublicId: result.publicId, uploadedBy: 'Guest' });
         setProgress(Math.round(((i + 1) / files.length) * 100));
       } catch (err) { console.error(err); }
     }

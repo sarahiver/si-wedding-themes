@@ -426,20 +426,18 @@ const PhotoUpload = () => {
       const { submitPhotoUpload } = await import('../../lib/supabase');
       
       // Upload to Cloudinary
-      const result = await uploadToCloudinary(fileObj.file, {
-        folder: slug ? `weddings/${slug}/photos` : 'weddings/photos',
-        onProgress: (progress) => {
-          setFiles(prev => prev.map(f => 
-            f.id === fileObj.id ? { ...f, progress } : f
-          ));
-        }
+      const folder = slug ? `siwedding/${slug}/photos` : '';
+      const result = await uploadToCloudinary(fileObj.file, folder, (progress) => {
+        setFiles(prev => prev.map(f =>
+          f.id === fileObj.id ? { ...f, progress } : f
+        ));
       });
-      
+
       // Save to Supabase
       if (result.url && projectId) {
         await submitPhotoUpload(projectId, {
           cloudinaryUrl: result.url,
-          cloudinaryPublicId: result.public_id,
+          cloudinaryPublicId: result.publicId,
           uploadedBy: 'Guest'
         });
       }

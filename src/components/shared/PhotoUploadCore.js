@@ -98,7 +98,7 @@ export function usePhotoUpload(options = {}) {
         return { success: true };
       }
       
-      const folder = `wedding_photos/${slug || projectId}`;
+      const folder = slug ? `siwedding/${slug}/photos` : `siwedding/${projectId}/photos`;
       const results = await uploadMultipleToCloudinary(files, folder, (progressInfo) => {
         // progressInfo = { current, total, percent }
         if (typeof progressInfo === 'object' && progressInfo.percent !== undefined) {
