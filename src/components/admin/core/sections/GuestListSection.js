@@ -1,30 +1,43 @@
 // core/sections/GuestListSection.js
-// Gästeliste verwalten: CSV-Upload, RSVP-Abgleich, Erinnerungen senden
+// Gästeliste verwalten: CSV/XLSX-Upload, RSVP-Abgleich, Erinnerungen senden
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent } from '../../../../lib/supabase';
+import * as XLSX from 'xlsx';
 
-// CSV/Excel parsing (simple, no library needed)
+// CSV parsing
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
+  const clean = text.replace(/^\uFEFF/, '').trim();
+  const lines = clean.split(/\r?\n/).filter(l => l.trim());
   if (lines.length < 2) return [];
 
-  // Detect separator
-  const sep = lines[0].includes(';') ? ';' : ',';
-  const headers = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+  const firstLine = lines[0];
+  let sep = ',';
+  if (firstLine.includes('\t')) sep = '\t';
+  else if (firstLine.includes(';')) sep = ';';
 
-  // Find column indices
-  const nameIdx = headers.findIndex(h => ['name', 'gast', 'gästename', 'gastname', 'vorname'].includes(h));
-  const emailIdx = headers.findIndex(h => ['email', 'e-mail', 'mail', 'emailadresse'].includes(h));
+  const headers = firstLine.split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g, '').replace(/\s+/g, ''));
+
+  const nameIdx = headers.findIndex(h => ['name', 'gast', 'gästename', 'gastname', 'vorname', 'vollername'].includes(h));
+  const emailIdx = headers.findIndex(h => ['email', 'e-mail', 'mail', 'emailadresse', 'e-mailadresse', 'emailaddress'].includes(h));
   const groupIdx = headers.findIndex(h => ['gruppe', 'group', 'kategorie', 'kreis'].includes(h));
 
-  if (nameIdx === -1 || emailIdx === -1) return null; // Invalid format
+  const usePositional = nameIdx === -1 || emailIdx === -1;
+  const finalNameIdx = usePositional ? 0 : nameIdx;
+  const finalEmailIdx = usePositional ? 1 : emailIdx;
+
+  if (usePositional && lines.length > 1) {
+    const testCols = lines[1].split(sep);
+    if (!testCols[1] || !testCols[1].includes('@')) return null;
+  }
 
   const guests = [];
-  for (let i = 1; i < lines.length; i++) {
+  const startIdx = usePositional && lines[0].split(sep)[1]?.includes('@') ? 0 : 1;
+
+  for (let i = startIdx; i < lines.length; i++) {
     const cols = lines[i].split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
-    const name = cols[nameIdx]?.trim();
-    const email = cols[emailIdx]?.trim();
+    const name = cols[finalNameIdx]?.trim();
+    const email = cols[finalEmailIdx]?.trim();
     if (name && email && email.includes('@')) {
       guests.push({
         name,
@@ -34,6 +47,42 @@ function parseCSV(text) {
     }
   }
   return guests;
+}
+
+// XLSX/XLS parsing
+function parseXLSX(arrayBuffer) {
+  try {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    if (rows.length === 0) return [];
+
+    const keys = Object.keys(rows[0]);
+    const nameKey = keys.find(k => ['name', 'gast', 'gästename', 'gastname', 'vorname'].includes(k.toLowerCase().trim()));
+    const emailKey = keys.find(k => ['email', 'e-mail', 'mail', 'emailadresse'].includes(k.toLowerCase().trim()));
+    const groupKey = keys.find(k => ['gruppe', 'group', 'kategorie', 'kreis'].includes(k.toLowerCase().trim()));
+
+    const finalNameKey = nameKey || keys[0];
+    const finalEmailKey = emailKey || keys[1];
+    if (!finalEmailKey) return null;
+
+    const guests = [];
+    for (const row of rows) {
+      const name = String(row[finalNameKey] || '').trim();
+      const email = String(row[finalEmailKey] || '').trim();
+      if (name && email && email.includes('@')) {
+        guests.push({
+          name,
+          email: email.toLowerCase(),
+          group_name: groupKey ? String(row[groupKey] || '').trim() : '',
+        });
+      }
+    }
+    return guests;
+  } catch (e) {
+    console.error('XLSX parse error:', e);
+    return null;
+  }
 }
 
 function GuestListSection({ components: C }) {
@@ -89,15 +138,23 @@ function GuestListSection({ components: C }) {
   // Pending guests (for reminder)
   const pendingGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'pending'), [enrichedGuests]);
 
-  // CSV Upload Handler
+  // File Upload Handler (CSV + XLSX)
   const handleFileUpload = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const text = await file.text();
-      const guests = parseCSV(text);
+      const isExcel = file.name.match(/\.xlsx?$/i);
+      let guests;
+
+      if (isExcel) {
+        const buffer = await file.arrayBuffer();
+        guests = parseXLSX(buffer);
+      } else {
+        const text = await file.text();
+        guests = parseCSV(text);
+      }
 
       if (guests === null) {
         showFeedback('error', 'Ungültiges Format. Die Datei muss mindestens die Spalten "Name" und "Email" enthalten.');
@@ -251,7 +308,7 @@ function GuestListSection({ components: C }) {
         <C.Panel style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
-            Lade eine CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
+            Lade eine Excel- oder CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
             <strong>Name</strong> und <strong>Email</strong> (optional: <strong>Gruppe</strong>)
           </p>
           <div style={{ background: 'rgba(128,128,128,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.8 }}>
@@ -262,11 +319,11 @@ function GuestListSection({ components: C }) {
             Lisa Weber;lisa@example.de;Kollegen
           </div>
           <p style={{ marginBottom: '1rem', fontSize: '0.8rem', opacity: 0.5 }}>
-            Unterstützt: .csv (Komma oder Semikolon getrennt). Duplikate (gleiche E-Mail) werden übersprungen.
+            Unterstützt: .xlsx, .xls, .csv (Komma oder Semikolon). Duplikate (gleiche E-Mail) werden übersprungen.
           </p>
           <input
             type="file"
-            accept=".csv,.txt"
+            accept=".csv,.txt,.tsv,.xlsx,.xls"
             onChange={handleFileUpload}
             disabled={uploading}
             style={{ fontSize: '0.9rem' }}
@@ -332,7 +389,7 @@ function GuestListSection({ components: C }) {
 
           {/* Excel tip */}
           <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.78rem', lineHeight: 1.6 }}>
-            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen, ausfüllen und dann <em>Datei → Speichern unter → CSV (Trennzeichen-getrennt)</em> wählen.
+            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen und die Datei direkt als .xlsx speichern – oder als CSV exportieren. Beides funktioniert!
           </div>
 
           {/* CTA */}
