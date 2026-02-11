@@ -35,6 +35,7 @@ function MediaUploader({
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
     if (folder) formData.append('folder', folder);
+    console.log('[MediaUploader] Upload →', { folder, cloudName, uploadPreset });
     
     const xhr = new XMLHttpRequest();
     

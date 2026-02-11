@@ -18,6 +18,7 @@ export async function uploadToCloudinary(file, folder = '', onProgress = null) {
   if (folder) {
     formData.append('folder', folder);
   }
+  console.log('[Cloudinary] Upload →', { folder: folder || '(none)', preset: UPLOAD_PRESET });
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -32,6 +33,7 @@ export async function uploadToCloudinary(file, folder = '', onProgress = null) {
     xhr.addEventListener('load', () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         const response = JSON.parse(xhr.responseText);
+        console.log('[Cloudinary] Upload OK →', { public_id: response.public_id, folder: response.folder, url: response.secure_url });
         resolve({
           url: response.secure_url,
           publicId: response.public_id,

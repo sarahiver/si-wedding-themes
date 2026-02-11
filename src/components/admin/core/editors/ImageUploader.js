@@ -27,7 +27,8 @@ function ImageUploader({
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
     if (folder) formData.append('folder', folder);
-    
+    console.log('[ImageUploader] Upload →', { folder, cloudName, uploadPreset });
+
     const xhr = new XMLHttpRequest();
     
     xhr.upload.onprogress = (e) => {
