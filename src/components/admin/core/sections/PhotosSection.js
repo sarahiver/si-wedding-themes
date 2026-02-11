@@ -1,49 +1,19 @@
-// core/sections/PhotosSection.js - Photo Management with ZIP Download
+// core/sections/PhotosSection.js - Photo Management with ZIP Download & Auto-Delete
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
 
 function PhotosSection({ components: C }) {
   const { 
-    photoUploads, selectedPhotos, projectId,
+    photoUploads, selectedPhotos, 
     togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
     deletePhoto, showFeedback, loadData
   } = useAdmin();
   
   const [downloading, setDownloading] = useState(false);
-  const [autoDelete, setAutoDelete] = useState(true);
   const [deleting, setDeleting] = useState(false);
-
-  // Delete photos from Cloudinary + Supabase via API
-  const cleanupPhotos = async (photos) => {
-    setDeleting(true);
-    try {
-      const response = await fetch('/api/cleanup-photos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          photos: photos.map(p => ({
-            id: p.id,
-            cloudinary_public_id: p.cloudinary_public_id,
-          })),
-        }),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        showFeedback('success', `🗑️ ${result.cloudinary.deleted} Fotos aus Cloudinary gelöscht – Speicher freigegeben!`);
-        await loadData();
-      } else {
-        showFeedback('error', 'Fehler beim Löschen: ' + (result.error || 'Unbekannt'));
-      }
-    } catch (err) {
-      showFeedback('error', 'Netzwerkfehler beim Löschen: ' + err.message);
-    }
-    setDeleting(false);
-  };
   
-  // Download selected or all photos as ZIP
-  const downloadPhotosAsZip = async (downloadAll = false) => {
+  // Download selected or all photos as ZIP, then auto-delete from Cloudinary + Supabase
+  const downloadAndDelete = async (downloadAll = false) => {
     const photosToDownload = downloadAll 
       ? photoUploads 
       : photoUploads.filter(p => selectedPhotos.has(p.id));
@@ -54,13 +24,16 @@ function PhotosSection({ components: C }) {
     }
     
     setDownloading(true);
-    showFeedback('success', `Lade ${photosToDownload.length} Fotos...`);
+    showFeedback('success', `Lade ${photosToDownload.length} Fotos herunter...`);
     
     try {
+      // Step 1: Download as ZIP
       const JSZipModule = await import('jszip');
       const JSZip = JSZipModule.default || JSZipModule;
       const zip = new JSZip();
       const folder = zip.folder('hochzeitsfotos');
+      
+      let successCount = 0;
       
       const downloadPromises = photosToDownload.map(async (photo, index) => {
         try {
@@ -70,172 +43,243 @@ function PhotosSection({ components: C }) {
           
           const urlParts = photo.cloudinary_url.split('.');
           const ext = urlParts[urlParts.length - 1].split('?')[0] || 'jpg';
-          const guestName = (photo.uploaded_by || 'gast').toLowerCase().replace(/\s+/g, '_');
-          const filename = `${guestName}_${String(index + 1).padStart(3, '0')}.${ext}`;
+          const name = photo.uploaded_by 
+            ? `${photo.uploaded_by.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '_')}_${index + 1}.${ext}`
+            : `foto_${index + 1}.${ext}`;
           
-          folder.file(filename, blob);
+          folder.file(name, blob);
+          successCount++;
         } catch (err) {
-          console.warn(`Failed to download photo ${photo.id}:`, err);
+          console.error(`Failed to download photo ${index}:`, err);
         }
       });
       
       await Promise.all(downloadPromises);
       
-      const zipBlob = await zip.generateAsync({ 
-        type: 'blob',
-        compression: 'DEFLATE',
-        compressionOptions: { level: 6 }
-      });
+      if (successCount === 0) {
+        showFeedback('error', 'Keine Fotos konnten heruntergeladen werden');
+        setDownloading(false);
+        return;
+      }
       
-      const url = URL.createObjectURL(zipBlob);
+      // Generate & trigger download
+      const today = new Date().toISOString().split('T')[0];
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `hochzeitsfotos_${new Date().toISOString().slice(0, 10)}.zip`;
+      a.download = `hochzeitsfotos_${today}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
       
-      showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen!`);
-
-      // Auto-delete from Cloudinary after successful download
-      if (autoDelete) {
-        const confirmDelete = window.confirm(
-          `✅ ${photosToDownload.length} Fotos erfolgreich heruntergeladen!\n\n` +
-          `Sollen die ${photosToDownload.length} Fotos jetzt aus Cloudinary gelöscht werden, um Speicher freizugeben?\n\n` +
-          `⚠️ Stellt sicher, dass die ZIP-Datei vollständig ist, bevor ihr bestätigt.`
-        );
-        if (confirmDelete) {
-          await cleanupPhotos(photosToDownload);
+      setDownloading(false);
+      
+      // Step 2: Auto-delete from Cloudinary + Supabase
+      setDeleting(true);
+      showFeedback('success', `Download fertig! Lösche ${successCount} Fotos aus Datenschutzgründen...`);
+      
+      // Collect public_ids for Cloudinary batch delete
+      const publicIds = photosToDownload
+        .filter(p => p.cloudinary_public_id)
+        .map(p => p.cloudinary_public_id);
+      
+      // Delete from Cloudinary via API route
+      if (publicIds.length > 0) {
+        try {
+          const deleteResponse = await fetch('/api/delete-photos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ public_ids: publicIds }),
+          });
+          
+          if (!deleteResponse.ok) {
+            const errData = await deleteResponse.json().catch(() => ({}));
+            console.error('Cloudinary delete failed:', errData);
+          }
+        } catch (err) {
+          console.error('Cloudinary delete error:', err);
         }
       }
+      
+      // Delete from Supabase
+      for (const photo of photosToDownload) {
+        try {
+          await deletePhoto(photo.id, true); // skipConfirm = true
+        } catch (err) {
+          console.error('Supabase delete error:', err);
+        }
+      }
+      
+      await loadData();
+      deselectAllPhotos();
+      setDeleting(false);
+      showFeedback('success', `${successCount} Fotos heruntergeladen und gelöscht ✓`);
+      
     } catch (err) {
-      console.error('ZIP creation failed:', err);
-      showFeedback('error', 'Fehler beim Erstellen des ZIPs');
-    } finally {
+      console.error('Download/delete error:', err);
+      showFeedback('error', 'Fehler beim Herunterladen');
       setDownloading(false);
+      setDeleting(false);
     }
   };
-
-  // Bulk delete selected photos
-  const deleteSelectedPhotos = async () => {
-    if (selectedPhotos.size === 0) {
+  
+  // Delete selected photos (without download)
+  const deleteSelected = async () => {
+    const photosToDelete = photoUploads.filter(p => selectedPhotos.has(p.id));
+    
+    if (photosToDelete.length === 0) {
       showFeedback('error', 'Keine Fotos ausgewählt');
       return;
     }
     
-    if (!window.confirm(`${selectedPhotos.size} Foto(s) wirklich löschen?`)) return;
+    if (!window.confirm(`${photosToDelete.length} Foto(s) unwiderruflich löschen?`)) return;
     
-    for (const id of selectedPhotos) {
-      await deletePhoto(id, true); // true = skip confirm
+    setDeleting(true);
+    
+    // Cloudinary delete
+    const publicIds = photosToDelete
+      .filter(p => p.cloudinary_public_id)
+      .map(p => p.cloudinary_public_id);
+    
+    if (publicIds.length > 0) {
+      try {
+        await fetch('/api/delete-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ public_ids: publicIds }),
+        });
+      } catch (err) {
+        console.error('Cloudinary delete error:', err);
+      }
     }
+    
+    // Supabase delete
+    for (const photo of photosToDelete) {
+      try {
+        await deletePhoto(photo.id, true);
+      } catch (err) {
+        console.error('Delete error:', err);
+      }
+    }
+    
+    await loadData();
     deselectAllPhotos();
+    setDeleting(false);
+    showFeedback('success', `${photosToDelete.length} Foto(s) gelöscht ✓`);
   };
   
+  const selectedCount = selectedPhotos.size;
+  const isWorking = downloading || deleting;
+
   return (
     <C.Panel>
       <C.PanelHeader>
-        <C.PanelTitle>Gäste-Fotos ({photoUploads.length})</C.PanelTitle>
+        <C.PanelTitle>GÄSTE-FOTOS ({photoUploads.length})</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
-        {/* Selection Controls */}
-        <C.PhotoActions>
-          <C.SmallButton onClick={selectAllPhotos}>Alle auswählen</C.SmallButton>
-          <C.SmallButton onClick={deselectAllPhotos}>Auswahl aufheben</C.SmallButton>
-          <C.PhotoCount>{selectedPhotos.size} ausgewählt</C.PhotoCount>
-        </C.PhotoActions>
         
-        {/* Auto-Delete Toggle */}
         {photoUploads.length > 0 && (
           <>
-            <div style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.75rem', 
-              padding: '0.75rem 1rem', marginTop: '1rem',
-              background: autoDelete ? 'rgba(239,68,68,0.08)' : 'rgba(128,128,128,0.05)', 
-              borderRadius: '8px', border: autoDelete ? '1px solid rgba(239,68,68,0.2)' : '1px solid transparent',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer'
-            }} onClick={() => setAutoDelete(!autoDelete)}>
-              <input 
-                type="checkbox" 
-                checked={autoDelete} 
-                onChange={() => setAutoDelete(!autoDelete)}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#ef4444' }}
-              />
-              <div>
-                <p style={{ fontSize: '0.85rem', fontWeight: 600, margin: '0 0 2px 0' }}>
-                  Nach Download aus Cloudinary löschen
-                </p>
-                <p style={{ fontSize: '0.75rem', opacity: 0.5, margin: 0 }}>
-                  Spart Speicher – ihr werdet nach dem Download nochmal gefragt
-                </p>
-              </div>
+            {/* Selection Controls */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+              <C.Button onClick={selectAllPhotos} disabled={isWorking}>
+                Alle auswählen
+              </C.Button>
+              <C.Button onClick={deselectAllPhotos} disabled={isWorking}>
+                Auswahl aufheben
+              </C.Button>
             </div>
-
-            {deleting && (
-              <div style={{ padding: '0.75rem 1rem', marginTop: '0.5rem', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', fontSize: '0.85rem' }}>
-                ⏳ Lösche Fotos aus Cloudinary...
+            
+            {selectedCount > 0 && (
+              <div style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7 }}>
+                {selectedCount} ausgewählt
               </div>
+            )}
+            
+            {/* Download Button — with auto-delete info */}
+            {selectedCount > 0 && (
+              <C.Button 
+                $primary 
+                onClick={() => downloadAndDelete(false)}
+                disabled={isWorking}
+                style={{ width: '100%', marginBottom: '0.5rem', padding: '0.75rem' }}
+              >
+                {downloading ? '⏳ Wird heruntergeladen...' : 
+                 deleting ? '🗑️ Wird gelöscht...' :
+                 `📥 ${selectedCount} FOTO(S) HERUNTERLADEN`}
+              </C.Button>
+            )}
+            
+            {/* Download All */}
+            <C.Button 
+              onClick={() => downloadAndDelete(true)}
+              disabled={isWorking}
+              style={{ width: '100%', marginBottom: '0.5rem' }}
+            >
+              {isWorking ? '⏳ Bitte warten...' : '📦 ALLE HERUNTERLADEN'}
+            </C.Button>
+            
+            {/* Info text */}
+            <div style={{ 
+              fontSize: '0.75rem', 
+              opacity: 0.5, 
+              marginBottom: '1rem',
+              textAlign: 'center',
+              fontStyle: 'italic'
+            }}>
+              Fotos werden nach dem Download aus Datenschutzgründen automatisch gelöscht.
+            </div>
+            
+            {/* Delete without download */}
+            {selectedCount > 0 && (
+              <C.Button 
+                onClick={deleteSelected}
+                disabled={isWorking}
+                style={{ 
+                  width: '100%', 
+                  marginBottom: '1rem',
+                  background: 'rgba(244, 67, 54, 0.15)',
+                  color: '#f44336',
+                  border: '1px solid rgba(244, 67, 54, 0.3)'
+                }}
+              >
+                🗑️ AUSGEWÄHLTE LÖSCHEN (ohne Download)
+              </C.Button>
             )}
           </>
         )}
         
-        {/* Action Buttons */}
-        <C.PhotoActions style={{ marginTop: '1rem' }}>
-          <C.Button 
-            onClick={() => downloadPhotosAsZip(false)} 
-            disabled={downloading || selectedPhotos.size === 0}
-          >
-            {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) herunterladen`}
-          </C.Button>
-          <C.Button 
-            onClick={() => downloadPhotosAsZip(true)} 
-            disabled={downloading || photoUploads.length === 0}
-            $variant="secondary"
-          >
-            📦 Alle herunterladen
-          </C.Button>
-          {selectedPhotos.size > 0 && (
-            <C.Button 
-              onClick={deleteSelectedPhotos}
-              $variant="danger"
-            >
-              🗑 Ausgewählte löschen
-            </C.Button>
-          )}
-        </C.PhotoActions>
-        
         {/* Photo Grid */}
-        <C.PhotoGrid style={{ marginTop: '1.5rem' }}>
-          {photoUploads.map(photo => {
+        <C.PhotoGrid>
+          {photoUploads.map((photo) => {
             const isSelected = selectedPhotos.has(photo.id);
             return (
-              <C.PhotoCard 
-                key={photo.id} 
-                $selected={isSelected}
-                onClick={() => togglePhotoSelection(photo.id)}
-                style={{ 
-                  cursor: 'pointer',
-                  outline: isSelected ? '3px solid #4caf50' : '3px solid transparent',
+              <C.PhotoCard
+                key={photo.id}
+                onClick={() => !isWorking && togglePhotoSelection(photo.id)}
+                style={{
+                  cursor: isWorking ? 'wait' : 'pointer',
+                  opacity: isWorking ? 0.6 : 1,
+                  outline: isSelected ? '3px solid #4caf50' : 'none',
                   outlineOffset: '-3px',
-                  transform: isSelected ? 'scale(0.95)' : 'scale(1)',
-                  transition: 'all 0.15s ease',
-                  position: 'relative'
+                  transform: isSelected ? 'scale(0.97)' : 'scale(1)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <C.PhotoImage $url={photo.cloudinary_url} />
                 
-                {/* Selection Checkbox - oben links */}
-                <div 
-                  style={{
+                {/* Selection Indicator */}
+                {isSelected && (
+                  <div style={{
                     position: 'absolute',
                     top: '8px',
                     left: '8px',
                     width: '28px',
                     height: '28px',
-                    borderRadius: '4px',
-                    background: isSelected ? '#4caf50' : 'rgba(0,0,0,0.5)',
-                    border: isSelected ? '2px solid #4caf50' : '2px solid rgba(255,255,255,0.7)',
+                    borderRadius: '50%',
+                    background: '#4caf50',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -243,53 +287,24 @@ function PhotosSection({ components: C }) {
                     fontWeight: 'bold',
                     fontSize: '16px',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                    zIndex: 15,
-                    pointerEvents: 'none',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {isSelected ? '✓' : ''}
-                </div>
+                    zIndex: 10
+                  }}>
+                    ✓
+                  </div>
+                )}
                 
-                {/* Delete Button - Mitte */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deletePhoto(photo.id);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: 'rgba(196, 30, 58, 0.9)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: '24px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.4)',
-                    zIndex: 15,
-                    cursor: 'pointer',
-                    opacity: 0.8,
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '1';
-                    e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '0.8';
-                    e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
-                  }}
-                  title="Löschen"
-                >
-                  ×
-                </div>
+                {/* Delete Button */}
+                <C.PhotoOverlay onClick={(e) => e.stopPropagation()}>
+                  <C.PhotoButton 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isWorking) deletePhoto(photo.id);
+                    }}
+                    title="Löschen"
+                  >
+                    ×
+                  </C.PhotoButton>
+                </C.PhotoOverlay>
                 
                 {/* Uploader Name */}
                 {photo.uploaded_by && (
