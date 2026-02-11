@@ -17,6 +17,7 @@ export async function uploadToCloudinary(file, folder = '', onProgress = null) {
   formData.append('upload_preset', UPLOAD_PRESET);
   if (folder) {
     formData.append('folder', folder);
+    formData.append('asset_folder', folder);
   }
   console.log('[Cloudinary] Upload →', { folder: folder || '(none)', preset: UPLOAD_PRESET });
 

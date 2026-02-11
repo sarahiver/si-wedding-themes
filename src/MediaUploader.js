@@ -33,7 +33,10 @@ function MediaUploader({
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
-    if (folder) formData.append('folder', folder);
+    if (folder) {
+      formData.append('folder', folder);
+      formData.append('asset_folder', folder);
+    }
     
     const xhr = new XMLHttpRequest();
     
