@@ -7,15 +7,17 @@ import MultiImageUploader from './MultiImageUploader';
 function ArchiveEditor({ components: C }) {
   const { 
     contentStates, updateContent, saveContent, isSaving, baseFolder,
-    photoUploads, selectedPhotos, 
+    photoUploads, selectedPhotos, projectId,
     togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
-    showFeedback
+    showFeedback, loadData
   } = useAdmin();
   
   const content = contentStates.archive || {};
   const update = (field, value) => updateContent('archive', { ...content, [field]: value });
   
   const [downloading, setDownloading] = useState(false);
+  const [autoDelete, setAutoDelete] = useState(true); // Auto-delete after download
+  const [deleting, setDeleting] = useState(false);
   
   // Archiv-Galerie Bilder (eigene, nicht die normale Galerie)
   const galleryImages = (content.gallery_images || []).map(img => typeof img === 'string' ? img : img.url);
@@ -24,6 +26,35 @@ function ArchiveEditor({ components: C }) {
     update('gallery_images', urls.map(url => ({ url: typeof url === 'string' ? url : url.url })));
   };
   
+  // Delete photos from Cloudinary + Supabase via API
+  const cleanupPhotos = async (photos) => {
+    setDeleting(true);
+    try {
+      const response = await fetch('/api/cleanup-photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId,
+          photos: photos.map(p => ({
+            id: p.id,
+            cloudinary_public_id: p.cloudinary_public_id,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        showFeedback('success', `🗑️ ${result.cloudinary.deleted} Fotos aus Cloudinary gelöscht – Speicher freigegeben!`);
+        await loadData(); // Refresh photo list
+      } else {
+        showFeedback('error', 'Fehler beim Löschen: ' + (result.error || 'Unbekannt'));
+      }
+    } catch (err) {
+      showFeedback('error', 'Netzwerkfehler beim Löschen: ' + err.message);
+    }
+    setDeleting(false);
+  };
+
   // Download Gäste-Fotos als ZIP
   const downloadPhotosAsZip = async (downloadAll = false) => {
     const photosToDownload = downloadAll 
@@ -79,6 +110,18 @@ function ArchiveEditor({ components: C }) {
       URL.revokeObjectURL(url);
       
       showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen!`);
+
+      // Auto-delete from Cloudinary after successful download
+      if (autoDelete) {
+        const confirmDelete = window.confirm(
+          `✅ ${photosToDownload.length} Fotos erfolgreich heruntergeladen!\n\n` +
+          `Sollen die ${photosToDownload.length} Fotos jetzt aus Cloudinary gelöscht werden, um Speicher freizugeben?\n\n` +
+          `⚠️ Stellt sicher, dass die ZIP-Datei vollständig ist, bevor ihr bestätigt.`
+        );
+        if (confirmDelete) {
+          await cleanupPhotos(photosToDownload);
+        }
+      }
     } catch (err) {
       console.error('ZIP creation failed:', err);
       showFeedback('error', 'Fehler beim Erstellen des ZIPs');
@@ -166,6 +209,37 @@ function ArchiveEditor({ components: C }) {
               <C.PhotoCount>{selectedPhotos.size} ausgewählt</C.PhotoCount>
             </C.PhotoActions>
             
+            {/* Auto-Delete Toggle */}
+            <div style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.75rem', 
+              padding: '0.75rem 1rem', marginBottom: '1rem',
+              background: autoDelete ? 'rgba(239,68,68,0.08)' : 'rgba(128,128,128,0.05)', 
+              borderRadius: '8px', border: autoDelete ? '1px solid rgba(239,68,68,0.2)' : '1px solid transparent',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer'
+            }} onClick={() => setAutoDelete(!autoDelete)}>
+              <input 
+                type="checkbox" 
+                checked={autoDelete} 
+                onChange={() => setAutoDelete(!autoDelete)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#ef4444' }}
+              />
+              <div>
+                <p style={{ fontSize: '0.85rem', fontWeight: 600, margin: '0 0 2px 0' }}>
+                  Nach Download aus Cloudinary löschen
+                </p>
+                <p style={{ fontSize: '0.75rem', opacity: 0.5, margin: 0 }}>
+                  Spart Speicher – ihr werdet nach dem Download nochmal gefragt
+                </p>
+              </div>
+            </div>
+            
+            {deleting && (
+              <div style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                ⏳ Lösche Fotos aus Cloudinary...
+              </div>
+            )}
+
             {/* Download Buttons */}
             <C.PhotoActions style={{ marginTop: '1rem' }}>
               <C.Button 
