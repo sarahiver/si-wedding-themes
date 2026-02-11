@@ -251,7 +251,7 @@ function GuestListSection({ components: C }) {
         <C.Card style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
-            Lade eine CSV- oder Excel-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
+            Lade eine CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
             <strong>Name</strong> und <strong>Email</strong> (optional: <strong>Gruppe</strong>)
           </p>
           <div style={{ background: 'rgba(128,128,128,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.8 }}>
@@ -275,17 +275,73 @@ function GuestListSection({ components: C }) {
         </C.Card>
       )}
 
-      {/* Empty State */}
+      {/* Empty State with visual guide */}
       {stats.total === 0 && !showUpload && (
-        <C.EmptyState>
-          <p>📋 Noch keine Gästeliste hochgeladen.</p>
-          <p style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '0.5rem' }}>
-            Importiere eine CSV-Datei mit Name und E-Mail eurer Gäste, um RSVP-Erinnerungen zu versenden.
-          </p>
-          <C.ActionButton onClick={() => setShowUpload(true)} style={{ marginTop: '1rem' }}>
-            📤 CSV importieren
-          </C.ActionButton>
-        </C.EmptyState>
+        <C.Card style={{ padding: '2rem' }}>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📋</div>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Gästeliste & RSVP-Erinnerungen</h3>
+            <p style={{ fontSize: '0.85rem', opacity: 0.6, maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
+              Ladet eure Gästeliste hoch und verschickt automatisch Erinnerungen an Gäste, die noch nicht zugesagt haben.
+            </p>
+          </div>
+
+          {/* How it works - visual steps */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+            {/* Step 1 */}
+            <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>1</div>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
+              <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>CSV erstellen</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalten "Name" und "Email" anlegen, als CSV speichern</p>
+            </div>
+            {/* Step 2 */}
+            <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>2</div>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📤</div>
+              <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Hochladen</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>CSV hier importieren – Duplikate werden automatisch erkannt</p>
+            </div>
+            {/* Step 3 */}
+            <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>3</div>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📧</div>
+              <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Erinnern</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Ein Klick verschickt Erinnerungen an alle, die noch offen sind – im Design eurer Website</p>
+            </div>
+          </div>
+
+          {/* CSV format example */}
+          <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.75rem' }}>📎 So muss eure CSV-Datei aussehen:</p>
+            <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', lineHeight: 2, overflowX: 'auto' }}>
+              <div style={{ opacity: 0.9, fontWeight: 600, borderBottom: '1px solid rgba(128,128,128,0.2)', paddingBottom: '0.25rem', marginBottom: '0.25rem' }}>
+                Name;Email;Gruppe
+              </div>
+              <div style={{ opacity: 0.6 }}>Anna Müller;anna@example.de;Familie</div>
+              <div style={{ opacity: 0.6 }}>Max Schmidt;max@example.de;Freunde</div>
+              <div style={{ opacity: 0.6 }}>Lisa Weber;lisa@example.de;Kollegen</div>
+            </div>
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.72rem', opacity: 0.45 }}>
+              <span>✓ Komma oder Semikolon getrennt</span>
+              <span>✓ Erste Zeile = Spaltenüberschriften</span>
+              <span>✓ "Gruppe" ist optional</span>
+            </div>
+          </div>
+
+          {/* Excel tip */}
+          <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.78rem', lineHeight: 1.6 }}>
+            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen, ausfüllen und dann <em>Datei → Speichern unter → CSV (Trennzeichen-getrennt)</em> wählen.
+          </div>
+
+          {/* CTA */}
+          <div style={{ textAlign: 'center' }}>
+            <C.ActionButton $primary onClick={() => setShowUpload(true)} style={{ padding: '0.75rem 2rem', fontSize: '0.9rem' }}>
+              📤 CSV importieren
+            </C.ActionButton>
+          </div>
+        </C.Card>
       )}
 
       {/* Guest Table */}
