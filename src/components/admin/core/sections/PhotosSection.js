@@ -1,6 +1,7 @@
 // core/sections/PhotosSection.js - Photo Management with ZIP Download & Auto-Delete
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
+import { deletePhotoUpload } from '../../../../lib/supabase';
 
 function PhotosSection({ components: C }) {
   const { 
@@ -155,10 +156,10 @@ function PhotosSection({ components: C }) {
       }
     }
     
-    // Supabase delete
+    // Supabase delete (DB only - Cloudinary already handled above)
     for (const photo of photosToDelete) {
       try {
-        await deletePhoto(photo.id, true);
+        await deletePhotoUpload(photo.id);
       } catch (err) {
         console.error('Delete error:', err);
       }

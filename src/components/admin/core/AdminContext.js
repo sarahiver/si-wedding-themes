@@ -260,13 +260,30 @@ export function AdminProvider({ children }) {
   const deletePhoto = useCallback(async (id, skipConfirm = false) => {
     if (!skipConfirm && !window.confirm('Foto wirklich löschen?')) return;
     try {
+      // Find the photo to get its cloudinary_public_id
+      const photo = photoUploads.find(p => p.id === id);
+      
+      // Delete from Cloudinary first (if public_id exists)
+      if (photo?.cloudinary_public_id) {
+        try {
+          await fetch('/api/delete-photos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ public_ids: [photo.cloudinary_public_id] }),
+          });
+        } catch (cloudErr) {
+          console.warn('Cloudinary delete failed (continuing with DB delete):', cloudErr);
+        }
+      }
+      
+      // Then delete from Supabase
       await deletePhotoUpload(id);
       await loadData();
       if (!skipConfirm) showFeedback('success', 'Gelöscht');
     } catch (e) {
       showFeedback('error', 'Fehler');
     }
-  }, [loadData, showFeedback]);
+  }, [loadData, showFeedback, photoUploads]);
 
   const togglePhotoSelection = useCallback((id) => {
     setSelectedPhotos(prev => {
