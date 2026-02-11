@@ -4,5 +4,6 @@ export { default as GuestbookSection } from './GuestbookSection';
 export { default as MusicSection } from './MusicSection';
 export { default as PhotosSection } from './PhotosSection';
 export { default as GiftsSection } from './GiftsSection';
+export { default as GuestListSection } from './GuestListSection';
 export { default as StatusSection } from './StatusSection';
 export { default as SettingsSection } from './SettingsSection';

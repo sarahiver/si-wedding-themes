@@ -488,3 +488,64 @@ export async function submitDataReady(projectId) {
   
   return { success: true, data: project };
 }
+
+// ============================================
+// GUEST LIST (für RSVP-Erinnerungen)
+// ============================================
+
+export async function getGuestList(projectId) {
+  const { data, error } = await supabase
+    .from('guest_list')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('name', { ascending: true });
+  
+  return { data: data || [], error };
+}
+
+export async function uploadGuestList(projectId, guests) {
+  // Bulk insert with conflict handling (skip duplicates)
+  const rows = guests.map(g => ({
+    project_id: projectId,
+    name: g.name,
+    email: g.email.toLowerCase(),
+    group_name: g.group_name || '',
+  }));
+
+  const { data, error } = await supabase
+    .from('guest_list')
+    .upsert(rows, { onConflict: 'project_id,email', ignoreDuplicates: true })
+    .select();
+  
+  return { data, error, count: data?.length || 0 };
+}
+
+export async function deleteGuestListEntry(id) {
+  const { error } = await supabase
+    .from('guest_list')
+    .delete()
+    .eq('id', id);
+  
+  return { error };
+}
+
+export async function clearGuestList(projectId) {
+  const { error } = await supabase
+    .from('guest_list')
+    .delete()
+    .eq('project_id', projectId);
+  
+  return { error };
+}
+
+export async function markReminderSent(guestId) {
+  const { error } = await supabase
+    .from('guest_list')
+    .update({ 
+      reminder_sent_at: new Date().toISOString(),
+      reminder_count: supabase.raw ? undefined : 1, // Increment would need RPC
+    })
+    .eq('id', guestId);
+  
+  return { error };
+}
