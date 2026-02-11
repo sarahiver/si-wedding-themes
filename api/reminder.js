@@ -140,6 +140,85 @@ function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
 const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // ============================================
+// POST-WEDDING EMAIL TEMPLATE (Thank You + Photo Reminder)
+// ============================================
+
+function buildPostWeddingEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme, customText, includePhotoReminder }) {
+  const s = THEME_STYLES[theme] || THEME_STYLES.editorial;
+
+  const formattedDate = weddingDate
+    ? new Date(weddingDate).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '';
+
+  const btnStyle = s.btnBorder
+    ? `background:${s.btnBg};color:${s.btnColor};border:${s.borderWidth || '1px'} solid ${s.btnBorder};${s.glowShadow ? `box-shadow:${s.glowShadow};` : ''}`
+    : `background:${s.btnBg};color:${s.btnColor};border:none;${s.shadow ? `box-shadow:${s.shadow};` : ''}`;
+
+  // Convert newlines in custom text to HTML paragraphs
+  const textParagraphs = (customText || '').split(/\n\n+/).filter(Boolean).map(p =>
+    `<p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">${esc(p).replace(/\n/g, '<br />')}</p>`
+  ).join('\n    ');
+
+  const photoSection = includePhotoReminder ? `
+    <!-- Photo Reminder -->
+    <div style="background:${s.cardBg};border:${s.borderWidth || '1px'} solid ${s.border};padding:24px;margin-bottom:28px;${s.shadow ? `box-shadow:${s.shadow};` : ''}">
+      <p style="font-size:13px;color:${s.textSecondary};margin:0 0 4px 0;text-transform:uppercase;letter-spacing:0.1em;">📸 Noch Fotos?</p>
+      <p style="font-size:14px;color:${s.text};margin:0;line-height:1.7;">
+        Habt ihr noch Fotos von unserem Tag? Wir würden sie so gerne sehen! Ladet sie einfach auf unserer Website hoch – jedes Bild ist für uns ein kleiner Schatz.
+      </p>
+    </div>` : '';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--[if mso]><style>body{font-family:Arial,sans-serif!important}</style><![endif]-->
+</head>
+<body style="margin:0;padding:0;background:${s.bg};font-family:${s.bodyFont};">
+  <div style="max-width:560px;margin:0 auto;padding:40px 24px;">
+
+    <!-- Logo -->
+    <div style="margin-bottom:32px;">
+      <div style="background:#000;color:#fff;display:inline-block;padding:8px 16px;font-weight:700;font-size:18px;letter-spacing:-0.06em;font-family:'Roboto',Arial,sans-serif;">S&amp;I.</div>
+    </div>
+
+    <!-- Headline -->
+    <h1 style="font-family:${s.headlineFont};font-size:28px;font-weight:${s.headingStyle ? '300' : '700'};${s.headingStyle ? `font-style:${s.headingStyle};` : ''}color:${s.text};text-transform:${s.headingTransform};margin:0 0 16px 0;line-height:1.2;">
+      ${theme === 'neon' ? '// ' : ''}Danke, von ganzem Herzen
+    </h1>
+
+    <!-- Greeting -->
+    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">
+      Liebe/r ${esc(guestName)},
+    </p>
+
+    <!-- Custom text from couple -->
+    ${textParagraphs}
+
+    ${photoSection}
+
+    <!-- CTA Button -->
+    <a href="${esc(websiteUrl)}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0.05em;${btnStyle}">
+      ${includePhotoReminder ? 'ZUR WEBSITE & FOTOS HOCHLADEN →' : 'ZUR WEBSITE →'}
+    </a>
+
+    <!-- Signature -->
+    <p style="font-size:15px;color:${s.text};margin-top:32px;line-height:1.7;">
+      In Liebe,<br /><strong>${esc(coupleNames)}</strong>
+    </p>
+
+    <!-- Footer -->
+    <p style="font-size:11px;color:${s.textSecondary};margin-top:48px;opacity:0.5;">
+      Diese E-Mail wurde von der Hochzeitswebsite von ${esc(coupleNames)} verschickt.
+    </p>
+  </div>
+</body>
+</html>`;
+}
+
+// ============================================
 // FETCH PROJECT DATA
 // ============================================
 async function getProject(projectId) {
@@ -208,7 +287,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { projectId, guests } = req.body;
+    const { projectId, guests, type, customText, includePhotoReminder } = req.body;
+    const emailType = type || 'rsvp_reminder';
 
     if (!projectId || !guests || !Array.isArray(guests) || guests.length === 0) {
       return res.status(400).json({ error: 'projectId and guests[] required' });
@@ -236,7 +316,36 @@ export default async function handler(req, res) {
       ? `https://${project.custom_domain}`
       : `https://siwedding.de/${project.slug}`;
 
-    console.log(`[reminder] Sending ${guests.length} reminders for ${coupleNames} (${theme})`);
+    console.log(`[reminder] Sending ${guests.length} ${emailType} emails for ${coupleNames} (${theme})`);
+
+    // Build email based on type
+    const getEmailConfig = (guest) => {
+      if (emailType === 'post_wedding') {
+        return {
+          subject: `💛 ${coupleNames} – Danke, von ganzem Herzen`,
+          html: buildPostWeddingEmail({
+            guestName: guest.name,
+            coupleNames,
+            weddingDate: project.wedding_date,
+            websiteUrl,
+            theme,
+            customText: customText || '',
+            includePhotoReminder: !!includePhotoReminder,
+          }),
+        };
+      }
+      // Default: RSVP reminder
+      return {
+        subject: `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
+        html: buildReminderEmail({
+          guestName: guest.name,
+          coupleNames,
+          weddingDate: project.wedding_date,
+          websiteUrl,
+          theme,
+        }),
+      };
+    };
 
     // Send emails
     let sent = 0;
@@ -244,18 +353,12 @@ export default async function handler(req, res) {
 
     for (const guest of guests) {
       try {
-        const html = buildReminderEmail({
-          guestName: guest.name,
-          coupleNames,
-          weddingDate: project.wedding_date,
-          websiteUrl,
-          theme,
-        });
+        const { subject, html } = getEmailForGuest(guest);
 
         const success = await sendEmail(
           guest.email,
           guest.name,
-          `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
+          subject,
           html,
           coupleNames,
         );

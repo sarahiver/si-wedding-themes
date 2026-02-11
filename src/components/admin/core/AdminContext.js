@@ -466,6 +466,9 @@ export function AdminProvider({ children }) {
     // Config
     cloudName, uploadPreset, baseFolder,
     cloudinaryConfigured: !!(cloudName && uploadPreset),
+    
+    // Features
+    hasArchive, hasSaveTheDate, checkActive,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

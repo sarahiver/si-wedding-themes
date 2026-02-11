@@ -1,43 +1,30 @@
 // core/sections/GuestListSection.js
-// Gästeliste verwalten: CSV/XLSX-Upload, RSVP-Abgleich, Erinnerungen senden
+// Gästeliste verwalten: CSV-Upload, RSVP-Abgleich, Erinnerungen senden
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent } from '../../../../lib/supabase';
-import * as XLSX from 'xlsx';
 
-// CSV parsing
+// CSV/Excel parsing (simple, no library needed)
 function parseCSV(text) {
-  const clean = text.replace(/^\uFEFF/, '').trim();
-  const lines = clean.split(/\r?\n/).filter(l => l.trim());
+  const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
 
-  const firstLine = lines[0];
-  let sep = ',';
-  if (firstLine.includes('\t')) sep = '\t';
-  else if (firstLine.includes(';')) sep = ';';
+  // Detect separator
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const headers = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
 
-  const headers = firstLine.split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g, '').replace(/\s+/g, ''));
-
-  const nameIdx = headers.findIndex(h => ['name', 'gast', 'gästename', 'gastname', 'vorname', 'vollername'].includes(h));
-  const emailIdx = headers.findIndex(h => ['email', 'e-mail', 'mail', 'emailadresse', 'e-mailadresse', 'emailaddress'].includes(h));
+  // Find column indices
+  const nameIdx = headers.findIndex(h => ['name', 'gast', 'gästename', 'gastname', 'vorname'].includes(h));
+  const emailIdx = headers.findIndex(h => ['email', 'e-mail', 'mail', 'emailadresse'].includes(h));
   const groupIdx = headers.findIndex(h => ['gruppe', 'group', 'kategorie', 'kreis'].includes(h));
 
-  const usePositional = nameIdx === -1 || emailIdx === -1;
-  const finalNameIdx = usePositional ? 0 : nameIdx;
-  const finalEmailIdx = usePositional ? 1 : emailIdx;
-
-  if (usePositional && lines.length > 1) {
-    const testCols = lines[1].split(sep);
-    if (!testCols[1] || !testCols[1].includes('@')) return null;
-  }
+  if (nameIdx === -1 || emailIdx === -1) return null; // Invalid format
 
   const guests = [];
-  const startIdx = usePositional && lines[0].split(sep)[1]?.includes('@') ? 0 : 1;
-
-  for (let i = startIdx; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
-    const name = cols[finalNameIdx]?.trim();
-    const email = cols[finalEmailIdx]?.trim();
+    const name = cols[nameIdx]?.trim();
+    const email = cols[emailIdx]?.trim();
     if (name && email && email.includes('@')) {
       guests.push({
         name,
@@ -49,49 +36,19 @@ function parseCSV(text) {
   return guests;
 }
 
-// XLSX/XLS parsing
-function parseXLSX(arrayBuffer) {
-  try {
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-    if (rows.length === 0) return [];
-
-    const keys = Object.keys(rows[0]);
-    const nameKey = keys.find(k => ['name', 'gast', 'gästename', 'gastname', 'vorname'].includes(k.toLowerCase().trim()));
-    const emailKey = keys.find(k => ['email', 'e-mail', 'mail', 'emailadresse'].includes(k.toLowerCase().trim()));
-    const groupKey = keys.find(k => ['gruppe', 'group', 'kategorie', 'kreis'].includes(k.toLowerCase().trim()));
-
-    const finalNameKey = nameKey || keys[0];
-    const finalEmailKey = emailKey || keys[1];
-    if (!finalEmailKey) return null;
-
-    const guests = [];
-    for (const row of rows) {
-      const name = String(row[finalNameKey] || '').trim();
-      const email = String(row[finalEmailKey] || '').trim();
-      if (name && email && email.includes('@')) {
-        guests.push({
-          name,
-          email: email.toLowerCase(),
-          group_name: groupKey ? String(row[groupKey] || '').trim() : '',
-        });
-      }
-    }
-    return guests;
-  } catch (e) {
-    console.error('XLSX parse error:', e);
-    return null;
-  }
-}
-
 function GuestListSection({ components: C }) {
-  const { guestList = [], rsvpData = [], projectId, loadData, showFeedback, searchTerm, setSearchTerm } = useAdmin();
+  const { guestList = [], rsvpData = [], projectId, project, loadData, showFeedback, searchTerm, setSearchTerm, hasArchive, checkActive } = useAdmin();
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendingPostWedding, setSendingPostWedding] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [sendProgress, setSendProgress] = useState({ sent: 0, total: 0 });
+  const [showPostWeddingPanel, setShowPostWeddingPanel] = useState(false);
+
+  // Default post-wedding thank-you text (editable by the couple)
+  const DEFAULT_THANKYOU_TEXT = 'wir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.\n\nDanke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: pures Glück.\n\nWir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛';
+  const [thankYouText, setThankYouText] = useState(DEFAULT_THANKYOU_TEXT);
 
   // RSVP-Abgleich: welche E-Mails haben bereits geantwortet?
   const rsvpEmails = useMemo(() => {
@@ -138,23 +95,52 @@ function GuestListSection({ components: C }) {
   // Pending guests (for reminder)
   const pendingGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'pending'), [enrichedGuests]);
 
-  // File Upload Handler (CSV + XLSX)
+  // Confirmed guests (for post-wedding email)
+  const confirmedGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'confirmed'), [enrichedGuests]);
+
+  // Has photo upload feature active?
+  const hasPhotoUpload = checkActive?.('photoupload');
+
+  // Send combined post-wedding email (thank you + photo reminder)
+  const handleSendPostWedding = useCallback(async () => {
+    if (confirmedGuests.length === 0) return;
+    if (!window.confirm(`💌 Nachricht an ${confirmedGuests.length} Gäste senden, die zugesagt haben?`)) return;
+
+    setSendingPostWedding(true);
+    try {
+      const response = await fetch('/api/reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId,
+          guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+          type: 'post_wedding',
+          customText: thankYouText,
+          includePhotoReminder: !!hasPhotoUpload,
+        }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showFeedback('success', `💌 ${result.sent} Nachrichten versendet!`);
+        await loadData();
+      } else {
+        showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+      }
+    } catch (err) {
+      showFeedback('error', 'Netzwerkfehler: ' + err.message);
+    }
+    setSendingPostWedding(false);
+  }, [projectId, confirmedGuests, thankYouText, hasPhotoUpload, showFeedback, loadData]);
+
+  // CSV Upload Handler
   const handleFileUpload = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const isExcel = file.name.match(/\.xlsx?$/i);
-      let guests;
-
-      if (isExcel) {
-        const buffer = await file.arrayBuffer();
-        guests = parseXLSX(buffer);
-      } else {
-        const text = await file.text();
-        guests = parseCSV(text);
-      }
+      const text = await file.text();
+      const guests = parseCSV(text);
 
       if (guests === null) {
         showFeedback('error', 'Ungültiges Format. Die Datei muss mindestens die Spalten "Name" und "Email" enthalten.');
@@ -292,23 +278,195 @@ function GuestListSection({ components: C }) {
         </div>
       </C.ActionBar>
 
+      {/* Post-Wedding Email (only if Archive feature is available + confirmed guests exist) */}
+      {hasArchive && stats.confirmed > 0 && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.25rem', background: 'linear-gradient(135deg, rgba(201,169,98,0.08), rgba(201,169,98,0.02))', border: '1px solid rgba(201,169,98,0.15)' }}>
+          <div
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+            onClick={() => setShowPostWeddingPanel(!showPostWeddingPanel)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>💌</span>
+              <div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit – Danke sagen</h3>
+                <p style={{ fontSize: '0.75rem', opacity: 0.5, margin: '0.15rem 0 0 0' }}>
+                  Persönliche Nachricht an alle {stats.confirmed} Gäste, die zugesagt haben
+                </p>
+              </div>
+            </div>
+            <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: showPostWeddingPanel ? 'rotate(180deg)' : 'none' }}>▾</span>
+          </div>
+
+          {showPostWeddingPanel && (
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                Schreibt euren Gästen eine persönliche Danke-Nachricht. Der Text wird im Design eurer Website verschickt.
+                {hasPhotoUpload && ' Am Ende der Mail wird automatisch an den Foto-Upload auf eurer Website erinnert.'}
+              </p>
+
+              {/* Greeting preview */}
+              <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '0.25rem', fontStyle: 'italic' }}>
+                „Liebe/r [Gastname],"
+              </div>
+
+              {/* Editable text area */}
+              <textarea
+                value={thankYouText}
+                onChange={(e) => setThankYouText(e.target.value)}
+                style={{
+                  width: '100%',
+                  minHeight: '180px',
+                  padding: '0.85rem',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.7,
+                  border: '1px solid rgba(128,128,128,0.2)',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.05)',
+                  color: 'inherit',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  marginBottom: '0.5rem',
+                }}
+              />
+
+              {/* Signature preview */}
+              <div style={{ fontSize: '0.8rem', opacity: 0.5, marginBottom: '0.75rem', fontStyle: 'italic' }}>
+                „In Liebe, [Eure Namen]"
+              </div>
+
+              {/* Photo reminder preview */}
+              {hasPhotoUpload && (
+                <div style={{ padding: '0.75rem', background: 'rgba(59,130,246,0.06)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.12)', marginBottom: '1rem' }}>
+                  <p style={{ fontSize: '0.78rem', opacity: 0.5, margin: 0, lineHeight: 1.5 }}>
+                    📸 <em>Am Ende der Mail erscheint automatisch:</em> „Habt ihr noch Fotos von unserem Tag? Wir würden sie so gerne sehen! Ladet sie einfach auf unserer Website hoch – jedes Bild ist für uns ein kleiner Schatz."
+                  </p>
+                </div>
+              )}
+
+              {/* Reset + Send */}
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <C.ActionButton
+                  onClick={handleSendPostWedding}
+                  disabled={sendingPostWedding || !thankYouText.trim()}
+                  $primary
+                >
+                  {sendingPostWedding ? '⏳ Wird gesendet...' : `💌 An ${stats.confirmed} Gäste senden`}
+                </C.ActionButton>
+                {thankYouText !== DEFAULT_THANKYOU_TEXT && (
+                  <button
+                    onClick={() => setThankYouText(DEFAULT_THANKYOU_TEXT)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78rem', opacity: 0.4, textDecoration: 'underline' }}
+                  >
+                    Auf Vorlage zurücksetzen
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </C.Card>
+      )}
+
+      {/* Post-Wedding Email (only if Archive feature is available + confirmed guests) */}
+      {hasArchive && stats.confirmed > 0 && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', border: '1px solid rgba(201,169,98,0.25)', background: 'linear-gradient(135deg, rgba(201,169,98,0.06), rgba(201,169,98,0.01))' }}>
+          <div
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+            onClick={() => setShowPostWeddingEditor(!showPostWeddingEditor)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>💌</span>
+              <div>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit – Danke sagen</h3>
+                <p style={{ fontSize: '0.78rem', opacity: 0.5, margin: '2px 0 0 0' }}>
+                  Persönliche Danke-Mail an {stats.confirmed} Gäste{hasPhotoUpload ? ' (inkl. Foto-Erinnerung)' : ''}
+                </p>
+              </div>
+            </div>
+            <span style={{ fontSize: '1.2rem', opacity: 0.4, transition: 'transform 0.2s', transform: showPostWeddingEditor ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+          </div>
+
+          {showPostWeddingEditor && (
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                Euer persönlicher Text wird an alle Gäste verschickt, die zugesagt haben. Passt ihn nach Herzenslust an – er sollte sich nach euch anfühlen.
+                {hasPhotoUpload && ' Am Ende der Mail werden eure Gäste automatisch daran erinnert, ihre Fotos hochzuladen.'}
+              </p>
+
+              <textarea
+                value={thankYouText}
+                onChange={e => setThankYouText(e.target.value)}
+                rows={8}
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  fontSize: '0.88rem',
+                  lineHeight: 1.7,
+                  border: '1px solid rgba(128,128,128,0.2)',
+                  borderRadius: '8px',
+                  background: 'rgba(128,128,128,0.05)',
+                  color: 'inherit',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                }}
+                placeholder="Euer Dankestext..."
+              />
+
+              {thankYouText !== DEFAULT_THANKYOU_TEXT && (
+                <button
+                  onClick={() => setThankYouText(DEFAULT_THANKYOU_TEXT)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '0.75rem', opacity: 0.4, padding: '4px 0', marginTop: '4px',
+                    color: 'inherit', textDecoration: 'underline',
+                  }}
+                >
+                  ↩ Originaltext wiederherstellen
+                </button>
+              )}
+
+              {hasPhotoUpload && (
+                <div style={{
+                  marginTop: '0.75rem', padding: '0.75rem 1rem',
+                  background: 'rgba(59,130,246,0.06)', borderRadius: '8px',
+                  fontSize: '0.78rem', opacity: 0.6, lineHeight: 1.6,
+                  borderLeft: '3px solid rgba(59,130,246,0.3)',
+                }}>
+                  📸 <strong>Foto-Erinnerung wird automatisch angefügt:</strong> „Habt ihr noch Fotos von unserem Tag? Ladet sie einfach auf unserer Website hoch – jedes Bild ist uns ein kleiner Schatz."
+                </div>
+              )}
+
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <C.ActionButton
+                  $primary
+                  onClick={handleSendPostWedding}
+                  disabled={sendingPostWedding || !thankYouText.trim()}
+                >
+                  {sendingPostWedding ? '⏳ Wird gesendet...' : `💌 Danke-Mail senden (${stats.confirmed} Gäste)`}
+                </C.ActionButton>
+              </div>
+            </div>
+          )}
+        </C.Card>
+      )}
+
       {/* Confirm Clear */}
       {showConfirmClear && (
-        <C.Panel style={{ marginBottom: '1rem', padding: '1rem', border: '2px solid #ef4444' }}>
+        <C.Card style={{ marginBottom: '1rem', padding: '1rem', border: '2px solid #ef4444' }}>
           <p style={{ marginBottom: '0.75rem' }}>⚠️ Alle {stats.total} Gäste aus der Liste entfernen? RSVP-Antworten bleiben erhalten.</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <C.ActionButton $danger onClick={handleClearAll}>Ja, alle löschen</C.ActionButton>
             <C.ActionButton onClick={() => setShowConfirmClear(false)}>Abbrechen</C.ActionButton>
           </div>
-        </C.Panel>
+        </C.Card>
       )}
 
       {/* Upload Section */}
       {showUpload && (
-        <C.Panel style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
+        <C.Card style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
-            Lade eine Excel- oder CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
+            Lade eine CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
             <strong>Name</strong> und <strong>Email</strong> (optional: <strong>Gruppe</strong>)
           </p>
           <div style={{ background: 'rgba(128,128,128,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.8 }}>
@@ -319,22 +477,22 @@ function GuestListSection({ components: C }) {
             Lisa Weber;lisa@example.de;Kollegen
           </div>
           <p style={{ marginBottom: '1rem', fontSize: '0.8rem', opacity: 0.5 }}>
-            Unterstützt: .xlsx, .xls, .csv (Komma oder Semikolon). Duplikate (gleiche E-Mail) werden übersprungen.
+            Unterstützt: .csv (Komma oder Semikolon getrennt). Duplikate (gleiche E-Mail) werden übersprungen.
           </p>
           <input
             type="file"
-            accept=".csv,.txt,.tsv,.xlsx,.xls"
+            accept=".csv,.txt"
             onChange={handleFileUpload}
             disabled={uploading}
             style={{ fontSize: '0.9rem' }}
           />
           {uploading && <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>⏳ Importiere...</p>}
-        </C.Panel>
+        </C.Card>
       )}
 
       {/* Empty State with visual guide */}
       {stats.total === 0 && !showUpload && (
-        <C.Panel style={{ padding: '2rem' }}>
+        <C.Card style={{ padding: '2rem' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📋</div>
@@ -389,7 +547,7 @@ function GuestListSection({ components: C }) {
 
           {/* Excel tip */}
           <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.78rem', lineHeight: 1.6 }}>
-            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen und die Datei direkt als .xlsx speichern – oder als CSV exportieren. Beides funktioniert!
+            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen, ausfüllen und dann <em>Datei → Speichern unter → CSV (Trennzeichen-getrennt)</em> wählen.
           </div>
 
           {/* CTA */}
@@ -398,12 +556,12 @@ function GuestListSection({ components: C }) {
               📤 CSV importieren
             </C.ActionButton>
           </div>
-        </C.Panel>
+        </C.Card>
       )}
 
       {/* Guest Table */}
       {stats.total > 0 && (
-        <C.Panel style={{ overflow: 'auto' }}>
+        <C.Card style={{ overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid rgba(128,128,128,0.2)' }}>
@@ -445,7 +603,7 @@ function GuestListSection({ components: C }) {
           {filteredGuests.length === 0 && searchTerm && (
             <p style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>Keine Ergebnisse für "{searchTerm}"</p>
           )}
-        </C.Panel>
+        </C.Card>
       )}
     </>
   );
