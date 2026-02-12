@@ -485,6 +485,29 @@ export async function verifyPreviewPassword(slug, password) {
   };
 }
 
+/**
+ * Verifiziert das Admin-Passwort (Kunden-Dashboard) serverseitig
+ * Prüft gegen admin_password in der projects-Tabelle
+ * GETRENNT vom Vorschau-Passwort!
+ */
+export async function verifyAdminPassword(slug, password) {
+  const { data, error } = await supabase
+    .rpc('verify_admin_password', { 
+      project_slug: slug, 
+      input_password: password 
+    });
+  
+  if (error) {
+    console.error('Error verifying admin password:', error);
+    return { success: false, error: error.message };
+  }
+  
+  return { 
+    success: data?.success || false, 
+    error: data?.error || null 
+  };
+}
+
 // ============================================
 // DATA READY NOTIFICATION (Kunde -> Admin)
 // ============================================

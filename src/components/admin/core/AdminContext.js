@@ -158,11 +158,12 @@ export function AdminProvider({ children }) {
     setFeedback(f => ({ ...f, show: false }));
   }, []);
 
-  // AUTH – Serverseitige Verifizierung, Passwort wird NICHT im Frontend verglichen
+  // AUTH – Kunden-Login: prüft admin_password (aus SuperAdmin)
+  // NICHT das Vorschau-Passwort!
   const login = useCallback(async (password) => {
     try {
-      const { verifyPreviewPassword } = await import('../../../lib/supabase');
-      const result = await verifyPreviewPassword(slug, password);
+      const { verifyAdminPassword } = await import('../../../lib/supabase');
+      const result = await verifyAdminPassword(slug, password);
       
       if (result.success) {
         setIsLoggedIn(true);
