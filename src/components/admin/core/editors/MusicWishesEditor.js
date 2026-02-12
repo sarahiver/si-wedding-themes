@@ -1,6 +1,7 @@
 // core/editors/MusicWishesEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import ImageUploader from './ImageUploader';
 
 function MusicWishesEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
@@ -40,6 +41,10 @@ function MusicWishesEditor({ components: C }) {
           />
         </C.FormGroup>
         
+        <C.SectionLabel>Bilder</C.SectionLabel>
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Bild 1" helpText="Erstes Bild (hinten, links)" />
+        <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} label="Bild 2" helpText="Zweites Bild (vorne, rechts)" />
+
         <C.Divider />
         <C.Button onClick={() => saveContent('musicwishes')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}

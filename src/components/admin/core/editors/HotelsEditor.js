@@ -131,6 +131,9 @@ function HotelsEditor({ components: C }) {
           />
         </C.FormGroup>
         
+        <C.SectionLabel>Hero-Bild</C.SectionLabel>
+        <ImageUploader components={C} image={content.hero_image} onUpload={(url) => update('hero_image', url)} label="Vollbild oben" helpText="Großes Bild über der Hotels-Sektion" />
+
         <C.SectionLabel>Hotels (max. 4)</C.SectionLabel>
         <ListEditor 
           components={C} 

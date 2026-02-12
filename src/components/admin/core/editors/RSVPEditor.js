@@ -1,6 +1,7 @@
 // core/editors/RSVPEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import ImageUploader from './ImageUploader';
 
 function RSVPEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
@@ -40,6 +41,9 @@ function RSVPEditor({ components: C }) {
           />
         </C.FormGroup>
         
+        <C.SectionLabel>Hintergrundbild</C.SectionLabel>
+        <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>
         
         <C.FormGroup>

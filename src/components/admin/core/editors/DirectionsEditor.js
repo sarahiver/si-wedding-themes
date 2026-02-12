@@ -3,6 +3,7 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 import AddressSearch from './AddressSearch';
+import ImageUploader from './ImageUploader';
 import { generateEmbedUrl, generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 // Transportmittel-Optionen mit Icon und Label
@@ -205,6 +206,10 @@ function DirectionsEditor({ components: C }) {
           createNewItem={createNewItem}
           addLabel="+ Anreiseoption"
           maxItems={6}
+
+        <C.SectionLabel>Bilder</C.SectionLabel>
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Hauptbild" helpText="Bild rechts neben dem Text" />
+        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
         />
 
         <C.Divider />

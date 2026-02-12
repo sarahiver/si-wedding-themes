@@ -1,6 +1,7 @@
 // core/editors/PhotoUploadEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import ImageUploader from './ImageUploader';
 
 function PhotoUploadEditor({ components: C }) {
   const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
