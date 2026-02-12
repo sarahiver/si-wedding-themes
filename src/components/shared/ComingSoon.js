@@ -964,34 +964,29 @@ const NeonComingSoon = ({ names, date, onLogoClick }) => {
 // VIDEO - Cinematic Film Style
 // ============================================
 const VideoStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
 `;
 
-const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
+const videoFadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
+const videoFadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const videoLineExpand = keyframes`from { transform: scaleX(0); } to { transform: scaleX(1); }`;
 
 const VideoSection = styled.section`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000000;
+  background: #0A0A0A;
   font-family: 'Inter', -apple-system, sans-serif;
   position: relative;
-  padding: 2rem;
+  overflow: hidden;
 `;
 
-const VideoCinemaBar = styled.div`
-  position: absolute;
-  left: 0; right: 0;
-  height: 12vh;
-  background: #000;
-  z-index: 10;
-`;
-
-const VideoScanlines = styled.div`
+const VideoGrain = styled.div`
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   pointer-events: none;
 `;
 
@@ -999,107 +994,126 @@ const VideoContent = styled.div`
   text-align: center;
   position: relative;
   z-index: 5;
-  max-width: 900px;
+  max-width: 800px;
+  padding: 2rem;
 `;
 
 const VideoLogo = styled.div`
   font-family: 'Roboto', 'Arial Black', sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  letter-spacing: -2px;
-  color: #E50914;
+  letter-spacing: -0.06em;
+  color: #6B8CAE;
   margin-bottom: 3rem;
   cursor: pointer;
   user-select: none;
+  opacity: 0;
+  animation: ${videoFadeIn} 0.8s ease forwards;
 `;
 
 const VideoEyebrow = styled.p`
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #E50914;
+  color: #6B8CAE;
   margin: 0 0 2rem;
   opacity: 0;
-  animation: ${fadeUp} 0.8s ease forwards;
+  animation: ${videoFadeUp} 0.8s ease forwards;
   animation-delay: 0.3s;
 `;
 
 const VideoName = styled.h1`
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(3rem, 12vw, 8rem);
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(3rem, 12vw, 7rem);
   font-weight: 700;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   color: #FFFFFF;
   line-height: 0.95;
   margin: 0;
-  text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   opacity: 0;
-  animation: ${fadeUp} 0.8s ease forwards;
+  animation: ${videoFadeIn} 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: ${p => p.$delay};
 `;
 
 const VideoAmp = styled.span`
   display: block;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   font-style: italic;
-  color: #E50914;
-  margin: 0.75rem 0;
+  font-weight: 400;
+  color: #6B8CAE;
+  margin: 1rem 0;
   opacity: 0;
-  animation: ${fadeUp} 0.8s ease forwards;
+  animation: ${videoFadeIn} 0.8s ease forwards;
   animation-delay: 0.7s;
 `;
 
 const VideoDivider = styled.div`
   width: 80px;
-  height: 2px;
-  background: #E50914;
+  height: 1px;
+  background: #6B8CAE;
   margin: 2rem auto;
   transform-origin: center;
   transform: scaleX(0);
-  animation: ${expandLine} 0.8s ease forwards;
+  animation: ${videoLineExpand} 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: 1.1s;
 `;
 
 const VideoDate = styled.p`
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-style: italic;
   color: #FFFFFF;
-  margin: 0;
+  margin: 0 0 0.5rem;
   opacity: 0;
-  animation: ${fadeUp} 0.8s ease forwards;
+  animation: ${videoFadeUp} 0.8s ease forwards;
   animation-delay: 1.3s;
 `;
 
-const VideoStatus = styled.p`
-  font-size: 0.7rem;
+const VideoLocation = styled.p`
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  margin-top: 2rem;
+  color: #B0B0B0;
   opacity: 0;
-  animation: ${fadeUp} 0.8s ease forwards;
-  animation-delay: 1.5s;
+  animation: ${videoFadeUp} 0.8s ease forwards;
+  animation-delay: 1.4s;
+`;
+
+const VideoStatus = styled.p`
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(107, 140, 174, 0.4);
+  margin-top: 2.5rem;
+  opacity: 0;
+  animation: ${videoFadeUp} 0.8s ease forwards;
+  animation-delay: 1.6s;
 `;
 
 const VideoComingSoon = ({ names, date, onLogoClick }) => (
   <>
     <VideoStyles />
     <VideoSection>
-      <VideoCinemaBar style={{top: 0}} />
-      <VideoCinemaBar style={{bottom: 0}} />
-      <VideoScanlines />
+      <VideoGrain />
       <VideoContent>
         <VideoLogo onClick={onLogoClick}>S&I.</VideoLogo>
-        <VideoEyebrow>A Wedding Film</VideoEyebrow>
+        <VideoEyebrow>Wir heiraten</VideoEyebrow>
         <VideoName $delay="0.5s">{names[0]}</VideoName>
         <VideoAmp>&</VideoAmp>
         <VideoName $delay="0.9s">{names[1]}</VideoName>
         <VideoDivider />
         <VideoDate>{date || 'Datum folgt'}</VideoDate>
-        <VideoStatus>● Coming Soon</VideoStatus>
+        <VideoLocation>Berlin</VideoLocation>
+        <VideoStatus>Coming Soon</VideoStatus>
       </VideoContent>
     </VideoSection>
   </>
@@ -1114,7 +1128,7 @@ const THEMES = {
   contemporary: { Component: ContemporaryComingSoon, accent: '#FF6B6B' },
   luxe: { Component: LuxeComingSoon, accent: '#D4AF37' },
   neon: { Component: NeonComingSoon, accent: '#00ffff' },
-  video: { Component: VideoComingSoon, accent: '#E50914' },
+  video: { Component: VideoComingSoon, accent: '#6B8CAE' },
 };
 
 export default function ComingSoon({ onAdminAccess }) {

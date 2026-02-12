@@ -15,21 +15,20 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 // PROJECT
 // ============================================
 
-// SICHERHEIT: Passwörter werden NICHT ans Frontend geschickt
-// admin_password und preview_password bleiben serverseitig
-const PROJECT_PUBLIC_FIELDS = `
-  id, slug, couple_names, wedding_date, theme, status,
-  custom_domain, active_components, custom_styles,
-  location, hashtag, created_at, updated_at,
-  password_protected, contact_email,
-  has_preview_password
-`;
+// SICHERHEIT: Passwörter werden nach dem Fetch entfernt
+// So crasht nichts wegen fehlender Spalten, aber Passwörter
+// gelangen nie in den React State / DevTools
+function stripPasswords(projectData) {
+  if (!projectData) return projectData;
+  const { admin_password, preview_password, ...safe } = projectData;
+  return safe;
+}
 
 export async function getProjectBySlugOrDomain(slugOrDomain) {
   // First try by slug
   let { data, error } = await supabase
     .from('projects')
-    .select(PROJECT_PUBLIC_FIELDS)
+    .select('*')
     .eq('slug', slugOrDomain)
     .single();
   
@@ -37,7 +36,7 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
   if (error || !data) {
     const domainResult = await supabase
       .from('projects')
-      .select(PROJECT_PUBLIC_FIELDS)
+      .select('*')
       .eq('custom_domain', slugOrDomain)
       .single();
     
@@ -45,7 +44,7 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
     error = domainResult.error;
   }
   
-  return { data, error };
+  return { data: stripPasswords(data), error };
 }
 
 export async function getProjectContent(projectId) {
