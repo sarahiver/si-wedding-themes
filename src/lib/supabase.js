@@ -15,23 +15,22 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 // PROJECT
 // ============================================
 
-// SICHERHEIT: Passwörter werden NICHT vom Server geholt
-// Explizite Feldliste statt select('*') – so gehen Passwörter
-// nie über das Netzwerk, nicht mal verschlüsselt
-const PROJECT_PUBLIC_FIELDS = [
-  'id', 'slug', 'couple_names', 'wedding_date', 'theme', 'status',
-  'custom_domain', 'active_components', 'custom_styles',
-  'location', 'hashtag', 'created_at', 'updated_at',
-  'password_protected', 'contact_email', 'package', 'addons',
-  'partner1_name', 'partner2_name', 'std_date', 'archive_date',
-  'hosting_start', 'hosting_end'
-].join(',');
+// SICHERHEIT: select('*') für Kompatibilität, aber Passwörter
+// werden sofort nach dem Fetch entfernt bevor sie in React State landen
+function stripSensitiveFields(data) {
+  if (!data) return data;
+  const cleaned = { ...data };
+  delete cleaned.admin_password;
+  delete cleaned.preview_password;
+  delete cleaned.guest_password;
+  return cleaned;
+}
 
 export async function getProjectBySlugOrDomain(slugOrDomain) {
   // First try by slug
   let { data, error } = await supabase
     .from('projects')
-    .select(PROJECT_PUBLIC_FIELDS)
+    .select('*')
     .eq('slug', slugOrDomain)
     .single();
   
@@ -39,7 +38,7 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
   if (error || !data) {
     const domainResult = await supabase
       .from('projects')
-      .select(PROJECT_PUBLIC_FIELDS)
+      .select('*')
       .eq('custom_domain', slugOrDomain)
       .single();
     
@@ -47,7 +46,7 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
     error = domainResult.error;
   }
   
-  return { data, error };
+  return { data: stripSensitiveFields(data), error };
 }
 
 export async function getProjectContent(projectId) {
