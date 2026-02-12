@@ -2,74 +2,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
-const lineGrow = keyframes`from { transform: scaleY(0); } to { transform: scaleY(1); }`;
-const scaleIn = keyframes`from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); }`;
-const lineExp = keyframes`from { transform: scaleX(0); } to { transform: scaleX(1); }`;
+const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
+const fadeIn = keyframes`from{opacity:0}to{opacity:1}`;
+function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
-const S = styled.section`padding: var(--section-pad) clamp(1.5rem, 5vw, 4rem); background: var(--c-cream);`;
-const Wrap = styled.div`max-width: 800px; margin: 0 auto;`;
-const Header = styled.div`text-align: center; margin-bottom: clamp(4rem, 8vw, 6rem);`;
-const Eye = styled.p`font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--c-gold); margin-bottom: 1rem; opacity: 0; ${p => p.$v && css`animation: ${fadeUp} 0.8s var(--ease) forwards;`}`;
-const Title = styled.h2`font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 300; opacity: 0; ${p => p.$v && css`animation: ${fadeUp} 0.8s var(--ease) forwards; animation-delay: 0.15s;`}`;
-const HLine = styled.div`width: 60px; height: 1px; background: var(--c-gold); margin: 1.5rem auto 0; transform: scaleX(0); ${p => p.$v && css`animation: ${lineExp} 0.6s var(--ease) forwards; animation-delay: 0.25s;`}`;
+const S = styled.section`padding:clamp(4rem,8vh,6rem) clamp(2rem,5vw,5rem) 0;background:var(--c-white);position:relative;z-index:2;`;
+const Hdr = styled.div`max-width:var(--content-w);margin:0 auto 3rem;`;
+const Eye = styled.p`font-size:0.5rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:1rem;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;`}`;
+const Title = styled.h2`font-size:clamp(2rem,4vw,3rem);font-weight:300;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.12s;`}`;
+const Row = styled.div`display:flex;gap:0;width:100vw;margin-left:calc(-1 * clamp(2rem,5vw,5rem));opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.25s;`}@media(max-width:768px){flex-wrap:wrap;width:100%;margin-left:0;}`;
+const Item = styled.div`flex:1;position:relative;overflow:hidden;border-right:1px solid rgba(255,255,255,0.08);&:last-child{border:none;} img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(40%) brightness(0.45);transition:all 0.5s;} &:hover img{filter:grayscale(0%) brightness(0.5);} @media(max-width:768px){flex:0 0 50%;}@media(max-width:500px){flex:0 0 100%;}`;
+const Overlay = styled.div`position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:1.5rem;background:linear-gradient(transparent 40%,rgba(0,0,0,0.5) 100%);`;
+const Time = styled.p`font-family:var(--font-d);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:300;color:white;line-height:1;margin-bottom:0.3rem;`;
+const ITitle = styled.p`font-family:var(--font-d);font-size:clamp(0.9rem,1.5vw,1.15rem);font-weight:400;color:rgba(255,255,255,0.9);margin-bottom:0.15rem;`;
+const IDesc = styled.p`font-size:0.6rem;color:rgba(255,255,255,0.4);`;
+const DEF_IMG = 'https://res.cloudinary.com/si-weddings/image/upload/v1770829488/siwedding/demo-botanical/photos/hr2mofharqklzu8yptxi.jpg';
+const DEFS=[{time:'14:00',title:'Empfang',description:'Sektempfang im Garten',image:DEF_IMG},{time:'15:00',title:'Trauung',description:'Freie Trauung'},{time:'16:30',title:'Kaffee & Kuchen',description:'Hochzeitstorte'},{time:'18:30',title:'Dinner',description:'4-Gänge-Menü'},{time:'21:00',title:'Party',description:'Eröffnungstanz'}];
 
-const TL = styled.div`position: relative; padding: 0 0 0 50px; @media(min-width:769px){ padding: 0; }`;
-const VLine = styled.div`
-  position: absolute; left: 8px; top: 0; bottom: 0; width: 1px;
-  background: var(--c-sand); transform-origin: top; transform: scaleY(0);
-  ${p => p.$v && css`animation: ${lineGrow} 1.5s var(--ease) forwards; animation-delay: 0.3s;`}
-  @media(min-width:769px){ left: 50%; transform: translateX(-50%) scaleY(0);
-    ${p => p.$v && css`animation: ${lineGrow} 1.5s var(--ease) forwards; animation-delay: 0.3s;`} }
-`;
-const Item = styled.div`
-  position: relative; margin-bottom: 3rem;
-  opacity: 0; ${p => p.$v && css`animation: ${fadeUp} 0.6s var(--ease) forwards; animation-delay: ${p.$d};`}
-  @media(min-width:769px){
-    width: 45%; text-align: ${p => p.$side === 'right' ? 'left' : 'right'};
-    margin-left: ${p => p.$side === 'right' ? '55%' : '0'};
-  }
-`;
-const Dot = styled.div`
-  position: absolute; left: -46px; top: 4px; width: 12px; height: 12px;
-  border-radius: 50%; border: 1px solid var(--c-gold); background: var(--c-cream);
-  opacity: 0; ${p => p.$v && css`animation: ${scaleIn} 0.4s var(--ease) forwards; animation-delay: ${p.$d};`}
-  @media(min-width:769px){ left: auto; ${p => p.$side === 'right' ? 'left: -32px;' : 'right: -32px;'} }
-`;
-const Time = styled.p`font-family: var(--font-body); font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--c-gold); margin-bottom: 0.3rem;`;
-const ItemTitle = styled.h3`font-family: var(--font-display); font-size: 1.5rem; font-weight: 400; color: var(--c-text); margin-bottom: 0.5rem;`;
-const ItemDesc = styled.p`font-size: 0.8rem; font-weight: 300; color: var(--c-text-muted); line-height: 1.8;`;
-
-const DEFAULTS = [
-  { time: '14:00', title: 'Empfang', description: 'Ankunft der Gäste mit Sektempfang im Garten' },
-  { time: '15:00', title: 'Trauung', description: 'Die freie Trauung unter freiem Himmel' },
-  { time: '16:30', title: 'Kaffee & Kuchen', description: 'Genießt Kaffee, Kuchen und die Hochzeitstorte' },
-  { time: '18:30', title: 'Dinner', description: 'Festliches Abendessen im großen Saal' },
-  { time: '21:00', title: 'Party', description: 'Eröffnungstanz und Party bis in die Nacht' },
-];
-
-function Timeline() {
-  const { content } = useWedding();
-  const tl = content?.timeline || {};
-  const ref = useRef(null); const [v, setV] = useState(false);
-  useEffect(() => { const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) setV(true); }, { threshold: 0.1 }); if (ref.current) o.observe(ref.current); return () => o.disconnect(); }, []);
-  const items = tl.items?.length ? tl.items : DEFAULTS;
-  return (
-    <S id="timeline" ref={ref}>
-      <Wrap>
-        <Header><Eye $v={v}>Der große Tag</Eye><Title $v={v}>{tl.title || 'Tagesablauf'}</Title><HLine $v={v} /></Header>
-        <TL><VLine $v={v} />
-          {items.map((item, i) => (
-            <Item key={i} $v={v} $d={`${0.4 + i * 0.12}s`} $side={i % 2 === 0 ? 'left' : 'right'}>
-              <Dot $v={v} $d={`${0.4 + i * 0.12}s`} $side={i % 2 === 0 ? 'left' : 'right'} />
-              <Time>{item.time || item.zeit}</Time>
-              <ItemTitle>{item.title || item.titel}</ItemTitle>
-              {(item.description || item.beschreibung) && <ItemDesc>{item.description || item.beschreibung}</ItemDesc>}
-            </Item>
-          ))}
-        </TL>
-      </Wrap>
-    </S>
-  );
-}
+function Timeline(){const{content}=useWedding();const tl=content?.timeline||{};const[ref,v]=useInView();const items=tl.items?.length?tl.items:DEFS;
+return(<S id="timeline" ref={ref}><Hdr><Eye $v={v}>Der große Tag</Eye><Title $v={v}>{tl.title||'Tagesablauf'}</Title></Hdr><Row $v={v}>{items.map((it,i)=>(<Item key={i}><img src={it.image||DEF_IMG} alt={it.title} loading="lazy"/><Overlay><Time>{it.time||it.zeit}</Time><ITitle>{it.title||it.titel}</ITitle>{(it.description||it.beschreibung)&&<IDesc>{it.description||it.beschreibung}</IDesc>}</Overlay></Item>))}</Row></S>);}
 export default Timeline;
