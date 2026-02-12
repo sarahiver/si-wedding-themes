@@ -3,22 +3,110 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
-const fadeIn = keyframes`from{opacity:0}to{opacity:1}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
-const S = styled.section`padding:var(--section-pad) clamp(2rem,5vw,5rem);background:var(--c-white);position:relative;z-index:2;`;
-const Grid = styled.div`max-width:var(--content-w);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:center;@media(max-width:900px){grid-template-columns:1fr;gap:3rem;}`;
-const ImgStack = styled.div`position:relative;height:650px;@media(max-width:900px){height:420px;}@media(max-width:600px){height:350px;}`;
-const ImgBack = styled.div`position:absolute;top:0;left:0;width:62%;overflow:hidden;border:8px solid white;box-shadow:0 20px 50px rgba(0,0,0,0.1);opacity:0;${p=>p.$v&&css`animation:${fadeUp} 1s var(--ease) forwards;`} img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(100%);}`;
-const ImgFront = styled.div`position:absolute;bottom:0;right:0;width:52%;overflow:hidden;z-index:2;border:8px solid white;box-shadow:0 25px 60px rgba(0,0,0,0.12);opacity:0;${p=>p.$v&&css`animation:${fadeUp} 1s var(--ease) forwards;animation-delay:0.2s;`} img{width:100%;aspect-ratio:4/5;object-fit:cover;}`;
-const Txt = styled.div`padding-left:5rem;@media(max-width:900px){padding-left:0;}`;
-const Eye = styled.p`font-size:0.5rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:1.5rem;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;`}`;
-const Title = styled.h2`font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.2;margin-bottom:1.5rem;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.15s;`}`;
-const P = styled.p`font-size:0.82rem;line-height:2;color:var(--c-text-sec);max-width:420px;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.3s;`}`;
-const Sig = styled.div`font-family:var(--font-s);font-size:2.5rem;color:var(--c-text-muted);margin-top:2rem;opacity:0;${p=>p.$v&&css`animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.4s;`}`;
-const DIV_IMG1 = 'https://res.cloudinary.com/si-weddings/image/upload/v1770829488/siwedding/demo-botanical/photos/hr2mofharqklzu8yptxi.jpg';
-const DIV_IMG2 = 'https://res.cloudinary.com/si-weddings/image/upload/v1770716464/siwedding/demo-botanical/lovestory/rg54tyya7phb75yg6dsk.jpg';
+const Section = styled.section`
+  padding: clamp(5rem,12vh,10rem) clamp(2rem,6vw,6rem);
+  background: var(--c-cream); position: relative; z-index: 2;
+`;
+const Inner = styled.div`max-width: 1100px; margin: 0 auto;`;
+const Hdr = styled.div`
+  text-align: center; margin-bottom: clamp(4rem,8vw,7rem);
+  opacity:0;
+  ${p => p.$v && css`animation:${fadeUp} 0.8s var(--ease) forwards;`}
+`;
+const Eye = styled.p`font-size:0.45rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--c-text-muted);margin-bottom:1rem;`;
+const STitle = styled.h2`font-family:var(--font-d);font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:0.5rem;`;
+const Script = styled.span`font-family:var(--font-s);font-size:clamp(1.8rem,3vw,2.5rem);color:var(--c-text-muted);`;
+const Sub = styled.p`font-family:var(--font-d);font-size:1rem;font-style:italic;color:var(--c-text-sec);margin-top:0.5rem;`;
 
-function LoveStory(){const{content,project}=useWedding();const ls=content?.lovestory||{};const[ref,v]=useInView(0.1);const cn=project?.couple_names||'Anna & Max';const img1=ls.image_back||ls.stories?.[0]?.image||DIV_IMG1;const img2=ls.image_front||ls.stories?.[1]?.image||DIV_IMG2;const title=ls.title||'Wie ein Blick alles veränderte';const sub=ls.subtitle||'Unsere Geschichte';const text=ls.text||ls.stories?.[0]?.text||'Was als zufällige Begegnung begann, entwickelte sich schnell zu einer tiefen Verbindung. Gemeinsam haben wir die Welt entdeckt und gelernt, dass wir füreinander bestimmt sind.';
-return(<S id="lovestory" ref={ref}><Grid><ImgStack><ImgBack $v={v}><img src={img1} alt="" loading="lazy"/></ImgBack><ImgFront $v={v}><img src={img2} alt="" loading="lazy"/></ImgFront></ImgStack><Txt><Eye $v={v}>{sub}</Eye><Title $v={v}>{title}</Title><P $v={v}>{text}</P><Sig $v={v}>{cn}</Sig></Txt></Grid></S>);}
+/* Each story block: text + image cluster, alternating */
+const Block = styled.div`
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(3rem,6vw,5rem); align-items: center;
+  margin-bottom: clamp(5rem,10vh,8rem);
+  ${p => p.$rev && css`direction:rtl;`}
+  & > * { direction:ltr; }
+  @media(max-width:900px){ grid-template-columns:1fr; direction:ltr; }
+  &:last-child { margin-bottom: 0; }
+`;
+
+const TextSide = styled.div`
+  max-width: 400px;
+  ${p => p.$rev && css`justify-self:end;`}
+  opacity:0;
+  ${p => p.$v && css`animation:${fadeUp} 0.8s var(--ease) forwards; animation-delay:0.12s;`}
+`;
+
+const Year = styled.p`
+  font-family: var(--font-d); font-size: 2.5rem; font-weight: 300;
+  color: rgba(0,0,0,0.06); line-height: 1; margin-bottom: 0.5rem;
+`;
+const BTitle = styled.h3`font-family:var(--font-d);font-size:clamp(1.5rem,3vw,2rem);font-weight:300;margin-bottom:1rem;`;
+const BText = styled.p`font-size:0.82rem;line-height:2;color:var(--c-text-sec);`;
+
+const ImageCluster = styled.div`
+  position: relative; opacity:0;
+  ${p => p.$v && css`animation:${fadeUp} 0.8s var(--ease) forwards; animation-delay:0.24s;`}
+`;
+const MainImg = styled.img`
+  width: 80%; aspect-ratio: 4/5; object-fit: cover;
+  filter: grayscale(100%);
+  ${p => p.$rev && css`margin-left:auto;display:block;`}
+`;
+const AccImg = styled.img`
+  position: absolute; width: 50%; aspect-ratio: 3/4;
+  object-fit: cover; border: 6px solid white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  z-index: 2;
+  /* front image is in color */
+  filter: none;
+  ${p => p.$rev ? css`bottom:-1.5rem;left:0;` : css`bottom:-1.5rem;right:0;`}
+`;
+
+const DEFAULT_STORIES = [
+  { year:'2019', title:'Wo alles begann', text:'Es war ein ganz normaler Tag, als wir uns zum ersten Mal begegnet sind. Was als zufälliges Treffen begann, entwickelte sich schnell zu etwas Besonderem.', image:'https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/hr2mofharqklzu8yptxi.jpg', accent_image:'https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/rg54tyya7phb75yg6dsk.jpg' },
+  { year:'2021', title:'Unser Abenteuer', text:'Zusammen haben wir die Welt entdeckt. Jede Reise, jeder gemeinsame Moment hat uns näher zusammengebracht.', image:'https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/uj61pv6uqigwyh5pidvi.jpg', accent_image:'https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/gxmqpkk0ksnveevic9fp.jpg' },
+  { year:'2025', title:'Die große Frage', text:'An einem magischen Abend stellte sich die Frage aller Fragen – und die Antwort war ein überglückliches Ja!', image:'https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/cxlyozhisgrvupguqsa6.jpg', accent_image:'https://res.cloudinary.com/si-weddings/image/upload/v1770720374/siwedding/demo-botanical/hotels/jzbjzmnwiisapct8yevz.jpg' },
+];
+
+function StoryBlock({ story, index }) {
+  const [ref, v] = useInView(0.08);
+  const rev = index % 2 === 1;
+  return (
+    <Block ref={ref} $rev={rev}>
+      <TextSide $v={v} $rev={rev}>
+        <Year>{story.year}</Year>
+        <BTitle>{story.title}</BTitle>
+        <BText>{story.text}</BText>
+      </TextSide>
+      <ImageCluster $v={v}>
+        <MainImg src={story.image} alt={story.title} loading="lazy" $rev={rev} />
+        {story.accent_image && <AccImg src={story.accent_image} alt="" loading="lazy" $rev={rev} />}
+      </ImageCluster>
+    </Block>
+  );
+}
+
+function LoveStory() {
+  const { content } = useWedding();
+  const ls = content?.lovestory || {};
+  const [hRef, hV] = useInView();
+  const title = ls.title || 'Unsere Geschichte';
+  const subtitle = ls.subtitle || 'Wie alles begann';
+  const stories = ls.stories?.length ? ls.stories : DEFAULT_STORIES;
+
+  return (
+    <Section id="lovestory">
+      <Inner>
+        <Hdr ref={hRef} $v={hV}>
+          <Eye>Über uns</Eye>
+          <STitle>{title}</STitle>
+          <Script>{subtitle}</Script>
+        </Hdr>
+        {stories.map((story, i) => <StoryBlock key={i} story={story} index={i} />)}
+      </Inner>
+    </Section>
+  );
+}
 export default LoveStory;
