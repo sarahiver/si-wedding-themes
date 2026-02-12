@@ -17,6 +17,7 @@ import EditorialGlobalStyles from "../themes/editorial/GlobalStyles"
 import LuxeGlobalStyles from "../themes/luxe/GlobalStyles"
 import NeonGlobalStyles from "../themes/neon/GlobalStyles"
 import VideoGlobalStyles from "../themes/video/GlobalStyles"
+import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
 
 // LoadingScreens per Theme
 import BotanicalLoadingScreen from "../themes/botanical/LoadingScreen"
@@ -24,6 +25,7 @@ import ContemporaryLoadingScreen from "../themes/contemporary/LoadingScreen"
 import EditorialLoadingScreen from "../themes/editorial/LoadingScreen"
 import LuxeLoadingScreen from "../themes/luxe/LoadingScreen"
 import NeonLoadingScreen from "../themes/neon/LoadingScreen"
+import ClassicLoadingScreen from "../themes/classic/LoadingScreen"
 
 // Special Components
 import BotanicalBackground from "../themes/botanical/BotanicalBackground"
@@ -182,6 +184,27 @@ const themeComponents = {
     ContactWitnesses: lazy(() => import("../themes/video/ContactWitnesses")),
     Footer: lazy(() => import("../themes/video/Footer")),
   },
+  classic: {
+    Navigation: lazy(() => import("../themes/classic/Navigation")),
+    Hero: lazy(() => import("../themes/classic/Hero")),
+    Countdown: lazy(() => import("../themes/classic/Countdown")),
+    LoveStory: lazy(() => import("../themes/classic/LoveStory")),
+    Timeline: lazy(() => import("../themes/classic/Timeline")),
+    Locations: lazy(() => import("../themes/classic/Locations")),
+    Directions: lazy(() => import("../themes/classic/Directions")),
+    Accommodations: lazy(() => import("../themes/classic/Accommodations")),
+    RSVP: lazy(() => import("../themes/classic/RSVP")),
+    Gallery: lazy(() => import("../themes/classic/Gallery")),
+    Guestbook: lazy(() => import("../themes/classic/Guestbook")),
+    MusicWishes: lazy(() => import("../themes/classic/MusicWishes")),
+    PhotoUpload: lazy(() => import("../themes/classic/PhotoUpload")),
+    Gifts: lazy(() => import("../themes/classic/Gifts")),
+    Dresscode: lazy(() => import("../themes/classic/Dresscode")),
+    FAQ: lazy(() => import("../themes/classic/FAQ")),
+    WeddingABC: lazy(() => import("../themes/classic/WeddingABC")),
+    ContactWitnesses: lazy(() => import("../themes/classic/ContactWitnesses")),
+    Footer: lazy(() => import("../themes/classic/Footer")),
+  },
 }
 
 // ============================================
@@ -225,6 +248,12 @@ const themeConfig = {
     background: "#0a0a0a",
     hasSpecialBackground: false,
     isHorizontalScroll: true,
+  },
+  classic: {
+    GlobalStyles: ClassicGlobalStyles,
+    LoadingScreen: ClassicLoadingScreen,
+    background: "#FFFFFF",
+    hasSpecialBackground: false,
   },
 }
 
