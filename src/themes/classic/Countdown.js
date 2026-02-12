@@ -14,5 +14,5 @@ const Lbl = styled.div`font-family:var(--font-b);font-size:0.5rem;font-weight:30
 
 function Countdown(){const{content,weddingDate}=useWedding();const cd=content?.countdown||{};const[ref,v]=useInView();const[t,setT]=useState({d:0,h:0,m:0,s:0});const target=cd.target_date||weddingDate||'2026-08-15T14:00:00';
 useEffect(()=>{const calc=()=>{const diff=Math.max(0,new Date(target)-new Date());setT({d:Math.floor(diff/864e5),h:Math.floor((diff%864e5)/36e5),m:Math.floor((diff%36e5)/6e4),s:Math.floor((diff%6e4)/1e3)});}; calc();const id=setInterval(calc,1000);return()=>clearInterval(id);},[target]);
-return(<S id="countdown" ref={ref}><Eye $v={v}>{cd.title||'Bald ist es soweit'}</Eye><Grid $v={v}><div><Num>{t.d}</Num><Lbl>Tage</Lbl></div><div><Num>{t.h}</Num><Lbl>Stunden</Lbl></div><div><Num>{t.m}</Num><Lbl>Minuten</Lbl></div><div><Num>{t.s}</Num><Lbl>Sekunden</Lbl></div></Grid></S>);}
+return(<S id="countdown" data-theme-light ref={ref}><Eye $v={v}>{cd.title||'Bald ist es soweit'}</Eye><Grid $v={v}><div><Num>{t.d}</Num><Lbl>Tage</Lbl></div><div><Num>{t.h}</Num><Lbl>Stunden</Lbl></div><div><Num>{t.m}</Num><Lbl>Minuten</Lbl></div><div><Num>{t.s}</Num><Lbl>Sekunden</Lbl></div></Grid></S>);}
 export default Countdown;
