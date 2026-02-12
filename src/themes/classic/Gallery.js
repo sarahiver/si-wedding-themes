@@ -9,26 +9,33 @@ const Hdr = styled.div`text-align:center;margin-bottom:3rem;`;
 const Eye = styled.p`font-family:var(--font-s);font-size:clamp(1.4rem,2.5vw,1.8rem);color:var(--c-accent);margin-bottom:0.5rem;`;
 const Title = styled.h2`font-family:var(--font-d);font-size:clamp(2rem,4vw,3rem);font-weight:300;`;
 
-/* Flexbox masonry - no fixed grid, smaller previews, thin white borders */
+/* Grid with proper spacing, never touching screen edges */
 const Grid = styled.div`
-  max-width:var(--content-w);margin:0 auto;
-  display:flex;flex-wrap:wrap;gap:4px;justify-content:center;
+  max-width:var(--content-w,1200px);margin:0 auto;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  @media(max-width:768px){grid-template-columns:repeat(2,1fr);}
+  @media(max-width:500px){grid-template-columns:1fr;}
 `;
 const Item = styled.div`
-  flex:0 0 auto;width:${p=>p.$w||'180px'};overflow:hidden;
-  border:3px solid white;box-shadow:0 4px 15px rgba(0,0,0,0.05);
+  overflow:hidden;border:3px solid white;box-shadow:0 4px 15px rgba(0,0,0,0.06);
   cursor:pointer;transition:all 0.4s;
   &:hover{box-shadow:0 8px 25px rgba(0,0,0,0.1);transform:translateY(-2px);}
-  img{width:100%;aspect-ratio:${p=>p.$ratio||'1'};object-fit:cover;
+  img{width:100%;aspect-ratio:${p=>p.$ratio||'4/3'};object-fit:cover;
     filter:grayscale(100%);transition:filter 0.5s, transform 0.5s;}
-  &:hover img{filter:grayscale(0%);transform:scale(1.04);}
+  &:hover img{filter:grayscale(0%);transform:scale(1.03);}
 `;
-const Modal = styled.div`position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.9);
+/* Feature image spanning 2 cols */
+const FeatureItem = styled(Item)`
+  grid-column:span 2;
+  @media(max-width:500px){grid-column:span 1;}
+  img{aspect-ratio:16/9;}
+`;
+
+const Modal = styled.div`position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);
   display:flex;align-items:center;justify-content:center;padding:2rem;cursor:pointer;
   opacity:${p=>p.$o?1:0};pointer-events:${p=>p.$o?'auto':'none'};transition:opacity 0.3s;
-  img{max-width:90%;max-height:90vh;object-fit:contain;}`;
+  img{max-width:90%;max-height:90vh;object-fit:contain;border:6px solid white;}`;
 
-const DIMS=[{w:'220px',r:'4/5'},{w:'170px',r:'1'},{w:'200px',r:'3/4'},{w:'160px',r:'1'},{w:'240px',r:'4/3'},{w:'180px',r:'3/4'},{w:'190px',r:'1'}];
 const DIMGS=[
   'https://res.cloudinary.com/si-weddings/image/upload/v1770829488/siwedding/demo-botanical/photos/hr2mofharqklzu8yptxi.jpg',
   'https://res.cloudinary.com/si-weddings/image/upload/v1770716464/siwedding/demo-botanical/lovestory/rg54tyya7phb75yg6dsk.jpg',
@@ -47,9 +54,13 @@ function Gallery(){
     <S id="gallery" data-theme-light ref={ref}>
       <Hdr><Eye>Impressionen</Eye><Title>{g.title||'Galerie'}</Title></Hdr>
       <Grid>
-        {images.map((img,i)=>{const d=DIMS[i%DIMS.length];const url=typeof img==='string'?img:img.url||img.thumbnail_url;
-          return(<Item key={img.id||i} $w={d.w} $ratio={d.r} onClick={()=>setModal(url)}>
-            <img src={url} alt="" loading="lazy"/></Item>);})}
+        {images.map((img,i)=>{
+          const url=typeof img==='string'?img:img.url||img.thumbnail_url;
+          const isFeature=i===0;
+          const Comp=isFeature?FeatureItem:Item;
+          return(<Comp key={img.id||i} $ratio={isFeature?'16/9':'4/3'} onClick={()=>setModal(url)}>
+            <img src={url} alt="" loading="lazy"/></Comp>);
+        })}
       </Grid>
       <Modal $o={!!modal} onClick={()=>setModal(null)}>{modal&&<img src={modal} alt=""/>}</Modal>
     </S>);
