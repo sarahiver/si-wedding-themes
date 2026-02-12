@@ -13,6 +13,7 @@ import { ContemporaryAdminComponents } from './styles/ContemporaryAdminStyles';
 import { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 import { NeonAdminComponents } from './styles/NeonAdminStyles';
 import { VideoAdminComponents } from './styles/VideoAdminStyles';
+import { ClassicAdminComponents } from './styles/ClassicAdminStyles';
 
 // ============================================
 // Core exports (for creating custom themes)
@@ -54,6 +55,11 @@ export function VideoAdmin() {
   return <AdminShell components={VideoAdminComponents} />;
 }
 
+// Classic - Warm, elegant, timeless
+export function ClassicAdmin() {
+  return <AdminShell components={ClassicAdminComponents} />;
+}
+
 // ============================================
 // Style components exports (for customization)
 // ============================================
@@ -63,3 +69,4 @@ export { ContemporaryAdminComponents } from './styles/ContemporaryAdminStyles';
 export { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 export { NeonAdminComponents } from './styles/NeonAdminStyles';
 export { VideoAdminComponents } from './styles/VideoAdminStyles';
+export { ClassicAdminComponents } from './styles/ClassicAdminStyles';

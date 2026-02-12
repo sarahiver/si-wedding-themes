@@ -158,6 +158,32 @@ import VideoTimeline from "../themes/video/Timeline"
 import VideoWeddingABC from "../themes/video/WeddingABC"
 
 // ============================================
+// CLASSIC THEME IMPORTS
+// ============================================
+import ClassicAccommodations from "../themes/classic/Accommodations"
+import ClassicArchivePage from "../themes/classic/ArchivePage"
+import ClassicContactWitnesses from "../themes/classic/ContactWitnesses"
+import ClassicCountdown from "../themes/classic/Countdown"
+import ClassicDirections from "../themes/classic/Directions"
+import ClassicDresscode from "../themes/classic/Dresscode"
+import ClassicFAQ from "../themes/classic/FAQ"
+import ClassicFooter from "../themes/classic/Footer"
+import ClassicGallery from "../themes/classic/Gallery"
+import ClassicGifts from "../themes/classic/Gifts"
+import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
+import ClassicGuestbook from "../themes/classic/Guestbook"
+import ClassicHero from "../themes/classic/Hero"
+import ClassicLocations from "../themes/classic/Locations"
+import ClassicLoveStory from "../themes/classic/LoveStory"
+import ClassicMusicWishes from "../themes/classic/MusicWishes"
+import ClassicNavigation from "../themes/classic/Navigation"
+import ClassicPhotoUpload from "../themes/classic/PhotoUpload"
+import ClassicRSVP from "../themes/classic/RSVP"
+import ClassicSaveTheDate from "../themes/classic/SaveTheDate"
+import ClassicTimeline from "../themes/classic/Timeline"
+import ClassicWeddingABC from "../themes/classic/WeddingABC"
+
+// ============================================
 // THEME REGISTRY
 // ============================================
 const themes = {
@@ -295,6 +321,30 @@ const themes = {
     WeddingABC: VideoWeddingABC,
     PhotoUpload: VideoPhotoUpload,
     Footer: VideoFooter,
+  },
+  classic: {
+    GlobalStyles: ClassicGlobalStyles,
+    Navigation: ClassicNavigation,
+    Hero: ClassicHero,
+    Countdown: ClassicCountdown,
+    LoveStory: ClassicLoveStory,
+    Timeline: ClassicTimeline,
+    Locations: ClassicLocations,
+    Directions: ClassicDirections,
+    RSVP: ClassicRSVP,
+    Dresscode: ClassicDresscode,
+    Gifts: ClassicGifts,
+    Accommodations: ClassicAccommodations,
+    ContactWitnesses: ClassicContactWitnesses,
+    Gallery: ClassicGallery,
+    MusicWishes: ClassicMusicWishes,
+    Guestbook: ClassicGuestbook,
+    FAQ: ClassicFAQ,
+    WeddingABC: ClassicWeddingABC,
+    PhotoUpload: ClassicPhotoUpload,
+    Footer: ClassicFooter,
+    SaveTheDate: ClassicSaveTheDate,
+    ArchivePage: ClassicArchivePage,
   },
 }
 
