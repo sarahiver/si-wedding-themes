@@ -15,11 +15,21 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 // PROJECT
 // ============================================
 
+// SICHERHEIT: Passwörter werden NICHT ans Frontend geschickt
+// admin_password und preview_password bleiben serverseitig
+const PROJECT_PUBLIC_FIELDS = `
+  id, slug, couple_names, wedding_date, theme, status,
+  custom_domain, active_components, custom_styles,
+  location, hashtag, created_at, updated_at,
+  password_protected, contact_email,
+  has_preview_password
+`;
+
 export async function getProjectBySlugOrDomain(slugOrDomain) {
   // First try by slug
   let { data, error } = await supabase
     .from('projects')
-    .select('*')
+    .select(PROJECT_PUBLIC_FIELDS)
     .eq('slug', slugOrDomain)
     .single();
   
@@ -27,7 +37,7 @@ export async function getProjectBySlugOrDomain(slugOrDomain) {
   if (error || !data) {
     const domainResult = await supabase
       .from('projects')
-      .select('*')
+      .select(PROJECT_PUBLIC_FIELDS)
       .eq('custom_domain', slugOrDomain)
       .single();
     
@@ -443,6 +453,28 @@ export async function verifyProjectPassword(slug, password) {
   
   if (error) {
     console.error('Error verifying password:', error);
+    return { success: false, error: error.message };
+  }
+  
+  return { 
+    success: data?.success || false, 
+    error: data?.error || null 
+  };
+}
+
+/**
+ * Verifiziert das Vorschau-Passwort serverseitig
+ * Das Passwort wird NIEMALS ans Frontend geschickt
+ */
+export async function verifyPreviewPassword(slug, password) {
+  const { data, error } = await supabase
+    .rpc('verify_preview_password', { 
+      project_slug: slug, 
+      input_password: password 
+    });
+  
+  if (error) {
+    console.error('Error verifying preview password:', error);
     return { success: false, error: error.message };
   }
   

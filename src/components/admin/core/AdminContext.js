@@ -67,8 +67,7 @@ export function AdminProvider({ children }) {
   // Content States - Schema-compliant
   const [contentStates, setContentStates] = useState({});
   
-  // Config - KEIN unsicherer Fallback mehr!
-  const adminPassword = project?.admin_password || null;
+  // Config - Passwörter werden NICHT mehr im Frontend gespeichert
   const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
   const baseFolder = `siwedding/${slug || 'default'}`;
@@ -159,24 +158,27 @@ export function AdminProvider({ children }) {
     setFeedback(f => ({ ...f, show: false }));
   }, []);
 
-  // AUTH
-  const login = useCallback((password) => {
-    // Kein Passwort konfiguriert
-    if (!adminPassword) {
-      setLoginError('Kein Admin-Passwort konfiguriert. Bitte kontaktiere den Support.');
+  // AUTH – Serverseitige Verifizierung, Passwort wird NICHT im Frontend verglichen
+  const login = useCallback(async (password) => {
+    try {
+      const { verifyPreviewPassword } = await import('../../../lib/supabase');
+      const result = await verifyPreviewPassword(slug, password);
+      
+      if (result.success) {
+        setIsLoggedIn(true);
+        setLoginError('');
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(`admin_logged_in_${slug}`, 'true');
+        }
+        return true;
+      }
+      setLoginError('Falsches Passwort');
+      return false;
+    } catch (err) {
+      setLoginError('Verbindungsfehler');
       return false;
     }
-    if (password === adminPassword) {
-      setIsLoggedIn(true);
-      setLoginError('');
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(`admin_logged_in_${slug}`, 'true');
-      }
-      return true;
-    }
-    setLoginError('Falsches Passwort');
-    return false;
-  }, [adminPassword, slug]);
+  }, [slug]);
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);

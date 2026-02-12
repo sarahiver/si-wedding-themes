@@ -1118,7 +1118,7 @@ const THEMES = {
 };
 
 export default function ComingSoon({ onAdminAccess }) {
-  const { project, theme, coupleNames, weddingDate } = useWedding();
+  const { project, theme, coupleNames, weddingDate, slug } = useWedding();
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1144,12 +1144,16 @@ export default function ComingSoon({ onAdminAccess }) {
     });
   }, []);
 
-  const handleLogin = useCallback((password) => {
+  const handleLogin = useCallback(async (password) => {
     setError('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (password === project?.admin_password) {
+    try {
+      // Serverseitige Verifizierung – Passwort wird NICHT im Frontend verglichen
+      const { verifyPreviewPassword } = await import('../../lib/supabase');
+      const result = await verifyPreviewPassword(slug, password);
+      
+      if (result.success) {
         sessionStorage.setItem(`admin_preview_${project.id}`, 'true');
         setShowLogin(false);
         if (onAdminAccess) onAdminAccess();
@@ -1157,9 +1161,12 @@ export default function ComingSoon({ onAdminAccess }) {
       } else {
         setError('Falsches Passwort');
       }
+    } catch (err) {
+      setError('Ein Fehler ist aufgetreten');
+    } finally {
       setIsLoading(false);
-    }, 100);
-  }, [project, onAdminAccess]);
+    }
+  }, [project, onAdminAccess, slug]);
 
   return (
     <>
