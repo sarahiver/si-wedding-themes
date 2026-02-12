@@ -298,55 +298,32 @@ function ProjectWrapper() {
   );
 }
 
-// Platzhalterseite für siwedding.de Root → Link zu sarahiver.com
+// Platzhalterseite für siwedding.de Root → Fullscreen Video + Link zu sarahiver.com
 function LandingPage() {
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      flexDirection: 'column',
-      fontFamily: 'Roboto, system-ui, sans-serif',
-      textAlign: 'center',
-      padding: '2rem',
-      background: '#0a0a0a',
-      color: '#fff'
-    }}>
-      <div>
-        <h1 style={{ 
-          fontSize: 'clamp(2.5rem, 8vw, 4rem)', 
-          marginBottom: '0.5rem',
-          fontWeight: 700,
-          letterSpacing: '-0.06em'
-        }}>S&I.</h1>
-        <p style={{ 
-          color: '#666', 
-          fontSize: '0.85rem', 
-          marginBottom: '2.5rem',
-          letterSpacing: '0.05em' 
-        }}>Premium Hochzeits-Websites</p>
-        <a 
-          href="https://sarahiver.com" 
-          style={{
-            display: 'inline-block',
-            padding: '0.9rem 2.5rem',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#fff',
-            textDecoration: 'none',
-            fontSize: '0.7rem',
-            fontWeight: 500,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={e => { e.target.style.background = '#fff'; e.target.style.color = '#0a0a0a'; }}
-          onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = '#fff'; }}
-        >
-          Mehr erfahren →
-        </a>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        .si-landing { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
+        .si-landing-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) brightness(0.4); }
+        .si-landing-content { position: relative; z-index: 10; text-align: center; padding: 2rem; }
+        .si-landing-logo { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; color: #fff; letter-spacing: -0.06em; margin-bottom: 0.5rem; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.5s; }
+        .si-landing-sub { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(0.7rem, 2vw, 0.85rem); color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3rem; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.8s; }
+        .si-landing-btn { display: inline-block; padding: 1rem 3rem; border: 1px solid rgba(255,255,255,0.25); color: #fff; text-decoration: none; font-family: 'Roboto', system-ui, sans-serif; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; transition: all 0.4s ease; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 1.1s; backdrop-filter: blur(4px); background: rgba(255,255,255,0.03); }
+        .si-landing-btn:hover { background: #fff; color: #0a0a0a; border-color: #fff; }
+        @keyframes siFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+      <div className="si-landing">
+        <video className="si-landing-video" autoPlay muted loop playsInline>
+          <source src="https://res.cloudinary.com/si-weddings/video/upload/v1770287435/212698_small_cibloj.mp4" type="video/mp4" />
+        </video>
+        <div className="si-landing-content">
+          <div className="si-landing-logo">S&I.</div>
+          <p className="si-landing-sub">Premium Hochzeits-Websites</p>
+          <a href="https://sarahiver.com" className="si-landing-btn">Mehr erfahren →</a>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
