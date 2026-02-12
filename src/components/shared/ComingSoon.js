@@ -1120,31 +1120,137 @@ const VideoComingSoon = ({ names, date, onLogoClick }) => (
 );
 
 // ============================================
-// MAIN COMPONENT
+// MAIN COMPONENT – Einheitliche S&I. Coming Soon
 // ============================================
-const THEMES = {
-  botanical: { Component: BotanicalComingSoon, accent: '#40916C' },
-  editorial: { Component: EditorialComingSoon, accent: '#C41E3A' },
-  contemporary: { Component: ContemporaryComingSoon, accent: '#FF6B6B' },
-  luxe: { Component: LuxeComingSoon, accent: '#D4AF37' },
-  neon: { Component: NeonComingSoon, accent: '#00ffff' },
-  video: { Component: VideoComingSoon, accent: '#6B8CAE' },
-};
+// Zeigt KEINE Paar-Infos (Namen, Datum etc.)
+// Nur S&I. Branding + CTA auf sarahiver.com
+// Triple-Click auf Logo öffnet Admin-Login
+
+const csFadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const csFadeUp = keyframes`from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }`;
+const csLineGrow = keyframes`from { transform: scaleX(0); } to { transform: scaleX(1); }`;
+const csPulse = keyframes`0%, 100% { opacity: 0.4; } 50% { opacity: 1; }`;
+
+const CSPage = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0A0A0A;
+  position: relative;
+  overflow: hidden;
+`;
+
+const CSGrain = styled.div`
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+`;
+
+const CSContent = styled.div`
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  max-width: 600px;
+`;
+
+const CSLogo = styled.div`
+  font-family: 'Roboto', 'Arial Black', sans-serif;
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: #FFFFFF;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0;
+  animation: ${csFadeIn} 1s ease forwards;
+`;
+
+const CSLine = styled.div`
+  width: 60px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 auto 2rem;
+  transform-origin: center;
+  transform: scaleX(0);
+  animation: ${csLineGrow} 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.5s;
+`;
+
+const CSHeadline = styled.h1`
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+  opacity: 0;
+  animation: ${csFadeUp} 0.8s ease forwards;
+  animation-delay: 0.7s;
+`;
+
+const CSSubline = styled.p`
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.6;
+  margin: 0 0 2.5rem;
+  opacity: 0;
+  animation: ${csFadeUp} 0.8s ease forwards;
+  animation-delay: 0.9s;
+`;
+
+const CSCTA = styled.a`
+  display: inline-block;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-decoration: none;
+  padding: 1rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: ${csFadeUp} 0.8s ease forwards;
+  animation-delay: 1.1s;
+
+  &:hover {
+    background: #FFFFFF;
+    color: #0A0A0A;
+    border-color: #FFFFFF;
+  }
+`;
+
+const CSStatus = styled.p`
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.15);
+  margin-top: 3rem;
+  opacity: 0;
+  animation: ${csFadeIn} 0.8s ease forwards;
+  animation-delay: 1.4s;
+`;
+
+const CSStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+`;
 
 export default function ComingSoon({ onAdminAccess }) {
-  const { project, theme, coupleNames, weddingDate, slug } = useWedding();
+  const { project, slug } = useWedding();
   const [showLogin, setShowLogin] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [clickCount, setClickCount] = useState(0);
-
-  const config = THEMES[theme] || THEMES.editorial;
-  const ThemeComponent = config.Component;
-
-  const names = coupleNames?.split('&').map(n => n.trim()) || ['Name', 'Name'];
-  const formattedDate = weddingDate 
-    ? new Date(weddingDate).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
-    : null;
 
   const handleLogoClick = useCallback(() => {
     setClickCount(prev => {
@@ -1163,7 +1269,6 @@ export default function ComingSoon({ onAdminAccess }) {
     setIsLoading(true);
 
     try {
-      // Serverseitige Verifizierung – Passwort wird NICHT im Frontend verglichen
       const { verifyPreviewPassword } = await import('../../lib/supabase');
       const result = await verifyPreviewPassword(slug, password);
       
@@ -1184,12 +1289,25 @@ export default function ComingSoon({ onAdminAccess }) {
 
   return (
     <>
-      <ThemeComponent names={names} date={formattedDate} onLogoClick={handleLogoClick} />
+      <CSStyles />
+      <CSPage>
+        <CSGrain />
+        <CSContent>
+          <CSLogo onClick={handleLogoClick}>S&I.</CSLogo>
+          <CSLine />
+          <CSHeadline>Hier entsteht eine wunderschöne Hochzeitswebsite.</CSHeadline>
+          <CSSubline>Individuelle Designs, RSVP, Gästeliste & mehr – handgemacht für euren großen Tag.</CSSubline>
+          <CSCTA href="https://sarahiver.com" target="_blank" rel="noopener noreferrer">
+            Themes entdecken
+          </CSCTA>
+          <CSStatus>Coming Soon</CSStatus>
+        </CSContent>
+      </CSPage>
       <LoginModal 
         show={showLogin}
         onClose={() => setShowLogin(false)}
         onSubmit={handleLogin}
-        accent={config.accent}
+        accent="#FFFFFF"
         error={error}
         isLoading={isLoading}
       />
