@@ -304,11 +304,11 @@ function LandingPage() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        .si-landing { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
+        .si-landing { position: fixed; inset: 0; overflow: hidden; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
         .si-landing-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) brightness(0.4); }
         .si-landing-content { position: relative; z-index: 10; text-align: center; padding: 2rem; }
-        .si-landing-logo { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; color: #fff; letter-spacing: -0.06em; margin-bottom: 0.5rem; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.5s; }
-        .si-landing-sub { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(0.7rem, 2vw, 0.85rem); color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3rem; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.8s; }
+        .si-landing-logo { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; color: #fff; letter-spacing: -0.06em; margin: 0 0 0.5rem 0; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.5s; }
+        .si-landing-sub { font-family: 'Roboto', system-ui, sans-serif; font-size: clamp(0.7rem, 2vw, 0.85rem); color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 3rem 0; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 0.8s; }
         .si-landing-btn { display: inline-block; padding: 1rem 3rem; border: 1px solid rgba(255,255,255,0.25); color: #fff; text-decoration: none; font-family: 'Roboto', system-ui, sans-serif; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; transition: all 0.4s ease; opacity: 0; animation: siFadeUp 1s ease forwards; animation-delay: 1.1s; backdrop-filter: blur(4px); background: rgba(255,255,255,0.03); }
         .si-landing-btn:hover { background: #fff; color: #0a0a0a; border-color: #fff; }
         @keyframes siFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
