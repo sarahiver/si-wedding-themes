@@ -25,6 +25,7 @@ import NeonGlobalStyles from './themes/neon/GlobalStyles';
 import ContemporaryGlobalStyles from './themes/contemporary/GlobalStyles';
 import VideoGlobalStyles from './themes/video/GlobalStyles';
 import EditorialGlobalStyles from './themes/editorial/GlobalStyles';
+import ClassicGlobalStyles from './themes/classic/GlobalStyles';
 
 const globalStylesMap = {
   botanical: BotanicalGlobalStyles,
@@ -33,6 +34,7 @@ const globalStylesMap = {
   contemporary: ContemporaryGlobalStyles,
   video: VideoGlobalStyles,
   editorial: EditorialGlobalStyles,
+  classic: ClassicGlobalStyles,
 };
 
 // Lazy load theme-specific pages (aber nicht GlobalStyles)
@@ -66,6 +68,11 @@ const themePages = {
     AdminDashboard: lazy(() => import('./themes/editorial/AdminDashboard')),
     ArchivePage: lazy(() => import('./themes/editorial/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/editorial/SaveTheDate')),
+  },
+  classic: {
+    AdminDashboard: lazy(() => import('./themes/classic/AdminDashboard')),
+    ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
+    SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
   },
 };
 
@@ -262,10 +269,28 @@ function ThemeRouter() {
   );
 }
 
-// Project wrapper
+// Project wrapper - sets noindex for all customer wedding pages
 function ProjectWrapper() {
   const { slug } = useParams();
-  
+
+  // Prevent Google from indexing individual wedding pages
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      // Cleanup on unmount
+      if (meta && meta.parentNode) {
+        meta.parentNode.removeChild(meta);
+      }
+    };
+  }, []);
+
   return (
     <WeddingProvider slug={slug}>
       <ThemeRouter />
@@ -273,7 +298,7 @@ function ProjectWrapper() {
   );
 }
 
-// Landing page für Root
+// Platzhalterseite für siwedding.de Root → Link zu sarahiver.com
 function LandingPage() {
   return (
     <div style={{ 
@@ -281,6 +306,7 @@ function LandingPage() {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
+      flexDirection: 'column',
       fontFamily: 'Roboto, system-ui, sans-serif',
       textAlign: 'center',
       padding: '2rem',
@@ -289,12 +315,36 @@ function LandingPage() {
     }}>
       <div>
         <h1 style={{ 
-          fontSize: '3rem', 
-          marginBottom: '1rem',
+          fontSize: 'clamp(2.5rem, 8vw, 4rem)', 
+          marginBottom: '0.5rem',
           fontWeight: 700,
-          letterSpacing: '-2px'
+          letterSpacing: '-0.06em'
         }}>S&I.</h1>
-        <p style={{ color: '#666' }}>Premium Hochzeits-Websites</p>
+        <p style={{ 
+          color: '#666', 
+          fontSize: '0.85rem', 
+          marginBottom: '2.5rem',
+          letterSpacing: '0.05em' 
+        }}>Premium Hochzeits-Websites</p>
+        <a 
+          href="https://sarahiver.com" 
+          style={{
+            display: 'inline-block',
+            padding: '0.9rem 2.5rem',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#fff',
+            textDecoration: 'none',
+            fontSize: '0.7rem',
+            fontWeight: 500,
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={e => { e.target.style.background = '#fff'; e.target.style.color = '#0a0a0a'; }}
+          onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = '#fff'; }}
+        >
+          Mehr erfahren →
+        </a>
       </div>
     </div>
   );
