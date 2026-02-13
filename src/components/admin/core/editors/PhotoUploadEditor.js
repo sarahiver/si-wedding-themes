@@ -4,7 +4,7 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function PhotoUploadEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.photoupload || {};
   const update = (field, value) => updateContent('photoupload', { ...content, [field]: value });
 
@@ -14,6 +14,17 @@ function PhotoUploadEditor({ components: C }) {
         <C.PanelTitle>Foto-Upload bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
+        <ImageUploader
+          components={C}
+          image={content.background_image}
+          onUpload={(url) => update('background_image', url)}
+          folder={`${baseFolder}/photoupload`}
+          ratio="21/9"
+          label="Hintergrundbild"
+          helpText="Vollbild hinter der Upload-Sektion"
+          maxHeight="120px"
+        />
+        
         <C.FormGroup>
           <C.Label>Titel</C.Label>
           <C.Input 

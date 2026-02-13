@@ -72,10 +72,10 @@ function Gifts(){
       <Grid>
         <ImgStack>
           <GiftImg style={{width:'60%',top:'0',left:'0',zIndex:1}} $ratio="4/5" $reserved={false}>
-            <img src={giftItems[0]?.image||GIMGS[0]} alt="" loading="lazy"/>
+            <img src={g.image||giftItems[0]?.image||GIMGS[0]} alt="" loading="lazy"/>
           </GiftImg>
           <GiftImg style={{width:'50%',top:'20%',left:'45%',zIndex:2}} $ratio="3/4" $reserved={false}>
-            <img src={giftItems[1]?.image||GIMGS[1]} alt="" loading="lazy"/>
+            <img src={g.image2||giftItems[1]?.image||GIMGS[1]} alt="" loading="lazy"/>
           </GiftImg>
         </ImgStack>
         <div>

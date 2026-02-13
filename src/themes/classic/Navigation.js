@@ -74,8 +74,18 @@ function Navigation() {
     { id: 'lovestory', label: 'Über Uns', href: '#lovestory' },
     { id: 'timeline', label: 'Ablauf', href: '#timeline' },
     { id: 'locations', label: 'Location', href: '#locations' },
+    { id: 'directions', label: 'Anfahrt', href: '#directions' },
+    { id: 'accommodations', label: 'Unterkünfte', href: '#accommodations' },
     { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
     { id: 'gallery', label: 'Galerie', href: '#gallery' },
+    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
+    { id: 'musicwishes', label: 'Musik', href: '#musicwishes' },
+    { id: 'photoupload', label: 'Fotos', href: '#photoupload' },
+    { id: 'gifts', label: 'Geschenke', href: '#gifts' },
+    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
+    { id: 'faq', label: 'FAQ', href: '#faq' },
+    { id: 'weddingabc', label: 'ABC', href: '#weddingabc' },
+    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
   ].filter(item => isComponentActive(item.id));
 
   const scrollTo = (e, href) => {

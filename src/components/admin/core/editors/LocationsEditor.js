@@ -74,10 +74,27 @@ function LocationsEditor({ components: C }) {
           folder={`${baseFolder}/locations`}
           ratio="16/9"
           maxHeight="100px"
-          label="Bild (optional)"
+          label="Hauptbild"
+        />
+        <ImageUploader
+          components={C}
+          image={item.accent_image}
+          onUpload={(url) => onChange('accent_image', url)}
+          folder={`${baseFolder}/locations`}
+          ratio="1/1"
+          maxHeight="80px"
+          label="Akzent-Bild (optional, überlappt Hauptbild)"
         />
 
-        {/* Name + Icon */}
+        {/* Label + Name + Icon */}
+        <C.FormGroup>
+          <C.Label>Label (z.B. "Trauung", "Feier")</C.Label>
+          <C.Input
+            value={item.label || ''}
+            onChange={(e) => onChange('label', e.target.value)}
+            placeholder="Trauung"
+          />
+        </C.FormGroup>
         <C.FormRow>
           <C.FormGroup style={{ flex: 1 }}>
             <C.Label>Name *</C.Label>
@@ -239,8 +256,8 @@ function LocationsEditor({ components: C }) {
           onItemsChange={(locs) => update('locations', locs)}
           renderItem={renderItem}
           createNewItem={() => ({
-            name: '', type: '', address: '', time: '', description: '',
-            image: '', maps_url: '', icon: '📍', lat: null, lng: null,
+            name: '', label: '', type: '', address: '', time: '', description: '',
+            image: '', accent_image: '', maps_url: '', icon: '📍', lat: null, lng: null,
           })}
           addLabel="+ Location"
           maxItems={4}

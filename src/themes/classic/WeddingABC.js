@@ -53,7 +53,7 @@ function WeddingABC(){
   const[active,setActive]=useState(null);
   return(
     <S id="weddingabc" data-theme-light>
-      <HeroImg><img src={heroImg} alt="" loading="lazy"/>
+      <HeroImg><img src={abc.hero_image||heroImg} alt="" loading="lazy"/>
         <HeroOv><HEye>Von A bis Z</HEye><HTitle>{abc.title||'Hochzeits-ABC'}</HTitle></HeroOv>
       </HeroImg>
       <Content>

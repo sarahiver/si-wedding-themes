@@ -57,7 +57,7 @@ function Accommodations() {
             <HImg><img src={h.image||HIMGS[i%HIMGS.length]} alt={h.name||''} loading="lazy"/></HImg>
             <HInfo>
               <HName>{h.name||h.titel}</HName>
-              <HMeta>{h.distance||h.entfernung}{h.price?` · ${h.price}`:''}</HMeta>
+              <HMeta>{h.distance||h.entfernung}{(h.price_range||h.price)?` · ${h.price_range||h.price}`:''}</HMeta>
               {h.description&&<HP>{h.description}</HP>}
             </HInfo>
           </HotelCard>

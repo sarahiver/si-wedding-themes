@@ -124,6 +124,16 @@ function HeroEditor({ components: C }) {
         </C.FormGroup>
         
         <C.FormGroup>
+          <C.Label>Script-Zeile (unter den Namen)</C.Label>
+          <C.Input 
+            value={content.script_line || ''} 
+            onChange={(e) => update('script_line', e.target.value)}
+            placeholder="füreinander bestimmt"
+          />
+          <C.HelpText>Erscheint in Schreibschrift unter den Namen (z.B. Classic Theme)</C.HelpText>
+        </C.FormGroup>
+        
+        <C.FormGroup>
           <C.Label>Ort (kurz)</C.Label>
           <C.Input 
             value={content.location_short || ''} 

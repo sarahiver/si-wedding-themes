@@ -218,6 +218,28 @@ function GiftsEditor({ components: C }) {
         <C.PanelTitle>Geschenke bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
+        <C.SectionLabel>Section-Bilder</C.SectionLabel>
+        <C.HelpText>Dekorative Bilder neben der Geschenkliste (Classic: überlappende Bilder)</C.HelpText>
+        <ImageUploader
+          components={C}
+          image={content.image}
+          onUpload={(url) => update('image', url)}
+          folder={`${baseFolder}/gifts`}
+          ratio="3/4"
+          label="Bild 1 (groß, hinten)"
+          maxHeight="120px"
+        />
+        <ImageUploader
+          components={C}
+          image={content.image2}
+          onUpload={(url) => update('image2', url)}
+          folder={`${baseFolder}/gifts`}
+          ratio="4/5"
+          label="Bild 2 (klein, vorne)"
+          maxHeight="100px"
+        />
+        <C.Divider />
+        
         <C.FormGroup>
           <C.Label>Titel</C.Label>
           <C.Input

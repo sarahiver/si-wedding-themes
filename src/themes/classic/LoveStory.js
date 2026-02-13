@@ -47,13 +47,15 @@ function LoveStory() {
   const ls = content?.lovestory || {};
   const [ref, v] = useInView(0.1);
   const cn = project?.couple_names || 'Anna & Max';
+  // Classic fields first, then fallback to milestone events for backward compat
   const events = ls.events || ls.stories || [];
-  const img1 = events[0]?.image || ls.image_back || D1;
-  const img2 = events[1]?.image || ls.image_front || D2;
-  const img3 = events[2]?.image || D3;
+  const img1 = ls.image_back || events[0]?.image || D1;
+  const img2 = ls.image_front || events[1]?.image || D2;
+  const img3 = ls.image_accent || events[2]?.image || D3;
   const sub = ls.subtitle || 'Unsere Geschichte';
   const title = ls.title || 'Wie alles begann';
   const text = ls.text || events[0]?.text || 'Was als zufällige Begegnung begann, entwickelte sich schnell zu einer tiefen Verbindung – und der Gewissheit, dass wir füreinander bestimmt sind.';
+  const signature = ls.signature || cn;
 
   return (
     <S id="lovestory" data-theme-light ref={ref}>
@@ -67,7 +69,7 @@ function LoveStory() {
           <Sub $v={v}>{sub}</Sub>
           <Title $v={v}>{title}</Title>
           <P $v={v}>{text}</P>
-          <Names $v={v}>{cn}</Names>
+          <Names $v={v}>{signature}</Names>
         </Txt>
       </Grid>
     </S>
