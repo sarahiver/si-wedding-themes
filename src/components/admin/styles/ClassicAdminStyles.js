@@ -1,218 +1,210 @@
-// themes/classic/ClassicAdminStyles.js - Warm, elegant, timeless - Classic Theme
+// ClassicAdminStyles.js - Classic Theme Admin Dashboard
+// Design DNA: White/cream background, dark text, gold accents
+// Cormorant Garamond display, Josefin Sans body, editorial line elements
 import styled, { keyframes, css } from 'styled-components';
 
-const fadeIn = keyframes`from { opacity: 0; } to { opacity: 1; }`;
+const fadeIn = keyframes`from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); }`;
 const spin = keyframes`to { transform: rotate(360deg); }`;
-const shimmer = keyframes`0% { background-position: -200% 0; } 100% { background-position: 200% 0; }`;
+const lineExpand = keyframes`from { width: 0; } to { width: 60px; }`;
 
-// Classic: Deep charcoal, champagne gold, cream accents
-// --classic-charcoal: #1A1A1A, --classic-gold: #C4A87C, --classic-cream: #F5F0EB
+// Colors from Classic Theme
+const c = {
+  white: '#FFFFFF',
+  cream: '#FDFCFA',
+  creamDark: '#F5F2EE',
+  warm: '#F0EBE3',
+  dark: '#1A1A1A',
+  text: '#1A1A1A',
+  textSec: '#555555',
+  textMuted: '#999999',
+  gold: '#C4A87C',
+  border: 'rgba(0,0,0,0.08)',
+  borderDark: 'rgba(0,0,0,0.12)',
+  error: '#C41E3A',
+  success: '#3A7D44',
+};
 
+// LOGIN - Cream background, centered white card
 export const LoginContainer = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%);
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:${c.creamDark};
 `;
-
 export const LoginBox = styled.div`
-  background: #242424;
-  border: 1px solid #333;
-  max-width: 440px;
-  width: 90%;
-  padding: 3rem;
-  animation: ${fadeIn} 0.6s ease;
+  background:${c.white}; max-width:420px; width:90%; padding:3.5rem 3rem;
+  position:relative; box-shadow:0 4px 30px rgba(0,0,0,0.06);
+  animation:${fadeIn} 0.6s ease;
+  &::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:60px; height:2px; background:${c.gold}; animation:${lineExpand} 0.8s ease forwards; }
 `;
-
 export const LoginLogo = styled.div`
-  text-align: center;
-  margin-bottom: 2.5rem;
-  h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem;
-    font-weight: 400;
-    letter-spacing: 0.15em;
-    color: #C4A87C;
-    span { font-style: italic; color: #F5F0EB; }
-  }
-  p { font-family: 'Josefin Sans', sans-serif; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #777; margin-top: 0.75rem; }
+  text-align:center; margin-bottom:2.5rem; padding-top:1rem;
+  h1 { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:300;
+    letter-spacing:0.12em; color:${c.dark}; line-height:1.2;
+    span { display:block; font-family:'Great Vibes',cursive; font-size:1.1rem;
+      font-weight:400; color:${c.gold}; letter-spacing:0.02em; margin-top:0.25rem; } }
+  p { font-family:'Josefin Sans',sans-serif; font-size:0.6rem; letter-spacing:0.25em;
+    text-transform:uppercase; color:${c.textMuted}; margin-top:1rem; }
 `;
-
-export const LoginForm = styled.form`display: flex; flex-direction: column; gap: 1.5rem;`;
-export const LoginError = styled.p`font-size: 0.85rem; color: #FF6B6B; text-align: center; padding: 1rem; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3);`;
+export const LoginForm = styled.form`display:flex; flex-direction:column; gap:1.25rem;`;
+export const LoginError = styled.p`font-family:'Josefin Sans',sans-serif; font-size:0.8rem; color:${c.error}; text-align:center; padding:0.75rem 1rem; background:rgba(196,30,58,0.05); border:1px solid rgba(196,30,58,0.12);`;
 export const LoginButton = styled.button`
-  width: 100%;
-  padding: 1.25rem;
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #C4A87C, #E0C994, #C4A87C);
-  background-size: 200% auto;
-  color: #1A1A1A;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  &:hover { animation: ${shimmer} 2s linear infinite; }
+  width:100%; padding:1.1rem; font-family:'Josefin Sans',sans-serif; font-size:0.6rem;
+  font-weight:600; letter-spacing:0.2em; text-transform:uppercase;
+  background:${c.dark}; color:${c.cream}; border:none; cursor:pointer;
+  transition:all 0.3s; &:hover { background:#333; }
 `;
-export const BackLink = styled.a`display: block; text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #666; text-decoration: none; letter-spacing: 0.1em; cursor: pointer; &:hover { color: #C4A87C; }`;
+export const BackLink = styled.a`display:block; text-align:center; margin-top:2rem; font-family:'Josefin Sans',sans-serif; font-size:0.65rem; letter-spacing:0.1em; color:${c.textMuted}; text-decoration:none; cursor:pointer; &:hover { color:${c.gold}; }`;
 
-export const DashboardContainer = styled.div`min-height: 100vh; display: flex; background: #1A1A1A;`;
-
+// DASHBOARD
+export const DashboardContainer = styled.div`min-height:100vh; display:flex; background:${c.cream};`;
 export const Sidebar = styled.aside`
-  width: 280px;
-  background: #242424;
-  border-right: 1px solid #333;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  padding: 2rem 0;
-  overflow-y: auto;
-  z-index: 100;
-  @media (max-width: 968px) { transform: translateX(${p => p.$open ? '0' : '-100%'}); transition: transform 0.3s ease; }
+  width:260px; background:${c.white}; border-right:1px solid ${c.border};
+  position:fixed; top:0; left:0; bottom:0; padding:2rem 0; overflow-y:auto; z-index:100;
+  @media(max-width:968px){ transform:translateX(${p=>p.$open?'0':'-100%'}); transition:transform 0.3s ease; box-shadow:${p=>p.$open?'4px 0 20px rgba(0,0,0,0.08)':'none'}; }
 `;
-
-export const SidebarHeader = styled.div`padding: 0 1.5rem 2rem; border-bottom: 1px solid #333; margin-bottom: 1rem;`;
-export const SidebarLogo = styled.div`font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; letter-spacing: 0.1em; color: #C4A87C; span { font-style: italic; color: #F5F0EB; }`;
-export const SidebarSub = styled.p`font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: #666; margin-top: 0.25rem;`;
-export const NavSection = styled.div`margin-bottom: 0.5rem;`;
-export const NavSectionTitle = styled.div`padding: 0.75rem 1.5rem 0.5rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.55rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #555;`;
-
+export const SidebarHeader = styled.div`
+  padding:0 1.5rem 1.5rem; border-bottom:1px solid ${c.border}; margin-bottom:1.25rem;
+  &::after { content:''; display:block; width:30px; height:1px; background:${c.gold}; margin-top:1rem; }
+`;
+export const SidebarLogo = styled.div`font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:300; letter-spacing:0.1em; color:${c.dark}; span { font-family:'Great Vibes',cursive; font-size:0.9rem; color:${c.gold}; }`;
+export const SidebarSub = styled.p`font-family:'Josefin Sans',sans-serif; font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:${c.textMuted}; margin-top:0.35rem;`;
+export const NavSection = styled.div`margin-bottom:0.25rem;`;
+export const NavSectionTitle = styled.div`padding:1rem 1.5rem 0.5rem; font-family:'Josefin Sans',sans-serif; font-size:0.5rem; font-weight:600; letter-spacing:0.25em; text-transform:uppercase; color:${c.textMuted};`;
 export const NavItem = styled.button`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.8rem;
-  color: ${p => p.$active ? '#F5F0EB' : '#888'};
-  background: ${p => p.$active ? 'rgba(201, 168, 108, 0.1)' : 'transparent'};
-  border: none;
-  border-left: 2px solid ${p => p.$active ? '#C4A87C' : 'transparent'};
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s;
-  &:hover { background: rgba(201, 168, 108, 0.05); color: #F5F0EB; }
+  width:100%; display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1.5rem;
+  font-family:'Josefin Sans',sans-serif; font-size:0.75rem; font-weight:${p=>p.$active?'400':'300'};
+  letter-spacing:0.04em; color:${p=>p.$active?c.dark:c.textSec};
+  background:${p=>p.$active?c.creamDark:'transparent'};
+  border:none; border-left:2px solid ${p=>p.$active?c.gold:'transparent'};
+  cursor:pointer; text-align:left; transition:all 0.2s;
+  &:hover { background:${c.cream}; color:${c.dark}; }
 `;
+export const NavBadge = styled.span`margin-left:auto; font-size:0.5rem; font-weight:600; padding:0.15rem 0.45rem; background:${p=>p.$warning?'rgba(196,30,58,0.08)':'rgba(196,168,124,0.15)'}; color:${p=>p.$warning?c.error:c.gold};`;
+export const NavDivider = styled.div`height:1px; background:${c.border}; margin:0.75rem 1.5rem;`;
+export const Main = styled.main`flex:1; margin-left:260px; padding:2.5rem 2rem; max-width:920px; @media(max-width:968px){ margin-left:0; }`;
+export const Header = styled.header`
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-bottom:2.5rem; padding-bottom:1.25rem; border-bottom:1px solid ${c.border}; position:relative;
+  &::after { content:''; position:absolute; bottom:-1px; left:0; width:40px; height:2px; background:${c.gold}; }
+`;
+export const PageTitle = styled.h1`font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:300; letter-spacing:0.06em; color:${c.dark};`;
+export const MobileMenuToggle = styled.button`display:none; position:fixed; top:1rem; right:1rem; z-index:101; background:${c.white}; border:1px solid ${c.border}; color:${c.dark}; padding:0.75rem; cursor:pointer; @media(max-width:968px){ display:block; }`;
 
-export const NavBadge = styled.span`margin-left: auto; font-size: 0.55rem; font-weight: 600; padding: 0.15rem 0.5rem; background: ${p => p.$warning ? 'rgba(255, 107, 107, 0.2)' : '#C4A87C'}; color: ${p => p.$warning ? '#FF6B6B' : '#1A1A1A'};`;
-export const NavDivider = styled.div`height: 1px; background: #333; margin: 1rem 1.5rem;`;
-export const Main = styled.main`flex: 1; margin-left: 280px; padding: 2rem; max-width: 900px; @media (max-width: 968px) { margin-left: 0; }`;
-export const Header = styled.header`display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #333;`;
-export const PageTitle = styled.h1`font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 400; letter-spacing: 0.05em; color: #F5F0EB;`;
-export const MobileMenuToggle = styled.button`display: none; position: fixed; top: 1rem; right: 1rem; z-index: 101; background: #242424; border: 1px solid #333; color: #F5F0EB; padding: 0.75rem; cursor: pointer; @media (max-width: 968px) { display: block; }`;
+// STATS
+export const StatsGrid = styled.div`display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px; background:${c.border}; border:1px solid ${c.border}; margin-bottom:2rem;`;
+export const StatCard = styled.div`background:${c.white}; padding:1.25rem 1rem; text-align:center;`;
+export const StatNumber = styled.div`font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:300; color:${c.dark};`;
+export const StatLabel = styled.div`font-family:'Josefin Sans',sans-serif; font-size:0.5rem; letter-spacing:0.2em; text-transform:uppercase; color:${c.textMuted}; margin-top:0.4rem;`;
+export const Card = styled.div`background:${c.white}; border:1px solid ${c.border}; padding:1.25rem;`;
 
-export const StatsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem;`;
-export const StatCard = styled.div`background: #242424; border: 1px solid #333; padding: 1.5rem; text-align: center;`;
-export const StatNumber = styled.div`font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: #C4A87C;`;
-export const StatLabel = styled.div`font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: #666; margin-top: 0.5rem;`;
+// PANELS
+export const Panel = styled.div`background:${c.white}; border:1px solid ${c.border}; margin-bottom:1.5rem;`;
+export const PanelHeader = styled.div`padding:1rem 1.5rem; border-bottom:1px solid ${c.border}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;`;
+export const PanelTitle = styled.h3`font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:400; letter-spacing:0.03em; color:${c.dark};`;
+export const PanelContent = styled.div`padding:1.5rem; max-height:${p=>p.$maxHeight||'auto'}; overflow-y:auto;`;
 
-export const Panel = styled.div`background: #242424; border: 1px solid #333; margin-bottom: 1.5rem;`;
-export const PanelHeader = styled.div`padding: 1.25rem 1.5rem; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;`;
-export const PanelTitle = styled.h3`font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; color: #F5F0EB;`;
-export const PanelContent = styled.div`padding: 1.5rem; max-height: ${p => p.$maxHeight || 'auto'}; overflow-y: auto;`;
+// TABLE
+export const TableWrapper = styled.div`overflow-x:auto;`;
+export const Table = styled.table`width:100%; border-collapse:collapse; font-size:0.85rem;`;
+export const Th = styled.th`text-align:left; padding:0.75rem 1rem; font-family:'Josefin Sans',sans-serif; font-size:0.55rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:${c.textMuted}; border-bottom:1px solid ${c.borderDark};`;
+export const Td = styled.td`padding:0.85rem 1rem; border-bottom:1px solid ${c.border}; color:${c.textSec}; font-weight:300;`;
+export const StatusBadge = styled.span`font-size:0.6rem; font-weight:500; padding:0.2rem 0.5rem; background:${p=>p.$status==='confirmed'?'rgba(58,125,68,0.08)':p.$status==='declined'?'rgba(196,30,58,0.08)':'rgba(196,168,124,0.1)'}; color:${p=>p.$status==='confirmed'?c.success:p.$status==='declined'?c.error:c.gold};`;
 
-export const TableWrapper = styled.div`overflow-x: auto;`;
-export const Table = styled.table`width: 100%; border-collapse: collapse; font-size: 0.85rem;`;
-export const Th = styled.th`text-align: left; padding: 1rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; border-bottom: 1px solid #333;`;
-export const Td = styled.td`padding: 1rem; border-bottom: 1px solid #2D2D2D; color: #DDD;`;
-export const StatusBadge = styled.span`font-size: 0.65rem; font-weight: 500; padding: 0.25rem 0.6rem; background: ${p => p.$status === 'confirmed' ? 'rgba(76, 175, 80, 0.15)' : p.$status === 'declined' ? 'rgba(255, 107, 107, 0.15)' : 'rgba(255, 183, 77, 0.15)'}; color: ${p => p.$status === 'confirmed' ? '#4CAF50' : p.$status === 'declined' ? '#FF6B6B' : '#FFB74D'};`;
+// FORMS
+export const FormGroup = styled.div`margin-bottom:1rem;`;
+export const Label = styled.label`display:block; font-family:'Josefin Sans',sans-serif; font-size:0.55rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:${c.textSec}; margin-bottom:0.5rem;`;
+export const SectionLabel = styled.div`font-family:'Josefin Sans',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:${c.gold}; margin:1.75rem 0 0.75rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(196,168,124,0.2);`;
+export const Input = styled.input`width:100%; padding:0.85rem 1rem; font-family:'Josefin Sans',sans-serif; font-size:0.85rem; font-weight:300; border:1px solid ${p=>p.$error?c.error:c.border}; background:${c.cream}; color:${c.dark}; box-sizing:border-box; transition:border-color 0.2s; &:focus{outline:none;border-color:${c.gold};} &::placeholder{color:${c.textMuted};}`;
+export const TextArea = styled.textarea`width:100%; padding:0.85rem 1rem; font-family:'Josefin Sans',sans-serif; font-size:0.85rem; font-weight:300; border:1px solid ${c.border}; background:${c.cream}; color:${c.dark}; min-height:100px; resize:vertical; box-sizing:border-box; line-height:1.7; &:focus{outline:none;border-color:${c.gold};} &::placeholder{color:${c.textMuted};}`;
+export const Checkbox = styled.label`display:flex; align-items:center; gap:0.75rem; font-family:'Josefin Sans',sans-serif; font-size:0.8rem; font-weight:300; color:${c.textSec}; cursor:pointer; input{width:16px;height:16px;accent-color:${c.gold};}`;
+export const CheckboxLabel = styled.label`display:flex; align-items:center; gap:0.75rem; font-family:'Josefin Sans',sans-serif; font-size:0.8rem; font-weight:300; color:${c.textSec}; cursor:pointer; input[type="checkbox"]{width:16px;height:16px;accent-color:${c.gold};}`;
+export const ErrorText = styled.span`font-size:0.7rem; color:${c.error}; margin-top:0.25rem; display:block;`;
+export const HelpText = styled.span`font-size:0.7rem; color:${c.textMuted}; margin-top:0.25rem; display:block; font-weight:300;`;
+export const Select = styled.select`width:100%; padding:0.85rem 1rem; font-family:'Josefin Sans',sans-serif; font-size:0.85rem; font-weight:300; border:1px solid ${c.border}; background:${c.cream}; color:${c.dark}; box-sizing:border-box; cursor:pointer; &:focus{outline:none;border-color:${c.gold};} option{background:${c.white};color:${c.dark};}`;
+export const FormRow = styled.div`display:flex; gap:1rem; @media(max-width:600px){flex-direction:column;}`;
 
-export const FormGroup = styled.div`margin-bottom: 1rem;`;
-export const Label = styled.label`display: block; font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #888; margin-bottom: 0.5rem;`;
-export const SectionLabel = styled.div`font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #C4A87C; margin: 1.5rem 0 1rem;`;
-export const Input = styled.input`width: 100%; padding: 1rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.95rem; border: 1px solid ${p => p.$error ? '#FF6B6B' : '#333'}; background: #1A1A1A; color: #F5F0EB; box-sizing: border-box; &:focus { outline: none; border-color: #C4A87C; }`;
-export const TextArea = styled.textarea`width: 100%; padding: 1rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F0EB; min-height: 100px; resize: vertical; box-sizing: border-box; &:focus { outline: none; border-color: #C4A87C; }`;
-export const Checkbox = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input { width: 18px; height: 18px; accent-color: #C4A87C; }`;
-export const CheckboxLabel = styled.label`display: flex; align-items: center; gap: 0.75rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.85rem; color: #DDD; cursor: pointer; input[type="checkbox"] { width: 18px; height: 18px; accent-color: #C4A87C; }`;
-export const ErrorText = styled.span`font-size: 0.75rem; color: #FF6B6B; margin-top: 0.25rem; display: block;`;
-export const HelpText = styled.span`font-size: 0.75rem; color: #666; margin-top: 0.25rem; display: block;`;
-export const Select = styled.select`width: 100%; padding: 1rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.95rem; border: 1px solid #333; background: #1A1A1A; color: #F5F0EB; box-sizing: border-box; cursor: pointer; &:focus { outline: none; border-color: #C4A87C; } option { background: #1A1A1A; color: #F5F0EB; }`;
-export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
+// BUTTONS
+export const Button = styled.button`font-family:'Josefin Sans',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; padding:0.7rem 1.25rem; cursor:pointer; transition:all 0.2s; background:${p=>p.$variant==='danger'?'transparent':p.$variant==='secondary'?'transparent':c.dark}; color:${p=>p.$variant==='danger'?c.error:p.$variant==='secondary'?c.gold:c.cream}; border:1px solid ${p=>p.$variant==='danger'?c.error:p.$variant==='secondary'?c.gold:c.dark}; &:hover{opacity:0.85;} &:disabled{background:${c.creamDark};color:${c.textMuted};border-color:${c.border};cursor:not-allowed;}`;
+export const SmallButton = styled.button`font-family:'Josefin Sans',sans-serif; font-size:0.55rem; letter-spacing:0.05em; padding:0.35rem 0.7rem; cursor:pointer; border:1px solid ${c.border}; background:${p=>p.$variant==='success'?'rgba(58,125,68,0.06)':p.$variant==='danger'?'rgba(196,30,58,0.06)':c.white}; color:${p=>p.$variant==='success'?c.success:p.$variant==='danger'?c.error:c.textSec}; &:hover{opacity:0.8;}`;
+export const ButtonGroup = styled.div`display:flex; gap:0.5rem; flex-wrap:wrap;`;
+export const ActionBar = styled.div`display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;`;
+export const GridRow = styled.div`display:grid; grid-template-columns:${p=>p.$cols||'1fr 1fr'}; gap:0.75rem; margin-bottom:0.75rem;`;
+export const Divider = styled.hr`border:none; border-top:1px solid ${c.border}; margin:1.5rem 0;`;
+export const Badge = styled.span`font-family:'Josefin Sans',sans-serif; font-size:0.5rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; padding:0.2rem 0.6rem; background:rgba(196,168,124,0.1); color:${c.gold};`;
 
-export const Button = styled.button`font-family: 'Josefin Sans', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.75rem 1.25rem; cursor: pointer; transition: all 0.3s; background: ${p => p.$variant === 'danger' ? '#FF6B6B' : p.$variant === 'secondary' ? 'transparent' : '#C4A87C'}; color: ${p => p.$variant === 'secondary' ? '#C4A87C' : p.$variant === 'danger' ? '#FFF' : '#1A1A1A'}; border: ${p => p.$variant === 'secondary' ? '1px solid #C4A87C' : 'none'}; &:hover { opacity: 0.9; } &:disabled { background: #444; color: #666; cursor: not-allowed; }`;
-export const SmallButton = styled.button`font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid #333; background: ${p => p.$variant === 'success' ? 'rgba(76, 175, 80, 0.15)' : p.$variant === 'danger' ? 'rgba(255, 107, 107, 0.15)' : '#2D2D2D'}; color: ${p => p.$variant === 'success' ? '#4CAF50' : p.$variant === 'danger' ? '#FF6B6B' : '#AAA'}; &:hover { opacity: 0.8; }`;
-export const ButtonGroup = styled.div`display: flex; gap: 0.5rem; flex-wrap: wrap;`;
+// ENTRIES
+export const EntryCard = styled.div`padding:1.25rem; border-bottom:1px solid ${c.border}; &:last-child{border-bottom:none;}`;
+export const EntryHeader = styled.div`display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;`;
+export const EntryName = styled.span`font-weight:400; color:${c.dark}; font-size:0.9rem;`;
+export const EntryContent = styled.p`font-size:0.85rem; color:${c.textSec}; margin:0; line-height:1.7; font-weight:300;`;
+export const EntryMeta = styled.div`font-size:0.7rem; color:${c.textMuted}; margin-top:0.5rem;`;
+export const EntryActions = styled.div`display:flex; gap:0.5rem; margin-top:0.75rem;`;
 
-export const ActionBar = styled.div`display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;`;
-export const GridRow = styled.div`display: grid; grid-template-columns: ${p => p.$cols || '1fr 1fr'}; gap: 0.75rem; margin-bottom: 0.75rem;`;
-export const Divider = styled.hr`border: none; border-top: 1px solid #333; margin: 1.5rem 0;`;
-export const Badge = styled.span`font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; background: rgba(196, 168, 124, 0.15); color: #C4A87C; text-transform: uppercase;`;
+// ITEMS
+export const ItemCard = styled.div`border:1px solid ${c.border}; padding:1.25rem; margin-bottom:1rem; background:${c.cream};`;
+export const ItemHeader = styled.div`display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;`;
+export const ItemNumber = styled.span`font-family:'Cormorant Garamond',serif; font-size:1rem; color:${c.gold}; font-weight:300;`;
+export const ItemActions = styled.div`display:flex; gap:0.25rem;`;
 
-export const EntryCard = styled.div`padding: 1.25rem; border-bottom: 1px solid #2D2D2D; &:last-child { border-bottom: none; }`;
-export const EntryHeader = styled.div`display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;`;
-export const EntryName = styled.span`font-weight: 500; color: #F5F0EB;`;
-export const EntryContent = styled.p`font-size: 0.9rem; color: #999; margin: 0; line-height: 1.6;`;
-export const EntryMeta = styled.div`font-size: 0.75rem; color: #666; margin-top: 0.5rem;`;
-export const EntryActions = styled.div`display: flex; gap: 0.5rem; margin-top: 0.75rem;`;
+// ALERTS
+export const AlertBox = styled.div`padding:1rem; margin-bottom:1rem; font-size:0.8rem; font-weight:300; border:1px solid; background:${p=>p.$type==='success'?'rgba(58,125,68,0.05)':p.$type==='warning'?'rgba(196,168,124,0.06)':'rgba(33,150,243,0.04)'}; border-color:${p=>p.$type==='success'?'rgba(58,125,68,0.15)':p.$type==='warning'?'rgba(196,168,124,0.15)':'rgba(33,150,243,0.15)'}; color:${p=>p.$type==='success'?c.success:p.$type==='warning'?c.gold:'#4A90D9'};`;
+export const SearchInput = styled.input`flex:1; min-width:200px; padding:0.7rem 1rem; font-family:'Josefin Sans',sans-serif; font-size:0.8rem; font-weight:300; border:1px solid ${c.border}; background:${c.white}; color:${c.dark}; &:focus{outline:none;border-color:${c.gold};} &::placeholder{color:${c.textMuted};}`;
 
-export const ItemCard = styled.div`border: 1px solid #333; padding: 1.25rem; margin-bottom: 1rem; background: #1A1A1A;`;
-export const ItemHeader = styled.div`display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;`;
-export const ItemNumber = styled.span`font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: #C4A87C;`;
-export const ItemActions = styled.div`display: flex; gap: 0.25rem;`;
+// PHOTOS
+export const PhotoGrid = styled.div`display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:0.75rem;`;
+export const PhotoActions = styled.div`display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;`;
+export const PhotoCount = styled.span`color:${c.textMuted}; font-size:0.75rem; font-weight:300;`;
+export const PhotoCard = styled.div`position:relative; aspect-ratio:1; overflow:hidden; border:1px solid ${p=>p.$selected?c.gold:p.$approved?c.border:'rgba(196,168,124,0.4)'}; &:hover>div{opacity:1;}`;
+export const PhotoImage = styled.div`width:100%; height:100%; background:${p=>p.$url?`url(${p.$url}) center/cover`:c.creamDark}; cursor:pointer;`;
+export const PhotoOverlay = styled.div`position:absolute; inset:0; background:rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; gap:0.5rem; opacity:0; transition:opacity 0.2s;`;
+export const PhotoButton = styled.button`width:30px; height:30px; border-radius:50%; border:none; background:${p=>p.$approve?c.success:c.error}; color:white; cursor:pointer; font-size:13px;`;
+export const PhotoPending = styled.div`position:absolute; bottom:0; left:0; right:0; background:${c.gold}; color:${c.dark}; font-size:0.55rem; font-weight:600; letter-spacing:0.05em; padding:0.2rem; text-align:center;`;
+export const PhotoCaption = styled.div`position:absolute; top:0; left:0; right:0; background:rgba(26,26,26,0.75); color:white; font-size:0.6rem; padding:0.3rem 0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;`;
 
-export const AlertBox = styled.div`padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem; border: 1px solid; background: ${p => p.$type === 'success' ? 'rgba(76, 175, 80, 0.1)' : p.$type === 'warning' ? 'rgba(255, 183, 77, 0.1)' : 'rgba(33, 150, 243, 0.1)'}; border-color: ${p => p.$type === 'success' ? 'rgba(76, 175, 80, 0.3)' : p.$type === 'warning' ? 'rgba(255, 183, 77, 0.3)' : 'rgba(33, 150, 243, 0.3)'}; color: ${p => p.$type === 'success' ? '#4CAF50' : p.$type === 'warning' ? '#FFB74D' : '#64B5F6'};`;
-export const SearchInput = styled.input`flex: 1; min-width: 200px; padding: 0.75rem 1rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.9rem; border: 1px solid #333; background: #1A1A1A; color: #F5F0EB; &:focus { outline: none; border-color: #C4A87C; }`;
+// IMAGE UPLOAD
+export const DropZone = styled.div`border:1px dashed ${p=>p.$dragging?c.gold:p.$hasImage?c.gold:c.border}; background:${p=>p.$hasImage?`url(${p.$image}) center/cover`:c.cream}; min-height:90px; max-width:280px; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; aspect-ratio:${p=>p.$ratio||'16/9'}; transition:border-color 0.3s; &:hover{border-color:${c.gold};} &:hover .overlay{opacity:1;}`;
+export const DropOverlay = styled.div`position:absolute; inset:0; background:rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center; gap:0.75rem; opacity:0; transition:opacity 0.2s;`;
+export const DropButton = styled.span`padding:0.4rem 0.9rem; font-size:0.65rem; letter-spacing:0.05em; cursor:pointer; background:${p=>p.$danger?c.error:c.dark}; color:${c.white};`;
+export const DropPlaceholder = styled.div`text-align:center; color:${c.textMuted}; font-size:0.75rem; font-weight:300; span{display:block;font-size:1.5rem;margin-bottom:0.5rem;}`;
+export const ProgressBar = styled.div`position:absolute; bottom:0; left:0; height:2px; background:${c.gold}; width:${p=>p.$progress}%; transition:width 0.3s;`;
 
-export const PhotoGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem;`;
-export const PhotoActions = styled.div`display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;`;
-export const PhotoCount = styled.span`color: #666; font-size: 0.8rem;`;
-export const PhotoCard = styled.div`position: relative; aspect-ratio: 1; overflow: hidden; border: 2px solid ${p => p.$selected ? '#C4A87C' : p.$approved ? '#333' : 'rgba(255, 183, 77, 0.5)'}; &:hover > div { opacity: 1; }`;
-export const PhotoImage = styled.div`width: 100%; height: 100%; background: ${p => p.$url ? `url(${p.$url}) center/cover` : '#2D2D2D'}; cursor: pointer;`;
-export const PhotoOverlay = styled.div`position: absolute; inset: 0; background: rgba(26, 26, 26, 0.8); display: flex; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.2s;`;
-export const PhotoButton = styled.button`width: 32px; height: 32px; border-radius: 50%; border: none; background: ${p => p.$approve ? '#4CAF50' : '#FF6B6B'}; color: white; cursor: pointer; font-size: 14px;`;
-export const PhotoPending = styled.div`position: absolute; bottom: 0; left: 0; right: 0; background: #FFB74D; color: #1A1A1A; font-size: 0.65rem; padding: 0.25rem; text-align: center;`;
-export const PhotoCaption = styled.div`position: absolute; top: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: white; font-size: 0.65rem; padding: 0.35rem 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
+export const ImageGrid = styled.div`display:grid; grid-template-columns:repeat(auto-fill,75px); gap:0.5rem; margin-top:0.5rem;`;
+export const ImageItem = styled.div`aspect-ratio:1; background:${p=>p.$url?`url(${p.$url}) center/cover`:c.creamDark}; position:relative; border:1px solid ${c.border}; &:hover button{opacity:1;}`;
+export const RemoveButton = styled.button`position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%; background:${c.error}; color:white; border:none; cursor:pointer; font-size:12px; opacity:0; transition:opacity 0.2s;`;
+export const AddButton = styled.button`aspect-ratio:1; background:${c.cream}; border:1px dashed ${c.border}; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; font-size:0.6rem; color:${c.textMuted}; span{font-size:1.25rem;} &:hover{border-color:${c.gold};color:${c.gold};}`;
 
-export const DropZone = styled.div`border: 2px dashed ${p => p.$dragging ? '#C4A87C' : p.$hasImage ? '#C4A87C' : '#333'}; background: ${p => p.$hasImage ? `url(${p.$image}) center/cover` : '#1A1A1A'}; min-height: 100px; max-width: 300px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; aspect-ratio: ${p => p.$ratio || '16/9'}; transition: all 0.3s; &:hover { border-color: #C4A87C; } &:hover .overlay { opacity: 1; }`;
-export const DropOverlay = styled.div`position: absolute; inset: 0; background: rgba(26, 26, 26, 0.85); display: flex; align-items: center; justify-content: center; gap: 0.75rem; opacity: 0; transition: opacity 0.2s;`;
-export const DropButton = styled.span`padding: 0.5rem 1rem; font-size: 0.75rem; cursor: pointer; background: ${p => p.$danger ? '#FF6B6B' : '#C4A87C'}; color: ${p => p.$danger ? '#FFF' : '#1A1A1A'};`;
-export const DropPlaceholder = styled.div`text-align: center; color: #666; font-size: 0.85rem; span { display: block; font-size: 2rem; margin-bottom: 0.5rem; }`;
-export const ProgressBar = styled.div`position: absolute; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, #C4A87C, #E0C994); width: ${p => p.$progress}%; transition: width 0.3s;`;
+// COLORS
+export const ColorPalette = styled.div`display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:flex-end;`;
+export const ColorItem = styled.div`display:flex; flex-direction:column; gap:0.25rem;`;
+export const ColorInput = styled.input`width:36px; height:36px; padding:0; border:1px solid ${c.border}; cursor:pointer; background:${c.white};`;
 
-export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 0.5rem; margin-top: 0.5rem;`;
-export const ImageItem = styled.div`aspect-ratio: 1; background: ${p => p.$url ? `url(${p.$url}) center/cover` : '#2D2D2D'}; position: relative; &:hover button { opacity: 1; }`;
-export const RemoveButton = styled.button`position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: #FF6B6B; color: white; border: none; cursor: pointer; font-size: 14px; opacity: 0; transition: opacity 0.2s;`;
-export const AddButton = styled.button`aspect-ratio: 1; background: #1A1A1A; border: 2px dashed #333; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; color: #666; span { font-size: 1.5rem; } &:hover { border-color: #C4A87C; color: #C4A87C; }`;
+// STATUS & INFO
+export const StatusDescription = styled.div`font-size:0.85rem; color:${c.textSec}; margin-bottom:1.5rem; line-height:1.7; font-weight:300; p{margin:0.5rem 0;}`;
+export const InfoRow = styled.div`display:flex; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid ${c.border};`;
+export const InfoLabel = styled.span`font-family:'Josefin Sans',sans-serif; font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:${c.textMuted};`;
+export const InfoValue = styled.span`font-size:0.85rem; color:${c.dark}; font-weight:300;`;
 
-export const ColorPalette = styled.div`display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end;`;
-export const ColorItem = styled.div`display: flex; flex-direction: column; gap: 0.25rem;`;
-export const ColorInput = styled.input`width: 40px; height: 40px; padding: 0; border: 1px solid #333; cursor: pointer; background: #1A1A1A;`;
-
-export const StatusDescription = styled.div`font-size: 0.9rem; color: #999; margin-bottom: 1.5rem; line-height: 1.6; p { margin: 0.5rem 0; }`;
-export const InfoRow = styled.div`display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #2D2D2D;`;
-export const InfoLabel = styled.span`font-family: 'Josefin Sans', sans-serif; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #666;`;
-export const InfoValue = styled.span`font-size: 0.9rem; color: #F5F0EB;`;
-
-export const LoadingSpinner = styled.div`display: flex; justify-content: center; padding: 2rem; &::after { content: ''; width: 30px; height: 30px; border: 2px solid #333; border-top-color: #C4A87C; border-radius: 50%; animation: ${spin} 1s linear infinite; }`;
-export const EmptyState = styled.p`text-align: center; color: #666; padding: 2rem; font-family: 'Josefin Sans', sans-serif;`;
-export const FeedbackModal = styled.div`position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: ${p => p.type === 'success' ? '#4CAF50' : p.type === 'error' ? '#FF6B6B' : '#64B5F6'}; color: ${p => p.type === 'success' || p.type === 'error' ? '#FFF' : '#1A1A1A'}; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: ${fadeIn} 0.3s ease; z-index: 1000;`;
+// LOADING & FEEDBACK
+export const LoadingSpinner = styled.div`display:flex; justify-content:center; padding:2rem; &::after{content:'';width:24px;height:24px;border:1px solid ${c.border};border-top-color:${c.gold};border-radius:50%;animation:${spin} 1s linear infinite;}`;
+export const EmptyState = styled.p`text-align:center; color:${c.textMuted}; padding:2rem; font-family:'Josefin Sans',sans-serif; font-weight:300; font-size:0.85rem;`;
+export const FeedbackModal = styled.div`position:fixed; bottom:2rem; right:2rem; padding:0.85rem 1.5rem; font-family:'Josefin Sans',sans-serif; font-size:0.8rem; background:${c.white}; color:${p=>p.type==='success'?c.success:p.type==='error'?c.error:c.gold}; border:1px solid ${p=>p.type==='success'?'rgba(58,125,68,0.2)':p.type==='error'?'rgba(196,30,58,0.2)':'rgba(196,168,124,0.2)'}; box-shadow:0 4px 20px rgba(0,0,0,0.08); animation:${fadeIn} 0.3s ease; z-index:1000;`;
 
 // MODAL
-export const ModalOverlay = styled.div`position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: ${fadeIn} 0.2s ease; padding: 1rem;`;
-export const ModalContent = styled.div`background: #1A1A1A; max-width: 450px; width: 100%; border: 1px solid rgba(201, 168, 108, 0.3); box-shadow: 0 10px 40px rgba(0,0,0,0.6); animation: ${fadeIn} 0.3s ease;`;
-export const ModalHeader = styled.div`padding: 1.5rem; border-bottom: 1px solid rgba(201, 168, 108, 0.2);`;
-export const ModalTitle = styled.h3`font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600; color: #C4A87C; margin: 0;`;
-export const ModalBody = styled.div`padding: 1.5rem; color: rgba(255,255,255,0.8); line-height: 1.6; p { margin: 0; }`;
-export const ModalFooter = styled.div`padding: 1.5rem; border-top: 1px solid rgba(201, 168, 108, 0.1); display: flex; justify-content: flex-end; gap: 1rem;`;
-export const ActionButton = styled.button`padding: 0.75rem 1.5rem; font-family: 'Josefin Sans', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; border: 1px solid; ${p => p.$primary ? css`background: linear-gradient(135deg, #C4A87C, #B8956A); border-color: #C4A87C; color: #1A1A1A; &:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(201, 168, 108, 0.4); }` : css`background: transparent; border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); &:hover:not(:disabled) { border-color: rgba(255,255,255,0.4); color: #FFF; }`} &:disabled { opacity: 0.5; cursor: not-allowed; }`;
+export const ModalOverlay = styled.div`position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000; animation:${fadeIn} 0.2s ease; padding:1rem;`;
+export const ModalContent = styled.div`background:${c.white}; max-width:450px; width:100%; border:1px solid ${c.border}; box-shadow:0 10px 40px rgba(0,0,0,0.12); animation:${fadeIn} 0.3s ease;`;
+export const ModalHeader = styled.div`padding:1.25rem 1.5rem; border-bottom:1px solid ${c.border};`;
+export const ModalTitle = styled.h3`font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:400; color:${c.dark}; margin:0;`;
+export const ModalBody = styled.div`padding:1.5rem; color:${c.textSec}; line-height:1.7; font-weight:300; p{margin:0;}`;
+export const ModalFooter = styled.div`padding:1.25rem 1.5rem; border-top:1px solid ${c.border}; display:flex; justify-content:flex-end; gap:0.75rem;`;
+export const ActionButton = styled.button`padding:0.65rem 1.25rem; font-family:'Josefin Sans',sans-serif; font-size:0.6rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:1px solid; ${p=>p.$primary?css`background:${c.dark};border-color:${c.dark};color:${c.cream};&:hover:not(:disabled){background:#333;}`:css`background:transparent;border-color:${c.border};color:${c.textSec};&:hover:not(:disabled){border-color:${c.textSec};color:${c.dark};}`} &:disabled{opacity:0.4;cursor:not-allowed;}`;
 
-// Gold diamond icon for Luxe
 export const LogoIcon = () => (
-  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, fill: '#C4A87C' }}>
+  <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, fill: '#C4A87C' }}>
     <path d="M12 2L2 12l10 10 10-10L12 2zm0 3.5L18.5 12 12 18.5 5.5 12 12 5.5z"/>
   </svg>
 );
 
-export const Card = styled.div`
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 1.25rem;
-`;
-
+// EXPORT
 export const ClassicAdminComponents = {
   LoginContainer, LoginBox, LoginLogo, LoginForm, LoginError, LoginButton, BackLink,
   DashboardContainer, Sidebar, SidebarHeader, SidebarLogo, SidebarSub,
