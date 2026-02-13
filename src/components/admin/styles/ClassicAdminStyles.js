@@ -139,6 +139,7 @@ export const ButtonGroup = styled.div`display: flex; gap: 0.5rem; flex-wrap: wra
 export const ActionBar = styled.div`display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;`;
 export const GridRow = styled.div`display: grid; grid-template-columns: ${p => p.$cols || '1fr 1fr'}; gap: 0.75rem; margin-bottom: 0.75rem;`;
 export const Divider = styled.hr`border: none; border-top: 1px solid #333; margin: 1.5rem 0;`;
+export const Badge = styled.span`font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; background: rgba(196, 168, 124, 0.15); color: #C4A87C; text-transform: uppercase;`;
 
 export const EntryCard = styled.div`padding: 1.25rem; border-bottom: 1px solid #2D2D2D; &:last-child { border-bottom: none; }`;
 export const EntryHeader = styled.div`display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;`;
@@ -221,7 +222,7 @@ export const ClassicAdminComponents = {
   Panel, PanelHeader, PanelTitle, PanelContent,
   TableWrapper, Table, Th, Td, StatusBadge,
   FormGroup, Label, SectionLabel, Input, TextArea, Checkbox, CheckboxLabel, ErrorText, HelpText, Select, FormRow,
-  Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider,
+  Button, SmallButton, ButtonGroup, ActionBar, GridRow, Divider, Badge,
   EntryCard, EntryHeader, EntryName, EntryContent, EntryMeta, EntryActions,
   ItemCard, ItemHeader, ItemNumber, ItemActions,
   AlertBox, SearchInput, ActionButton,
