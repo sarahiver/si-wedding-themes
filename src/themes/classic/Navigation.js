@@ -70,23 +70,18 @@ function Navigation() {
     return () => window.removeEventListener('scroll', update);
   }, []);
 
-  const navItems = [
-    { id: 'lovestory', label: 'Über Uns', href: '#lovestory' },
-    { id: 'timeline', label: 'Ablauf', href: '#timeline' },
-    { id: 'locations', label: 'Location', href: '#locations' },
-    { id: 'directions', label: 'Anfahrt', href: '#directions' },
-    { id: 'accommodations', label: 'Unterkünfte', href: '#accommodations' },
-    { id: 'rsvp', label: 'RSVP', href: '#rsvp' },
-    { id: 'gallery', label: 'Galerie', href: '#gallery' },
-    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
-    { id: 'musicwishes', label: 'Musik', href: '#musicwishes' },
-    { id: 'photoupload', label: 'Fotos', href: '#photoupload' },
-    { id: 'gifts', label: 'Geschenke', href: '#gifts' },
-    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
-    { id: 'faq', label: 'FAQ', href: '#faq' },
-    { id: 'weddingabc', label: 'ABC', href: '#weddingabc' },
-    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
-  ].filter(item => isComponentActive(item.id));
+  const labelMap = {
+    lovestory: 'Über Uns', timeline: 'Ablauf', locations: 'Location',
+    directions: 'Anfahrt', accommodations: 'Unterkünfte', rsvp: 'RSVP',
+    gallery: 'Galerie', guestbook: 'Gästebuch', musicwishes: 'Musik',
+    photoupload: 'Fotos', gifts: 'Geschenke', dresscode: 'Dresscode',
+    faq: 'FAQ', weddingabc: 'ABC', witnesses: 'Trauzeugen',
+  };
+  const defaultOrder = ['lovestory','timeline','locations','directions','accommodations','rsvp','gallery','guestbook','musicwishes','photoupload','gifts','dresscode','faq','weddingabc','witnesses'];
+  const order = project?.component_order || defaultOrder;
+  const navItems = order
+    .filter(id => labelMap[id] && isComponentActive(id))
+    .map(id => ({ id, label: labelMap[id], href: `#${id}` }));
 
   const scrollTo = (e, href) => {
     e.preventDefault();

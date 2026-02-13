@@ -4,13 +4,12 @@ import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
-const vid='https://res.cloudinary.com/si-weddings/video/upload/v1770139115/siwedding/lola-fredi/hero/xqejg9c6h9wnye8zw99d.mp4';
 
 const S = styled.section`position:relative;overflow:hidden;min-height:100vh;
   display:flex;align-items:center;justify-content:center;
   padding:clamp(6rem,12vh,10rem) clamp(2rem,5vw,5rem);`;
-const BgV = styled.div`position:absolute;inset:0;z-index:0;
-  video,img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.35);}`;
+const BgV = styled.div`position:absolute;inset:0;z-index:0;background:#1a1a1a;
+  img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.35);}`;
 const Card = styled.div`position:relative;z-index:2;
   background:var(--c-white,#fff);
   border:8px solid white;
@@ -44,15 +43,15 @@ function RSVP(){
   const{content}=useWedding();const r=content?.rsvp||{};
   const{formData,submitting,submitted,error,updateField,submit}=useRSVP();
   const[ref,v]=useInView();
-  const bgImage=r.background_image||content?.hero?.background_image;
+  const bgImage=r.background_image||content?.hero?.background_image||null;
 
   if(submitted)return(
-    <S id="rsvp"><BgV><video autoPlay muted loop playsInline><source src={vid} type="video/mp4"/></video></BgV>
+    <S id="rsvp"><BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
     <Card $v={true} ref={ref}><SuccT>Vielen Dank!</SuccT><SuccP>{formData.attending==='yes'?'Wir freuen uns auf euch!':'Schade – wir werden euch vermissen.'}</SuccP></Card></S>);
 
   return(
     <S id="rsvp">
-      <BgV>{bgImage?<img src={bgImage} alt=""/>:<video autoPlay muted loop playsInline><source src={vid} type="video/mp4"/></video>}</BgV>
+      <BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
       <Card $v={v} ref={ref}>
         <Eye>wir freuen uns auf euch</Eye>
         <H2>{r.title||'RSVP'}</H2>

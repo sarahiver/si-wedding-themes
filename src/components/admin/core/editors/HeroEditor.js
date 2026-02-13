@@ -11,11 +11,15 @@ function HeroEditor({ components: C }) {
 
   // Check if this is a theme that supports video backgrounds
   const isVideoTheme = project?.theme === 'video';
-  
+  const isClassicTheme = project?.theme === 'classic';
+
   // State for showing mobile upload option
   const [showMobileUpload, setShowMobileUpload] = useState(
     !!(content.background_media_mobile?.url || content.background_image_mobile)
   );
+
+  // State for classic theme video toggle
+  const [useVideo, setUseVideo] = useState(!!content.use_video);
 
   return (
     <C.Panel>
@@ -50,7 +54,46 @@ function HeroEditor({ components: C }) {
             maxHeight="150px"
           />
         )}
-        
+
+        {/* Classic Theme: Optional Video Background */}
+        {isClassicTheme && (
+          <>
+            <C.FormGroup style={{ marginTop: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={useVideo}
+                  onChange={(e) => {
+                    setUseVideo(e.target.checked);
+                    update('use_video', e.target.checked);
+                    if (!e.target.checked) {
+                      update('background_video', null);
+                    }
+                  }}
+                  style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+                />
+                <span style={{ color: 'rgba(255,255,255,0.7)' }}>Hintergrund-Video verwenden</span>
+              </label>
+              <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
+                Video wird auf Desktop abgespielt, Bild oben dient als Poster/Fallback
+              </C.HelpText>
+            </C.FormGroup>
+
+            {useVideo && (
+              <MediaUploader
+                components={C}
+                media={content.background_video ? { url: content.background_video, type: 'video' } : null}
+                onUpload={(media) => update('background_video', media?.url || null)}
+                folder={baseFolder + '/hero'}
+                label="Hintergrund-Video"
+                ratio="16/9"
+                maxHeight="150px"
+                allowVideo={true}
+              />
+            )}
+          </>
+        )}
+
         <C.Divider />
         
         {/* Mobile Background Toggle */}

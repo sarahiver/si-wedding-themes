@@ -29,9 +29,9 @@ function Hero() {
   const tagline = h.tagline || 'Wir heiraten';
   const scriptLine = h.script_line || 'füreinander bestimmt';
   const bgImg = h.background_image || 'https://res.cloudinary.com/si-weddings/image/upload/v1770826558/siwedding/demo-neon/hero/hauxediplqad4yx26v6b.jpg';
-  const bgVid = h.background_media?.url || h.background_video || 'https://res.cloudinary.com/si-weddings/video/upload/v1770287435/212698_small_cibloj.mp4';
+  const bgVid = h.background_media?.url || h.background_video;
   const bgMobile = h.background_image_mobile || h.background_media_mobile?.url || bgImg;
-  const useVideo = h.background_media?.url ? true : h.use_video !== false;
+  const useVideo = !!(h.background_media?.url || (h.use_video === true && h.background_video));
   const [mob, setMob] = useState(false);
   useEffect(() => { const c = () => setMob(window.innerWidth <= 768); c(); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c); }, []);
   const loc = project?.location || '';

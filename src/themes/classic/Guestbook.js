@@ -11,6 +11,7 @@ const Top = styled.div`padding:var(--section-pad) clamp(2rem,5vw,5rem);`;
 const Hdr = styled.div`text-align:center;margin-bottom:clamp(3rem,6vw,4rem);`;
 const Eye = styled.p`font-family:var(--font-s);font-size:clamp(1.4rem,2.5vw,1.8rem);color:var(--c-accent);margin-bottom:0.5rem;`;
 const Title = styled.h2`font-family:var(--font-d);font-size:clamp(2rem,4vw,3rem);font-weight:300;`;
+const Desc = styled.p`font-family:var(--font-b);font-size:0.85rem;font-weight:300;color:var(--c-text-sec);max-width:500px;margin:0.8rem auto 0;line-height:1.8;`;
 const Content = styled.div`max-width:var(--content-w);margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;
   @media(max-width:768px){grid-template-columns:1fr;}`;
 const FormBox = styled.div``;
@@ -41,7 +42,7 @@ function Guestbook(){
   return(
     <S id="guestbook" data-theme-light>
       <Top>
-        <Hdr><Eye>Eure Worte</Eye><Title>{g.title||'Gästebuch'}</Title></Hdr>
+        <Hdr><Eye>Eure Worte</Eye><Title>{g.title||'Gästebuch'}</Title>{g.description&&<Desc>{g.description}</Desc>}</Hdr>
         <Content>
           <FormBox>
             <form onSubmit={async e=>{e.preventDefault();await submitEntry();}}>
