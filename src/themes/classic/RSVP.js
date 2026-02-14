@@ -7,14 +7,13 @@ function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);u
 
 const S = styled.section`position:relative;overflow:hidden;min-height:100vh;
   display:flex;align-items:center;justify-content:center;
-  padding:clamp(6rem,12vh,10rem) clamp(2rem,5vw,5rem);
-  background:var(--c-cream-dark,#F5F2EE);`;
-const BgV = styled.div`position:absolute;inset:0;z-index:0;
-  img{width:100%;height:100%;object-fit:cover;filter:grayscale(15%) brightness(0.75);opacity:0.3;}`;
+  padding:clamp(6rem,12vh,10rem) clamp(2rem,5vw,5rem);`;
+const BgV = styled.div`position:absolute;inset:0;z-index:0;background:#1a1a1a;
+  img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.35);}`;
 const Card = styled.div`position:relative;z-index:2;
   background:var(--c-white,#fff);
-  border:1px solid var(--c-border,rgba(0,0,0,0.06));
-  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+  border:8px solid white;
+  box-shadow:0 30px 80px rgba(0,0,0,0.25);
   padding:clamp(2.5rem,5vw,4.5rem);max-width:520px;width:100%;
   opacity:0;${p=>p.$v&&css`animation:${fadeUp} 1s var(--ease) forwards;`}`;
 const Eye = styled.p`font-family:var(--font-s);font-size:1.6rem;color:var(--c-accent);text-align:center;margin-bottom:0.5rem;`;
