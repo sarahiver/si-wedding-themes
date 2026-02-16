@@ -5,9 +5,9 @@ import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function LovestoryEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
   const content = contentStates.lovestory || {};
-  const update = (field, value) => updateContent('lovestory', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('lovestory', field, value);
   const isClassic = project?.theme === 'classic';
 
   // ── CLASSIC MODE: 3 Bilder + Fließtext ──────────────

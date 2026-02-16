@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function GuestbookEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.guestbook || {};
-  const update = (field, value) => updateContent('guestbook', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('guestbook', field, value);
 
   return (
     <C.Panel>

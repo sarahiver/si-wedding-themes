@@ -3,9 +3,9 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 
 function CountdownEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, project } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, project } = useAdmin();
   const content = contentStates.countdown || {};
-  const update = (field, value) => updateContent('countdown', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('countdown', field, value);
 
   // Wenn kein target_date gesetzt, aber wedding_date im Projekt vorhanden → vorbelegen
   const displayDate = content.target_date || project?.wedding_date || '';
@@ -55,7 +55,7 @@ function CountdownEditor({ components: C }) {
         <C.Button onClick={() => {
           // Wenn kein target_date gesetzt, aber displayDate vorhanden → übernehmen
           if (!content.target_date && displayDate) {
-            updateContent('countdown', { ...content, target_date: displayDate.split('T')[0] });
+            updateContentField('countdown', 'target_date', displayDate.split('T')[0]);
           }
           saveContent('countdown');
         }} disabled={isSaving}>

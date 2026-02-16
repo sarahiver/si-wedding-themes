@@ -309,6 +309,14 @@ export function AdminProvider({ children }) {
     setContentStates(prev => ({ ...prev, [section]: data }));
   }, []);
 
+  // Merge-safe field updater – prevents stale closure issues in editors
+  const updateContentField = useCallback((section, field, value) => {
+    setContentStates(prev => ({
+      ...prev,
+      [section]: { ...prev[section], [field]: value },
+    }));
+  }, []);
+
   const saveContent = useCallback(async (section) => {
     if (!projectId) {
       showFeedback('error', 'Projekt nicht gefunden');
@@ -478,7 +486,7 @@ export function AdminProvider({ children }) {
     exportCSV,
     
     // Content
-    contentStates, updateContent, saveContent,
+    contentStates, updateContent, updateContentField, saveContent,
     
     // Feedback
     feedback, showFeedback, closeFeedback,

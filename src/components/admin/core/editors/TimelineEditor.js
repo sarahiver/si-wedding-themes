@@ -5,9 +5,9 @@ import IconPicker from './IconPicker';
 import ImageUploader from './ImageUploader';
 
 function TimelineEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.timeline || {};
-  const update = (field, value) => updateContent('timeline', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('timeline', field, value);
 
   const renderItem = (item, index, onChange) => (
     <>

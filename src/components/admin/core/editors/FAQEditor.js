@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ListEditor from './ListEditor';
 
 function FAQEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.faq || {};
-  const update = (field, value) => updateContent('faq', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('faq', field, value);
 
   const renderItem = (item, index, onChange) => (
     <>

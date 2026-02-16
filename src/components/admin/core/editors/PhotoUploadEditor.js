@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function PhotoUploadEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.photoupload || {};
-  const update = (field, value) => updateContent('photoupload', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('photoupload', field, value);
 
   return (
     <C.Panel>

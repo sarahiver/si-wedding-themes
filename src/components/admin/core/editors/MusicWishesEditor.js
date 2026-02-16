@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function MusicWishesEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.musicwishes || {};
-  const update = (field, value) => updateContent('musicwishes', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('musicwishes', field, value);
 
   return (
     <C.Panel>

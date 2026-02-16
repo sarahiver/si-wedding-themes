@@ -3,9 +3,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function FooterEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.footer || {};
-  const update = (field, value) => updateContent('footer', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('footer', field, value);
 
   return (
     <C.Panel>

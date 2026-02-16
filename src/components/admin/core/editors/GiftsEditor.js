@@ -6,7 +6,7 @@ import ImageUploader from './ImageUploader';
 import { getGiftReservations, reserveGift, unreserveGiftByItemId } from '../../../../lib/supabase';
 
 function GiftsEditor({ components: C }) {
-  const { projectId, contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { projectId, contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.gifts || {};
   const [dbReservations, setDbReservations] = useState([]);
 
@@ -49,7 +49,7 @@ function GiftsEditor({ components: C }) {
     return dbRes?.reserved_by || item.reserved_by || '';
   };
 
-  const update = (field, value) => updateContent('gifts', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('gifts', field, value);
 
   // Toggle reservation - syncs BOTH sources
   const handleToggleReservation = async (index, item, shouldReserve) => {

@@ -53,9 +53,9 @@ function ExportBar({ locations, coupleNames }) {
 // ============================================
 
 function LocationsEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder, coupleNames } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, coupleNames } = useAdmin();
   const content = contentStates.locations || {};
-  const update = (field, value) => updateContent('locations', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('locations', field, value);
 
   const renderItem = (item, index, onChange) => {
     const hasCoords = item.lat && item.lng;

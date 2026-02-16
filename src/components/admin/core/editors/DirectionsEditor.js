@@ -22,9 +22,9 @@ const TRANSPORT_OPTIONS = [
 ];
 
 function DirectionsEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContent, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.directions || {};
-  const update = (field, value) => updateContent('directions', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('directions', field, value);
 
   // Batch-Update für mehrere Felder gleichzeitig
   const updateMultiple = (updates) => updateContent('directions', { ...content, ...updates });

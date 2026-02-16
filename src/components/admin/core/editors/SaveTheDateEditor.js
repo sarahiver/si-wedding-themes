@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function SaveTheDateEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.savethedate || {};
-  const update = (field, value) => updateContent('savethedate', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('savethedate', field, value);
 
   return (
     <C.Panel>

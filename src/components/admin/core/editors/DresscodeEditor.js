@@ -4,9 +4,9 @@ import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function DresscodeEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.dresscode || {};
-  const update = (field, value) => updateContent('dresscode', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('dresscode', field, value);
 
   const renderColorItem = (item, index, onChange) => {
     const hex = typeof item === 'string' ? item : (item?.hex || '#8B9D83');

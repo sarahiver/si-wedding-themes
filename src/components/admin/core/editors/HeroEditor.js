@@ -5,9 +5,9 @@ import ImageUploader from './ImageUploader';
 import MediaUploader from './MediaUploader';
 
 function HeroEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
   const content = contentStates.hero || {};
-  const update = (field, value) => updateContent('hero', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('hero', field, value);
 
   // Check if this is a theme that supports video backgrounds
   const isVideoTheme = project?.theme === 'video';

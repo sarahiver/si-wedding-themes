@@ -6,14 +6,14 @@ import MultiImageUploader from './MultiImageUploader';
 
 function ArchiveEditor({ components: C }) {
   const { 
-    contentStates, updateContent, saveContent, isSaving, baseFolder,
+    contentStates, updateContentField, saveContent, isSaving, baseFolder,
     photoUploads, selectedPhotos, projectId,
     togglePhotoSelection, selectAllPhotos, deselectAllPhotos,
     showFeedback, loadData
   } = useAdmin();
   
   const content = contentStates.archive || {};
-  const update = (field, value) => updateContent('archive', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('archive', field, value);
   
   const [downloading, setDownloading] = useState(false);
   const [autoDelete, setAutoDelete] = useState(true); // Auto-delete after download

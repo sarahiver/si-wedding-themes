@@ -6,11 +6,11 @@ import ImageUploader from './ImageUploader';
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 function ABCEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.weddingabc || {};
   const entries = content.entries || [];
   
-  const update = (field, value) => updateContent('weddingabc', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('weddingabc', field, value);
 
   // Get entry for a letter
   const getEntry = (letter) => entries.find(e => e.letter === letter) || { letter, word: '', description: '' };

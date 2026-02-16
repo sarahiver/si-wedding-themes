@@ -6,9 +6,9 @@ import ImageUploader from './ImageUploader';
 import PhoneInput from '../../../shared/PhoneInput';
 
 function WitnessesEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.witnesses || {};
-  const update = (field, value) => updateContent('witnesses', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('witnesses', field, value);
 
   const renderItem = (item, index, onChange) => (
     <>

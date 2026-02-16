@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function RSVPEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
   const content = contentStates.rsvp || {};
-  const update = (field, value) => updateContent('rsvp', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('rsvp', field, value);
 
   return (
     <C.Panel>

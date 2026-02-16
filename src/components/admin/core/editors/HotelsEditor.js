@@ -7,9 +7,9 @@ import AddressSearch from './AddressSearch';
 import { generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 function HotelsEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.accommodations || {};
-  const update = (field, value) => updateContent('accommodations', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('accommodations', field, value);
 
   const renderItem = (item, index, onChange) => (
     <>

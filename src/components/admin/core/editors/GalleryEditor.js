@@ -4,9 +4,9 @@ import { useAdmin } from '../AdminContext';
 import MultiImageUploader from './MultiImageUploader';
 
 function GalleryEditor({ components: C }) {
-  const { contentStates, updateContent, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.gallery || {};
-  const update = (field, value) => updateContent('gallery', { ...content, [field]: value });
+  const update = (field, value) => updateContentField('gallery', field, value);
 
   // Normalize images to { url, caption } format
   const images = (content.images || []).map(img => 
