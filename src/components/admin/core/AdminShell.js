@@ -48,6 +48,9 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'edit-hotels': 'Hotels',
     'edit-witnesses': 'Trauzeugen',
     'edit-gallery': 'Galerie',
+    'edit-guestbook': 'Gästebuch bearbeiten',
+    'edit-musicwishes': 'Musikwünsche bearbeiten',
+    'edit-photoupload': 'Foto-Upload bearbeiten',
     'edit-faq': 'FAQ',
     'edit-abc': 'Hochzeits-ABC',
     'edit-footer': 'Footer',
@@ -101,6 +104,9 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'edit-hotels': return <Editors.HotelsEditor components={C} />;
       case 'edit-witnesses': return <Editors.WitnessesEditor components={C} />;
       case 'edit-gallery': return <Editors.GalleryEditor components={C} />;
+      case 'edit-guestbook': return <Editors.GuestbookEditor components={C} />;
+      case 'edit-musicwishes': return <Editors.MusicWishesEditor components={C} />;
+      case 'edit-photoupload': return <Editors.PhotoUploadEditor components={C} />;
       case 'edit-faq': return <Editors.FAQEditor components={C} />;
       case 'edit-abc': return <Editors.ABCEditor components={C} />;
       case 'edit-footer': return <Editors.FooterEditor components={C} />;

@@ -4,7 +4,7 @@ import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function DresscodeEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.dresscode || {};
   const update = (field, value) => updateContentField('dresscode', field, value);
 
@@ -55,8 +55,8 @@ function DresscodeEditor({ components: C }) {
         </C.FormGroup>
 
         <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Hauptbild" helpText="Großes Bild links" />
-        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/dresscode`} label="Hauptbild" helpText="Großes Bild links" />
+        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/dresscode`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
 
         <C.SectionLabel>Farbpalette</C.SectionLabel>
         <ListEditor components={C} items={content.colors || []} onItemsChange={(colors) => update('colors', colors)}

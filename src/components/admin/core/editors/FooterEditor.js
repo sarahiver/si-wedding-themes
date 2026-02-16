@@ -3,7 +3,7 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function FooterEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.footer || {};
   const update = (field, value) => updateContentField('footer', field, value);
 
@@ -21,8 +21,8 @@ function FooterEditor({ components: C }) {
         </C.FormGroup>
 
         <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Bild links" />
-        <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} label="Bild rechts" />
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/footer`} label="Bild links" />
+        <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} folder={`${baseFolder}/footer`} label="Bild rechts" />
 
         <C.Divider />
         <C.Button onClick={() => saveContent('footer')} disabled={isSaving}>{isSaving ? 'Speichern...' : '💾 Speichern'}</C.Button>

@@ -22,7 +22,7 @@ const TRANSPORT_OPTIONS = [
 ];
 
 function DirectionsEditor({ components: C }) {
-  const { contentStates, updateContent, updateContentField, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.directions || {};
   const update = (field, value) => updateContentField('directions', field, value);
 
@@ -209,8 +209,8 @@ function DirectionsEditor({ components: C }) {
         />
 
         <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Hauptbild" helpText="Bild rechts neben dem Text" />
-        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Hauptbild" helpText="Bild rechts neben dem Text" />
+        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
 
         <C.Divider />
         <C.Button onClick={() => saveContent('directions')} disabled={isSaving}>

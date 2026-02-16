@@ -4,7 +4,7 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function MusicWishesEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.musicwishes || {};
   const update = (field, value) => updateContentField('musicwishes', field, value);
 
@@ -42,8 +42,8 @@ function MusicWishesEditor({ components: C }) {
         </C.FormGroup>
         
         <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Bild 1" helpText="Erstes Bild (hinten, links)" />
-        <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} label="Bild 2" helpText="Zweites Bild (vorne, rechts)" />
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/musicwishes`} label="Bild 1" helpText="Erstes Bild (hinten, links)" />
+        <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} folder={`${baseFolder}/musicwishes`} label="Bild 2" helpText="Zweites Bild (vorne, rechts)" />
 
         <C.Divider />
         <C.Button onClick={() => saveContent('musicwishes')} disabled={isSaving}>
