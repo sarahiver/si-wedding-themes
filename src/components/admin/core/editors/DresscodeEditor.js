@@ -4,8 +4,9 @@ import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function DresscodeEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.dresscode || {};
+  const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('dresscode', field, value);
 
   const renderColorItem = (item, index, onChange) => {
@@ -54,9 +55,11 @@ function DresscodeEditor({ components: C }) {
           <C.TextArea value={content.description || ''} onChange={(e) => update('description', e.target.value)} placeholder="Details..." />
         </C.FormGroup>
 
-        <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/dresscode`} label="Hauptbild" helpText="Großes Bild links" />
-        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/dresscode`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        {isClassic && (<>
+          <C.SectionLabel>Bilder</C.SectionLabel>
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/dresscode`} label="Hauptbild" helpText="Großes Bild links" />
+          <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/dresscode`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        </>)}
 
         <C.SectionLabel>Farbpalette</C.SectionLabel>
         <ListEditor components={C} items={content.colors || []} onItemsChange={(colors) => update('colors', colors)}

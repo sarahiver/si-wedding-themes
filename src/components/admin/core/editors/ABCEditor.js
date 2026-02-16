@@ -6,8 +6,9 @@ import ImageUploader from './ImageUploader';
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 function ABCEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
   const content = contentStates.weddingabc || {};
+  const isClassic = project?.theme === 'classic';
   const entries = content.entries || [];
   
   const update = (field, value) => updateContentField('weddingabc', field, value);
@@ -40,15 +41,17 @@ function ABCEditor({ components: C }) {
         <C.PanelTitle>Hochzeits-ABC bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
-        <ImageUploader
-          components={C}
-          image={content.hero_image}
-          onUpload={(url) => update('hero_image', url)}
-          folder={`${baseFolder}/weddingabc`}
-          ratio="21/9"
-          label="Banner-Bild (Vollbreite oben)"
-          maxHeight="120px"
-        />
+        {isClassic && (
+          <ImageUploader
+            components={C}
+            image={content.hero_image}
+            onUpload={(url) => update('hero_image', url)}
+            folder={`${baseFolder}/weddingabc`}
+            ratio="21/9"
+            label="Banner-Bild (Vollbreite oben)"
+            maxHeight="120px"
+          />
+        )}
         <C.FormGroup>
           <C.Label>Titel</C.Label>
           <C.Input 

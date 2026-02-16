@@ -22,8 +22,9 @@ const TRANSPORT_OPTIONS = [
 ];
 
 function DirectionsEditor({ components: C }) {
-  const { contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.directions || {};
+  const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('directions', field, value);
 
   // Batch-Update für mehrere Felder gleichzeitig
@@ -208,9 +209,11 @@ function DirectionsEditor({ components: C }) {
           maxItems={6}
         />
 
-        <C.SectionLabel>Bilder</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Hauptbild" helpText="Bild rechts neben dem Text" />
-        <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        {isClassic && (<>
+          <C.SectionLabel>Bilder</C.SectionLabel>
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Hauptbild" helpText="Bild rechts neben dem Text" />
+          <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+        </>)}
 
         <C.Divider />
         <C.Button onClick={() => saveContent('directions')} disabled={isSaving}>

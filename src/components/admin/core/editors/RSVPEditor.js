@@ -4,8 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function RSVPEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.rsvp || {};
+  const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('rsvp', field, value);
 
   return (
@@ -42,7 +43,9 @@ function RSVPEditor({ components: C }) {
         </C.FormGroup>
         
         <C.SectionLabel>Hintergrundbild</C.SectionLabel>
-        <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+        {isClassic && (
+          <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+        )}
 
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>
         

@@ -4,8 +4,9 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function GuestbookEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.guestbook || {};
+  const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('guestbook', field, value);
 
   return (
@@ -44,8 +45,10 @@ function GuestbookEditor({ components: C }) {
           </label>
         </C.FormGroup>
         
-        <C.SectionLabel>Bild</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />
+        {isClassic && (<>
+          <C.SectionLabel>Bild</C.SectionLabel>
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />
+        </>)}
 
         <C.Divider />
         <C.Button onClick={() => saveContent('guestbook')} disabled={isSaving}>

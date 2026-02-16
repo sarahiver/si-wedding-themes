@@ -7,8 +7,9 @@ import AddressSearch from './AddressSearch';
 import { generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMaps';
 
 function HotelsEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.accommodations || {};
+  const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('accommodations', field, value);
 
   const renderItem = (item, index, onChange) => (
@@ -131,8 +132,10 @@ function HotelsEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.SectionLabel>Hero-Bild</C.SectionLabel>
-        <ImageUploader components={C} image={content.hero_image} onUpload={(url) => update('hero_image', url)} label="Vollbild oben" helpText="Großes Bild über der Hotels-Sektion" />
+        {isClassic && (<>
+          <C.SectionLabel>Hero-Bild</C.SectionLabel>
+          <ImageUploader components={C} image={content.hero_image} onUpload={(url) => update('hero_image', url)} folder={`${baseFolder}/accommodations`} label="Vollbild oben" helpText="Großes Bild über der Hotels-Sektion" />
+        </>)}
 
         <C.SectionLabel>Hotels (max. 4)</C.SectionLabel>
         <ListEditor 
