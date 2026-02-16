@@ -159,7 +159,7 @@ function DirectionsEditor({ components: C }) {
             <C.Label>Kartenvorschau</C.Label>
             <div style={{
               position: 'relative', paddingTop: '50%', background: '#111',
-              borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--admin-border, rgba(255,255,255,0.1))',
             }}>
               <iframe
                 src={embedUrl}

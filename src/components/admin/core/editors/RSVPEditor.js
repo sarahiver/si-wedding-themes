@@ -54,7 +54,7 @@ function RSVPEditor({ components: C }) {
               onChange={(e) => update('ask_dietary', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Ernährungswünsche abfragen (vegetarisch, vegan, etc.)</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Ernährungswünsche abfragen (vegetarisch, vegan, etc.)</span>
           </label>
         </C.FormGroup>
         
@@ -66,7 +66,7 @@ function RSVPEditor({ components: C }) {
               onChange={(e) => update('ask_allergies', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Allergien/Unverträglichkeiten abfragen</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Allergien/Unverträglichkeiten abfragen</span>
           </label>
         </C.FormGroup>
 
@@ -81,7 +81,7 @@ function RSVPEditor({ components: C }) {
             onChange={(e) => update('custom_question', e.target.value)}
             placeholder="z.B. Brauchst du eine Übernachtung?"
           />
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', marginTop: '0.5rem' }}>
             Diese Frage erscheint als Freitextfeld im RSVP-Formular
           </p>
         </C.FormGroup>

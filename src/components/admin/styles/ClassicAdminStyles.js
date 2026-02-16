@@ -56,7 +56,26 @@ export const LoginButton = styled.button`
 export const BackLink = styled.a`display:block; text-align:center; margin-top:2rem; font-family:'Josefin Sans',sans-serif; font-size:0.65rem; letter-spacing:0.1em; color:${c.textMuted}; text-decoration:none; cursor:pointer; &:hover { color:${c.gold}; }`;
 
 // DASHBOARD
-export const DashboardContainer = styled.div`min-height:100vh; display:flex; background:${c.cream};`;
+export const DashboardContainer = styled.div`
+  min-height:100vh; display:flex; background:${c.cream};
+  --admin-text: ${c.dark};
+  --admin-text-secondary: ${c.textSec};
+  --admin-text-muted: ${c.textMuted};
+  --admin-text-subtle: rgba(0,0,0,0.25);
+  --admin-border: ${c.border};
+  --admin-border-subtle: rgba(0,0,0,0.04);
+  --admin-bg-subtle: rgba(0,0,0,0.02);
+  --admin-bg-hover: rgba(0,0,0,0.04);
+  --admin-glass: rgba(0,0,0,0.02);
+  --admin-glass-hover: rgba(0,0,0,0.04);
+  --admin-glass-border: ${c.border};
+  --admin-glass-border-hover: rgba(196,168,124,0.3);
+  --admin-accent: ${c.gold};
+  --admin-accent-light: rgba(196,168,124,0.15);
+  --admin-accent-muted: rgba(196,168,124,0.08);
+  --admin-success: ${c.success};
+  --admin-error: ${c.error};
+`;
 export const Sidebar = styled.aside`
   width:260px; background:${c.white}; border-right:1px solid ${c.border};
   position:fixed; top:0; left:0; bottom:0; padding:2rem 0; overflow-y:auto; z-index:100;

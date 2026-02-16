@@ -55,7 +55,7 @@ function SaveTheDateEditor({ components: C }) {
               onChange={(e) => update('countdown_active', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Countdown anzeigen</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Countdown anzeigen</span>
           </label>
         </C.FormGroup>
         

@@ -4,7 +4,7 @@ import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 
 function GuestbookEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
   const content = contentStates.guestbook || {};
   const update = (field, value) => updateContentField('guestbook', field, value);
 
@@ -40,12 +40,12 @@ function GuestbookEditor({ components: C }) {
               onChange={(e) => update('allow_images', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Bilder in Einträgen erlauben</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Bilder in Einträgen erlauben</span>
           </label>
         </C.FormGroup>
         
         <C.SectionLabel>Bild</C.SectionLabel>
-        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />
+        <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />
 
         <C.Divider />
         <C.Button onClick={() => saveContent('guestbook')} disabled={isSaving}>

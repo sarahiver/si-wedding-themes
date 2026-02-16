@@ -70,8 +70,8 @@ function ABCEditor({ components: C }) {
                 <div style={{ 
                   width: '40px', 
                   height: '40px', 
-                  background: entry.word ? '#C41E3A' : 'rgba(255,255,255,0.05)',
-                  color: entry.word ? '#fff' : 'rgba(255,255,255,0.3)',
+                  background: entry.word ? '#C41E3A' : 'var(--admin-bg-subtle, rgba(255,255,255,0.05))',
+                  color: entry.word ? '#fff' : 'var(--admin-text-subtle, rgba(255,255,255,0.3))',
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',

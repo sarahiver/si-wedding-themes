@@ -17,10 +17,10 @@ function DresscodeEditor({ components: C }) {
           <C.Label>Farbe</C.Label>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ position: 'relative' }}>
-              <div style={{ width: '44px', height: '44px', backgroundColor: hex, borderRadius: '6px', border: '2px solid rgba(255,255,255,0.3)' }} />
+              <div style={{ width: '44px', height: '44px', backgroundColor: hex, borderRadius: '6px', border: '2px solid var(--admin-border, rgba(255,255,255,0.3))' }} />
               <input type="color" value={hex} onChange={(e) => onChange({ name, hex: e.target.value })} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
             </div>
-            <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace' }}>{hex}</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontFamily: 'monospace' }}>{hex}</span>
           </div>
         </C.FormGroup>
         <C.FormGroup style={{ flex: 1 }}>

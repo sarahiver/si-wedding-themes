@@ -36,7 +36,18 @@ export const LoginButton = styled.button`width: 100%; padding: 1.25rem; font-siz
 export const BackLink = styled.a`display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: #404040; cursor: pointer; &:hover { color: #FF6B6B; }`;
 
 // DASHBOARD LAYOUT
-export const DashboardContainer = styled.div`min-height: 100vh; display: flex; background: #F5F5F5;`;
+export const DashboardContainer = styled.div`min-height: 100vh; display: flex; background: #F5F5F5;
+  --admin-text: #0D0D0D;
+  --admin-text-secondary: rgba(0,0,0,0.6);
+  --admin-text-muted: rgba(0,0,0,0.4);
+  --admin-text-subtle: rgba(0,0,0,0.25);
+  --admin-border: rgba(0,0,0,0.12);
+  --admin-border-subtle: rgba(0,0,0,0.06);
+  --admin-bg-subtle: rgba(0,0,0,0.03);
+  --admin-bg-hover: rgba(0,0,0,0.05);
+  --admin-glass: rgba(0,0,0,0.02);
+  --admin-glass-hover: rgba(0,0,0,0.04);
+  --admin-glass-border: rgba(0,0,0,0.08);`;
 export const Sidebar = styled.aside`width: 280px; background: #FAFAFA; border-right: 3px solid #0D0D0D; position: fixed; top: 0; left: 0; bottom: 0; padding: 2rem 0; overflow-y: auto; z-index: 100; @media (max-width: 968px) { transform: translateX(${p => p.$open ? '0' : '-100%'}); transition: transform 0.3s ease; }`;
 export const SidebarHeader = styled.div`padding: 0 1.5rem 2rem; border-bottom: 3px solid #E5E5E5; margin-bottom: 1rem;`;
 export const SidebarLogo = styled.div`font-size: 1.5rem; font-weight: 700; text-transform: uppercase; span { color: #FF6B6B; }`;

@@ -175,7 +175,7 @@ function ArchiveEditor({ components: C }) {
         
         {/* Archiv-Galerie Upload */}
         <C.SectionLabel>📸 Eure Hochzeitsfotos</C.SectionLabel>
-        <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+        <p style={{ marginBottom: '1rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', fontSize: '0.85rem' }}>
           Ladet hier eure professionellen Hochzeitsfotos hoch (max. 30 Bilder)
         </p>
         
@@ -196,7 +196,7 @@ function ArchiveEditor({ components: C }) {
         
         {/* Gäste-Fotos Download */}
         <C.SectionLabel>📥 Gäste-Fotos herunterladen</C.SectionLabel>
-        <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+        <p style={{ marginBottom: '1rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', fontSize: '0.85rem' }}>
           Fotos, die eure Gäste hochgeladen haben ({photoUploads.length} Fotos)
         </p>
         
@@ -286,7 +286,7 @@ function ArchiveEditor({ components: C }) {
                         height: '24px',
                         borderRadius: '4px',
                         background: isSelected ? '#4caf50' : 'rgba(0,0,0,0.5)',
-                        border: isSelected ? '2px solid #4caf50' : '2px solid rgba(255,255,255,0.7)',
+                        border: isSelected ? '2px solid #4caf50' : '2px solid var(--admin-border, rgba(255,255,255,0.7))',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -309,7 +309,7 @@ function ArchiveEditor({ components: C }) {
             </C.PhotoGrid>
             
             {photoUploads.length > 12 && (
-              <p style={{ marginTop: '1rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+              <p style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', fontSize: '0.85rem' }}>
                 ... und {photoUploads.length - 12} weitere Fotos
               </p>
             )}

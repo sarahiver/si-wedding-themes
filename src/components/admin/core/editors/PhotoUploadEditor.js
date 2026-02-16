@@ -62,7 +62,7 @@ function PhotoUploadEditor({ components: C }) {
               onChange={(e) => update('moderation', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Fotos müssen freigegeben werden</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Fotos müssen freigegeben werden</span>
           </label>
         </C.FormGroup>
         

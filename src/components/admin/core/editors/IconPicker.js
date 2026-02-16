@@ -54,11 +54,11 @@ export default function IconPicker({ value, onChange, components: C }) {
           gap: '0.5rem',
           cursor: 'pointer',
           padding: '0.6rem 0.8rem',
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          background: 'var(--admin-bg-subtle, rgba(255,255,255,0.05))',
+          border: '1px solid var(--admin-border, rgba(255,255,255,0.12))',
           borderRadius: '4px',
           fontSize: '0.95rem',
-          color: 'rgba(255,255,255,0.85)',
+          color: 'var(--admin-text, rgba(255,255,255,0.85))',
           minHeight: '44px',
           transition: 'border-color 0.2s',
         }}
@@ -68,7 +68,7 @@ export default function IconPicker({ value, onChange, components: C }) {
           fontSize: '0.7rem',
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.4)',
+          color: 'var(--admin-text-muted, rgba(255,255,255,0.4))',
           marginLeft: 'auto',
         }}>
           ▼
@@ -82,8 +82,8 @@ export default function IconPicker({ value, onChange, components: C }) {
           right: 0,
           width: '280px',
           zIndex: 50,
-          background: '#1a1a1a',
-          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'var(--admin-bg-subtle, #1a1a1a)',
+          border: '1px solid var(--admin-border, rgba(255,255,255,0.15))',
           borderRadius: '6px',
           padding: '0.5rem',
           boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
@@ -99,12 +99,12 @@ export default function IconPicker({ value, onChange, components: C }) {
               fontSize: '0.7rem',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.4)',
+              color: 'var(--admin-text-muted, rgba(255,255,255,0.4))',
               cursor: 'pointer',
               borderRadius: '3px',
               transition: 'background 0.15s',
             }}
-            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseEnter={(e) => e.target.style.background = 'var(--admin-bg-hover, rgba(255,255,255,0.08))'}
             onMouseLeave={(e) => e.target.style.background = 'transparent'}
           >
             ✕ Kein Icon
@@ -117,7 +117,7 @@ export default function IconPicker({ value, onChange, components: C }) {
                 fontWeight: 600,
                 letterSpacing: '0.15em',
                 textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.35)',
+                color: 'var(--admin-text-subtle, rgba(255,255,255,0.35))',
                 padding: '0.3rem 0.3rem 0.2rem',
               }}>
                 {cat.label}
@@ -139,12 +139,12 @@ export default function IconPicker({ value, onChange, components: C }) {
                       padding: '0.35rem',
                       cursor: 'pointer',
                       borderRadius: '4px',
-                      background: value === icon ? 'rgba(255,255,255,0.12)' : 'transparent',
-                      border: value === icon ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+                      background: value === icon ? 'var(--admin-bg-hover, rgba(255,255,255,0.12))' : 'transparent',
+                      border: value === icon ? '1px solid var(--admin-border, rgba(255,255,255,0.2))' : '1px solid transparent',
                       transition: 'all 0.15s',
                     }}
                     onMouseEnter={(e) => {
-                      if (value !== icon) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                      if (value !== icon) e.currentTarget.style.background = 'var(--admin-bg-subtle, rgba(255,255,255,0.06))';
                     }}
                     onMouseLeave={(e) => {
                       if (value !== icon) e.currentTarget.style.background = 'transparent';

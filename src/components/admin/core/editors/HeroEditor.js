@@ -72,7 +72,7 @@ function HeroEditor({ components: C }) {
                   }}
                   style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
                 />
-                <span style={{ color: 'rgba(255,255,255,0.7)' }}>Hintergrund-Video verwenden</span>
+                <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Hintergrund-Video verwenden</span>
               </label>
               <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
                 Video wird auf Desktop abgespielt, Bild oben dient als Poster/Fallback
@@ -115,7 +115,7 @@ function HeroEditor({ components: C }) {
               }}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Separaten Mobile-Hintergrund verwenden</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Separaten Mobile-Hintergrund verwenden</span>
           </label>
           <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
             Empfohlen: Hochformat (9:16) für bessere Darstellung auf Smartphones

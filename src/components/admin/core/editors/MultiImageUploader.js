@@ -187,7 +187,7 @@ function MultiImageUploader({
         {normalizedImages.length > 1 && (
           <span style={{ 
             fontSize: '0.65rem', 
-            color: 'rgba(255,255,255,0.35)', 
+            color: 'var(--admin-text-subtle, rgba(255,255,255,0.35))', 
             letterSpacing: '0.05em' 
           }}>
             Bilder ziehen zum Sortieren
@@ -216,11 +216,11 @@ function MultiImageUploader({
             <div style={{ color: '#C41E3A', fontWeight: '600', fontSize: '0.85rem' }}>
               Uploading... {uploadProgress.current}/{uploadProgress.total}
             </div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+            <div style={{ color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', fontSize: '0.75rem', marginTop: '0.25rem' }}>
               {uploadProgress.fileName}
             </div>
             <div style={{
-              height: '4px', background: 'rgba(255,255,255,0.1)',
+              height: '4px', background: 'var(--admin-border, rgba(255,255,255,0.1))',
               marginTop: '0.5rem', borderRadius: '2px', overflow: 'hidden'
             }}>
               <div style={{
@@ -243,7 +243,7 @@ function MultiImageUploader({
           position: 'relative',
           border: dragging 
             ? '2px dashed #C41E3A' 
-            : isEmpty ? '2px dashed rgba(255,255,255,0.15)' : '2px dashed transparent',
+            : isEmpty ? '2px dashed var(--admin-border, rgba(255,255,255,0.15))' : '2px dashed transparent',
           borderRadius: '8px',
           padding: isEmpty ? '0' : '0.5rem',
           background: dragging ? 'rgba(196, 30, 58, 0.08)' : 'transparent',
@@ -278,7 +278,7 @@ function MultiImageUploader({
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
               minHeight: '160px', cursor: 'pointer',
-              color: dragging ? '#C41E3A' : 'rgba(255,255,255,0.4)',
+              color: dragging ? '#C41E3A' : 'var(--admin-text-muted, rgba(255,255,255,0.4))',
               transition: 'color 0.2s',
             }}
           >
@@ -355,7 +355,7 @@ function MultiImageUploader({
                   <span style={{
                     position: 'absolute', bottom: '4px', left: '4px',
                     background: 'rgba(0,0,0,0.7)',
-                    color: 'rgba(255,255,255,0.6)',
+                    color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
                     fontSize: '0.55rem', fontWeight: '600',
                     padding: '2px 5px', borderRadius: '3px',
                     letterSpacing: '0.05em',
@@ -375,17 +375,17 @@ function MultiImageUploader({
                     style={{
                       width: '100%', marginTop: '0.4rem',
                       padding: '0.4rem 0.5rem',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'var(--admin-bg-subtle, rgba(255,255,255,0.05))',
+                      border: '1px solid var(--admin-border, rgba(255,255,255,0.1))',
                       borderRadius: '4px',
-                      color: 'rgba(255,255,255,0.8)',
+                      color: 'var(--admin-text, rgba(255,255,255,0.8))',
                       fontSize: '0.75rem',
                       fontFamily: 'inherit',
                       outline: 'none',
                       transition: 'border-color 0.2s',
                     }}
                     onFocus={e => e.target.style.borderColor = 'rgba(196,30,58,0.5)'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--admin-border, rgba(255,255,255,0.1))'}
                     onClick={e => e.stopPropagation()}
                   />
                 )}
@@ -398,13 +398,13 @@ function MultiImageUploader({
                 onClick={() => inputRef.current?.click()}
                 style={{
                   aspectRatio: showCaptions ? '4/3' : '1',
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '2px dashed rgba(255,255,255,0.15)',
+                  background: 'var(--admin-bg-subtle, rgba(255,255,255,0.02))',
+                  border: '2px dashed var(--admin-border, rgba(255,255,255,0.15))',
                   borderRadius: '4px',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', fontSize: '0.7rem',
-                  color: 'rgba(255,255,255,0.4)',
+                  color: 'var(--admin-text-muted, rgba(255,255,255,0.4))',
                   transition: 'all 0.2s ease',
                   minWidth: showCaptions ? 'auto' : '80px',
                 }}
@@ -413,8 +413,8 @@ function MultiImageUploader({
                   e.currentTarget.style.color = '#C41E3A';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
+                  e.currentTarget.style.borderColor = 'var(--admin-border, rgba(255,255,255,0.15))';
+                  e.currentTarget.style.color = 'var(--admin-text-muted, rgba(255,255,255,0.4))';
                 }}
               >
                 <span style={{ fontSize: '1.5rem' }}>+</span>

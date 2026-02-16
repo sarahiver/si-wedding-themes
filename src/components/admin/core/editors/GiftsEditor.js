@@ -148,10 +148,10 @@ function GiftsEditor({ components: C }) {
 
         {/* Reservierungs-Status - synced across DB + Content */}
         <div style={{
-          background: reserved ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255,255,255,0.03)',
+          background: reserved ? 'rgba(76, 175, 80, 0.1)' : 'var(--admin-bg-subtle, rgba(255,255,255,0.03))',
           padding: '1rem',
           borderRadius: '8px',
-          border: reserved ? '1px solid rgba(76, 175, 80, 0.3)' : '1px solid rgba(255,255,255,0.1)'
+          border: reserved ? '1px solid rgba(76, 175, 80, 0.3)' : '1px solid var(--admin-border, rgba(255,255,255,0.1))'
         }}>
           <C.FormGroup style={{ marginBottom: reserved ? '0.75rem' : 0 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
@@ -161,7 +161,7 @@ function GiftsEditor({ components: C }) {
                 onChange={(e) => handleToggleReservation(index, item, e.target.checked)}
                 style={{ width: '18px', height: '18px', accentColor: '#4CAF50' }}
               />
-              <span style={{ color: reserved ? '#4CAF50' : 'rgba(255,255,255,0.7)', fontWeight: reserved ? '600' : '400' }}>
+              <span style={{ color: reserved ? '#4CAF50' : 'var(--admin-text-secondary, rgba(255,255,255,0.7))', fontWeight: reserved ? '600' : '400' }}>
                 {reserved ? '✓ Reserviert' : 'Reserviert'}
               </span>
             </label>
@@ -169,7 +169,7 @@ function GiftsEditor({ components: C }) {
           {reserved && (
             <>
               {source && (
-                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', fontStyle: 'italic' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.4))', marginBottom: '0.5rem', fontStyle: 'italic' }}>
                   Quelle: {source}
                   {dbRes?.created_at && ` · ${new Date(dbRes.created_at).toLocaleDateString('de-DE')}`}
                 </div>
@@ -185,7 +185,7 @@ function GiftsEditor({ components: C }) {
                 />
               </C.FormGroup>
               {dbRes?.reserved_by_email && (
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', marginBottom: '0.75rem' }}>
                   ✉ {dbRes.reserved_by_email}
                 </div>
               )}
@@ -301,7 +301,7 @@ Verwendungszweck: Hochzeitsgeschenk"
               onChange={(e) => update('show_registry', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Link zur externen Geschenkeliste anzeigen</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Link zur externen Geschenkeliste anzeigen</span>
           </label>
         </C.FormGroup>
 

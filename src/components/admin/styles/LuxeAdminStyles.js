@@ -59,7 +59,18 @@ export const LoginButton = styled.button`
 `;
 export const BackLink = styled.a`display: block; text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #666; text-decoration: none; letter-spacing: 0.1em; cursor: pointer; &:hover { color: #C9A86C; }`;
 
-export const DashboardContainer = styled.div`min-height: 100vh; display: flex; background: #1A1A1A;`;
+export const DashboardContainer = styled.div`min-height: 100vh; display: flex; background: #1A1A1A;
+  --admin-text: rgba(255,255,255,0.85);
+  --admin-text-secondary: rgba(255,255,255,0.7);
+  --admin-text-muted: rgba(255,255,255,0.5);
+  --admin-text-subtle: rgba(255,255,255,0.3);
+  --admin-border: rgba(255,255,255,0.12);
+  --admin-border-subtle: rgba(255,255,255,0.06);
+  --admin-bg-subtle: rgba(255,255,255,0.05);
+  --admin-bg-hover: rgba(255,255,255,0.08);
+  --admin-glass: rgba(255,255,255,0.03);
+  --admin-glass-hover: rgba(255,255,255,0.06);
+  --admin-glass-border: rgba(255,255,255,0.08);`;
 
 export const Sidebar = styled.aside`
   width: 280px;

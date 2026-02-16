@@ -33,7 +33,7 @@ function CountdownEditor({ components: C }) {
             onChange={(e) => update('target_date', e.target.value)}
           />
           {!content.target_date && project?.wedding_date && (
-            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem', display: 'block' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.4))', marginTop: '0.25rem', display: 'block' }}>
               Übernommen vom Hochzeitsdatum. Wird beim Speichern gesetzt.
             </span>
           )}
@@ -47,7 +47,7 @@ function CountdownEditor({ components: C }) {
               onChange={(e) => update('show_seconds', e.target.checked)}
               style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
             />
-            <span style={{ color: 'rgba(255,255,255,0.7)' }}>Sekunden anzeigen</span>
+            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Sekunden anzeigen</span>
           </label>
         </C.FormGroup>
         

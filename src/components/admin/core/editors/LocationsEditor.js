@@ -23,10 +23,10 @@ function ExportBar({ locations, coupleNames }) {
   return (
     <div style={{
       display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 0',
-      marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)',
+      marginTop: '0.5rem', borderTop: '1px solid var(--admin-border-subtle, rgba(255,255,255,0.06))',
     }}>
       <div style={{
-        fontSize: '0.65rem', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase',
+        fontSize: '0.65rem', color: 'var(--admin-text-subtle, rgba(255,255,255,0.35))', textTransform: 'uppercase',
         letterSpacing: '0.1em', width: '100%', marginBottom: '0.25rem',
       }}>
         Exportieren ({validLocs.length} Location{validLocs.length !== 1 ? 's' : ''})
@@ -35,8 +35,8 @@ function ExportBar({ locations, coupleNames }) {
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
           padding: '0.5rem 0.85rem', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em',
-          color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px',
+          color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))', background: 'var(--admin-bg-subtle, rgba(255,255,255,0.04))',
+          border: '1px solid var(--admin-border, rgba(255,255,255,0.1))', borderRadius: '4px',
           cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase',
         }}
         onClick={handlePDF}
@@ -178,7 +178,7 @@ function LocationsEditor({ components: C }) {
             <C.Label>Kartenvorschau</C.Label>
             <div style={{
               position: 'relative', paddingTop: '45%', background: '#111',
-              borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--admin-border, rgba(255,255,255,0.1))',
             }}>
               <iframe
                 src={embedUrl}

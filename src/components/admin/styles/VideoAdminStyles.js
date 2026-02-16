@@ -14,6 +14,17 @@ const spin = keyframes`to { transform: rotate(360deg); }`;
 // ============================================
 export const LoginContainer = styled.div`
   min-height: 100vh;
+  --admin-text: rgba(255,255,255,0.85);
+  --admin-text-secondary: rgba(255,255,255,0.7);
+  --admin-text-muted: rgba(255,255,255,0.5);
+  --admin-text-subtle: rgba(255,255,255,0.3);
+  --admin-border: rgba(255,255,255,0.12);
+  --admin-border-subtle: rgba(255,255,255,0.06);
+  --admin-bg-subtle: rgba(255,255,255,0.05);
+  --admin-bg-hover: rgba(255,255,255,0.08);
+  --admin-glass: rgba(255,255,255,0.03);
+  --admin-glass-hover: rgba(255,255,255,0.06);
+  --admin-glass-border: rgba(255,255,255,0.08);
   display: flex;
   align-items: center;
   justify-content: center;
