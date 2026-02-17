@@ -151,9 +151,9 @@ function LoveStory() {
   const itemRefs = useRef([]);
 
   const defaultItems = [
-    { year: '2019', title: 'Der erste Blick', text: 'Bei einem gemeinsamen Abendessen mit Freunden trafen sich unsere Blicke zum ersten Mal. Ein Moment, der alles veraenderte.', image: '' },
-    { year: '2020', title: 'Das erste Date', text: 'Ein Spaziergang am See, gefolgt von Kaffee in einem kleinen Cafe. Die Stunden vergingen wie Minuten.', image: '' },
-    { year: '2024', title: 'Die Frage', text: 'Bei Sonnenuntergang, an unserem Lieblingsort, stellte er die Frage aller Fragen. Unter Traenen sagte sie ja.', image: '' }
+    { date: '2019', title: 'Der erste Blick', description: 'Bei einem gemeinsamen Abendessen mit Freunden trafen sich unsere Blicke zum ersten Mal. Ein Moment, der alles veraenderte.', image: '' },
+    { date: '2020', title: 'Das erste Date', description: 'Ein Spaziergang am See, gefolgt von Kaffee in einem kleinen Cafe. Die Stunden vergingen wie Minuten.', image: '' },
+    { date: '2024', title: 'Die Frage', description: 'Bei Sonnenuntergang, an unserem Lieblingsort, stellte er die Frage aller Fragen. Unter Traenen sagte sie ja.', image: '' }
   ];
 
   const storyItems = items.length > 0 ? items : defaultItems;
@@ -192,9 +192,9 @@ function LoveStory() {
             </ImageWrapper>
             <ContentWrapper $reverse={isReverse} $dark={i % 2 === 0}>
               <Content $visible={isVisible} $reverse={isReverse}>
-                <Year>{item.year}</Year>
+                <Year>{item.date || item.year}</Year>
                 <ItemTitle>{item.title}</ItemTitle>
-                <ItemText>{item.text}</ItemText>
+                <ItemText>{item.description || item.text}</ItemText>
               </Content>
             </ContentWrapper>
           </StoryItem>
