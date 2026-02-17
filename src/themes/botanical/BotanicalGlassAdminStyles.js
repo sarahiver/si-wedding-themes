@@ -18,8 +18,8 @@ export const AdminGlobalStyles = createGlobalStyle`
     /* Text */
     --admin-text: rgba(255, 255, 255, 0.95);
     --admin-text-secondary: rgba(255, 255, 255, 0.7);
-    --admin-text-muted: rgba(255, 255, 255, 0.45);
-    --admin-text-dim: rgba(255, 255, 255, 0.25);
+    --admin-text-muted: rgba(255, 255, 255, 0.6);
+    --admin-text-dim: rgba(255, 255, 255, 0.45);
     
     /* Accents */
     --admin-accent: rgba(139, 180, 120, 0.9);
