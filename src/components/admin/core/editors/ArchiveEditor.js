@@ -16,7 +16,6 @@ function ArchiveEditor({ components: C }) {
   const update = (field, value) => updateContentField('archive', field, value);
   
   const [downloading, setDownloading] = useState(false);
-  const [autoDelete, setAutoDelete] = useState(true); // Auto-delete after download
   const [deleting, setDeleting] = useState(false);
   
   // Archiv-Galerie Bilder (eigene, nicht die normale Galerie)
@@ -109,19 +108,11 @@ function ArchiveEditor({ components: C }) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen!`);
+      showFeedback('success', `${photosToDownload.length} Fotos heruntergeladen! Lösche aus Datenschutzgründen...`);
 
-      // Auto-delete from Cloudinary after successful download
-      if (autoDelete) {
-        const confirmDelete = window.confirm(
-          `✅ ${photosToDownload.length} Fotos erfolgreich heruntergeladen!\n\n` +
-          `Sollen die ${photosToDownload.length} Fotos jetzt aus Cloudinary gelöscht werden, um Speicher freizugeben?\n\n` +
-          `⚠️ Stellt sicher, dass die ZIP-Datei vollständig ist, bevor ihr bestätigt.`
-        );
-        if (confirmDelete) {
-          await cleanupPhotos(photosToDownload);
-        }
-      }
+      // Auto-delete after download
+      await cleanupPhotos(photosToDownload);
+      deselectAllPhotos();
     } catch (err) {
       console.error('ZIP creation failed:', err);
       showFeedback('error', 'Fehler beim Erstellen des ZIPs');
@@ -204,36 +195,11 @@ function ArchiveEditor({ components: C }) {
           <>
             {/* Selection Controls */}
             <C.PhotoActions>
-              <C.SmallButton onClick={selectAllPhotos}>Alle auswählen</C.SmallButton>
-              <C.SmallButton onClick={deselectAllPhotos}>Auswahl aufheben</C.SmallButton>
+              <C.SmallButton onClick={selectAllPhotos} disabled={downloading || deleting}>Alle auswählen</C.SmallButton>
+              <C.SmallButton onClick={deselectAllPhotos} disabled={downloading || deleting}>Auswahl aufheben</C.SmallButton>
               <C.PhotoCount>{selectedPhotos.size} ausgewählt</C.PhotoCount>
             </C.PhotoActions>
-            
-            {/* Auto-Delete Toggle */}
-            <div style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.75rem', 
-              padding: '0.75rem 1rem', marginBottom: '1rem',
-              background: autoDelete ? 'rgba(239,68,68,0.08)' : 'rgba(128,128,128,0.05)', 
-              borderRadius: '8px', border: autoDelete ? '1px solid rgba(239,68,68,0.2)' : '1px solid transparent',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer'
-            }} onClick={() => setAutoDelete(!autoDelete)}>
-              <input 
-                type="checkbox" 
-                checked={autoDelete} 
-                onChange={() => setAutoDelete(!autoDelete)}
-                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#ef4444' }}
-              />
-              <div>
-                <p style={{ fontSize: '0.85rem', fontWeight: 600, margin: '0 0 2px 0' }}>
-                  Nach Download aus Cloudinary löschen
-                </p>
-                <p style={{ fontSize: '0.75rem', opacity: 0.5, margin: 0 }}>
-                  Spart Speicher – ihr werdet nach dem Download nochmal gefragt
-                </p>
-              </div>
-            </div>
-            
+
             {deleting && (
               <div style={{ padding: '0.75rem 1rem', marginBottom: '1rem', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', fontSize: '0.85rem' }}>
                 ⏳ Lösche Fotos aus Cloudinary...
@@ -242,31 +208,52 @@ function ArchiveEditor({ components: C }) {
 
             {/* Download Buttons */}
             <C.PhotoActions style={{ marginTop: '1rem' }}>
-              <C.Button 
-                onClick={() => downloadPhotosAsZip(false)} 
-                disabled={downloading || selectedPhotos.size === 0}
-              >
-                {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) herunterladen`}
-              </C.Button>
-              <C.Button 
-                onClick={() => downloadPhotosAsZip(true)} 
-                disabled={downloading}
+              {selectedPhotos.size > 0 && (
+                <C.Button
+                  onClick={() => downloadPhotosAsZip(false)}
+                  disabled={downloading || deleting}
+                >
+                  {downloading ? '⏳ Erstelle ZIP...' : `📦 Ausgewählte (${selectedPhotos.size}) herunterladen`}
+                </C.Button>
+              )}
+              <C.Button
+                onClick={() => downloadPhotosAsZip(true)}
+                disabled={downloading || deleting}
                 $variant="secondary"
               >
                 📦 Alle ({photoUploads.length}) herunterladen
               </C.Button>
             </C.PhotoActions>
-            
-            {/* Photo Grid Preview */}
+
+            {/* Delete Selected */}
+            {selectedPhotos.size > 0 && (
+              <C.PhotoActions style={{ marginTop: '0.5rem' }}>
+                <C.SmallButton
+                  $variant="danger"
+                  disabled={downloading || deleting}
+                  onClick={async () => {
+                    const photosToDelete = photoUploads.filter(p => selectedPhotos.has(p.id));
+                    if (!window.confirm(`${photosToDelete.length} Foto(s) unwiderruflich löschen?`)) return;
+                    await cleanupPhotos(photosToDelete);
+                    deselectAllPhotos();
+                  }}
+                >
+                  🗑️ Ausgewählte ({selectedPhotos.size}) löschen
+                </C.SmallButton>
+              </C.PhotoActions>
+            )}
+
+            {/* Photo Grid - ALL photos */}
             <C.PhotoGrid style={{ marginTop: '1.5rem' }}>
-              {photoUploads.slice(0, 12).map(photo => {
+              {photoUploads.map(photo => {
                 const isSelected = selectedPhotos.has(photo.id);
                 return (
-                  <C.PhotoCard 
-                    key={photo.id} 
-                    onClick={() => togglePhotoSelection(photo.id)}
-                    style={{ 
-                      cursor: 'pointer',
+                  <C.PhotoCard
+                    key={photo.id}
+                    onClick={() => !(downloading || deleting) && togglePhotoSelection(photo.id)}
+                    style={{
+                      cursor: (downloading || deleting) ? 'wait' : 'pointer',
+                      opacity: (downloading || deleting) ? 0.6 : 1,
                       outline: isSelected ? '3px solid #4caf50' : '3px solid transparent',
                       outlineOffset: '-3px',
                       transform: isSelected ? 'scale(0.95)' : 'scale(1)',
@@ -275,31 +262,43 @@ function ArchiveEditor({ components: C }) {
                     }}
                   >
                     <C.PhotoImage $url={photo.cloudinary_url} />
-                    
+
                     {/* Selection Checkbox */}
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        top: '8px',
-                        left: '8px',
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '4px',
-                        background: isSelected ? '#4caf50' : 'rgba(0,0,0,0.5)',
-                        border: isSelected ? '2px solid #4caf50' : '2px solid var(--admin-border, rgba(255,255,255,0.7))',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '14px',
-                        zIndex: 15,
-                        pointerEvents: 'none'
-                      }}
-                    >
+                    <div style={{
+                      position: 'absolute', top: '8px', left: '8px',
+                      width: '24px', height: '24px', borderRadius: '4px',
+                      background: isSelected ? '#4caf50' : 'rgba(0,0,0,0.5)',
+                      border: isSelected ? '2px solid #4caf50' : '2px solid rgba(255,255,255,0.7)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'white', fontWeight: 'bold', fontSize: '14px',
+                      zIndex: 15, pointerEvents: 'none'
+                    }}>
                       {isSelected ? '✓' : ''}
                     </div>
-                    
+
+                    {/* Single delete button */}
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (downloading || deleting) return;
+                        if (!window.confirm('Dieses Foto unwiderruflich löschen?')) return;
+                        cleanupPhotos([photo]);
+                      }}
+                      style={{
+                        position: 'absolute', top: '8px', right: '8px',
+                        width: '24px', height: '24px', borderRadius: '50%',
+                        background: 'rgba(244,67,54,0.85)', color: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '14px', fontWeight: 'bold', cursor: 'pointer',
+                        zIndex: 15, opacity: 0, transition: 'opacity 0.2s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+                      title="Löschen"
+                    >
+                      ×
+                    </div>
+
                     {photo.uploaded_by && (
                       <C.PhotoCaption>{photo.uploaded_by}</C.PhotoCaption>
                     )}
@@ -307,12 +306,14 @@ function ArchiveEditor({ components: C }) {
                 );
               })}
             </C.PhotoGrid>
-            
-            {photoUploads.length > 12 && (
-              <p style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', fontSize: '0.85rem' }}>
-                ... und {photoUploads.length - 12} weitere Fotos
-              </p>
-            )}
+
+            {/* Datenschutz-Hinweis */}
+            <p style={{
+              marginTop: '1.5rem', textAlign: 'center', fontSize: '0.78rem',
+              opacity: 0.45, fontStyle: 'italic', lineHeight: 1.6
+            }}>
+              Wird nach Download wegen Datenschutz direkt gelöscht.
+            </p>
           </>
         ) : (
           <C.EmptyState>Noch keine Gäste-Fotos vorhanden</C.EmptyState>
