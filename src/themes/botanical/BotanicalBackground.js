@@ -130,7 +130,7 @@ const LEAVES_CONFIG_MOBILE = [
   // Statisch an den Ecken, kein Skalieren
   { src: 2, layer: 100, top: '-5%', left: '-8%', width: 140, rotate: 130, blur: 0, brightness: 0.8, opacity: 0.9, speed: 0.002 },
   { src: 1, layer: 100, top: '-5%', right: '-8%', width: 130, rotate: -130, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.9, speed: 0.002 },
-  { src: 3, layer: 100, bottom: '-5%', left: '-10%', width: 170, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.88, speed: 0.001 },
+  { src: 3, layer: 100, bottom: '-12%', left: '-18%', width: 170, rotate: 50, blur: 0, brightness: 0.8, opacity: 0.88, speed: 0.001 },
   { src: 0, layer: 100, bottom: '-5%', right: '-10%', width: 160, rotate: -50, scaleX: -1, blur: 0, brightness: 0.8, opacity: 0.88, speed: 0.001 },
   // Hintergrund-Blätter
   { src: 0, layer: 3, top: '30%', left: '-8%', width: 120, rotate: 95, blur: 2, brightness: 0.5, opacity: 0.6, speed: 0.004 },

@@ -118,8 +118,9 @@ const CountdownUnit = styled.div`
   `}
   
   @media (max-width: 768px) {
-    min-width: 75px;
-    padding: 1.25rem 0.75rem;
+    min-width: 0;
+    flex: 1;
+    padding: 1rem 0.5rem;
   }
 `;
 
