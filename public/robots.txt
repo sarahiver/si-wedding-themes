@@ -1,2 +1,6 @@
 User-agent: *
+Allow: /$
+Allow: /impressum
+Allow: /datenschutz
+Allow: /demoall
 Disallow: /
