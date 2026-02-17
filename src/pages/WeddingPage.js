@@ -2,7 +2,7 @@
 // ZENTRALE WeddingPage für alle Themes
 // Unterstützt component_order aus Supabase
 
-import { lazy, Suspense, useEffect, useRef, useState } from "react"
+import { lazy, Suspense, useState } from "react"
 import styled from "styled-components"
 import { useWedding } from "../context/WeddingContext"
 
@@ -26,6 +26,7 @@ import EditorialLoadingScreen from "../themes/editorial/LoadingScreen"
 import LuxeLoadingScreen from "../themes/luxe/LoadingScreen"
 import NeonLoadingScreen from "../themes/neon/LoadingScreen"
 import ClassicLoadingScreen from "../themes/classic/LoadingScreen"
+import VideoLoadingScreen from "../themes/video/LoadingScreen"
 
 // Special Components
 import BotanicalBackground from "../themes/botanical/BotanicalBackground"
@@ -244,7 +245,7 @@ const themeConfig = {
   },
   video: {
     GlobalStyles: VideoGlobalStyles,
-    LoadingScreen: null, // Video has inline loading
+    LoadingScreen: VideoLoadingScreen,
     background: "#0a0a0a",
     hasSpecialBackground: false,
     isHorizontalScroll: true,
@@ -289,8 +290,6 @@ const PageWrapper = styled.div`
   min-height: 100vh;
   background: ${(props) => props.$background || "#0a0a0a"};
 `
-
-const LOADING_DELAY = 500
 
 // ============================================
 // COMPONENT RENDERER (mit Varianten-Support)
@@ -348,7 +347,36 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
 
 function VideoWeddingPage() {
   const { project, content, isLoading, isComponentActive } = useWedding()
+  const [loadingDone, setLoadingDone] = useState(false)
   const components = themeComponents.video
+  const { LoadingScreen } = themeConfig.video
+
+  // Phase 1: project noch nicht geladen → blanke Seite
+  if (!project) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
+    )
+  }
+
+  // Phase 2: LoadingScreen anzeigen bis Animation fertig
+  if (!loadingDone && LoadingScreen) {
+    return (
+      <>
+        <VideoGlobalStyles />
+        <LoadingScreen
+          onLoadComplete={() => setLoadingDone(true)}
+          isDataReady={!isLoading}
+        />
+      </>
+    )
+  }
+
+  // Fallback: Kein LoadingScreen, aber Daten laden noch
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
+    )
+  }
 
   const heroContent = content?.hero || {}
   const background = heroContent.background_media || null
@@ -391,30 +419,6 @@ function VideoWeddingPage() {
     { id: "footer", label: "Ende" },
   ]
 
-  if (isLoading) {
-    return (
-      <>
-        <VideoGlobalStyles />
-        <PageWrapper
-          $background='#0a0a0a'
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "var(--font-primary)",
-            fontSize: "0.8rem",
-            fontWeight: 500,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "var(--video-gray)",
-          }}
-        >
-          Laden...
-        </PageWrapper>
-      </>
-    )
-  }
-
   return (
     <>
       <VideoGlobalStyles />
@@ -439,63 +443,17 @@ function VideoWeddingPage() {
 // ============================================
 
 function StandardWeddingPage() {
-  const { project, isComponentActive, isLoading, theme } = useWedding()
-  const [showLoading, setShowLoading] = useState(false)
-  const [contentReady, setContentReady] = useState(false)
-  const loadingTimerRef = useRef(null)
-  const dataLoadedRef = useRef(false)
+  const { project, isComponentActive, isLoading } = useWedding()
+  const [loadingDone, setLoadingDone] = useState(false)
 
-  // Loading logic - MUSS vor early return sein (React Hooks Regel)
-  useEffect(() => {
-    if (isLoading && !dataLoadedRef.current) {
-      loadingTimerRef.current = setTimeout(() => {
-        if (!dataLoadedRef.current) {
-          setShowLoading(true)
-        }
-      }, LOADING_DELAY)
-    }
-
-    if (!isLoading) {
-      dataLoadedRef.current = true
-      setContentReady(true)
-
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current)
-      }
-    }
-
-    return () => {
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current)
-      }
-    }
-  }, [isLoading])
-
-  // WICHTIG: Warte bis project geladen ist bevor Theme-Komponenten geladen werden
-  // Sonst wird falsches Theme kurz angezeigt
-  if (!project || isLoading) {
+  // Phase 1: project noch nicht geladen → blanke Seite
+  if (!project) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#0a0a0a',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ 
-          width: 40, 
-          height: 40, 
-          border: '2px solid rgba(255,255,255,0.1)', 
-          borderTopColor: 'rgba(255,255,255,0.4)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
+      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
     )
   }
 
-  // Jetzt ist project garantiert geladen - Theme ist korrekt
+  // Theme ist jetzt bekannt (project.theme wird VOR isLoading=false gesetzt)
   const themeName = project.theme || "botanical"
   const config = themeConfig[themeName] || themeConfig.botanical
   const components = themeComponents[themeName] || themeComponents.botanical
@@ -511,19 +469,27 @@ function StandardWeddingPage() {
   // Get component config for variants
   const componentConfig = project?.component_config || {}
 
-  // Show loading screen
-  if (showLoading && !contentReady && LoadingScreen) {
+  // Phase 2: LoadingScreen anzeigen bis Animation fertig
+  if (!loadingDone && LoadingScreen) {
     return (
       <>
         <GlobalStyles />
         <LoadingScreen
-          onLoadComplete={() => setShowLoading(false)}
-          isDataReady={contentReady}
+          onLoadComplete={() => setLoadingDone(true)}
+          isDataReady={!isLoading}
         />
       </>
     )
   }
 
+  // Fallback: Kein LoadingScreen vorhanden, aber Daten laden noch
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: config.background || '#0a0a0a' }} />
+    )
+  }
+
+  // Phase 3: Content rendern
   return (
     <>
       <GlobalStyles />
