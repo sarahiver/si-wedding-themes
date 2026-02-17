@@ -160,6 +160,11 @@ function Footer() {
         <AdminBtn $visible={visible} onClick={handleAdminClick}>Admin</AdminBtn>
         <Copyright $visible={visible}>© {new Date().getFullYear()} {name1} & {name2}</Copyright>
         <PoweredBy $visible={visible} href="https://siwedding.de" target="_blank" rel="noopener noreferrer">Powered by S&I.</PoweredBy>
+        <Copyright $visible={visible} style={{ marginTop: '0.5rem' }}>
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Datenschutz</a>
+          {' · '}
+          <a href="/impressum" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Impressum</a>
+        </Copyright>
       </Content>
     </SectionWrapper>
   );

@@ -34,6 +34,11 @@ function Footer(){
         <Line/>
         {hash&&<Hash>{hash}</Hash>}
         <Brand>Made with love by <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I.</a></Brand>
+        <Brand style={{ marginTop: '0.5rem' }}>
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutz</a>
+          {' · '}
+          <a href="/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
+        </Brand>
       </TxtSide>
       <ImgSide><img src={img2} alt="" loading="lazy"/></ImgSide>
     </S>);

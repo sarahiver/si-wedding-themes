@@ -418,8 +418,13 @@ function Footer() {
         </Copyright>
 
         <PoweredBy href="https://siwedding.de" target="_blank" rel="noopener noreferrer">
-          Powered by IverLasting
+          Powered by S&I.
         </PoweredBy>
+        <Copyright $visible={visible} style={{ marginTop: '0.5rem' }}>
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Datenschutz</a>
+          {' · '}
+          <a href="/impressum" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Impressum</a>
+        </Copyright>
       </Container>
     </FooterSection>
   );

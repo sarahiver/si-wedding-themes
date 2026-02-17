@@ -18,6 +18,9 @@ import DemoAllPage from './pages/DemoAllPage';
 import ComingSoon from './components/shared/ComingSoon';
 import PasswordGate from './components/shared/PasswordGate';
 
+// Legal Pages
+import { Impressum, Datenschutz } from './pages/LegalPages';
+
 // GlobalStyles direkt importieren (nicht lazy) - verhindert Flash of unstyled content
 import BotanicalGlobalStyles from './themes/botanical/GlobalStyles';
 import LuxeGlobalStyles from './themes/luxe/GlobalStyles';
@@ -389,6 +392,8 @@ function App() {
       <Routes>
         <Route path="/demoall" element={<DemoAllPage />} />
         <Route path="/:slug/*" element={<ProjectWrapper />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="/" element={<LandingPage />} />
       </Routes>
     </Router>

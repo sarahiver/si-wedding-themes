@@ -168,6 +168,8 @@ function Footer() {
 
       <Credits>
         Powered by <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I.</a>
+        {' · '}<a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutz</a>
+        {' · '}<a href="/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
       </Credits>
       
       <ScrollTop onClick={scrollToTop}>

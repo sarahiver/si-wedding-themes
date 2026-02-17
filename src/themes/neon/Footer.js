@@ -281,6 +281,10 @@ function Footer() {
             <PoweredBy href="https://siwedding.de" target="_blank" rel="noopener">
               powered by <span>S&I.</span>
             </PoweredBy>
+            <PoweredBy as="span" style={{ display: 'flex', gap: '10px' }}>
+              <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Datenschutz</a>
+              <a href="/impressum" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Impressum</a>
+            </PoweredBy>
           </Links>
         </BottomRow>
 
