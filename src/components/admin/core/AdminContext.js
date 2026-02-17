@@ -272,7 +272,7 @@ export function AdminProvider({ children }) {
           await fetch('/api/delete-photos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ public_ids: [photo.cloudinary_public_id] }),
+            body: JSON.stringify({ public_ids: [photo.cloudinary_public_id], projectId }),
           });
         } catch (cloudErr) {
           console.warn('Cloudinary delete failed (continuing with DB delete):', cloudErr);

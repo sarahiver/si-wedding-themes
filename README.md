@@ -151,8 +151,8 @@ vercel --prod
 
 ### Environment Variables
 ```env
-REACT_APP_SUPABASE_URL=https://wikxhpvikelfgzdgndlf.supabase.co
-REACT_APP_SUPABASE_ANON_KEY=eyJ...
+REACT_APP_SUPABASE_URL=https://xxxxx.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
 ### Custom Domain Setup

@@ -94,7 +94,7 @@ function PhotosSection({ components: C }) {
           const deleteResponse = await fetch('/api/delete-photos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ public_ids: publicIds }),
+            body: JSON.stringify({ public_ids: publicIds, projectId }),
           });
 
           if (!deleteResponse.ok) {
@@ -168,7 +168,7 @@ function PhotosSection({ components: C }) {
         await fetch('/api/delete-photos', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ public_ids: publicIds }),
+          body: JSON.stringify({ public_ids: publicIds, projectId }),
         });
       } catch (err) {
         console.error('Cloudinary delete error:', err);

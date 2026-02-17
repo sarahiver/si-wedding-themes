@@ -1,16 +1,58 @@
 // api/delete-photos.js
 // Vercel Serverless Function — Cloudinary Fotos löschen
-// Benötigt ENV: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+// Benötigt ENV: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
+//              SUPABASE_URL, SUPABASE_SERVICE_KEY
 
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 const API_KEY = process.env.CLOUDINARY_API_KEY;
 const API_SECRET = process.env.CLOUDINARY_API_SECRET;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+// CORS — nur erlaubte Origins
+const ALLOWED_ORIGINS = [
+  'https://siwedding.de', 'https://www.siwedding.de',
+  'http://localhost:3000', 'http://localhost:3001',
+];
+
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (origin.endsWith('.vercel.app')) return true;
+  if (origin.endsWith('.siwedding.de')) return true;
+  return false;
+}
+
+function getCorsHeaders(origin) {
+  const allowed = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
+// Projekt-Existenz über Supabase verifizieren
+async function verifyProject(projectId) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return null;
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/projects?id=eq.${projectId}&select=id,slug`,
+    {
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      },
+    }
+  );
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data[0] || null;
+}
 
 export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  const origin = req.headers.origin || '';
+  const corsHeaders = getCorsHeaders(origin);
+  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -25,7 +67,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Cloudinary nicht konfiguriert' });
   }
 
-  const { public_ids } = req.body;
+  const { public_ids, projectId } = req.body;
+
+  // projectId ist Pflicht
+  if (!projectId) {
+    return res.status(400).json({ error: 'projectId required' });
+  }
+
+  // Projekt verifizieren
+  const project = await verifyProject(projectId);
+  if (!project) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
 
   if (!public_ids || !Array.isArray(public_ids) || public_ids.length === 0) {
     return res.status(400).json({ error: 'public_ids array required' });
