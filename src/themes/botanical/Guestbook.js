@@ -210,6 +210,7 @@ const TextArea = styled.textarea`
 
 const SubmitButton = styled.button`
   width: 100%;
+  box-sizing: border-box;
   padding: 1rem 2rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -293,18 +294,9 @@ const EntriesGrid = styled.div`
   }
   
   @media (max-width: 800px) {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: visible;
     max-height: none;
-    scroll-snap-type: x mandatory;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    padding-right: 1rem;
-    
-    scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    overflow-y: visible;
+    padding-right: 0;
   }
 `;
 
@@ -316,12 +308,12 @@ const EntryCard = styled.div`
   position: relative;
   opacity: 0;
   box-sizing: border-box;
-  
+
   ${p => p.$visible && css`
     animation: ${slideIn} 0.6s ease forwards;
     animation-delay: ${0.5 + p.$index * 0.08}s;
   `}
-  
+
   &::before {
     content: '"';
     position: absolute;
@@ -331,14 +323,6 @@ const EntryCard = styled.div`
     font-size: 3rem;
     color: rgba(255, 255, 255, 0.1);
     line-height: 1;
-  }
-  
-  @media (max-width: 800px) {
-    flex: 0 0 auto;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
-    scroll-snap-align: start;
   }
 `;
 

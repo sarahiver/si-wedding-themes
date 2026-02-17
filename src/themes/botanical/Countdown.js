@@ -47,6 +47,7 @@ const GlassCard = styled.div`
   text-align: center;
   max-width: 700px;
   width: 100%;
+  box-sizing: border-box;
   position: relative;
   overflow: hidden;
   opacity: 0;
