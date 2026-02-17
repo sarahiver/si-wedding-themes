@@ -39,8 +39,7 @@ const ContentBox = styled.div`
   padding-bottom: calc(var(--nav-height) + 4rem);
   padding-top: 3rem;
 
-  /* Center vertically when content fits */
-  margin: auto 0;
+  margin: 0;
 
   /* Fade in animation */
   opacity: ${p => p.$visible ? 1 : 0};
