@@ -58,7 +58,7 @@ function GuestListSection({ components: C }) {
   // Gästeliste mit Status anreichern
   const enrichedGuests = useMemo(() => {
     return (guestList || []).map(g => {
-      const rsvpMatch = rsvpData.find(r => r.email?.toLowerCase() === g.email.toLowerCase());
+      const rsvpMatch = rsvpData.find(r => r.email?.toLowerCase() === g.email?.toLowerCase());
       let status = 'pending'; // Noch keine Antwort
       if (rsvpMatch) {
         status = rsvpMatch.attending ? 'confirmed' : 'declined';
@@ -82,8 +82,8 @@ function GuestListSection({ components: C }) {
     return enrichedGuests.filter(g => {
       if (!searchTerm) return true;
       const term = searchTerm.toLowerCase();
-      return g.name.toLowerCase().includes(term) ||
-        g.email.toLowerCase().includes(term) ||
+      return (g.name || '').toLowerCase().includes(term) ||
+        (g.email || '').toLowerCase().includes(term) ||
         (g.group_name || '').toLowerCase().includes(term);
     });
   }, [enrichedGuests, searchTerm]);

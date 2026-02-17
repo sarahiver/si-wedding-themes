@@ -16,6 +16,84 @@ import SettingsSection from './sections/SettingsSection';
 // Import Editors
 import * as Editors from './editors';
 
+// Error Boundary - fängt Crashes in Sections/Editors ab
+class AdminErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, info) {
+    console.error('Admin section crash:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '3rem 2rem',
+          textAlign: 'center',
+          maxWidth: '500px',
+          margin: '2rem auto',
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+            Etwas ist schiefgelaufen
+          </h2>
+          <p style={{ fontSize: '0.9rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '1.5rem' }}>
+            Dieser Bereich konnte nicht geladen werden. Bitte versuche es erneut.
+            Falls der Fehler weiterhin besteht, wende dich an{' '}
+            <a href="mailto:wedding@sarahiver.de" style={{ color: '#C41E3A' }}>wedding@sarahiver.de</a>
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{
+                padding: '0.6rem 1.5rem',
+                background: 'rgba(128,128,128,0.15)',
+                border: '1px solid rgba(128,128,128,0.3)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                color: 'inherit',
+              }}
+            >
+              Erneut versuchen
+            </button>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                this.props.onNavigate?.('dashboard');
+              }}
+              style={{
+                padding: '0.6rem 1.5rem',
+                background: '#C41E3A',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                color: '#fff',
+              }}
+            >
+              Zurück zur Übersicht
+            </button>
+          </div>
+          {this.state.error && (
+            <details style={{ marginTop: '1.5rem', textAlign: 'left', fontSize: '0.75rem', opacity: 0.4 }}>
+              <summary style={{ cursor: 'pointer' }}>Fehlerdetails</summary>
+              <pre style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                {this.state.error.toString()}
+              </pre>
+            </details>
+          )}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function AdminShellInner({ components: C, LoginComponent }) {
   const admin = useAdmin();
   const {
@@ -162,7 +240,9 @@ function AdminShellInner({ components: C, LoginComponent }) {
         <C.Header>
           <C.PageTitle>{titles[activeTab] || 'Admin'}</C.PageTitle>
         </C.Header>
-        {renderContent()}
+        <AdminErrorBoundary key={activeTab} onNavigate={setActiveTab}>
+          {renderContent()}
+        </AdminErrorBoundary>
       </C.Main>
 
       {feedback.show && (

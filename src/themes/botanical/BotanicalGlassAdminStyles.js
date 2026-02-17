@@ -1235,6 +1235,13 @@ export const BotanicalGlassAdminWrapper = styled.div`
   font-family: var(--admin-font-body);
 `;
 
+export const Card = styled.div`
+  background: var(--admin-surface, rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 1.25rem;
+`;
+
 // Export all components for AdminShell
 export const BotanicalGlassAdminComponents = {
   // Login
@@ -1244,7 +1251,7 @@ export const BotanicalGlassAdminComponents = {
   NavSection, NavSectionTitle, NavItem, NavBadge, NavDivider,
   Main, Header, PageTitle, MobileMenuToggle,
   // Stats
-  StatsGrid, StatCard, StatNumber, StatLabel,
+  StatsGrid, StatCard, StatNumber, StatLabel, Card,
   // Panels
   Panel, PanelHeader, PanelTitle, PanelContent,
   // Tables
