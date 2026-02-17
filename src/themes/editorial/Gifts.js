@@ -529,7 +529,7 @@ function Gifts() {
       setModalState({
         isOpen: true,
         type: 'success',
-        message: `"${selectedGift.name || selectedGift.title}" wurde für dich reserviert!`,
+        message: `"${selectedGift.title || selectedGift.name}" wurde für dich reserviert!`,
       });
     } else {
       setModalState({

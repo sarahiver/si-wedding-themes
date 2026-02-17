@@ -284,7 +284,7 @@ function LoveStory() {
             <TimelineItem key={i} $visible={visible} $index={i}>
               <TimelineDot />
               <GlassCard>
-                <Year>{item.year || item.date}</Year>
+                <Year>{item.date || item.year}</Year>
                 <ItemTitle>{item.title}</ItemTitle>
                 <ItemDescription>{item.description}</ItemDescription>
                 {item.image && <ItemImage src={item.image} alt={item.title} loading="lazy" />}

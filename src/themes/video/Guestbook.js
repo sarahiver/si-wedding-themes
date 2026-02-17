@@ -61,7 +61,7 @@ function Guestbook() {
           <Button type="submit" disabled={loading}>{loading ? 'Wird gesendet...' : 'Eintragen'}</Button>
         </Form>
         <EntriesList>
-          {entries.slice(0, 5).map((entry, i) => (
+          {entries.map((entry, i) => (
             <Entry key={entry.id || i} $visible={visible} $index={i}>
               <EntryName>{entry.name}</EntryName>
               <EntryMessage>"{entry.message}"</EntryMessage>
