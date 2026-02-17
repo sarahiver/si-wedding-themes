@@ -25,8 +25,8 @@ export function useGuestbook() {
     if (isDemo) {
       // Demo entries
       setEntries([
-        { id: 1, name: 'Maria & Thomas', message: 'Wir freuen uns so sehr für euch! Alles Liebe!', created_at: new Date().toISOString() },
-        { id: 2, name: 'Familie Schmidt', message: 'Herzlichen Glückwunsch zur Verlobung!', created_at: new Date().toISOString() },
+        { id: 1, name: 'Maria & Thomas', message: 'Wir freuen uns so sehr für euch! Alles Liebe!', created_at: new Date().toISOString(), approved: true },
+        { id: 2, name: 'Familie Schmidt', message: 'Herzlichen Glückwunsch zur Verlobung!', created_at: new Date().toISOString(), approved: true },
       ]);
       return;
     }
