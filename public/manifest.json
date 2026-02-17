@@ -1,0 +1,15 @@
+{
+  "short_name": "S&I Wedding",
+  "name": "S&I Wedding - Premium Hochzeitswebsites",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0a0a0a",
+  "background_color": "#0a0a0a"
+}

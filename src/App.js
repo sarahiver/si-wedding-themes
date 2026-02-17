@@ -3,7 +3,7 @@
 // Triple-click on Coming Soon logo shows admin preview login
 // NEW: Password protection support
 
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 import { checkPasswordRequired } from './lib/supabase';
@@ -76,6 +76,27 @@ const themePages = {
   },
 };
 
+// Error Boundary — verhindert weißen Screen bei Crash
+class ErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error, info) { console.error('Wedding page crash:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif', textAlign: 'center', padding: '2rem' }}>
+          <div>
+            <p style={{ fontSize: '2rem', marginBottom: '1rem' }}>Etwas ist schiefgelaufen</p>
+            <p style={{ color: '#888', marginBottom: '2rem' }}>Bitte lade die Seite neu.</p>
+            <button onClick={() => window.location.reload()} style={{ background: '#fff', color: '#0a0a0a', border: 'none', padding: '0.75rem 2rem', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>Seite neu laden</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Loading component
 const Loading = () => (
   <div style={{ 
@@ -126,7 +147,7 @@ function PreviewBanner({ status }) {
 
 // Theme Router - handles status-based rendering AND password protection
 function ThemeRouter() {
-  const { project, isLoading, error, status, theme, projectId, slug, coupleNames } = useWedding();
+  const { project, isLoading, error, status, theme, projectId, slug, coupleNames, content } = useWedding();
   const [hasPreviewAccess, setHasPreviewAccess] = useState(false);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [passwordChecked, setPasswordChecked] = useState(false);
@@ -162,6 +183,38 @@ function ThemeRouter() {
     checkPassword();
   }, [slug]);
   
+  // Dynamische Meta-Tags für Social Sharing (WhatsApp, Instagram, etc.)
+  useEffect(() => {
+    if (!project) return;
+    const names = coupleNames || 'S&I Wedding';
+    document.title = names;
+
+    const heroImage = content?.hero?.background_image || '';
+
+    const updates = {
+      'og:title': names,
+      'og:description': `Hochzeit von ${names}`,
+      'og:image': heroImage,
+    };
+
+    Object.entries(updates).forEach(([property, content]) => {
+      if (!content) return;
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    });
+
+    // Description meta
+    let desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', `Hochzeit von ${names}`);
+
+    return () => { document.title = 'S&I Wedding'; };
+  }, [project, coupleNames]);
+
   // WICHTIG: Warte bis project UND theme UND password check geladen sind
   if (isLoading || !project || !passwordChecked) return <Loading />;
   
@@ -292,9 +345,11 @@ function ProjectWrapper() {
   }, []);
 
   return (
-    <WeddingProvider slug={slug}>
-      <ThemeRouter />
-    </WeddingProvider>
+    <ErrorBoundary>
+      <WeddingProvider slug={slug}>
+        <ThemeRouter />
+      </WeddingProvider>
+    </ErrorBoundary>
   );
 }
 

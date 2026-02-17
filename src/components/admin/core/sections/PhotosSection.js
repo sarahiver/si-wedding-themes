@@ -101,9 +101,6 @@ function PhotosSection({ components: C }) {
             const errData = await deleteResponse.json().catch(() => ({}));
             console.error('Cloudinary delete failed:', errData);
             deleteErrors++;
-          } else {
-            const result = await deleteResponse.json();
-            console.log('Cloudinary delete result:', result);
           }
         } catch (err) {
           console.error('Cloudinary delete error:', err);
