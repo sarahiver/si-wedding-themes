@@ -1242,6 +1242,32 @@ export const Card = styled.div`
   padding: 1.25rem;
 `;
 
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--admin-text, rgba(255,255,255,0.8));
+  cursor: pointer;
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--admin-accent, #8B9D83);
+  }
+`;
+
+export const Badge = styled.span`
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  background: ${p => p.$variant === 'success' ? 'rgba(139,157,131,0.2)' : p.$variant === 'error' ? 'rgba(244,67,54,0.2)' : 'rgba(255,255,255,0.1)'};
+  color: ${p => p.$variant === 'success' ? '#8B9D83' : p.$variant === 'error' ? '#E57373' : 'rgba(255,255,255,0.6)'};
+`;
+
 // Export all components for AdminShell
 export const BotanicalGlassAdminComponents = {
   // Login
@@ -1251,7 +1277,7 @@ export const BotanicalGlassAdminComponents = {
   NavSection, NavSectionTitle, NavItem, NavBadge, NavDivider,
   Main, Header, PageTitle, MobileMenuToggle,
   // Stats
-  StatsGrid, StatCard, StatNumber, StatLabel, Card,
+  StatsGrid, StatCard, StatNumber, StatLabel, Card, CheckboxLabel, Badge,
   // Panels
   Panel, PanelHeader, PanelTitle, PanelContent,
   // Tables
