@@ -21,7 +21,8 @@ function Gallery() {
   const { content } = useWedding();
   const data = content?.gallery || {};
   const title = data.title || 'Galerie';
-  const images = data.images || Array(6).fill({ url: '', caption: '' });
+  const rawImages = Array.isArray(data.images) && data.images.length > 0 ? data.images : [];
+  const images = rawImages.map(img => typeof img === 'string' ? { url: img, caption: '' } : { url: img.url || '', caption: img.caption || '' });
   const [visible, setVisible] = useState(false);
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
   const sectionRef = useRef(null);
