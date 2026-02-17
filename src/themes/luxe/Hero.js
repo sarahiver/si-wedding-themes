@@ -187,7 +187,7 @@ const ScrollIndicator = styled.div`
   z-index: 10;
   
   @media (max-width: 768px) {
-    bottom: 2rem;
+    display: none;
   }
 `;
 
