@@ -15,7 +15,7 @@ const glowPulse = keyframes`
 const Section = styled.section`
   position: relative;
   background: #0a0a0f;
-  padding: 150px 5%;
+  padding: clamp(4rem, 10vw, 9rem) 5%;
   overflow: hidden;
 `;
 
@@ -279,7 +279,10 @@ function Timeline() {
     }
   ];
 
-  const events = timelineData.events?.length > 0 ? timelineData.events : defaultEvents;
+  const neonColors = ['#00ffff', '#ff00ff', '#b347ff', '#00ff88', '#00ffff'];
+  const events = timelineData.events?.length > 0
+    ? timelineData.events.map((e, i) => ({ ...e, color: e.color || neonColors[i % neonColors.length] }))
+    : defaultEvents;
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);

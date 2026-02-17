@@ -305,7 +305,7 @@ function Navigation() {
     <>
       <Nav>
         <NavInner>
-          <Logo href="#">
+          <Logo href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             {name1} <span className="ampersand">&</span> {name2}
           </Logo>
           

@@ -36,7 +36,7 @@ const numberGlow = keyframes`
 const Section = styled.section`
   min-height: 100vh;
   background: var(--neon-bg, #0a0a0f);
-  padding: 120px 5vw;
+  padding: clamp(4rem, 10vw, 9rem) 5vw;
   position: relative;
   overflow: hidden;
   display: flex;

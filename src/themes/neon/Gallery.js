@@ -21,7 +21,7 @@ const glowPulse = keyframes`
 const Section = styled.section`
   position: relative;
   background: #0a0a0f;
-  padding: 150px 0;
+  padding: clamp(4rem, 10vw, 9rem) 0;
   overflow: hidden;
 `;
 
@@ -299,7 +299,7 @@ function Gallery() {
       
       <Header $visible={visible}>
         <Eyebrow>// Captured Moments</Eyebrow>
-        <Title>Our <span>Gallery</span></Title>
+        <Title><span>{title}</span></Title>
       </Header>
       
       <MarqueeContainer>

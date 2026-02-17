@@ -30,7 +30,7 @@ const fadeInUp = keyframes`
 const Section = styled.section`
   position: relative;
   background: #0a0a0f;
-  padding: 150px 5%;
+  padding: clamp(4rem, 10vw, 9rem) 5%;
   overflow: hidden;
 `;
 

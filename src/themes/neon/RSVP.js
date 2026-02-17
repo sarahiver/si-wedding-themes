@@ -185,6 +185,7 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
+  box-sizing: border-box;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem;
   background: rgba(255,255,255,0.03);
@@ -206,6 +207,7 @@ const Input = styled.input`
 
 const Select = styled.select`
   width: 100%;
+  box-sizing: border-box;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem;
   background: rgba(255,255,255,0.03);
@@ -229,6 +231,7 @@ const Select = styled.select`
 
 const TextArea = styled.textarea`
   width: 100%;
+  box-sizing: border-box;
   min-height: 120px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem;

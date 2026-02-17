@@ -287,9 +287,9 @@ function Navigation() {
           <NavLinks>
             {/* Fixed visible items: Countdown, Love Story */}
             {visibleNavItems.map((item, i) => (
-              <NavLink key={i} href="/" onClick={(e) => handleLinkClick(e, item.target)}>{item.label}</NavLink>
+              <NavLink key={i} href={`#${item.target}`} onClick={(e) => handleLinkClick(e, item.target)}>{item.label}</NavLink>
             ))}
-            {isComponentActive('rsvp') && <RSVPButton href="/" onClick={(e) => handleLinkClick(e, 'rsvp')}>RSVP</RSVPButton>}
+            {isComponentActive('rsvp') && <RSVPButton href="#rsvp" onClick={(e) => handleLinkClick(e, 'rsvp')}>RSVP</RSVPButton>}
           </NavLinks>
           
           <MenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -304,7 +304,7 @@ function Navigation() {
         {burgerMenuItems.map((item, i) => (
           <MobileLink
             key={i}
-            href="/"
+            href={`#${item.target}`}
             data-text={item.label}
             onClick={(e) => handleLinkClick(e, item.target)}
           >

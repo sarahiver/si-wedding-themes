@@ -20,7 +20,7 @@ const blink = keyframes`
 const Section = styled.section`
   min-height: 100vh;
   background: var(--neon-bg);
-  padding: 120px 5vw;
+  padding: clamp(4rem, 10vw, 9rem) 5vw;
   position: relative;
   overflow: hidden;
 `;

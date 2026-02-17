@@ -13,7 +13,7 @@ const Section = styled.section`
   min-height: 100vh;
   position: relative;
   background: #0a0a0f;
-  padding: 150px 5%;
+  padding: clamp(4rem, 10vw, 9rem) 5%;
 `;
 
 const GridBG = styled.div`

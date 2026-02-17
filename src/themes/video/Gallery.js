@@ -43,7 +43,7 @@ function Gallery() {
         <Eyebrow $visible={visible}>Momente</Eyebrow>
         <Title $visible={visible}>{title}</Title>
         <Grid>
-          {images.slice(0, 6).map((img, i) => (
+          {images.map((img, i) => (
             <ImageWrapper key={i} $visible={visible} $index={i} onClick={() => openLightbox(i)}>
               {img.url ? <Image $image={img.url} /> : <Placeholder>+</Placeholder>}
             </ImageWrapper>
