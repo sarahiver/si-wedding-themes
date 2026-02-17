@@ -111,7 +111,7 @@ const BankInfo = styled.div`
   font-size: 0.85rem;
   color: var(--text-muted);
   line-height: 1.8;
-  text-align: left;
+  text-align: center;
   white-space: pre-line;
 `;
 

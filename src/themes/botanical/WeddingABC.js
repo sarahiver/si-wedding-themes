@@ -218,7 +218,7 @@ function WeddingABC() {
           {items.map((item, i) => (
             <AccordionItem key={i}>
               <AccordionHeader onClick={() => toggle(i)}>
-                <span style={{ fontSize: '1.5rem', fontStyle: 'italic', minWidth: '2rem', textAlign: 'center' }}>{item.letter}</span>
+                <span style={{ fontFamily: 'var(--font-display, Georgia, serif)', fontSize: '1.5rem', fontWeight: 300, color: 'var(--text-light, #fff)', opacity: 0.5, minWidth: '2rem', textAlign: 'center' }}>{item.letter}</span>
                 <AccordionHeaderText>
                   <AccordionTitle>{item.word}</AccordionTitle>
                 </AccordionHeaderText>

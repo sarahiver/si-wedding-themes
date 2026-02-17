@@ -162,6 +162,7 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
+  box-sizing: border-box;
   padding: 0.9rem 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -184,6 +185,7 @@ const Input = styled.input`
 
 const TextArea = styled.textarea`
   width: 100%;
+  box-sizing: border-box;
   padding: 0.9rem 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);

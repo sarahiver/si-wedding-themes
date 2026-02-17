@@ -62,15 +62,8 @@ const WitnessGrid = styled.div`
   gap: 1.5rem;
 
   @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 0.75rem;
-    margin: 0 calc(-1 * var(--section-padding-x, 24px));
-    padding: 0 var(--section-padding-x, 24px);
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 `;
 
