@@ -310,6 +310,10 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
 
   const scrollToSection = useCallback((index) => {
     if (!containerRef.current) return;
+    // Reset all sections to top before navigating
+    Array.from(containerRef.current.children).forEach(child => {
+      child.scrollTop = 0;
+    });
     const sectionWidth = containerRef.current.clientWidth;
     containerRef.current.scrollTo({
       left: sectionWidth * index,
