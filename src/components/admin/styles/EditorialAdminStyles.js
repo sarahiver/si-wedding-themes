@@ -93,7 +93,7 @@ export const LoginLogo = styled.div`
       font-style: italic;
       text-transform: none;
       letter-spacing: 0.1em;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.65);
       margin-top: 0.5rem;
     }
   }
@@ -152,7 +152,7 @@ export const BackLink = styled.a`
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -167,7 +167,19 @@ export const DashboardContainer = styled.div`
   min-height: 100vh;
   display: flex;
   background: #0A0A0A;
+  color: rgba(255, 255, 255, 0.85);
   font-family: 'Inter', sans-serif;
+  --admin-text: rgba(255,255,255,0.85);
+  --admin-text-secondary: rgba(255,255,255,0.7);
+  --admin-text-muted: rgba(255,255,255,0.6);
+  --admin-text-subtle: rgba(255,255,255,0.45);
+  --admin-border: rgba(255,255,255,0.12);
+  --admin-border-subtle: rgba(255,255,255,0.06);
+  --admin-bg-subtle: rgba(255,255,255,0.05);
+  --admin-bg-hover: rgba(255,255,255,0.08);
+  --admin-glass: rgba(255,255,255,0.03);
+  --admin-glass-hover: rgba(255,255,255,0.06);
+  --admin-glass-border: rgba(255,255,255,0.08);
 `;
 
 export const Sidebar = styled.aside`
@@ -208,7 +220,7 @@ export const SidebarSub = styled.p`
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   margin-top: 0.5rem;
 `;
 
@@ -220,7 +232,7 @@ export const NavSectionTitle = styled.div`
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.5);
 `;
 
 export const NavItem = styled.button`
@@ -360,7 +372,7 @@ export const StatLabel = styled.div`
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   margin-top: 0.5rem;
 `;
 
@@ -411,7 +423,7 @@ export const Th = styled.th`
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 export const Td = styled.td`
@@ -442,7 +454,7 @@ export const Label = styled.label`
   font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.65);
   margin-bottom: 0.5rem;
 `;
 
@@ -475,7 +487,7 @@ export const Input = styled.input`
     background: rgba(255, 255, 255, 0.08);
   }
   
-  &::placeholder { color: rgba(255, 255, 255, 0.3); }
+  &::placeholder { color: rgba(255, 255, 255, 0.5); }
 `;
 
 export const TextArea = styled.textarea`
@@ -497,7 +509,7 @@ export const TextArea = styled.textarea`
     background: rgba(255, 255, 255, 0.08);
   }
   
-  &::placeholder { color: rgba(255, 255, 255, 0.3); }
+  &::placeholder { color: rgba(255, 255, 255, 0.5); }
 `;
 
 export const Checkbox = styled.input.attrs({ type: 'checkbox' })`
@@ -522,7 +534,7 @@ export const Select = styled.select`
 `;
 
 export const ErrorText = styled.span`font-size: 0.75rem; color: #C41E3A; margin-top: 0.25rem; display: block;`;
-export const HelpText = styled.span`font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); margin-top: 0.25rem; display: block;`;
+export const HelpText = styled.span`font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.25rem; display: block;`;
 export const CheckboxLabel = styled.span`font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);`;
 export const FormRow = styled.div`display: flex; gap: 1rem; @media (max-width: 600px) { flex-direction: column; }`;
 
@@ -542,11 +554,11 @@ export const Button = styled.button`
   ${p => {
     if (p.$variant === 'danger') return css`background: #C41E3A; color: #FFF; border: none; &:hover { background: #A01830; }`;
     if (p.$variant === 'success') return css`background: #2E7D32; color: #FFF; border: none; &:hover { background: #1B5E20; }`;
-    if (p.$variant === 'secondary') return css`background: transparent; color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.2); &:hover { border-color: rgba(255, 255, 255, 0.4); color: #FAFAFA; }`;
+    if (p.$variant === 'secondary') return css`background: transparent; color: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.2); &:hover { border-color: rgba(255, 255, 255, 0.6); color: #FAFAFA; }`;
     return css`background: #C41E3A; color: #FFF; border: none; &:hover { background: #A01830; }`;
   }}
   
-  &:disabled { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.3); cursor: not-allowed; }
+  &:disabled { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5); cursor: not-allowed; }
 `;
 
 export const SmallButton = styled.button`
@@ -562,7 +574,7 @@ export const SmallButton = styled.button`
   ${p => {
     if (p.$variant === 'success') return css`background: rgba(46, 125, 50, 0.2); color: #4CAF50; border-color: rgba(46, 125, 50, 0.3);`;
     if (p.$variant === 'danger') return css`background: rgba(196, 30, 58, 0.2); color: #C41E3A; border-color: rgba(196, 30, 58, 0.3);`;
-    return css`background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6);`;
+    return css`background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.75);`;
   }}
   
   &:hover { opacity: 0.8; }
@@ -588,8 +600,8 @@ export const EntryCard = styled.div`
 `;
 export const EntryHeader = styled.div`display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;`;
 export const EntryName = styled.span`font-weight: 600; color: #FAFAFA;`;
-export const EntryContent = styled.p`font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin: 0; line-height: 1.5;`;
-export const EntryMeta = styled.div`font-size: 0.75rem; color: rgba(255, 255, 255, 0.3); margin-top: 0.5rem;`;
+export const EntryContent = styled.p`font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); margin: 0; line-height: 1.5;`;
+export const EntryMeta = styled.div`font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 0.5rem;`;
 export const EntryActions = styled.div`display: flex; gap: 0.5rem; margin-top: 0.75rem;`;
 
 // ============================================
@@ -612,7 +624,7 @@ export const AlertBox = styled.div`
     if (p.$type === 'success') return css`background: rgba(46, 125, 50, 0.1); border-color: #4CAF50; color: #4CAF50;`;
     if (p.$type === 'warning') return css`background: rgba(196, 30, 58, 0.1); border-color: #C41E3A; color: #C41E3A;`;
     if (p.$type === 'info') return css`background: rgba(33, 150, 243, 0.1); border-color: #2196F3; color: #90CAF9;`;
-    return css`background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.3); color: rgba(255, 255, 255, 0.7);`;
+    return css`background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.5); color: rgba(255, 255, 255, 0.7);`;
   }}
 `;
 
@@ -629,7 +641,7 @@ export const SearchInput = styled.input`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   &:focus { outline: none; border-color: #C41E3A; }
-  &::placeholder { color: rgba(255, 255, 255, 0.3); }
+  &::placeholder { color: rgba(255, 255, 255, 0.5); }
 `;
 
 // ============================================
@@ -637,7 +649,7 @@ export const SearchInput = styled.input`
 // ============================================
 export const PhotoGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;`;
 export const PhotoActions = styled.div`display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;`;
-export const PhotoCount = styled.span`color: rgba(255, 255, 255, 0.4); font-size: 0.8rem;`;
+export const PhotoCount = styled.span`color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;`;
 export const PhotoCard = styled.div`
   position: relative;
   aspect-ratio: 1;
@@ -679,7 +691,7 @@ export const DropZone = styled.div`
 `;
 export const DropOverlay = styled.div`position: absolute; inset: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; gap: 0.75rem; opacity: 0; transition: opacity 0.2s;`;
 export const DropButton = styled.span`padding: 0.6rem 1.25rem; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; background: ${p => p.$danger ? '#C41E3A' : 'rgba(255, 255, 255, 0.95)'}; color: ${p => p.$danger ? '#FFF' : '#0A0A0A'};`;
-export const DropPlaceholder = styled.div`text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; span { display: block; font-size: 2.5rem; margin-bottom: 0.75rem; }`;
+export const DropPlaceholder = styled.div`text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; span { display: block; font-size: 2.5rem; margin-bottom: 0.75rem; }`;
 export const ProgressBar = styled.div`position: absolute; bottom: 0; left: 0; height: 3px; background: #C41E3A; width: ${p => p.$progress}%; transition: width 0.3s;`;
 
 // ============================================
@@ -688,28 +700,28 @@ export const ProgressBar = styled.div`position: absolute; bottom: 0; left: 0; he
 export const ImageGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fill, 80px); gap: 0.5rem;`;
 export const ImageItem = styled.div`aspect-ratio: 1; background: ${p => p.$url ? `url(${p.$url}) center/cover` : 'rgba(255, 255, 255, 0.05)'}; position: relative; filter: grayscale(30%); &:hover { filter: grayscale(0%); } &:hover button { opacity: 1; }`;
 export const RemoveButton = styled.button`position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: #C41E3A; color: #FFF; border: none; cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.2s;`;
-export const AddButton = styled.button`aspect-ratio: 1; background: rgba(255, 255, 255, 0.02); border: 2px dashed rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; color: rgba(255, 255, 255, 0.4); transition: all 0.2s ease; span { font-size: 1.5rem; } &:hover { border-color: #C41E3A; color: #C41E3A; }`;
+export const AddButton = styled.button`aspect-ratio: 1; background: rgba(255, 255, 255, 0.02); border: 2px dashed rgba(255, 255, 255, 0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; color: rgba(255, 255, 255, 0.6); transition: all 0.2s ease; span { font-size: 1.5rem; } &:hover { border-color: #C41E3A; color: #C41E3A; }`;
 
 // ============================================
 // COLORS
 // ============================================
 export const ColorPalette = styled.div`display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end;`;
 export const ColorItem = styled.div`display: flex; flex-direction: column; gap: 0.25rem;`;
-export const ColorInput = styled.input`width: 44px; height: 44px; padding: 0; border: 2px solid rgba(255, 255, 255, 0.1); cursor: pointer; background: transparent; &:hover { border-color: rgba(255, 255, 255, 0.3); }`;
+export const ColorInput = styled.input`width: 44px; height: 44px; padding: 0; border: 2px solid rgba(255, 255, 255, 0.1); cursor: pointer; background: transparent; &:hover { border-color: rgba(255, 255, 255, 0.5); }`;
 
 // ============================================
 // STATUS
 // ============================================
-export const StatusDescription = styled.div`font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 1.5rem; line-height: 1.7; p { margin: 0.5rem 0; } strong { color: #FAFAFA; }`;
+export const StatusDescription = styled.div`font-size: 0.9rem; color: rgba(255, 255, 255, 0.75); margin-bottom: 1.5rem; line-height: 1.7; p { margin: 0.5rem 0; } strong { color: #FAFAFA; }`;
 export const InfoRow = styled.div`display: flex; justify-content: space-between; padding: 0.85rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);`;
-export const InfoLabel = styled.span`font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4);`;
+export const InfoLabel = styled.span`font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6);`;
 export const InfoValue = styled.span`font-size: 0.9rem; color: #FAFAFA;`;
 
 // ============================================
 // LOADING & EMPTY
 // ============================================
 export const LoadingSpinner = styled.div`display: flex; justify-content: center; padding: 3rem; &::after { content: ''; width: 40px; height: 40px; border: 2px solid rgba(255, 255, 255, 0.1); border-top-color: #C41E3A; border-radius: 50%; animation: ${spin} 0.8s linear infinite; }`;
-export const EmptyState = styled.p`text-align: center; color: rgba(255, 255, 255, 0.4); padding: 3rem; font-size: 0.9rem;`;
+export const EmptyState = styled.p`text-align: center; color: rgba(255, 255, 255, 0.6); padding: 3rem; font-size: 0.9rem;`;
 
 // ============================================
 // MODAL
@@ -790,11 +802,11 @@ export const ActionButton = styled.button`
     }
   ` : css`
     background: transparent;
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
     color: rgba(255, 255, 255, 0.7);
     
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.5);
+      border-color: rgba(255, 255, 255, 0.65);
       color: #FFFFFF;
     }
   `}
