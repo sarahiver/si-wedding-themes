@@ -216,25 +216,25 @@ function Navigation() {
 
   // Fixed items always visible in nav bar (if active)
   const fixedNavItems = [
-    { id: 'countdown', label: 'Countdown', href: '#countdown' },
-    { id: 'lovestory', label: 'Story', href: '#story' },
+    { id: 'countdown', label: 'Countdown', target: 'countdown' },
+    { id: 'lovestory', label: 'Story', target: 'story' },
   ];
 
   // Items for burger menu (excluding fixed nav items: countdown, lovestory, rsvp)
   const burgerNavItems = [
-    { id: 'timeline', label: 'Timeline', href: '#timeline' },
-    { id: 'locations', label: 'Location', href: '#location' },
-    { id: 'directions', label: 'Anfahrt', href: '#directions' },
-    { id: 'accommodations', label: 'Hotels', href: '#accommodations' },
-    { id: 'dresscode', label: 'Dresscode', href: '#dresscode' },
-    { id: 'gallery', label: 'Gallery', href: '#gallery' },
-    { id: 'gifts', label: 'Gifts', href: '#gifts' },
-    { id: 'guestbook', label: 'Gästebuch', href: '#guestbook' },
-    { id: 'musicwishes', label: 'Musik', href: '#music' },
-    { id: 'photoupload', label: 'Fotos', href: '#photo-upload' },
-    { id: 'faq', label: 'FAQ', href: '#faq' },
-    { id: 'weddingabc', label: 'ABC', href: '#wedding-abc' },
-    { id: 'witnesses', label: 'Trauzeugen', href: '#witnesses' },
+    { id: 'timeline', label: 'Timeline', target: 'timeline' },
+    { id: 'locations', label: 'Location', target: 'location' },
+    { id: 'directions', label: 'Anfahrt', target: 'directions' },
+    { id: 'accommodations', label: 'Hotels', target: 'accommodations' },
+    { id: 'dresscode', label: 'Dresscode', target: 'dresscode' },
+    { id: 'gallery', label: 'Gallery', target: 'gallery' },
+    { id: 'gifts', label: 'Gifts', target: 'gifts' },
+    { id: 'guestbook', label: 'Gästebuch', target: 'guestbook' },
+    { id: 'musicwishes', label: 'Musik', target: 'music' },
+    { id: 'photoupload', label: 'Fotos', target: 'photo-upload' },
+    { id: 'faq', label: 'FAQ', target: 'faq' },
+    { id: 'weddingabc', label: 'ABC', target: 'wedding-abc' },
+    { id: 'witnesses', label: 'Trauzeugen', target: 'witnesses' },
   ];
 
   // Fixed nav items (visible in bar) - only if component is active
@@ -267,10 +267,9 @@ function Navigation() {
   const name1 = project?.partner1_name || coupleNames?.split(/\s*[&+]\s*/)?.[0] || 'Alex';
   const name2 = project?.partner2_name || coupleNames?.split(/\s*[&+]\s*/)?.[1] || 'Jordan';
 
-  const handleLinkClick = (e, href) => {
+  const handleLinkClick = (e, targetId) => {
     e.preventDefault();
     setMobileOpen(false);
-    const targetId = href.replace('#', '');
     const element = document.getElementById(targetId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -281,16 +280,16 @@ function Navigation() {
     <>
       <Nav $scrolled={scrolled}>
         <Container>
-          <Logo href="#">
+          <Logo href="/" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             {name1} <span>&</span> {name2}
           </Logo>
 
           <NavLinks>
             {/* Fixed visible items: Countdown, Love Story */}
             {visibleNavItems.map((item, i) => (
-              <NavLink key={i} href={item.href} onClick={(e) => handleLinkClick(e, item.href)}>{item.label}</NavLink>
+              <NavLink key={i} href="/" onClick={(e) => handleLinkClick(e, item.target)}>{item.label}</NavLink>
             ))}
-            {isComponentActive('rsvp') && <RSVPButton href="#rsvp" onClick={(e) => handleLinkClick(e, '#rsvp')}>RSVP</RSVPButton>}
+            {isComponentActive('rsvp') && <RSVPButton href="/" onClick={(e) => handleLinkClick(e, 'rsvp')}>RSVP</RSVPButton>}
           </NavLinks>
           
           <MenuButton $open={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -305,9 +304,9 @@ function Navigation() {
         {burgerMenuItems.map((item, i) => (
           <MobileLink
             key={i}
-            href={item.href}
+            href="/"
             data-text={item.label}
-            onClick={(e) => handleLinkClick(e, item.href)}
+            onClick={(e) => handleLinkClick(e, item.target)}
           >
             {item.label}
           </MobileLink>
