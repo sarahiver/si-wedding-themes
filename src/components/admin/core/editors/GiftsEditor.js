@@ -6,7 +6,8 @@ import ImageUploader from './ImageUploader';
 import { getGiftReservations, reserveGift, unreserveGiftByItemId } from '../../../../lib/supabase';
 
 function GiftsEditor({ components: C }) {
-  const { projectId, contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { projectId, contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const isClassic = project?.theme === 'classic';
   const content = contentStates.gifts || {};
   const [dbReservations, setDbReservations] = useState([]);
 
@@ -137,14 +138,16 @@ function GiftsEditor({ components: C }) {
             placeholder="350€"
           />
         </C.FormGroup>
-        <C.FormGroup>
-          <C.Label>Shop-Link (optional)</C.Label>
-          <C.Input
-            value={item.link || ''}
-            onChange={(e) => onChange('link', e.target.value)}
-            placeholder="https://amazon.de/..."
-          />
-        </C.FormGroup>
+        {!isClassic && (
+          <C.FormGroup>
+            <C.Label>Shop-Link (optional)</C.Label>
+            <C.Input
+              value={item.link || ''}
+              onChange={(e) => onChange('link', e.target.value)}
+              placeholder="https://amazon.de/..."
+            />
+          </C.FormGroup>
+        )}
 
         {/* Reservierungs-Status - synced across DB + Content */}
         <div style={{
@@ -255,43 +258,49 @@ Verwendungszweck: Hochzeitsgeschenk"
           />
         </C.FormGroup>
 
-        <C.FormGroup>
-          <C.Label>PayPal.me Link</C.Label>
-          <C.Input
-            value={content.paypal_link || ''}
-            onChange={(e) => update('paypal_link', e.target.value)}
-            placeholder="https://paypal.me/maxanna"
-          />
-        </C.FormGroup>
-
-        <C.Divider />
-
-        <C.SectionLabel>Externe Geschenkeliste</C.SectionLabel>
-        <C.HelpText style={{ marginBottom: '1rem' }}>
-          Link zu einer externen Wunschliste (z.B. Amazon, myToys, etc.)
-        </C.HelpText>
-
-        <C.FormGroup>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={content.show_registry || false}
-              onChange={(e) => update('show_registry', e.target.checked)}
-              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
-            />
-            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Link zur externen Geschenkeliste anzeigen</span>
-          </label>
-        </C.FormGroup>
-
-        {content.show_registry && (
+        {!isClassic && (
           <C.FormGroup>
-            <C.Label>URL der Geschenkeliste</C.Label>
+            <C.Label>PayPal.me Link</C.Label>
             <C.Input
-              value={content.registry_url || ''}
-              onChange={(e) => update('registry_url', e.target.value)}
-              placeholder="https://www.amazon.de/wedding/..."
+              value={content.paypal_link || ''}
+              onChange={(e) => update('paypal_link', e.target.value)}
+              placeholder="https://paypal.me/maxanna"
             />
           </C.FormGroup>
+        )}
+
+        {!isClassic && (
+          <>
+            <C.Divider />
+
+            <C.SectionLabel>Externe Geschenkeliste</C.SectionLabel>
+            <C.HelpText style={{ marginBottom: '1rem' }}>
+              Link zu einer externen Wunschliste (z.B. Amazon, myToys, etc.)
+            </C.HelpText>
+
+            <C.FormGroup>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={content.show_registry || false}
+                  onChange={(e) => update('show_registry', e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+                />
+                <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Link zur externen Geschenkeliste anzeigen</span>
+              </label>
+            </C.FormGroup>
+
+            {content.show_registry && (
+              <C.FormGroup>
+                <C.Label>URL der Geschenkeliste</C.Label>
+                <C.Input
+                  value={content.registry_url || ''}
+                  onChange={(e) => update('registry_url', e.target.value)}
+                  placeholder="https://www.amazon.de/wedding/..."
+                />
+              </C.FormGroup>
+            )}
+          </>
         )}
 
         <C.Divider />

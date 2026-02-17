@@ -6,7 +6,9 @@ import ImageUploader from './ImageUploader';
 function MusicWishesEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.musicwishes || {};
-  const isClassic = project?.theme === 'classic';
+  const theme = project?.theme;
+  const isClassic = theme === 'classic';
+  const showSpotify = ['botanical', 'editorial'].includes(theme);
   const update = (field, value) => updateContentField('musicwishes', field, value);
 
   return (
@@ -33,14 +35,16 @@ function MusicWishesEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.FormGroup>
-          <C.Label>Spotify Playlist Link</C.Label>
-          <C.Input 
-            value={content.spotify_playlist || ''} 
-            onChange={(e) => update('spotify_playlist', e.target.value)}
-            placeholder="https://open.spotify.com/playlist/..."
-          />
-        </C.FormGroup>
+        {showSpotify && (
+          <C.FormGroup>
+            <C.Label>Spotify Playlist Link</C.Label>
+            <C.Input
+              value={content.spotify_playlist || ''}
+              onChange={(e) => update('spotify_playlist', e.target.value)}
+              placeholder="https://open.spotify.com/playlist/..."
+            />
+          </C.FormGroup>
+        )}
         
         {isClassic && (<>
           <C.SectionLabel>Bilder</C.SectionLabel>

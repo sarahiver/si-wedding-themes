@@ -4,7 +4,8 @@ import { useAdmin } from '../AdminContext';
 import MultiImageUploader from './MultiImageUploader';
 
 function GalleryEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const showCaptions = ['botanical', 'editorial', 'video'].includes(project?.theme);
   const content = contentStates.gallery || {};
   const update = (field, value) => updateContentField('gallery', field, value);
 
@@ -36,14 +37,6 @@ function GalleryEditor({ components: C }) {
           />
         </C.FormGroup>
 
-        <C.FormGroup>
-          <C.Label>Untertitel</C.Label>
-          <C.Input 
-            value={content.subtitle || ''} 
-            onChange={(e) => update('subtitle', e.target.value)}
-            placeholder="Unsere schönsten Momente"
-          />
-        </C.FormGroup>
         
         <C.Divider />
         
@@ -58,7 +51,7 @@ function GalleryEditor({ components: C }) {
           onImagesChange={handleImagesChange}
           folder={`${baseFolder}/gallery`}
           maxImages={20}
-          showCaptions={true}
+          showCaptions={showCaptions}
         />
         
         <C.Divider />

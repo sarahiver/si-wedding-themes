@@ -9,9 +9,14 @@ function HeroEditor({ components: C }) {
   const content = contentStates.hero || {};
   const update = (field, value) => updateContentField('hero', field, value);
 
-  // Check if this is a theme that supports video backgrounds
-  const isVideoTheme = project?.theme === 'video';
-  const isClassicTheme = project?.theme === 'classic';
+  // Theme checks for conditional field display
+  const theme = project?.theme;
+  const isVideoTheme = theme === 'video';
+  const isClassicTheme = theme === 'classic';
+  const showTagline = !['luxe', 'neon'].includes(theme);
+  const showScriptLine = theme === 'classic';
+  const showLocationShort = !['contemporary', 'luxe', 'neon'].includes(theme);
+  const showMobileBg = ['classic', 'editorial'].includes(theme);
 
   // State for showing mobile upload option
   const [showMobileUpload, setShowMobileUpload] = useState(
@@ -94,96 +99,105 @@ function HeroEditor({ components: C }) {
           </>
         )}
 
-        <C.Divider />
-        
-        {/* Mobile Background Toggle */}
-        <C.FormGroup>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={showMobileUpload}
-              onChange={(e) => {
-                setShowMobileUpload(e.target.checked);
-                if (!e.target.checked) {
-                  // Clear mobile background when disabled
-                  if (isVideoTheme) {
-                    update('background_media_mobile', null);
-                  } else {
-                    update('background_image_mobile', null);
-                  }
-                }
-              }}
-              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
-            />
-            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Separaten Mobile-Hintergrund verwenden</span>
-          </label>
-          <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
-            Empfohlen: Hochformat (9:16) für bessere Darstellung auf Smartphones
-          </C.HelpText>
-        </C.FormGroup>
-        
-        {/* Mobile Background Upload */}
-        {showMobileUpload && (
+        {showMobileBg && (
           <>
-            <C.SectionLabel style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
-              Mobile Hintergrund
-            </C.SectionLabel>
-            
-            {isVideoTheme ? (
-              <MediaUploader
-                components={C}
-                media={content.background_media_mobile}
-                onUpload={(media) => update('background_media_mobile', media)}
-                folder={baseFolder + '/hero/mobile'}
-                label="Mobile Hintergrund (Video oder Bild)"
-                ratio="9/16"
-                maxHeight="200px"
-                allowVideo={true}
-              />
-            ) : (
-              <ImageUploader
-                components={C}
-                image={content.background_image_mobile}
-                onUpload={(url) => update('background_image_mobile', url)}
-                folder={baseFolder + '/hero/mobile'}
-                label="Mobile Hintergrundbild"
-                ratio="9/16"
-                maxHeight="200px"
-              />
+            <C.Divider />
+
+            {/* Mobile Background Toggle */}
+            <C.FormGroup>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={showMobileUpload}
+                  onChange={(e) => {
+                    setShowMobileUpload(e.target.checked);
+                    if (!e.target.checked) {
+                      if (isVideoTheme) {
+                        update('background_media_mobile', null);
+                      } else {
+                        update('background_image_mobile', null);
+                      }
+                    }
+                  }}
+                  style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
+                />
+                <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Separaten Mobile-Hintergrund verwenden</span>
+              </label>
+              <C.HelpText style={{ marginTop: '0.5rem', marginLeft: '1.75rem' }}>
+                Empfohlen: Hochformat (9:16) für bessere Darstellung auf Smartphones
+              </C.HelpText>
+            </C.FormGroup>
+
+            {/* Mobile Background Upload */}
+            {showMobileUpload && (
+              <>
+                <C.SectionLabel style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+                  Mobile Hintergrund
+                </C.SectionLabel>
+
+                {isVideoTheme ? (
+                  <MediaUploader
+                    components={C}
+                    media={content.background_media_mobile}
+                    onUpload={(media) => update('background_media_mobile', media)}
+                    folder={baseFolder + '/hero/mobile'}
+                    label="Mobile Hintergrund (Video oder Bild)"
+                    ratio="9/16"
+                    maxHeight="200px"
+                    allowVideo={true}
+                  />
+                ) : (
+                  <ImageUploader
+                    components={C}
+                    image={content.background_image_mobile}
+                    onUpload={(url) => update('background_image_mobile', url)}
+                    folder={baseFolder + '/hero/mobile'}
+                    label="Mobile Hintergrundbild"
+                    ratio="9/16"
+                    maxHeight="200px"
+                  />
+                )}
+              </>
             )}
           </>
         )}
-        
+
         <C.Divider />
-        
+
         {/* Text Fields */}
-        <C.FormGroup>
-          <C.Label>Tagline</C.Label>
-          <C.Input 
-            value={content.tagline || ''} 
-            onChange={(e) => update('tagline', e.target.value)}
-            placeholder="Wir heiraten!"
-          />
-        </C.FormGroup>
-        
-        <C.FormGroup>
-          <C.Label>Script-Zeile (unter den Namen)</C.Label>
-          <C.Input 
-            value={content.script_line || ''} 
-            onChange={(e) => update('script_line', e.target.value)}
-            placeholder="füreinander bestimmt"
-          />
-          <C.HelpText>Erscheint in Schreibschrift unter den Namen (z.B. Classic Theme)</C.HelpText>
-        </C.FormGroup>
-        
-        <C.FormGroup>
-          <C.Label>Ort (kurz)</C.Label>
-          <C.Input 
-            value={content.location_short || ''} 
-            onChange={(e) => update('location_short', e.target.value)}
-            placeholder="Hamburg"
-          />
-        </C.FormGroup>
+        {showTagline && (
+          <C.FormGroup>
+            <C.Label>Tagline</C.Label>
+            <C.Input
+              value={content.tagline || ''}
+              onChange={(e) => update('tagline', e.target.value)}
+              placeholder="Wir heiraten!"
+            />
+          </C.FormGroup>
+        )}
+
+        {showScriptLine && (
+          <C.FormGroup>
+            <C.Label>Script-Zeile (unter den Namen)</C.Label>
+            <C.Input
+              value={content.script_line || ''}
+              onChange={(e) => update('script_line', e.target.value)}
+              placeholder="füreinander bestimmt"
+            />
+            <C.HelpText>Erscheint in Schreibschrift unter den Namen</C.HelpText>
+          </C.FormGroup>
+        )}
+
+        {showLocationShort && (
+          <C.FormGroup>
+            <C.Label>Ort (kurz)</C.Label>
+            <C.Input
+              value={content.location_short || ''}
+              onChange={(e) => update('location_short', e.target.value)}
+              placeholder="Hamburg"
+            />
+          </C.FormGroup>
+        )}
         
         <C.Divider />
         <C.Button onClick={() => saveContent('hero')} disabled={isSaving}>

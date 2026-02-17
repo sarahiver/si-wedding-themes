@@ -402,7 +402,7 @@ function Guestbook() {
   const guestbookData = content?.guestbook || {};
   
   const title = guestbookData.title || 'Gästebuch';
-  const subtitle = guestbookData.subtitle || 'Hinterlasst uns eure Wünsche';
+  const subtitle = guestbookData.description || 'Hinterlasst uns eure Wünsche';
   
   const { entries, formData, submitting, error, success, updateField, submitEntry } = useGuestbook();
   

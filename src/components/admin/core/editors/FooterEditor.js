@@ -12,10 +12,12 @@ function FooterEditor({ components: C }) {
     <C.Panel>
       <C.PanelHeader><C.PanelTitle>Footer bearbeiten</C.PanelTitle></C.PanelHeader>
       <C.PanelContent>
-        <C.FormGroup>
-          <C.Label>Tagline</C.Label>
-          <C.Input value={content.tagline || ''} onChange={(e) => update('tagline', e.target.value)} placeholder="Wir freuen uns auf euch!" />
-        </C.FormGroup>
+        {!isClassic && (
+          <C.FormGroup>
+            <C.Label>Tagline</C.Label>
+            <C.Input value={content.tagline || ''} onChange={(e) => update('tagline', e.target.value)} placeholder="Wir freuen uns auf euch!" />
+          </C.FormGroup>
+        )}
         <C.FormGroup>
           <C.Label>Hashtag</C.Label>
           <C.Input value={content.hashtag || ''} onChange={(e) => update('hashtag', e.target.value)} placeholder="#SarahUndIver2026" />

@@ -6,7 +6,10 @@ import ImageUploader from './ImageUploader';
 function RSVPEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
   const content = contentStates.rsvp || {};
-  const isClassic = project?.theme === 'classic';
+  const theme = project?.theme;
+  const isClassic = theme === 'classic';
+  const showDeadline = ['botanical', 'editorial'].includes(theme);
+  const showCustomQuestion = !['classic', 'neon', 'video'].includes(theme);
   const update = (field, value) => updateContentField('rsvp', field, value);
 
   return (
@@ -33,14 +36,16 @@ function RSVPEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.FormGroup>
-          <C.Label>Anmeldefrist</C.Label>
-          <C.Input 
-            type="date"
-            value={content.deadline || ''} 
-            onChange={(e) => update('deadline', e.target.value)}
-          />
-        </C.FormGroup>
+        {showDeadline && (
+          <C.FormGroup>
+            <C.Label>Anmeldefrist</C.Label>
+            <C.Input
+              type="date"
+              value={content.deadline || ''}
+              onChange={(e) => update('deadline', e.target.value)}
+            />
+          </C.FormGroup>
+        )}
         
         <C.SectionLabel>Hintergrundbild</C.SectionLabel>
         {isClassic && (
@@ -73,21 +78,25 @@ function RSVPEditor({ components: C }) {
           </label>
         </C.FormGroup>
 
-        <C.Divider />
+        {showCustomQuestion && (
+          <>
+            <C.Divider />
 
-        <C.SectionLabel>Eigene Frage</C.SectionLabel>
+            <C.SectionLabel>Eigene Frage</C.SectionLabel>
 
-        <C.FormGroup>
-          <C.Label>Eigene Frage (optional)</C.Label>
-          <C.Input
-            value={content.custom_question || ''}
-            onChange={(e) => update('custom_question', e.target.value)}
-            placeholder="z.B. Brauchst du eine Übernachtung?"
-          />
-          <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', marginTop: '0.5rem' }}>
-            Diese Frage erscheint als Freitextfeld im RSVP-Formular
-          </p>
-        </C.FormGroup>
+            <C.FormGroup>
+              <C.Label>Eigene Frage (optional)</C.Label>
+              <C.Input
+                value={content.custom_question || ''}
+                onChange={(e) => update('custom_question', e.target.value)}
+                placeholder="z.B. Brauchst du eine Übernachtung?"
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.5))', marginTop: '0.5rem' }}>
+                Diese Frage erscheint als Freitextfeld im RSVP-Formular
+              </p>
+            </C.FormGroup>
+          </>
+        )}
 
         <C.Divider />
         <C.Button onClick={() => saveContent('rsvp')} disabled={isSaving}>

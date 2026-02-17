@@ -33,18 +33,6 @@ function GuestbookEditor({ components: C }) {
           />
         </C.FormGroup>
         
-        <C.FormGroup>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={content.allow_images || false}
-              onChange={(e) => update('allow_images', e.target.checked)}
-              style={{ width: '18px', height: '18px', accentColor: '#C41E3A' }}
-            />
-            <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Bilder in Einträgen erlauben</span>
-          </label>
-        </C.FormGroup>
-        
         {isClassic && (<>
           <C.SectionLabel>Bild</C.SectionLabel>
           <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />

@@ -441,7 +441,7 @@ function Guestbook() {
   const guestbookData = content?.guestbook || {};
   
   const title = guestbookData.title || 'Gästebuch';
-  const subtitle = guestbookData.subtitle || 'Hinterlasst uns eure Wünsche und Grüße';
+  const subtitle = guestbookData.description || 'Hinterlasst uns eure Wünsche und Grüße';
   
   const { entries, formData, submitting, error, success, updateField, submitEntry } = useGuestbook();
   
