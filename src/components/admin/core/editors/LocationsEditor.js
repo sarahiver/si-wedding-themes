@@ -53,7 +53,8 @@ function ExportBar({ locations, coupleNames }) {
 // ============================================
 
 function LocationsEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, coupleNames } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, coupleNames, project } = useAdmin();
+  const isClassic = project?.theme === 'classic';
   const content = contentStates.locations || {};
   const update = (field, value) => updateContentField('locations', field, value);
 
@@ -76,15 +77,17 @@ function LocationsEditor({ components: C }) {
           maxHeight="100px"
           label="Hauptbild"
         />
-        <ImageUploader
-          components={C}
-          image={item.accent_image}
-          onUpload={(url) => onChange('accent_image', url)}
-          folder={`${baseFolder}/locations`}
-          ratio="1/1"
-          maxHeight="80px"
-          label="Akzent-Bild (optional, überlappt Hauptbild)"
-        />
+        {isClassic && (
+          <ImageUploader
+            components={C}
+            image={item.accent_image}
+            onUpload={(url) => onChange('accent_image', url)}
+            folder={`${baseFolder}/locations`}
+            ratio="1/1"
+            maxHeight="80px"
+            label="Akzent-Bild (optional, überlappt Hauptbild)"
+          />
+        )}
 
         {/* Label + Name + Icon */}
         <C.FormGroup>
