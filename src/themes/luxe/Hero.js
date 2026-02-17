@@ -29,11 +29,6 @@ const expandLine = keyframes`
   to { transform: scaleX(1); }
 `;
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-`;
-
 // Styled Components
 const Section = styled.section`
   position: relative;
@@ -172,40 +167,6 @@ const LocationText = styled.p`
   color: var(--luxe-pearl);
 `;
 
-const ScrollIndicator = styled.div`
-  position: absolute;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  opacity: 0;
-  animation: ${p => p.$visible ? css`${fadeIn} 1s ease forwards, ${float} 3s ease-in-out infinite` : 'none'};
-  animation-delay: 2s, 2s;
-  z-index: 10;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const ScrollText = styled.span`
-  font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 400;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--luxe-pearl);
-`;
-
-const ScrollLine = styled.div`
-  width: 1px;
-  height: 60px;
-  background: linear-gradient(to bottom, var(--luxe-gold), transparent);
-`;
-
 // Component
 function Hero({ isSaveTheDate = false, isArchive = false }) {
   const { content, project } = useWedding();
@@ -289,10 +250,6 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
         </InfoContainer>
       </Content>
       
-      <ScrollIndicator $visible={visible}>
-        <ScrollText>Entdecken</ScrollText>
-        <ScrollLine />
-      </ScrollIndicator>
     </Section>
   );
 }
