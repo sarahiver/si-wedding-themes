@@ -1,47 +1,36 @@
 import { useWedding } from '../../context/WeddingContext';
-// src/components/LoveStory.js - Neon Theme
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 
-const glowPulse = keyframes`
-  0%, 100% { box-shadow: 0 0 20px rgba(0,255,255,0.3); }
-  50% { box-shadow: 0 0 40px rgba(0,255,255,0.5); }
-`;
-
-const scanline = keyframes`
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const Section = styled.section`
   position: relative;
-  height: ${p => p.$totalCards * 100}vh;
+  padding: clamp(4rem, 8vw, 6rem) 0;
   background: #0a0a0f;
-`;
-
-const StickyContainer = styled.div`
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
   overflow: hidden;
 `;
 
 const GridBG = styled.div`
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
   background-size: 30px 30px;
+  pointer-events: none;
 `;
 
 const Header = styled.div`
-  position: absolute;
-  top: 40px;
-  left: 5%;
-  z-index: 10;
+  padding: 0 5%;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  animation: ${fadeUp} 0.8s ease forwards;
 `;
 
 const Eyebrow = styled.div`
@@ -58,43 +47,43 @@ const Title = styled.h2`
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
   color: #fff;
-  
+
   span {
     color: #00ffff;
     text-shadow: 0 0 20px rgba(0,255,255,0.5);
   }
 `;
 
-const HorizontalTrack = styled.div`
+const Track = styled.div`
   display: flex;
-  gap: 40px;
+  gap: 30px;
   padding: 0 5%;
-  transform: translateX(${p => p.$offset}px);
-  transition: transform 0.1s linear;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 2;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 
   @media (max-width: 768px) {
-    gap: 20px;
-    padding: 0 7.5%;
+    gap: 16px;
+    padding: 0 1rem;
   }
 `;
 
 const Card = styled.div`
   flex-shrink: 0;
-  width: 80vw;
-  max-width: 900px;
-  height: 70vh;
+  width: min(80vw, 900px);
+  scroll-snap-align: center;
   background: rgba(255,255,255,0.02);
   border: 1px solid ${p => p.$color}40;
   position: relative;
   display: flex;
   overflow: hidden;
 
-  @media (max-width: 768px) {
-    width: 85vw;
-    height: 65vh;
-    flex-direction: column;
-  }
-  
   &::before {
     content: '';
     position: absolute;
@@ -103,9 +92,9 @@ const Card = styled.div`
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, transparent, ${p => p.$color}, transparent);
+    z-index: 1;
   }
-  
-  /* Scanline */
+
   &::after {
     content: '';
     position: absolute;
@@ -115,10 +104,10 @@ const Card = styled.div`
     pointer-events: none;
     opacity: 0.3;
   }
-  
+
   @media (max-width: 768px) {
+    width: 85vw;
     flex-direction: column;
-    height: 80vh;
   }
 `;
 
@@ -126,15 +115,15 @@ const CardImage = styled.div`
   flex: 1;
   position: relative;
   overflow: hidden;
-  
+  min-height: 300px;
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     filter: grayscale(30%) contrast(1.1);
   }
-  
-  /* Neon Overlay */
+
   &::after {
     content: '';
     position: absolute;
@@ -147,19 +136,20 @@ const CardImage = styled.div`
     );
     mix-blend-mode: overlay;
   }
+
+  @media (max-width: 768px) {
+    min-height: 200px;
+    flex: none;
+  }
 `;
 
 const CardContent = styled.div`
   flex: 1;
-  padding: 50px;
+  padding: clamp(1.5rem, 4vw, 50px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   position: relative;
-  
-  @media (max-width: 768px) {
-    padding: 30px;
-  }
 `;
 
 const YearBadge = styled.div`
@@ -172,7 +162,7 @@ const YearBadge = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  
+
   &::before {
     content: '';
     width: 30px;
@@ -184,7 +174,7 @@ const YearBadge = styled.div`
 
 const CardTitle = styled.h3`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 700;
   color: #fff;
   margin-bottom: 20px;
@@ -201,49 +191,36 @@ const CardText = styled.p`
 
 const CardIndex = styled.div`
   position: absolute;
-  bottom: 30px;
-  right: 30px;
+  bottom: 20px;
+  right: 20px;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 700;
   color: ${p => p.$color}15;
   line-height: 1;
 `;
 
 const ProgressDots = styled.div`
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
-  gap: 15px;
-  z-index: 10;
+  justify-content: center;
+  gap: 12px;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  position: relative;
+  z-index: 2;
 `;
 
-const Dot = styled.div`
-  width: 12px;
-  height: 12px;
+const Dot = styled.button`
+  width: 10px;
+  height: 10px;
+  padding: 0;
   border: 2px solid ${p => p.$active ? p.$color : 'rgba(255,255,255,0.2)'};
   background: ${p => p.$active ? p.$color : 'transparent'};
+  cursor: pointer;
   transition: all 0.3s ease;
-  
+
   ${p => p.$active && css`
     box-shadow: 0 0 15px ${p.$color};
   `}
-`;
-
-const TerminalHint = styled.div`
-  position: absolute;
-  bottom: 40px;
-  right: 5%;
-  font-family: 'Space Grotesk', monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.3);
-  z-index: 10;
-  
-  span {
-    color: #00ff88;
-  }
 `;
 
 function LoveStory() {
@@ -252,44 +229,13 @@ function LoveStory() {
   const title = lovestoryData.title || 'Love Story';
 
   const defaultChapters = [
-    {
-      date: '2018',
-      title: 'First Connection',
-      description: 'Two strangers in a crowded room. A glance across the dance floor. The music faded, and only they remained.',
-      image: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=800',
-      color: '#00ffff'
-    },
-    {
-      date: '2019',
-      title: 'The First Date',
-      description: 'Coffee turned into dinner. Dinner turned into a walk through the city lights. Neither wanted the night to end.',
-      image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800',
-      color: '#ff00ff'
-    },
-    {
-      date: '2021',
-      title: 'Moving In',
-      description: 'Two apartments became one home. Boxes everywhere, but together, it felt like they had already found home.',
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-      color: '#b347ff'
-    },
-    {
-      date: '2024',
-      title: 'The Question',
-      description: 'Under a sky full of stars, one knee touched the ground. A ring emerged. A tear fell. "Yes" echoed into forever.',
-      image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800',
-      color: '#00ff88'
-    },
-    {
-      date: '2025',
-      title: 'Forever Begins',
-      description: 'This is just the beginning. A lifetime of adventures, laughter, and love awaits. Will you join us?',
-      image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
-      color: '#00ffff'
-    }
+    { date: '2018', title: 'First Connection', description: 'Two strangers in a crowded room. A glance across the dance floor. The music faded, and only they remained.', image: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=800', color: '#00ffff' },
+    { date: '2019', title: 'The First Date', description: 'Coffee turned into dinner. Dinner turned into a walk through the city lights. Neither wanted the night to end.', image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800', color: '#ff00ff' },
+    { date: '2021', title: 'Moving In', description: 'Two apartments became one home. Boxes everywhere, but together, it felt like they had already found home.', image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', color: '#b347ff' },
+    { date: '2024', title: 'The Question', description: 'Under a sky full of stars, one knee touched the ground. A ring emerged. A tear fell. "Yes" echoed into forever.', image: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800', color: '#00ff88' },
+    { date: '2025', title: 'Forever Begins', description: 'This is just the beginning. A lifetime of adventures, laughter, and love awaits. Will you join us?', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800', color: '#00ffff' },
   ];
 
-  // Map events from editor format to chapter format
   const colors = ['#00ffff', '#ff00ff', '#b347ff', '#00ff88', '#00ffff'];
   const chapters = lovestoryData.events?.length > 0
     ? lovestoryData.events.map((e, i) => ({
@@ -300,96 +246,69 @@ function LoveStory() {
         color: colors[i % colors.length]
       }))
     : defaultChapters.map(c => ({ year: c.date, title: c.title, text: c.description, image: c.image, color: c.color }));
-  const sectionRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const trackRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [viewportWidth, setViewportWidth] = useState(1200);
-  const rafRef = useRef(null);
 
-  // Handle viewport resize
-  useEffect(() => {
-    const updateWidth = () => setViewportWidth(window.innerWidth);
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // Cancel previous animation frame to prevent buildup
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-      
-      rafRef.current = requestAnimationFrame(() => {
-        if (!sectionRef.current) return;
-        
-        const rect = sectionRef.current.getBoundingClientRect();
-        const sectionHeight = sectionRef.current.offsetHeight;
-        const vh = window.innerHeight;
-        
-        // Calculate how far we've scrolled through the section
-        const scrolled = -rect.top;
-        const maxScroll = sectionHeight - vh;
-        const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
-        
-        setScrollProgress(progress);
-        setActiveIndex(Math.min(chapters.length - 1, Math.floor(progress * chapters.length)));
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
+  const handleScroll = useCallback(() => {
+    if (!trackRef.current) return;
+    const { scrollLeft, clientWidth } = trackRef.current;
+    const cardWidth = clientWidth * 0.8 + 30; // approximate card + gap
+    const index = Math.round(scrollLeft / cardWidth);
+    setActiveIndex(Math.min(index, chapters.length - 1));
   }, [chapters.length]);
 
-  // Calculate horizontal offset based on scroll progress
-  const isMobile = viewportWidth <= 768;
-  const cardWidth = isMobile ? (viewportWidth * 0.85 + 20) : (900 + 40); // card width + gap
-  const totalWidth = cardWidth * chapters.length;
-  const maxOffset = totalWidth - viewportWidth + (isMobile ? 40 : 100);
-  const offset = -scrollProgress * maxOffset;
+  useEffect(() => {
+    const track = trackRef.current;
+    if (track) {
+      track.addEventListener('scroll', handleScroll, { passive: true });
+      return () => track.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
+
+  const scrollToCard = (index) => {
+    if (!trackRef.current) return;
+    const cards = trackRef.current.children;
+    if (cards[index]) {
+      cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
 
   return (
-    <Section ref={sectionRef} id="story" $totalCards={chapters.length}>
-      <StickyContainer>
-        <GridBG />
-        
-        <Header>
-          <Eyebrow>// Our Journey</Eyebrow>
-          <Title><span>{title}</span></Title>
-        </Header>
-        
-        <HorizontalTrack $offset={offset}>
-          {chapters.map((chapter, i) => (
-            <Card key={i} $color={chapter.color}>
-              <CardImage $color={chapter.color}>
-                <img src={chapter.image} alt={chapter.title} />
-              </CardImage>
-              <CardContent>
-                <YearBadge $color={chapter.color}>{chapter.year}</YearBadge>
-                <CardTitle>{chapter.title}</CardTitle>
-                <CardText>{chapter.text}</CardText>
-                <CardIndex $color={chapter.color}>0{i + 1}</CardIndex>
-              </CardContent>
-            </Card>
-          ))}
-        </HorizontalTrack>
-        
-        <ProgressDots>
-          {chapters.map((chapter, i) => (
-            <Dot key={i} $active={i === activeIndex} $color={chapter.color} />
-          ))}
-        </ProgressDots>
-        
-        <TerminalHint>
-          <span>$</span> scroll_to_navigate --direction=horizontal
-        </TerminalHint>
-      </StickyContainer>
+    <Section id="story">
+      <GridBG />
+
+      <Header>
+        <Eyebrow>// Our Journey</Eyebrow>
+        <Title><span>{title}</span></Title>
+      </Header>
+
+      <Track ref={trackRef}>
+        {chapters.map((chapter, i) => (
+          <Card key={i} $color={chapter.color}>
+            <CardImage $color={chapter.color}>
+              <img src={chapter.image} alt={chapter.title} />
+            </CardImage>
+            <CardContent>
+              <YearBadge $color={chapter.color}>{chapter.year}</YearBadge>
+              <CardTitle>{chapter.title}</CardTitle>
+              <CardText>{chapter.text}</CardText>
+              <CardIndex $color={chapter.color}>0{i + 1}</CardIndex>
+            </CardContent>
+          </Card>
+        ))}
+      </Track>
+
+      <ProgressDots>
+        {chapters.map((chapter, i) => (
+          <Dot
+            key={i}
+            $active={i === activeIndex}
+            $color={chapter.color}
+            onClick={() => scrollToCard(i)}
+          />
+        ))}
+      </ProgressDots>
     </Section>
   );
 }
