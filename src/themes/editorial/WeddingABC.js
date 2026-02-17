@@ -173,7 +173,7 @@ const AccordionList = styled.div`
 `;
 
 const AccordionItem = styled.div`
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 `;
 
 const AccordionHeader = styled.button`
@@ -197,7 +197,7 @@ const AccordionTitle = styled.span`
   font-family: var(--font-display, Georgia, serif);
   font-size: 1.05rem;
   font-weight: 400;
-  color: var(--editorial-black, #1a1a1a);
+  color: var(--editorial-white, #ffffff);
   display: block;
 `;
 
@@ -223,6 +223,10 @@ const AccordionBody = styled.div`
 
 const AccordionContent = styled.div`
   padding: 0 0 1.25rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 1.6;
 `;
 
 
@@ -281,7 +285,7 @@ function WeddingABC() {
           {items.map((item, i) => (
             <AccordionItem key={i}>
               <AccordionHeader onClick={() => toggle(i)}>
-                <span style={{ fontSize: '1.5rem', fontStyle: 'italic', minWidth: '2rem', textAlign: 'center' }}>{item.letter}</span>
+                <span style={{ fontSize: '1.5rem', fontStyle: 'italic', minWidth: '2rem', textAlign: 'center', color: 'var(--editorial-red, #C41E3A)' }}>{item.letter}</span>
                 <AccordionHeaderText>
                   <AccordionTitle>{item.word}</AccordionTitle>
                 </AccordionHeaderText>
