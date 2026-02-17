@@ -79,18 +79,6 @@ function WitnessesEditor({ components: C }) {
           />
         </C.FormGroup>
 
-        <C.FormGroup>
-          <C.CheckboxLabel>
-            <input
-              type="checkbox"
-              checked={content.showContactDetails || false}
-              onChange={(e) => update('showContactDetails', e.target.checked)}
-            />
-            Kontaktdaten (Nummer/E-Mail) sichtbar anzeigen
-          </C.CheckboxLabel>
-          <C.HelpText>Wenn deaktiviert, werden nur Buttons gezeigt (WhatsApp, Anrufen, E-Mail)</C.HelpText>
-        </C.FormGroup>
-
         <C.SectionLabel>Personen</C.SectionLabel>
         <ListEditor 
           components={C} 

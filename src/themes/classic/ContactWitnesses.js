@@ -40,8 +40,8 @@ function ContactWitnesses() {
               <Av src={p.image||`https://ui-avatars.com/api/?name=${encodeURIComponent(p.name||'')}&size=200&background=F5F0EB&color=555`} alt={p.name||''} />
               <CN>{p.name || 'Ansprechpartner'}</CN>
               <Role>{p.role||p.rolle}</Role>
-              {p.phone&&<Ph href={`tel:${p.phone}`}>{p.phone}</Ph>}
-              {p.email&&<Ph href={`mailto:${p.email}`}>{p.email}</Ph>}
+              {p.phone&&<Ph href={`tel:${p.phone.replace(/\s/g,'')}`}>📞 Anrufen</Ph>}
+              {p.email&&<Ph href={`mailto:${p.email}`}>📧 E-Mail</Ph>}
             </Card>
           ))}
         </Grid>

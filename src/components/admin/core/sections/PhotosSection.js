@@ -289,7 +289,22 @@ function PhotosSection({ components: C }) {
                 }}
               >
                 <C.PhotoImage $url={photo.cloudinary_url} />
-                
+
+                {/* Missing URL indicator */}
+                {!photo.cloudinary_url && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(244,67,54,0.1)',
+                    fontSize: '0.7rem', color: 'rgba(244,67,54,0.8)',
+                    textAlign: 'center', padding: '0.5rem',
+                  }}>
+                    <span style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>⚠️</span>
+                    Kein Bild-URL
+                  </div>
+                )}
+
                 {/* Selection Indicator */}
                 {isSelected && (
                   <div style={{

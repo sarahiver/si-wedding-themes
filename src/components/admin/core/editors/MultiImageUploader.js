@@ -320,19 +320,26 @@ function MultiImageUploader({
                 }}
               >
                 {/* Image thumbnail */}
-                <div 
+                <div
                   className="multi-img-thumb"
                   style={{
                     aspectRatio: showCaptions ? '4/3' : '1',
-                    backgroundImage: `url(${img.url})`,
+                    backgroundImage: img.url ? `url(${img.url})` : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
+                    backgroundColor: img.url ? 'var(--admin-surface, #111)' : 'rgba(244,67,54,0.1)',
                     borderRadius: '4px',
                     filter: 'grayscale(30%)',
                     transition: 'filter 0.2s',
                     position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
+                  {!img.url && (
+                    <span style={{ fontSize: '1.2rem', opacity: 0.5 }}>⚠️</span>
+                  )}
                   {/* Remove button */}
                   <button
                     className="multi-img-remove"

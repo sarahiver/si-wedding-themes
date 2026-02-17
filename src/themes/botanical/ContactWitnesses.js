@@ -182,7 +182,7 @@ function ContactWitnesses() {
   const title = witnessesData.title || 'Trauzeugen';
   const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen & mehr';
   const witnesses = witnessesData.persons || [];
-  const showDetails = witnessesData.showContactDetails || false;
+
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -234,12 +234,12 @@ function ContactWitnesses() {
                 )}
                 {witness.phone && (
                   <ContactItem href={`tel:${witness.phone.replace(/\s/g, '')}`}>
-                    📞 {showDetails ? witness.phone : 'Anrufen'}
+                    📞 Anrufen
                   </ContactItem>
                 )}
                 {witness.email && (
                   <ContactItem href={`mailto:${witness.email}`}>
-                    📧 {showDetails ? witness.email : 'E-Mail'}
+                    📧 E-Mail
                   </ContactItem>
                 )}
               </ContactInfo>

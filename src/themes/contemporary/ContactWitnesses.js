@@ -134,7 +134,7 @@ function ContactWitnesses() {
   const title = witnessesData.title || 'Trauzeugen';
   const subtitle = witnessesData.subtitle || 'Bei Fragen zu Überraschungen könnt ihr euch an unsere Trauzeugen wenden';
   const persons = witnessesData.persons || [];
-  const showDetails = witnessesData.showContactDetails || false;
+
 
   // Keine Defaults - nur rendern wenn Personen vorhanden
   if (persons.length === 0) return null;
@@ -165,12 +165,12 @@ function ContactWitnesses() {
               )}
               {person.phone && (
                 <ContactLink href={`tel:${person.phone.replace(/\s/g, '')}`}>
-                  📞 {showDetails ? person.phone : 'Anrufen'}
+                  📞 Anrufen
                 </ContactLink>
               )}
               {person.email && (
                 <ContactLink href={`mailto:${person.email}`}>
-                  📧 {showDetails ? person.email : 'E-Mail'}
+                  📧 E-Mail
                 </ContactLink>
               )}
             </Card>

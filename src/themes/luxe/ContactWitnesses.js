@@ -35,7 +35,7 @@ function ContactWitnesses() {
   const data = content?.witnesses || {};
   const title = data.title || 'Trauzeugen';
   const persons = Array.isArray(data.persons) ? data.persons : [];
-  const showDetails = data.showContactDetails || false;
+
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -63,8 +63,8 @@ function ContactWitnesses() {
               <PersonName>{person.name}</PersonName>
               <Role>{person.role}</Role>
               {getWhatsAppNumber(person) && <Link href={`https://wa.me/${getWhatsAppNumber(person)}`} target="_blank" rel="noopener noreferrer">WhatsApp</Link>}
-              {person.phone && <Link href={`tel:${person.phone.replace(/\s/g, '')}`}>{showDetails ? person.phone : 'Anrufen'}</Link>}
-              {person.email && <Link href={`mailto:${person.email}`}>{showDetails ? person.email : 'E-Mail'}</Link>}
+              {person.phone && <Link href={`tel:${person.phone.replace(/\s/g, '')}`}>Anrufen</Link>}
+              {person.email && <Link href={`mailto:${person.email}`}>E-Mail</Link>}
             </Card>
           ))}
         </Grid>

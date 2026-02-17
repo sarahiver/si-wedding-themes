@@ -233,7 +233,7 @@ function ContactWitnesses() {
   const description = witnessData.description || 'Für Überraschungen, Fragen oder geheime Absprachen – wendet euch an unsere Trauzeugen.';
   const witnesses = witnessData.persons || [];
   const note = witnessData.note || '';
-  const showDetails = witnessData.showContactDetails || false;
+
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -292,12 +292,12 @@ function ContactWitnesses() {
                 )}
                 {witness.phone && (
                   <WitnessLink href={`tel:${witness.phone.replace(/\s/g, '')}`}>
-                    {showDetails ? witness.phone : 'Anrufen'}
+                    Anrufen
                   </WitnessLink>
                 )}
                 {witness.email && (
                   <WitnessLink href={`mailto:${witness.email}`}>
-                    {showDetails ? witness.email : 'E-Mail'}
+                    E-Mail
                   </WitnessLink>
                 )}
               </WitnessInfo>
