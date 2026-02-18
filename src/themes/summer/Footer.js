@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const F = styled.div`
+const FooterWrap = styled.div`
   padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);
   background: var(--c-text);
   position: relative;
@@ -18,13 +18,13 @@ const F = styled.div`
   }
 `;
 
-const Inner = styled.div`
+const FooterInner = styled.div`
   max-width: var(--content-w);
   margin: 0 auto;
   text-align: center;
 `;
 
-const Names = styled.p`
+const FooterNames = styled.p`
   font-family: var(--font-s);
   font-size: clamp(2.5rem, 6vw, 4rem);
   color: rgba(255,255,255,0.9);
@@ -32,7 +32,7 @@ const Names = styled.p`
   line-height: 1.1;
 `;
 
-const Date = styled.p`
+const FooterDateLine = styled.p`
   font-family: var(--font-b);
   font-size: 0.65rem;
   letter-spacing: 0.3em;
@@ -41,14 +41,14 @@ const Date = styled.p`
   margin-bottom: 2.5rem;
 `;
 
-const Divider = styled.div`
+const FooterDivider = styled.div`
   width: 40px;
   height: 1px;
   background: rgba(193,57,43,0.5);
   margin: 0 auto 2rem;
 `;
 
-const Tagline = styled.p`
+const FooterTagline = styled.p`
   font-family: var(--font-d);
   font-style: italic;
   font-size: clamp(0.9rem, 1.5vw, 1.05rem);
@@ -56,7 +56,7 @@ const Tagline = styled.p`
   margin-bottom: 2.5rem;
 `;
 
-const Credit = styled.p`
+const FooterCredit = styled.p`
   font-family: var(--font-b);
   font-size: 0.6rem;
   letter-spacing: 0.15em;
@@ -70,26 +70,39 @@ const Credit = styled.p`
   }
 `;
 
+function formatWeddingDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    return new window.Date(dateStr).toLocaleDateString('de-DE', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return '';
+  }
+}
+
 function Footer() {
   const { project } = useWedding();
   const cn = project?.couple_names || 'Lena & Jonas';
-  const weddingDate = project?.wedding_date;
-  const formattedDate = weddingDate
-    ? new Date(weddingDate).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
-    : '';
+  const formattedDate = formatWeddingDate(project?.wedding_date);
 
   return (
-    <F>
-      <Inner>
-        <Names>{cn}</Names>
-        {formattedDate && <Date>{formattedDate}</Date>}
-        <Divider />
-        <Tagline>Für immer und einen Sommer</Tagline>
-        <Credit>
-          Erstellt mit <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I. Wedding</a>
-        </Credit>
-      </Inner>
-    </F>
+    <FooterWrap>
+      <FooterInner>
+        <FooterNames>{cn}</FooterNames>
+        {formattedDate && <FooterDateLine>{formattedDate}</FooterDateLine>}
+        <FooterDivider />
+        <FooterTagline>Für immer und einen Sommer</FooterTagline>
+        <FooterCredit>
+          Erstellt mit{' '}
+          <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">
+            S&amp;I. Wedding
+          </a>
+        </FooterCredit>
+      </FooterInner>
+    </FooterWrap>
   );
 }
 
