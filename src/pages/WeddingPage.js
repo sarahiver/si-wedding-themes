@@ -2,7 +2,7 @@
 // ZENTRALE WeddingPage für alle Themes
 // Unterstützt component_order aus Supabase
 
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense } from "react"
 import styled from "styled-components"
 import { useWedding } from "../context/WeddingContext"
 
@@ -19,14 +19,6 @@ import NeonGlobalStyles from "../themes/neon/GlobalStyles"
 import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
 
-// LoadingScreens per Theme
-import BotanicalLoadingScreen from "../themes/botanical/LoadingScreen"
-import ContemporaryLoadingScreen from "../themes/contemporary/LoadingScreen"
-import EditorialLoadingScreen from "../themes/editorial/LoadingScreen"
-import LuxeLoadingScreen from "../themes/luxe/LoadingScreen"
-import NeonLoadingScreen from "../themes/neon/LoadingScreen"
-import ClassicLoadingScreen from "../themes/classic/LoadingScreen"
-import VideoLoadingScreen from "../themes/video/LoadingScreen"
 
 // Special Components
 import BotanicalBackground from "../themes/botanical/BotanicalBackground"
@@ -215,44 +207,37 @@ const themeComponents = {
 const themeConfig = {
   botanical: {
     GlobalStyles: BotanicalGlobalStyles,
-    LoadingScreen: BotanicalLoadingScreen,
     background: "#0a0a0a",
     hasSpecialBackground: true,
   },
   editorial: {
     GlobalStyles: EditorialGlobalStyles,
-    LoadingScreen: EditorialLoadingScreen,
     background: "#ffffff",
     hasSpecialBackground: false,
   },
   contemporary: {
     GlobalStyles: ContemporaryGlobalStyles,
-    LoadingScreen: ContemporaryLoadingScreen,
     background: "#faf8f5",
     hasSpecialBackground: false,
   },
   luxe: {
     GlobalStyles: LuxeGlobalStyles,
-    LoadingScreen: LuxeLoadingScreen,
     background: "#0a0a0f",
     hasSpecialBackground: false,
   },
   neon: {
     GlobalStyles: NeonGlobalStyles,
-    LoadingScreen: NeonLoadingScreen,
     background: "#0a0a0f",
     hasSpecialBackground: false,
   },
   video: {
     GlobalStyles: VideoGlobalStyles,
-    LoadingScreen: VideoLoadingScreen,
     background: "#0a0a0a",
     hasSpecialBackground: false,
     isHorizontalScroll: true,
   },
   classic: {
     GlobalStyles: ClassicGlobalStyles,
-    LoadingScreen: ClassicLoadingScreen,
     background: "#FFFFFF",
     hasSpecialBackground: false,
   },
@@ -347,35 +332,10 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
 
 function VideoWeddingPage() {
   const { project, content, isLoading, isComponentActive } = useWedding()
-  const [loadingDone, setLoadingDone] = useState(false)
   const components = themeComponents.video
-  const { LoadingScreen } = themeConfig.video
 
-  // Phase 1: project noch nicht geladen → blanke Seite
-  if (!project) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
-    )
-  }
-
-  // Phase 2: LoadingScreen anzeigen bis Animation fertig
-  if (!loadingDone && LoadingScreen) {
-    return (
-      <>
-        <VideoGlobalStyles />
-        <LoadingScreen
-          onLoadComplete={() => setLoadingDone(true)}
-          isDataReady={!isLoading}
-        />
-      </>
-    )
-  }
-
-  // Fallback: Kein LoadingScreen, aber Daten laden noch
-  if (isLoading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
-    )
+  if (!project || isLoading) {
+    return <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
   }
 
   const heroContent = content?.hero || {}
@@ -444,45 +404,22 @@ function VideoWeddingPage() {
 
 function StandardWeddingPage() {
   const { project, isComponentActive, isLoading } = useWedding()
-  const [loadingDone, setLoadingDone] = useState(false)
 
-  // Theme lookup - safe to do even if project is null (fallback to botanical)
   const themeName = project?.theme || "botanical"
   const config = themeConfig[themeName] || themeConfig.botanical
   const components = themeComponents[themeName] || themeComponents.botanical
-  const { GlobalStyles, LoadingScreen, background, hasSpecialBackground } = config
+  const { GlobalStyles, background, hasSpecialBackground } = config
   const componentOrder = project?.component_order || DEFAULT_ORDER
   const componentConfig = project?.component_config || {}
 
-  // Phase 1: project noch nicht geladen → blanke Seite
-  if (!project) {
+  if (!project || isLoading) {
     return <div style={{ minHeight: '100vh', background: config.background || '#fff' }} />
   }
 
-  // Phase 2: LoadingScreen anzeigen bis Animation fertig
-  if (!loadingDone && LoadingScreen) {
-    return (
-      <>
-        <GlobalStyles />
-        <LoadingScreen
-          onLoadComplete={() => setLoadingDone(true)}
-          isDataReady={!isLoading}
-        />
-      </>
-    )
-  }
-
-  // Fallback: Kein LoadingScreen vorhanden, aber Daten laden noch
-  if (isLoading) {
-    return <div style={{ minHeight: '100vh', background: config.background || '#fff' }} />
-  }
-
-  // Phase 3: Content rendern
   return (
     <>
       <GlobalStyles />
 
-      {/* Botanical special background */}
       {hasSpecialBackground && themeName === "botanical" && (
         <BotanicalBackground />
       )}
