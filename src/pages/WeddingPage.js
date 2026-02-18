@@ -3,7 +3,7 @@
 // Unterstützt component_order aus Supabase
 
 import { lazy, Suspense } from "react"
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import { useWedding } from "../context/WeddingContext"
 
 // ============================================
@@ -271,9 +271,15 @@ const DEFAULT_ORDER = [
 // PAGE WRAPPER
 // ============================================
 
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to   { opacity: 1; }
+`
+
 const PageWrapper = styled.div`
   min-height: 100vh;
   background: ${(props) => props.$background || "#0a0a0a"};
+  animation: ${fadeIn} 0.6s ease forwards;
 `
 
 // ============================================
@@ -380,7 +386,8 @@ function VideoWeddingPage() {
   ]
 
   return (
-    <>
+    <div style={{ animation: 'siPageFadeIn 0.6s ease forwards' }}>
+      <style>{`@keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
       <VideoGlobalStyles />
       <Suspense fallback={null}>
         <VideoHorizontalScroll
@@ -394,7 +401,7 @@ function VideoWeddingPage() {
           <components.Footer />
         </VideoHorizontalScroll>
       </Suspense>
-    </>
+    </div>
   )
 }
 
