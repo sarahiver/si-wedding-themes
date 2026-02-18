@@ -218,8 +218,12 @@ function ThemeRouter() {
     return () => { document.title = 'S&I Wedding'; };
   }, [project, coupleNames]);
 
-  // WICHTIG: Warte bis project UND theme UND password check geladen sind
-  if (isLoading || !project || !passwordChecked) return <Loading />;
+  // WICHTIG: Warte bis project UND theme geladen sind
+  // passwordChecked muss NICHT abgewartet werden wenn kein Passwort benötigt wird
+  if (isLoading || !project) return <Loading />;
+  
+  // Nur blockieren wenn passwordChecked noch läuft UND ein Passwort tatsächlich benötigt wird
+  if (!passwordChecked && passwordRequired) return <Loading />;
   
   if (error) {
     return (
@@ -273,6 +277,8 @@ function ThemeRouter() {
     
     // Passwortschutz: Wenn aktiv und noch kein Zugang
     if (passwordRequired && !hasPasswordAccess && !hasPreviewAccess) {
+      // Noch nicht gecheckt → nichts rendern (kurze Pause)
+      if (!passwordChecked) return null;
       return (
         <PasswordGate
           slug={slug}
