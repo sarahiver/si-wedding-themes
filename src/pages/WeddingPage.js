@@ -446,28 +446,18 @@ function StandardWeddingPage() {
   const { project, isComponentActive, isLoading } = useWedding()
   const [loadingDone, setLoadingDone] = useState(false)
 
-  // Phase 1: project noch nicht geladen → blanke Seite
-  if (!project) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#0a0a0a' }} />
-    )
-  }
-
-  // Theme ist jetzt bekannt (project.theme wird VOR isLoading=false gesetzt)
-  const themeName = project.theme || "botanical"
+  // Theme lookup - safe to do even if project is null (fallback to botanical)
+  const themeName = project?.theme || "botanical"
   const config = themeConfig[themeName] || themeConfig.botanical
   const components = themeComponents[themeName] || themeComponents.botanical
-
-  const { GlobalStyles, LoadingScreen, background, hasSpecialBackground } =
-    config
-  const Navigation = components.Navigation
-  const Footer = components.Footer
-
-  // Get component order from Supabase, fallback to default
+  const { GlobalStyles, LoadingScreen, background, hasSpecialBackground } = config
   const componentOrder = project?.component_order || DEFAULT_ORDER
-
-  // Get component config for variants
   const componentConfig = project?.component_config || {}
+
+  // Phase 1: project noch nicht geladen → blanke Seite
+  if (!project) {
+    return <div style={{ minHeight: '100vh', background: config.background || '#fff' }} />
+  }
 
   // Phase 2: LoadingScreen anzeigen bis Animation fertig
   if (!loadingDone && LoadingScreen) {
@@ -484,9 +474,7 @@ function StandardWeddingPage() {
 
   // Fallback: Kein LoadingScreen vorhanden, aber Daten laden noch
   if (isLoading) {
-    return (
-      <div style={{ minHeight: '100vh', background: config.background || '#0a0a0a' }} />
-    )
+    return <div style={{ minHeight: '100vh', background: config.background || '#fff' }} />
   }
 
   // Phase 3: Content rendern
@@ -501,7 +489,7 @@ function StandardWeddingPage() {
 
       <PageWrapper $background={background}>
         <Suspense fallback={null}>
-          <Navigation />
+          <components.Navigation />
         </Suspense>
 
         <main
@@ -511,7 +499,6 @@ function StandardWeddingPage() {
               : undefined
           }
         >
-          {/* Render components in order from component_order */}
           {componentOrder.map((componentId) => (
             <ComponentRenderer
               key={componentId}
@@ -524,7 +511,7 @@ function StandardWeddingPage() {
         </main>
 
         <Suspense fallback={null}>
-          <Footer />
+          <components.Footer />
         </Suspense>
       </PageWrapper>
     </>
