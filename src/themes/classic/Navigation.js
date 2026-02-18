@@ -92,7 +92,7 @@ function Navigation() {
   return (
     <>
       <Nav>
-        <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#hero')}>{cn}</Logo>
+        <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#top')}>{cn}</Logo>
         <Links $dark={dark}>
           {navItems.map(item => (
             <a key={item.id} href={item.href} onClick={e => scrollTo(e, item.href)}>{item.label}</a>
