@@ -1,6 +1,8 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
+  @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Mrs+Saint+Delafield&display=swap');
 
   :root {
@@ -24,6 +26,7 @@ const GlobalStyles = createGlobalStyle`
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   body {
+    animation: siPageFadeIn 0.5s ease forwards;
     font-family: var(--font-b);
     font-weight: 300;
     font-size: 15px;

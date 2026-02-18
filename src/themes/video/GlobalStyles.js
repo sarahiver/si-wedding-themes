@@ -84,6 +84,7 @@ const VideoGlobalStyles = createGlobalStyle`
   }
   
   body {
+    animation: siPageFadeIn 0.5s ease forwards;
     font-family: var(--font-primary);
     font-weight: 400;
     background: var(--video-black);

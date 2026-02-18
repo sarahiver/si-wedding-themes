@@ -39,6 +39,7 @@ const EditorialGlobalStyles = createGlobalStyle`
   }
 
   body {
+    animation: siPageFadeIn 0.5s ease forwards;
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;

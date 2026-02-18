@@ -87,6 +87,7 @@ const ContemporaryGlobalStyles = createGlobalStyle`
   
     overflow-x: hidden;
   body {
+    animation: siPageFadeIn 0.5s ease forwards;
     font-family: var(--font-main);
     background: var(--white);
     color: var(--black);

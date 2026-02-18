@@ -1,6 +1,8 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
+  @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -45,6 +47,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   body {
+    animation: siPageFadeIn 0.5s ease forwards;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 16px;
     line-height: 1.6;
