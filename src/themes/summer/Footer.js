@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const F = styled.footer`
+const F = styled.div`
   padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);
   background: var(--c-text);
   position: relative;
