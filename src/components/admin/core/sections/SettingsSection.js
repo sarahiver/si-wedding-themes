@@ -116,57 +116,10 @@ const SectionLabel = styled.h3`
   margin-bottom: 1rem;
 `;
 
-const EmojiGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-`;
 
-const EmojiBtn = styled.button`
-  width: 44px;
-  height: 44px;
-  font-size: 1.4rem;
-  border-radius: 8px;
-  border: 2px solid ${p => p.$active ? '#1a1a1a' : '#e0e0e0'};
-  background: ${p => p.$active ? '#f0f0f0' : '#fff'};
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  &:hover {
-    border-color: #1a1a1a;
-    background: #f5f5f5;
-  }
-`;
 
-const FaviconPreview = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #f8f8f8;
-  border-radius: 8px;
-  margin-top: 0.75rem;
-  font-size: 0.8rem;
-  color: #666;
-`;
 
-const FaviconIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  background: #0a0a0a;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-`;
-
-const EMOJI_SUGGESTIONS = ['💍', '🌸', '🤍', '✨', '🕊️', '🌿', '🥂', '🌹', '💐', '🎀', '🪷', '⚘'];
 
 // ============================================
 // COMPONENT
@@ -180,7 +133,6 @@ export default function SettingsSection() {
   const [hashtag, setHashtag] = useState('');
   const [displayEmail, setDisplayEmail] = useState('');
   const [displayPhone, setDisplayPhone] = useState('');
-  const [faviconEmoji, setFaviconEmoji] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
@@ -191,7 +143,6 @@ export default function SettingsSection() {
       setHashtag(project.hashtag || '');
       setDisplayEmail(project.display_email || '');
       setDisplayPhone(project.display_phone || '');
-      setFaviconEmoji(project.favicon_emoji || '');
     }
   }, [project]);
   
@@ -207,7 +158,6 @@ export default function SettingsSection() {
         hashtag: hashtag || null,
         display_email: displayEmail || null,
         display_phone: displayPhone || null,
-        favicon_emoji: faviconEmoji || null,
       });
       
       if (error) {
@@ -237,41 +187,6 @@ export default function SettingsSection() {
         </SuccessMessage>
       )}
 
-      <SectionLabel>Browser-Tab Icon</SectionLabel>
-
-      <FormGroup>
-        <Label>
-          Favicon-Emoji
-          <Hint>Wird als kleines Icon im Browser-Tab angezeigt. Wählt ein Emoji oder gebt eins ein.</Hint>
-        </Label>
-        <EmojiGrid>
-          {EMOJI_SUGGESTIONS.map(emoji => (
-            <EmojiBtn
-              key={emoji}
-              type="button"
-              $active={faviconEmoji === emoji}
-              onClick={() => setFaviconEmoji(faviconEmoji === emoji ? '' : emoji)}
-              title={emoji}
-            >
-              {emoji}
-            </EmojiBtn>
-          ))}
-        </EmojiGrid>
-        <Input
-          type="text"
-          value={faviconEmoji}
-          onChange={(e) => setFaviconEmoji(e.target.value)}
-          placeholder="Emoji eingeben oder oben auswählen…"
-          maxLength={4}
-          style={{ fontSize: '1.3rem' }}
-        />
-        {faviconEmoji && (
-          <FaviconPreview>
-            <FaviconIcon>{faviconEmoji}</FaviconIcon>
-            <span>So sieht euer Tab-Icon aus</span>
-          </FaviconPreview>
-        )}
-      </FormGroup>
 
       <Divider />
       
