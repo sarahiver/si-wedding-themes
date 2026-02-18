@@ -27,6 +27,9 @@ import BotanicalBackground from "../themes/botanical/BotanicalBackground"
 // Video Theme special import
 import VideoHorizontalScroll from "../themes/video/HorizontalScroll"
 
+// Parallax Theme special import
+import ParallaxWeddingApp from "../themes/parallax/WeddingApp"
+
 // ============================================
 // VARIANT IMPORTS
 // ============================================
@@ -492,6 +495,11 @@ function WeddingPage() {
   // Video theme has completely different layout
   if (theme === "video") {
     return <VideoWeddingPage />
+  }
+
+  // Parallax theme is a full R3F experience
+  if (theme === "parallax") {
+    return <ParallaxWeddingApp />
   }
 
   return <StandardWeddingPage />
