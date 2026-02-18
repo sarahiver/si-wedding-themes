@@ -17,6 +17,7 @@ function HeroEditor({ components: C }) {
   const showScriptLine = theme === 'classic';
   const showLocationShort = !['contemporary', 'luxe', 'neon'].includes(theme);
   const showMobileBg = ['classic', 'editorial'].includes(theme);
+  const isSummerTheme = theme === 'summer';
 
   // State for showing mobile upload option
   const [showMobileUpload, setShowMobileUpload] = useState(
@@ -96,6 +97,26 @@ function HeroEditor({ components: C }) {
                 allowVideo={true}
               />
             )}
+          </>
+        )}
+
+        {/* Summer theme: second decorative image */}
+        {isSummerTheme && (
+          <>
+            <C.Divider />
+            <C.SectionLabel style={{ marginBottom: '0.5rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              Zweites Bild (rechts unten)
+            </C.SectionLabel>
+            <ImageUploader
+              components={C}
+              image={content.image2}
+              onUpload={(url) => update('image2', url)}
+              folder={baseFolder + '/hero'}
+              label="Zweites Bild"
+              ratio="4/5"
+              maxHeight="150px"
+            />
+            <C.HelpText>Erscheint als zweites Bild im Hero (rechts unten überlappend)</C.HelpText>
           </>
         )}
 
