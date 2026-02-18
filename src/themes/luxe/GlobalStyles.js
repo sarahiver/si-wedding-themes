@@ -55,6 +55,8 @@ export const parallaxFloat = keyframes`
 // ============================================
 const LuxeGlobalStyles = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+
+  @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   
   :root {
     /* Deep Dark Luxury Palette - Phenomenon Style */

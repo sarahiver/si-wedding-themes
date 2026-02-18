@@ -8,6 +8,8 @@ const EditorialGlobalStyles = createGlobalStyle`
   
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
+  @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   :root {
     /* Colors */
     --editorial-black: #0A0A0A;

@@ -50,6 +50,8 @@ export const fadeIn = keyframes`
 
 const ContemporaryGlobalStyles = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   
   :root {
     --coral: #FF6B6B;
