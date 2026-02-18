@@ -215,7 +215,7 @@ function ThemeRouter() {
     let desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute('content', `Hochzeit von ${names}`);
 
-    return () => { document.title = 'S&I Wedding'; };
+    return () => { };
   }, [project, coupleNames]);
 
   // WICHTIG: Warte bis project UND theme geladen sind
