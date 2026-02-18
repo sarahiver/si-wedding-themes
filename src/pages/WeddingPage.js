@@ -18,6 +18,7 @@ import LuxeGlobalStyles from "../themes/luxe/GlobalStyles"
 import NeonGlobalStyles from "../themes/neon/GlobalStyles"
 import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
+import SummerGlobalStyles from "../themes/summer/GlobalStyles"
 
 
 // Special Components
@@ -198,6 +199,27 @@ const themeComponents = {
     ContactWitnesses: lazy(() => import("../themes/classic/ContactWitnesses")),
     Footer: lazy(() => import("../themes/classic/Footer")),
   },
+  summer: {
+    Navigation: lazy(() => import("../themes/summer/Navigation")),
+    Hero: lazy(() => import("../themes/summer/Hero")),
+    Countdown: lazy(() => import("../themes/classic/Countdown")),
+    LoveStory: lazy(() => import("../themes/classic/LoveStory")),
+    Timeline: lazy(() => import("../themes/classic/Timeline")),
+    Locations: lazy(() => import("../themes/classic/Locations")),
+    Directions: lazy(() => import("../themes/classic/Directions")),
+    Accommodations: lazy(() => import("../themes/classic/Accommodations")),
+    RSVP: lazy(() => import("../themes/classic/RSVP")),
+    Gallery: lazy(() => import("../themes/classic/Gallery")),
+    Guestbook: lazy(() => import("../themes/classic/Guestbook")),
+    MusicWishes: lazy(() => import("../themes/classic/MusicWishes")),
+    PhotoUpload: lazy(() => import("../themes/classic/PhotoUpload")),
+    Gifts: lazy(() => import("../themes/classic/Gifts")),
+    Dresscode: lazy(() => import("../themes/classic/Dresscode")),
+    FAQ: lazy(() => import("../themes/classic/FAQ")),
+    WeddingABC: lazy(() => import("../themes/classic/WeddingABC")),
+    ContactWitnesses: lazy(() => import("../themes/classic/ContactWitnesses")),
+    Footer: lazy(() => import("../themes/classic/Footer")),
+  },
 }
 
 // ============================================
@@ -239,6 +261,11 @@ const themeConfig = {
   classic: {
     GlobalStyles: ClassicGlobalStyles,
     background: "#FFFFFF",
+    hasSpecialBackground: false,
+  },
+  summer: {
+    GlobalStyles: SummerGlobalStyles,
+    background: "#FAF6F0",
     hasSpecialBackground: false,
   },
 }
