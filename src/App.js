@@ -215,19 +215,24 @@ function ThemeRouter() {
     let desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute('content', `Hochzeit von ${names}`);
 
-    // Dynamisches Favicon mit Paar-Initialen
-    const initials = (() => {
+    // Dynamisches Favicon: Emoji aus DB bevorzugen, sonst Initialen
+    const faviconEmoji = project.favicon_emoji;
+    const faviconContent = faviconEmoji || (() => {
       const parts = names.split(/\s*[&+und]\s*/i).map(s => s.trim());
-      if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-      }
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
       return names.slice(0, 2).toUpperCase();
     })();
 
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="12" fill="#0a0a0a"/>
-      <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="26" fill="#ffffff" letter-spacing="-1">${initials}</text>
-    </svg>`;
+    const isEmoji = faviconEmoji && faviconEmoji.length > 0;
+    const svg = isEmoji
+      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="48">${faviconContent}</text>
+        </svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+          <rect width="64" height="64" rx="12" fill="#0a0a0a"/>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="26" fill="#ffffff" letter-spacing="-1">${faviconContent}</text>
+        </svg>`;
+
     const faviconUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
 
     let favicon = document.querySelector('link[rel="icon"]');
