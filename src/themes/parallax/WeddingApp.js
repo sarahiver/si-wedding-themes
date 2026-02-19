@@ -29,22 +29,36 @@ function ScrollBridge({ scrollRef, scrollToTopRef }) {
   return null
 }
 
+function parseCountdownDate(raw) {
+  if (!raw) return null
+  // Extract YYYY-MM-DD from any format (ISO, timestamp, etc.)
+  const match = String(raw).match(/(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return null
+  // Build date at noon LOCAL time to avoid timezone edge cases
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0)
+}
+
 function useCountdown(weddingDate) {
-  const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
+  const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false, ready: false })
   useEffect(() => {
-    if (!weddingDate) return
-    // Append T12:00:00 to date-only strings to avoid UTC midnight timezone issues
-    const dateStr = weddingDate.includes('T') ? weddingDate : weddingDate + 'T12:00:00'
-    const target = new window.Date(dateStr)
+    const target = parseCountdownDate(weddingDate)
+    if (!target || isNaN(target.getTime())) {
+      setT({ d: 0, h: 0, m: 0, s: 0, past: false, ready: false })
+      return
+    }
     const tick = () => {
-      const diff = target - new window.Date()
-      if (diff <= 0) { setT(p => ({ ...p, past: true })); return }
+      const diff = target - new Date()
+      if (diff <= 0) {
+        setT({ d: 0, h: 0, m: 0, s: 0, past: true, ready: true })
+        return
+      }
       setT({
         d: Math.floor(diff / 86400000),
         h: Math.floor((diff % 86400000) / 3600000),
         m: Math.floor((diff % 3600000) / 60000),
         s: Math.floor((diff % 60000) / 1000),
         past: false,
+        ready: true,
       })
     }
     tick()
@@ -261,60 +275,63 @@ export default function ParallaxWeddingApp() {
       <Loader />
 
       {/* ── COUNTDOWN — after Canvas so it renders on top ── */}
-      <div
-        ref={countdownRef}
-        style={{
-          position: 'fixed',
-          left: '50%',
-          bottom: '6vh',
-          transform: 'translateX(-50%)',
-          zIndex: 200,
-          textAlign: 'center',
-          pointerEvents: 'none',
-          userSelect: 'none',
-          fontFamily: "'DM Sans', sans-serif",
-          background: '#fff',
-          padding: '1.2rem 2.5rem',
-        }}
-      >
-        {!cd.past ? (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)' }}>
-            {[
-              { v: p2(cd.d), l: 'TAGE' },
-              { v: p2(cd.h), l: 'STD' },
-              { v: p2(cd.m), l: 'MIN' },
-              { v: p2(cd.s), l: 'SEK' },
-            ].map(({ v, l }) => (
-              <div key={l} style={{ textAlign: 'center' }}>
-                <span style={{
-                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                  fontWeight: 800,
-                  color: '#000',
-                  lineHeight: 1,
-                  fontVariantNumeric: 'tabular-nums',
-                }}>{v}</span>
-                <br />
-                <span style={{
-                  fontSize: '0.6rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(0,0,0,0.3)',
-                }}>{l}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'rgba(0,0,0,0.35)',
-            margin: 0,
-          }}>WIR HABEN GEHEIRATET</p>
-        )}
-      </div>
+      {cd.ready && (
+        <div
+          ref={countdownRef}
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: '5vh',
+            transform: 'translateX(-50%)',
+            zIndex: 200,
+            textAlign: 'center',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            fontFamily: "'DM Sans', sans-serif",
+            background: '#fff',
+            padding: 'clamp(1rem, 2vw, 2rem) clamp(2rem, 4vw, 4rem)',
+          }}
+        >
+          {!cd.past ? (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(2rem, 5vw, 4rem)' }}>
+              {[
+                { v: p2(cd.d), l: 'TAGE' },
+                { v: p2(cd.h), l: 'STD' },
+                { v: p2(cd.m), l: 'MIN' },
+                { v: p2(cd.s), l: 'SEK' },
+              ].map(({ v, l }) => (
+                <div key={l} style={{ textAlign: 'center' }}>
+                  <span style={{
+                    fontSize: 'clamp(3.5rem, 7vw, 6rem)',
+                    fontWeight: 800,
+                    color: '#000',
+                    lineHeight: 1,
+                    letterSpacing: '-0.02em',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}>{v}</span>
+                  <br />
+                  <span style={{
+                    fontSize: 'clamp(0.55rem, 1vw, 0.75rem)',
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(0,0,0,0.3)',
+                  }}>{l}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{
+              fontSize: 'clamp(0.7rem, 1.2vw, 1rem)',
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'rgba(0,0,0,0.35)',
+              margin: 0,
+            }}>WIR HABEN GEHEIRATET</p>
+          )}
+        </div>
+      )}
 
       <ParallaxModal
         activeModal={activeModal}
