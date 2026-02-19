@@ -235,7 +235,7 @@ function ThemeRouter() {
       const parts = (typeof names === 'string' ? names : '').split(/\s*[&+und]\s*/i).map(s => s.trim()).filter(Boolean);
       if (parts.length >= 2 && parts[0] && parts[1]) return (parts[0][0] + parts[1][0]).toUpperCase();
       if (parts.length >= 1 && parts[0]) return parts[0].slice(0, 2).toUpperCase();
-      return '♡';
+      return 'SI';
     })();
 
     const isEmoji = faviconEmoji && faviconEmoji.length > 0;
