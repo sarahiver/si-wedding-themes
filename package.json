@@ -4,9 +4,9 @@
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3",
-    "@react-three/fiber": "^8.15.0",
-    "@react-three/drei": "^9.92.0",
-    "three": "^0.158.0",
+    "@react-three/fiber": "^8.17.0",
+    "@react-three/drei": "^9.88.17",
+    "three": "^0.165.0",
     "maath": "^0.10.8",
     "gsap": "^3.12.5",
     "file-saver": "^2.0.5",
