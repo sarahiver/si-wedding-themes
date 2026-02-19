@@ -9,29 +9,38 @@ function ensureKeyframes() {
   const style = document.createElement('style')
   style.id = STYLE_ID
   style.textContent = `
-    @keyframes modalMorphIn {
-      0% { transform: translate(var(--ox), var(--oy)) scale(0.05) rotate(0deg); opacity: 0.8; border-radius: 8px; }
-      60% { transform: translate(0, 0) scale(0.7) rotate(270deg); opacity: 1; border-radius: 4px; }
-      100% { transform: translate(0, 0) scale(1) rotate(360deg); opacity: 1; border-radius: 0; }
+    @keyframes letterSpin {
+      0% {
+        transform: translate(-50%, -50%) translateX(0) rotate(0deg);
+        font-size: 0.8rem;
+        opacity: 1;
+        color: #000;
+      }
+      25% {
+        color: #fff;
+      }
+      60% {
+        transform: translate(-50%, -50%) translateX(var(--spread)) rotate(480deg);
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        opacity: 1;
+        color: #fff;
+      }
+      100% {
+        transform: translate(-50%, -50%) translateX(var(--spread-far)) rotate(720deg);
+        font-size: clamp(4rem, 12vw, 8rem);
+        opacity: 0;
+        color: #fff;
+      }
     }
-    @keyframes modalMorphOut {
-      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; border-radius: 0; }
-      40% { transform: translate(0, 0) scale(0.7) rotate(-90deg); opacity: 1; border-radius: 4px; }
-      100% { transform: translate(var(--ox), var(--oy)) scale(0.05) rotate(-360deg); opacity: 0; border-radius: 8px; }
+    @keyframes fadeToBlack {
+      from { background: rgba(0,0,0,0); }
+      to { background: rgba(0,0,0,1); }
     }
-    @keyframes contentFadeIn {
-      from { opacity: 0; transform: translateY(12px); }
+    @keyframes contentAppear {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes contentFadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-    @keyframes backdropIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes backdropOut {
+    @keyframes modalFadeOut {
       from { opacity: 1; }
       to { opacity: 0; }
     }
@@ -41,24 +50,23 @@ function ensureKeyframes() {
 
 // ── MAIN MODAL ──
 export default function ParallaxModal({ activeModal, onClose, project, content }) {
-  // phase: null | 'morph-in' | 'open' | 'closing'
+  // phase: null | 'letters' | 'open' | 'closing'
   const [phase, setPhase] = useState(null)
-  const [current, setCurrent] = useState(null) // { id, origin }
-  const panelRef = useRef(null)
+  const [current, setCurrent] = useState(null)
 
   useEffect(() => { ensureKeyframes() }, [])
 
-  // Open
+  // Open sequence
   useEffect(() => {
     if (activeModal && !current) {
       setCurrent(activeModal)
-      setPhase('morph-in')
-      const t = setTimeout(() => setPhase('open'), 550)
+      setPhase('letters')
+      const t = setTimeout(() => setPhase('open'), 1200)
       return () => clearTimeout(t)
     }
   }, [activeModal, current])
 
-  // Close trigger
+  // Close
   const handleClose = useCallback(() => {
     if (phase === 'closing') return
     setPhase('closing')
@@ -66,7 +74,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
       setPhase(null)
       setCurrent(null)
       onClose()
-    }, 450)
+    }, 500)
   }, [phase, onClose])
 
   // Lock body scroll
@@ -90,68 +98,82 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
   if (!current) return null
 
   const isMobile = window.innerWidth < 768
-  const panelWidth = isMobile ? '100vw' : '66vw'
-
-  // Origin offset for animation (from center of button to panel center)
-  const panelCenterX = isMobile ? window.innerWidth / 2 : window.innerWidth - (window.innerWidth * 0.66) / 2
-  const panelCenterY = window.innerHeight / 2
-  const ox = (current.origin?.x || window.innerWidth / 2) - panelCenterX
-  const oy = (current.origin?.y || window.innerHeight / 2) - panelCenterY
-
-  const panelStyle = {
-    position: 'fixed',
-    right: 0,
-    top: 0,
-    width: panelWidth,
-    height: '100vh',
-    background: '#fff',
-    zIndex: 10001,
-    display: 'flex',
-    flexDirection: 'column',
-    transformOrigin: 'center center',
-    '--ox': `${ox}px`,
-    '--oy': `${oy}px`,
-    animation: phase === 'morph-in'
-      ? 'modalMorphIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards'
-      : phase === 'closing'
-      ? 'modalMorphOut 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards'
-      : 'none',
-  }
-
-  const contentStyle = {
-    opacity: phase === 'open' ? 1 : 0,
-    animation: phase === 'open'
-      ? 'contentFadeIn 0.25s ease forwards'
-      : phase === 'closing'
-      ? 'contentFadeOut 0.15s ease forwards'
-      : 'none',
-  }
-
-  const backdropStyle = {
-    position: 'fixed',
-    inset: 0,
-    zIndex: 10000,
-    background: 'rgba(0,0,0,0.06)',
-    animation: phase === 'closing'
-      ? 'backdropOut 0.4s ease forwards'
-      : 'backdropIn 0.3s ease forwards',
-  }
+  const label = current.label || 'Entdecken'
+  const letters = label.split('')
+  const origin = current.origin || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 
   return (
-    <>
-      {/* Backdrop */}
-      <div style={backdropStyle} onClick={handleClose} />
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 10000,
+      animation: phase === 'closing' ? 'modalFadeOut 0.5s ease forwards' : 'none',
+    }}>
+      {/* ── BLACK BACKDROP (fades in during letter phase) ── */}
+      <div
+        style={{
+          position: 'absolute', inset: 0,
+          background: phase === 'letters' ? undefined : '#000',
+          animation: phase === 'letters' ? 'fadeToBlack 0.9s ease forwards' : 'none',
+        }}
+        onClick={handleClose}
+      />
 
-      {/* Panel */}
-      <div ref={panelRef} style={panelStyle} onClick={e => e.stopPropagation()}>
+      {/* ── LETTER ANIMATION (during 'letters' phase) ── */}
+      {phase === 'letters' && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', overflow: 'hidden' }}>
+          {letters.map((char, i) => {
+            const centerOffset = i - (letters.length - 1) / 2
+            return (
+              <span
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: origin.x,
+                  top: origin.y,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  pointerEvents: 'none',
+                  willChange: 'transform, font-size, opacity',
+                  '--spread': `${centerOffset * 40}px`,
+                  '--spread-far': `${centerOffset * 120}px`,
+                  animation: `letterSpin 1.1s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.05}s forwards`,
+                }}
+              >
+                {char}
+              </span>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── CONTENT PANEL ── */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          width: isMobile ? '100vw' : '66vw',
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 1,
+          opacity: phase === 'open' ? 1 : 0,
+          animation: phase === 'open' ? 'contentAppear 0.4s ease forwards' : 'none',
+          pointerEvents: phase === 'open' ? 'auto' : 'none',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Close button */}
         <button style={styles.closeBtn} onClick={handleClose} aria-label="Schließen">
           ✕
         </button>
 
-        {/* Scroll area with content */}
-        <div data-scroll-area style={{ ...styles.scrollArea, ...contentStyle }}>
-          <div style={styles.contentInner}>
+        {/* Scroll area */}
+        <div data-scroll-area style={styles.scrollArea}>
+          <div style={{
+            ...styles.contentInner,
+            maxWidth: current.id === 'gallery' ? '900px' : '600px',
+          }}>
             {current.id === 'lovestory' && <LoveStoryContent content={content} />}
             {current.id === 'info' && <InfoContent project={project} content={content} />}
             {current.id === 'rsvp' && <RSVPContent content={content} />}
@@ -159,7 +181,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -238,9 +260,9 @@ function InfoContent({ project, content }) {
               { v: p2(cd.s), l: 'Sek' },
             ].map(({ v, l }) => (
               <div key={l} style={{ textAlign: 'center' }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '2.5rem', fontWeight: 800 }}>{v}</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '2.5rem', fontWeight: 800, color: '#fff' }}>{v}</span>
                 <br />
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.4 }}>{l}</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>{l}</span>
               </div>
             ))}
           </div>
@@ -325,9 +347,9 @@ function RSVPContent({ content }) {
         {rsvp.formData.attending && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>Personen:</span>
+              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>Personen:</span>
               <button style={styles.adjustBtn} onClick={() => rsvp.adjustPersons(-1)}>−</button>
-              <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '1.5rem', textAlign: 'center' }}>{rsvp.formData.persons}</span>
+              <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '1.5rem', textAlign: 'center', color: '#fff' }}>{rsvp.formData.persons}</span>
               <button style={styles.adjustBtn} onClick={() => rsvp.adjustPersons(1)}>+</button>
             </div>
 
@@ -347,7 +369,7 @@ function RSVPContent({ content }) {
           onChange={e => rsvp.updateField('message', e.target.value)}
         />
 
-        {rsvp.error && <p style={{ color: '#c00', fontWeight: 700, fontSize: '0.85rem' }}>{rsvp.error}</p>}
+        {rsvp.error && <p style={{ color: '#f66', fontWeight: 700, fontSize: '0.85rem' }}>{rsvp.error}</p>}
 
         <button
           style={{ ...styles.formBtn, opacity: rsvp.submitting ? 0.5 : 1 }}
@@ -361,17 +383,17 @@ function RSVPContent({ content }) {
   )
 }
 
-// ── GALLERY with parallax scroll ──
+// ── GALLERY with parallax scroll (no fade, just translateY) ──
 const GALLERY_LAYOUT = [
-  { col: 0, span: 2, speed: 0.3 },   // full-width
-  { col: 0, span: 1, speed: 0.5 },   // left half
-  { col: 1, span: 1, speed: 0.7 },   // right half
-  { col: 0, span: 2, speed: 0.4 },   // full-width
-  { col: 0, span: 1, speed: 0.6 },   // left half
-  { col: 1, span: 1, speed: 0.35 },  // right half
-  { col: 0, span: 2, speed: 0.55 },  // full-width
-  { col: 0, span: 1, speed: 0.45 },
-  { col: 1, span: 1, speed: 0.65 },
+  { span: 2, speed: 0.3 },
+  { span: 1, speed: 0.5 },
+  { span: 1, speed: 0.7 },
+  { span: 2, speed: 0.4 },
+  { span: 1, speed: 0.6 },
+  { span: 1, speed: 0.35 },
+  { span: 2, speed: 0.55 },
+  { span: 1, speed: 0.45 },
+  { span: 1, speed: 0.65 },
 ]
 
 function GalleryContent({ content }) {
@@ -391,7 +413,6 @@ function GalleryContent({ content }) {
   ]
   const images = imgs.length > 0 ? imgs : FALLBACK
 
-  // We listen on the parent scrollArea, bubbled via a passed-in callback
   useEffect(() => {
     const scrollArea = scrollRef.current?.closest('[data-scroll-area]')
     if (!scrollArea) return
@@ -424,7 +445,6 @@ function GalleryContent({ content }) {
               style={{
                 gridColumn: spanFull ? '1 / -1' : 'auto',
                 overflow: 'hidden',
-                position: 'relative',
               }}
             >
               <img
@@ -437,7 +457,6 @@ function GalleryContent({ content }) {
                   objectFit: 'cover',
                   display: 'block',
                   transform: `translateY(${parallaxY}px)`,
-                  transition: 'transform 0.1s linear',
                 }}
               />
             </div>
@@ -448,7 +467,7 @@ function GalleryContent({ content }) {
   )
 }
 
-// ── STYLES ──
+// ── STYLES (inverted: white on black) ──
 const styles = {
   closeBtn: {
     position: 'absolute',
@@ -459,7 +478,7 @@ const styles = {
     border: 'none',
     fontSize: '1.5rem',
     fontWeight: 800,
-    color: '#000',
+    color: '#fff',
     cursor: 'pointer',
     width: '44px',
     height: '44px',
@@ -483,7 +502,7 @@ const styles = {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: 'clamp(2rem, 5vw, 3.5rem)',
     fontWeight: 800,
-    color: '#000',
+    color: '#fff',
     marginBottom: '2rem',
     lineHeight: 1.1,
   },
@@ -493,14 +512,14 @@ const styles = {
     fontWeight: 700,
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
-    color: 'rgba(0,0,0,0.35)',
+    color: 'rgba(255,255,255,0.35)',
     marginBottom: '0.5rem',
   },
   sectionTitle: {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '1.4rem',
     fontWeight: 800,
-    color: '#000',
+    color: '#fff',
     marginBottom: '0.6rem',
     lineHeight: 1.2,
   },
@@ -508,7 +527,7 @@ const styles = {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.95rem',
     fontWeight: 500,
-    color: 'rgba(0,0,0,0.6)',
+    color: 'rgba(255,255,255,0.6)',
     lineHeight: 1.7,
     whiteSpace: 'pre-line',
   },
@@ -522,40 +541,40 @@ const styles = {
   input: {
     width: '100%',
     padding: '0.9rem 1rem',
-    border: '2px solid #000',
+    border: '1px solid rgba(255,255,255,0.3)',
     borderRadius: 0,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.9rem',
     fontWeight: 500,
-    color: '#000',
-    background: '#fff',
+    color: '#fff',
+    background: 'transparent',
     outline: 'none',
     boxSizing: 'border-box',
   },
   toggleBtn: {
     flex: 1,
     padding: '0.8rem',
-    border: '2px solid #000',
-    background: '#fff',
+    border: '1px solid rgba(255,255,255,0.3)',
+    background: 'transparent',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.85rem',
     fontWeight: 700,
-    color: '#000',
+    color: '#fff',
     cursor: 'pointer',
   },
   toggleActive: {
-    background: '#000',
-    color: '#fff',
+    background: '#fff',
+    color: '#000',
   },
   adjustBtn: {
     width: '36px',
     height: '36px',
-    border: '2px solid #000',
-    background: '#fff',
+    border: '1px solid rgba(255,255,255,0.3)',
+    background: 'transparent',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '1.1rem',
     fontWeight: 800,
-    color: '#000',
+    color: '#fff',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -564,8 +583,8 @@ const styles = {
   formBtn: {
     padding: '1rem 2rem',
     border: 'none',
-    background: '#000',
-    color: '#fff',
+    background: '#fff',
+    color: '#000',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.9rem',
     fontWeight: 800,
