@@ -3,7 +3,7 @@
 // Each zone: bold headline (clickable → opens modal)
 
 import { useState, useEffect, useRef } from 'react'
-import { HERO_TXT, LS_TXT, CD_TXT, GAL_TXT, FOOTER } from './scrollConfig'
+import { HERO_TXT, LS_TXT, CD_TXT, GAL_TXT, DETAILS_TXT, FOOTER } from './scrollConfig'
 
 function useCountdown(weddingDate) {
   const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
@@ -52,7 +52,7 @@ function TextZone({ range, children }) {
   )
 }
 
-// Clickable title — replaces DiscoverBtn
+// Clickable title (big heading)
 function ClickableTitle({ text, onClick, style }) {
   const ref = useRef(null)
   const handleClick = () => {
@@ -73,7 +73,7 @@ function ClickableTitle({ text, onClick, style }) {
   )
 }
 
-// Smaller clickable text for Infos/RSVP
+// Smaller clickable text
 function ClickableLink({ text, onClick, style }) {
   const ref = useRef(null)
   const handleClick = () => {
@@ -97,17 +97,11 @@ function ClickableLink({ text, onClick, style }) {
 export default function HtmlContent({ project, content, onOpenModal }) {
   const cd = useCountdown(project?.wedding_date)
   const cn = project?.couple_names || 'Lena & Jonas'
-  const [n1, n2] = cn.includes('&') ? cn.split('&').map(s => s.trim()) : [cn, '']
-  const wDate = project?.wedding_date
-    ? new window.Date(project.wedding_date).toLocaleDateString('de-DE', {
-        day: 'numeric', month: 'long', year: 'numeric'
-      })
-    : ''
 
   return (
     <div style={{ userSelect: 'none', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── HERO TEXT (names moved to fixed overlay in WeddingApp) ── */}
+      {/* ── HERO TEXT (names in fixed overlay in WeddingApp) ── */}
       <TextZone range={HERO_TXT} />
 
       {/* ── LOVESTORY TEXT ── */}
@@ -143,17 +137,13 @@ export default function HtmlContent({ project, content, onOpenModal }) {
         ) : (
           <p style={s.label}>WIR HABEN GEHEIRATET</p>
         )}
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '1.5rem' }}>
-          <ClickableLink
-            text="Infos"
-            onClick={(origin, label) => onOpenModal?.('info', origin, label)}
-            style={s.clickableLink}
-          />
-          <ClickableLink
-            text="RSVP"
-            onClick={(origin, label) => onOpenModal?.('rsvp', origin, label)}
-            style={s.clickableLink}
-          />
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Tagesablauf" onClick={(o, l) => onOpenModal?.('timeline', o, l)} style={s.clickableLink} />
+          <ClickableLink text="Dresscode" onClick={(o, l) => onOpenModal?.('dresscode', o, l)} style={s.clickableLink} />
+        </div>
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Infos" onClick={(o, l) => onOpenModal?.('info', o, l)} style={s.clickableLink} />
+          <ClickableLink text="RSVP" onClick={(o, l) => onOpenModal?.('rsvp', o, l)} style={s.clickableLink} />
         </div>
       </TextZone>
 
@@ -165,6 +155,27 @@ export default function HtmlContent({ project, content, onOpenModal }) {
           onClick={(origin, label) => onOpenModal?.('gallery', origin, label)}
           style={s.sectionTitle}
         />
+      </TextZone>
+
+      {/* ── DETAILS TEXT (additional sections) ── */}
+      <TextZone range={DETAILS_TXT}>
+        <p style={s.label}>MEHR ENTDECKEN</p>
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Geschenke" onClick={(o, l) => onOpenModal?.('gifts', o, l)} style={s.clickableLink} />
+          <ClickableLink text="Gästebuch" onClick={(o, l) => onOpenModal?.('guestbook', o, l)} style={s.clickableLink} />
+        </div>
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Musikwünsche" onClick={(o, l) => onOpenModal?.('musicwishes', o, l)} style={s.clickableLink} />
+          <ClickableLink text="Eure Fotos" onClick={(o, l) => onOpenModal?.('photoupload', o, l)} style={s.clickableLink} />
+        </div>
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Unterkunft" onClick={(o, l) => onOpenModal?.('accommodations', o, l)} style={s.clickableLink} />
+          <ClickableLink text="FAQ" onClick={(o, l) => onOpenModal?.('faq', o, l)} style={s.clickableLink} />
+        </div>
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <ClickableLink text="Trauzeugen" onClick={(o, l) => onOpenModal?.('witnesses', o, l)} style={s.clickableLink} />
+          <ClickableLink text="Hochzeits-ABC" onClick={(o, l) => onOpenModal?.('weddingabc', o, l)} style={s.clickableLink} />
+        </div>
       </TextZone>
 
       {/* ── FOOTER ── */}
@@ -186,23 +197,6 @@ const s = {
     textTransform: 'uppercase',
     color: 'rgba(0,0,0,0.35)',
     marginBottom: '0.6rem',
-  },
-  heroName: {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 'clamp(3rem, 8vw, 7rem)',
-    fontWeight: 800,
-    color: '#000',
-    lineHeight: 0.95,
-    letterSpacing: '-0.03em',
-    margin: 0,
-  },
-  amp: {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-    fontWeight: 800,
-    color: 'rgba(0,0,0,0.2)',
-    display: 'block',
-    margin: '0.3rem 0',
   },
   sectionTitle: {
     fontFamily: "'DM Sans', sans-serif",
