@@ -2,7 +2,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react'
 import { useRSVP } from '../../components/shared/RSVPCore'
 
-// ── KEYFRAMES (injected once) ──
+// ── KEYFRAMES ──
 const STYLE_ID = 'parallax-modal-keyframes'
 function ensureKeyframes() {
   if (document.getElementById(STYLE_ID)) return
@@ -16,9 +16,7 @@ function ensureKeyframes() {
         opacity: 1;
         color: #000;
       }
-      25% {
-        color: #fff;
-      }
+      25% { color: #fff; }
       60% {
         transform: translate(-50%, -50%) translateX(var(--spread)) rotate(480deg);
         font-size: clamp(2.5rem, 8vw, 5rem);
@@ -44,23 +42,32 @@ function ensureKeyframes() {
       from { opacity: 1; }
       to { opacity: 0; }
     }
+    @keyframes spinIn {
+      from { transform: rotate(0deg) scale(0); opacity: 0; }
+      to { transform: rotate(360deg) scale(1); opacity: 1; }
+    }
   `
   document.head.appendChild(style)
 }
 
+// Parallax helper: offset based on scrollTop and speed
+function px(scrollTop, speed) {
+  return scrollTop * (speed - 0.5) * 0.15
+}
+
 // ── MAIN MODAL ──
 export default function ParallaxModal({ activeModal, onClose, project, content }) {
-  // phase: null | 'letters' | 'open' | 'closing'
   const [phase, setPhase] = useState(null)
   const [current, setCurrent] = useState(null)
+  const [scrollTop, setScrollTop] = useState(0)
 
   useEffect(() => { ensureKeyframes() }, [])
 
-  // Open sequence — only depends on activeModal (not current!)
-  // Including current would cause cleanup → cancel timer → content never shows
+  // Open sequence
   useEffect(() => {
     if (activeModal) {
       setCurrent(activeModal)
+      setScrollTop(0)
       setPhase('letters')
       const t = setTimeout(() => setPhase('open'), 1200)
       return () => clearTimeout(t)
@@ -80,11 +87,8 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
 
   // Lock body scroll
   useEffect(() => {
-    if (current) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    if (current) document.body.style.overflow = 'hidden'
+    else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [current])
 
@@ -98,6 +102,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
 
   if (!current) return null
 
+  const isMobile = window.innerWidth < 768
   const label = current.label || 'Entdecken'
   const letters = label.split('')
   const origin = current.origin || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
@@ -107,7 +112,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
       position: 'fixed', inset: 0, zIndex: 10000,
       animation: phase === 'closing' ? 'modalFadeOut 0.5s ease forwards' : 'none',
     }}>
-      {/* ── BLACK BACKDROP (fades in during letter phase) ── */}
+      {/* ── BACKDROP ── */}
       <div
         style={{
           position: 'absolute', inset: 0,
@@ -117,7 +122,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         onClick={handleClose}
       />
 
-      {/* ── LETTER ANIMATION (during 'letters' phase) ── */}
+      {/* ── LETTER ANIMATION ── */}
       {phase === 'letters' && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', overflow: 'hidden' }}>
           {letters.map((char, i) => {
@@ -146,11 +151,43 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         </div>
       )}
 
-      {/* ── CONTENT PANEL (fullscreen) ── */}
+      {/* ── X CLOSE BUTTON (spins in, same position as logo) ── */}
+      {phase === 'open' && (
+        <button
+          onClick={handleClose}
+          aria-label="Schließen"
+          style={{
+            position: 'fixed',
+            top: '1.2rem',
+            right: '1.5rem',
+            zIndex: 10002,
+            background: 'none',
+            border: 'none',
+            fontSize: '1.5rem',
+            fontWeight: 800,
+            color: '#fff',
+            cursor: 'pointer',
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: "'DM Sans', sans-serif",
+            animation: 'spinIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+          }}
+        >
+          ✕
+        </button>
+      )}
+
+      {/* ── CONTENT PANEL (2/3 right) ── */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
+          right: 0,
+          top: 0,
+          width: isMobile ? '100vw' : '66vw',
+          height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1,
@@ -160,16 +197,19 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Scroll area */}
-        <div data-scroll-area style={styles.scrollArea}>
+        <div
+          data-scroll-area
+          onScroll={e => setScrollTop(e.target.scrollTop)}
+          style={styles.scrollArea}
+        >
           <div style={{
             ...styles.contentInner,
             maxWidth: current.id === 'gallery' ? '900px' : '600px',
           }}>
-            {current.id === 'lovestory' && <LoveStoryContent content={content} />}
-            {current.id === 'info' && <InfoContent project={project} content={content} />}
-            {current.id === 'rsvp' && <RSVPContent content={content} />}
-            {current.id === 'gallery' && <GalleryContent content={content} />}
+            {current.id === 'lovestory' && <LoveStoryContent content={content} scrollTop={scrollTop} />}
+            {current.id === 'info' && <InfoContent project={project} content={content} scrollTop={scrollTop} />}
+            {current.id === 'rsvp' && <RSVPContent content={content} scrollTop={scrollTop} />}
+            {current.id === 'gallery' && <GalleryContent content={content} scrollTop={scrollTop} />}
           </div>
         </div>
       </div>
@@ -177,8 +217,8 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
   )
 }
 
-// ── LOVESTORY ──
-function LoveStoryContent({ content }) {
+// ── LOVESTORY (with parallax) ──
+function LoveStoryContent({ content, scrollTop }) {
   const ls = content?.lovestory || {}
   const chapters = ls.events?.length >= 2
     ? ls.events
@@ -189,24 +229,32 @@ function LoveStoryContent({ content }) {
       ]
 
   return (
-    <div style={{ padding: '4rem 0 6rem' }}>
-      <h2 style={styles.modalTitle}>Unsere Geschichte</h2>
+    <div style={{ padding: '5rem 0 8rem' }}>
+      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <h2 style={styles.modalTitle}>Unsere Geschichte</h2>
+      </div>
       {chapters.map((ch, i) => (
-        <div key={i} style={{ marginBottom: '5rem' }}>
-          <p style={styles.label}>{ch.date}</p>
-          <h3 style={styles.sectionTitle}>{ch.title}</h3>
+        <div key={i} style={{ marginBottom: '6rem' }}>
+          <div style={{ transform: `translateY(${px(scrollTop, 0.35 + i * 0.08)}px)` }}>
+            <p style={styles.label}>{ch.date}</p>
+            <h3 style={styles.sectionTitle}>{ch.title}</h3>
+          </div>
           {ch.image && typeof ch.image === 'string' && ch.image.startsWith('http') && (
-            <img src={ch.image} alt={ch.title} style={styles.chapterImg} loading="lazy" />
+            <div style={{ overflow: 'hidden', transform: `translateY(${px(scrollTop, 0.65 + i * 0.05)}px)` }}>
+              <img src={ch.image} alt={ch.title} style={styles.chapterImg} loading="lazy" />
+            </div>
           )}
-          <p style={styles.bodyText}>{ch.description}</p>
+          <div style={{ transform: `translateY(${px(scrollTop, 0.4 + i * 0.06)}px)` }}>
+            <p style={styles.bodyText}>{ch.description}</p>
+          </div>
         </div>
       ))}
     </div>
   )
 }
 
-// ── INFO ──
-function InfoContent({ project, content }) {
+// ── INFO (with parallax) ──
+function InfoContent({ project, content, scrollTop }) {
   const [cd, setCd] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
   const weddingDate = project?.wedding_date
 
@@ -238,10 +286,12 @@ function InfoContent({ project, content }) {
   const directions = content?.directions || {}
 
   return (
-    <div style={{ padding: '4rem 0 6rem' }}>
-      <h2 style={styles.modalTitle}>Infos</h2>
+    <div style={{ padding: '5rem 0 8rem' }}>
+      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <h2 style={styles.modalTitle}>Infos</h2>
+      </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '5rem', transform: `translateY(${px(scrollTop, 0.6)}px)` }}>
         <p style={styles.label}>{cd.past ? 'WIR HABEN GEHEIRATET' : 'COUNTDOWN'}</p>
         {!cd.past && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', margin: '1.5rem 0' }}>
@@ -263,10 +313,10 @@ function InfoContent({ project, content }) {
       </div>
 
       {locations.length > 0 && (
-        <div style={{ marginBottom: '3rem' }}>
+        <div style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
           <p style={styles.label}>LOCATIONS</p>
           {locations.map((loc, i) => (
-            <div key={i} style={{ marginBottom: '2rem' }}>
+            <div key={i} style={{ marginBottom: '2.5rem', transform: `translateY(${px(scrollTop, 0.45 + i * 0.1)}px)` }}>
               <h3 style={styles.sectionTitle}>{loc.name || loc.title}</h3>
               {loc.address && <p style={styles.bodyText}>{loc.address}</p>}
               {loc.time && <p style={styles.bodyText}>{loc.time}</p>}
@@ -277,7 +327,7 @@ function InfoContent({ project, content }) {
       )}
 
       {directions.description && (
-        <div>
+        <div style={{ transform: `translateY(${px(scrollTop, 0.55)}px)` }}>
           <p style={styles.label}>ANFAHRT</p>
           <p style={styles.bodyText}>{directions.description}</p>
         </div>
@@ -286,14 +336,14 @@ function InfoContent({ project, content }) {
   )
 }
 
-// ── RSVP ──
-function RSVPContent({ content }) {
+// ── RSVP (title with parallax, form stays stable) ──
+function RSVPContent({ content, scrollTop }) {
   const rsvp = useRSVP()
   const rsvpConfig = content?.rsvp || {}
 
   if (rsvp.submitted) {
     return (
-      <div style={{ padding: '4rem 0', textAlign: 'center' }}>
+      <div style={{ padding: '5rem 0', textAlign: 'center' }}>
         <h2 style={styles.modalTitle}>Danke!</h2>
         <p style={styles.bodyText}>Deine Rückmeldung wurde gespeichert.</p>
         <button style={styles.formBtn} onClick={rsvp.resetForm}>Neue Antwort</button>
@@ -302,9 +352,15 @@ function RSVPContent({ content }) {
   }
 
   return (
-    <div style={{ padding: '4rem 0 6rem' }}>
-      <h2 style={styles.modalTitle}>{rsvpConfig.title || 'RSVP'}</h2>
-      {rsvpConfig.description && <p style={{ ...styles.bodyText, marginBottom: '2rem' }}>{rsvpConfig.description}</p>}
+    <div style={{ padding: '5rem 0 8rem' }}>
+      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <h2 style={styles.modalTitle}>{rsvpConfig.title || 'RSVP'}</h2>
+      </div>
+      {rsvpConfig.description && (
+        <div style={{ transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
+          <p style={{ ...styles.bodyText, marginBottom: '2rem' }}>{rsvpConfig.description}</p>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
         <input
@@ -375,7 +431,7 @@ function RSVPContent({ content }) {
   )
 }
 
-// ── GALLERY with parallax scroll (no fade, just translateY) ──
+// ── GALLERY (parallax scroll on images) ──
 const GALLERY_LAYOUT = [
   { span: 2, speed: 0.3 },
   { span: 1, speed: 0.5 },
@@ -388,10 +444,7 @@ const GALLERY_LAYOUT = [
   { span: 1, speed: 0.65 },
 ]
 
-function GalleryContent({ content }) {
-  const scrollRef = useRef(null)
-  const [scrollTop, setScrollTop] = useState(0)
-
+function GalleryContent({ content, scrollTop }) {
   const rawImgs = content?.gallery?.images || []
   const imgs = rawImgs.map(i => typeof i === 'string' ? i : i.url).filter(Boolean)
 
@@ -404,21 +457,14 @@ function GalleryContent({ content }) {
     'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1400&q=80&auto=format',
   ]
   const images = imgs.length > 0 ? imgs : FALLBACK
-
-  useEffect(() => {
-    const scrollArea = scrollRef.current?.closest('[data-scroll-area]')
-    if (!scrollArea) return
-    const onScroll = () => setScrollTop(scrollArea.scrollTop)
-    scrollArea.addEventListener('scroll', onScroll, { passive: true })
-    return () => scrollArea.removeEventListener('scroll', onScroll)
-  }, [])
-
   const isMobile = window.innerWidth < 768
 
   return (
-    <div ref={scrollRef} style={{ padding: '4rem 0 6rem' }}>
-      <h2 style={{ ...styles.modalTitle, marginBottom: '2rem' }}>Galerie</h2>
-      <p style={{ ...styles.label, marginBottom: '3rem' }}>MOMENTE</p>
+    <div style={{ padding: '5rem 0 8rem' }}>
+      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <h2 style={{ ...styles.modalTitle, marginBottom: '2rem' }}>Galerie</h2>
+        <p style={{ ...styles.label, marginBottom: '3rem' }}>MOMENTE</p>
+      </div>
 
       <div style={{
         display: 'grid',
@@ -459,7 +505,7 @@ function GalleryContent({ content }) {
   )
 }
 
-// ── STYLES (inverted: white on black) ──
+// ── STYLES (white on black) ──
 const styles = {
   scrollArea: {
     overflowY: 'auto',

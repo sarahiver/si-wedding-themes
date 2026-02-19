@@ -13,7 +13,6 @@ import ParallaxModal   from './ParallaxModal'
 import Loader from './Loader'
 import { PAGES } from './scrollConfig'
 
-// Bridge: passes scroll offset from drei to a ref (must be inside ScrollControls)
 function ScrollBridge({ scrollRef }) {
   const scroll = useScroll()
   useFrame(() => { scrollRef.current = scroll.offset })
@@ -37,22 +36,18 @@ export default function ParallaxWeddingApp() {
 
   const cn = project?.couple_names || 'Lena & Jonas'
 
-  // Scroll-based logo animation (direct DOM for perf)
+  // Logo: pure opacity fade — hero text "fades" to this position
   useEffect(() => {
     let raf
     const update = () => {
       if (logoRef.current) {
         if (activeModal) {
-          logoRef.current.style.opacity = '1'
-          logoRef.current.style.transform = 'translateX(0) translateY(0) scale(1)'
+          logoRef.current.style.opacity = '0'
         } else {
           const offset = scrollOffsetRef.current
-          // Hero text fully exits viewport around offset ~0.10. Appear 0.08–0.14
           const t = Math.max(0, Math.min((offset - 0.08) / 0.06, 1))
-          const ease = t * t * (3 - 2 * t) // smoothstep
+          const ease = t * t * (3 - 2 * t)
           logoRef.current.style.opacity = `${ease}`
-          // Subtle settle from hero area (center-ish) to top-right
-          logoRef.current.style.transform = `translateX(${-(1 - ease) * 8}vw) translateY(${(1 - ease) * 4}vh) scale(${1 + (1 - ease) * 1})`
         }
       }
       raf = requestAnimationFrame(update)
@@ -65,26 +60,22 @@ export default function ParallaxWeddingApp() {
     <>
       <GlobalStyles />
 
-      {/* ── FIXED LOGO (hero names fly here on scroll) ── */}
+      {/* ── FIXED LOGO — hero text fades to here ── */}
       <div
         ref={logoRef}
-        onClick={activeModal ? closeModal : undefined}
         style={{
           position: 'fixed',
           top: '1.2rem',
           right: '1.5rem',
-          zIndex: 10002,
+          zIndex: 100,
           fontFamily: "'DM Sans', sans-serif",
           fontSize: '0.75rem',
           fontWeight: 800,
           letterSpacing: '0.05em',
-          color: activeModal ? '#fff' : '#000',
-          cursor: activeModal ? 'pointer' : 'default',
-          pointerEvents: activeModal ? 'auto' : 'none',
+          color: '#000',
+          pointerEvents: 'none',
           userSelect: 'none',
           opacity: 0,
-          willChange: 'transform, opacity',
-          transition: 'color 0.8s ease',
         }}
       >
         {cn}
