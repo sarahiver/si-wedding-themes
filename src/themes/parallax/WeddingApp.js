@@ -207,7 +207,7 @@ export default function ParallaxWeddingApp() {
             </Scroll>
 
             <Scroll html>
-              <HtmlContent project={project} content={content} onOpenModal={openModal} />
+              <HtmlContent project={project} content={content} onOpenModal={openModal} scrollOffsetRef={scrollOffsetRef} />
             </Scroll>
 
             <Preload />
