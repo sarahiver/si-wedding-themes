@@ -61,7 +61,7 @@ export default function ParallaxWeddingApp() {
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
   const countdownRef = useRef(null)
-  const cd = useCountdown(project?.wedding_date || '2025-08-16')
+  const cd = useCountdown(project?.wedding_date || '2026-09-20')
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
