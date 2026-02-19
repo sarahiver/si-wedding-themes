@@ -1,11 +1,9 @@
 // src/themes/parallax/LoveStoryImages.js
-// Receives content as PROP — no useWedding()
-
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { useScroll } from '@react-three/drei'
 import SafeImage from './SafeImage'
-import { r, LOVESTORY } from './scrollConfig'
+import { r, LS_IMG } from './scrollConfig'
 
 const FALLBACK = [
   'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=900&q=80&auto=format',
@@ -23,27 +21,28 @@ export default function LoveStoryImages({ content }) {
     ? events.slice(0, 3).map((e, i) => (e.image && typeof e.image === 'string' && e.image.startsWith('http')) ? e.image : FALLBACK[i])
     : FALLBACK
 
-  const chapterLen = LOVESTORY[1] / 3
+  const chapterLen = LS_IMG[1] / 3
   const pageH = height
+  const yOffset = -(LS_IMG[0] * pageH)
 
   useFrame(() => {
     if (!group.current) return
     const c = group.current.children
     if (c.length < 5) return
 
-    const ch0s = r(LOVESTORY[0], chapterLen)
+    const ch0s = r(LS_IMG[0], chapterLen)
     c[0].material.zoom      = 1 + data.range(...ch0s) / 3
     c[0].material.grayscale = 1 - data.range(ch0s[0], ch0s[1] * 0.6)
     c[0].material.opacity   = Math.min(data.range(ch0s[0], ch0s[1] * 0.3) * 3, 1)
                             * (1 - data.range(ch0s[0] + ch0s[1] * 0.7, ch0s[1] * 0.3))
 
-    const ch1s = r(LOVESTORY[0] + chapterLen, chapterLen)
+    const ch1s = r(LS_IMG[0] + chapterLen, chapterLen)
     c[1].material.zoom      = 1 + data.range(...ch1s) / 2
     c[1].material.grayscale = 1 - data.range(ch1s[0], ch1s[1] * 0.5)
     c[1].material.opacity   = Math.min(data.range(ch1s[0], ch1s[1] * 0.3) * 3, 1)
                             * (1 - data.range(ch1s[0] + ch1s[1] * 0.7, ch1s[1] * 0.3))
 
-    const ch2s = r(LOVESTORY[0] + chapterLen * 2, chapterLen)
+    const ch2s = r(LS_IMG[0] + chapterLen * 2, chapterLen)
     c[2].material.zoom      = 1 + data.range(...ch2s) / 4
     c[2].material.grayscale = 1 - data.range(ch2s[0], ch2s[1] * 0.4)
     c[2].material.opacity   = Math.min(data.range(ch2s[0], ch2s[1] * 0.3) * 3, 1)
@@ -51,8 +50,6 @@ export default function LoveStoryImages({ content }) {
     c[3].material.zoom = 1 + data.range(...ch0s) / 2
     c[4].material.zoom = 1 + data.range(...ch1s) / 1.5
   })
-
-  const yOffset = -(LOVESTORY[0] * pageH)
 
   return (
     <group position={[0, yOffset, 0]} ref={group}>

@@ -1,8 +1,5 @@
 // src/themes/parallax/WeddingApp.js
-// Fix: useWedding() data fetched HERE (inside WeddingProvider) 
-// then passed as props into Scroll html — avoids portal context loss
-
-import { Suspense } from 'react'
+import { Suspense, useState, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ScrollControls, Preload, Scroll } from '@react-three/drei'
 import { useWedding } from '../../context/WeddingContext'
@@ -12,13 +9,16 @@ import LoveStoryImages from './LoveStoryImages'
 import CountdownImages from './CountdownImages'
 import GalleryImages   from './GalleryImages'
 import HtmlContent     from './HtmlContent'
+import ParallaxModal   from './ParallaxModal'
 import Loader from './Loader'
-
-const PAGES = 8
+import { PAGES } from './scrollConfig'
 
 export default function ParallaxWeddingApp() {
-  // Fetch data HERE — this component is inside WeddingProvider
   const { project, content } = useWedding()
+  const [activeModal, setActiveModal] = useState(null)
+
+  const openModal = useCallback((id) => setActiveModal(id), [])
+  const closeModal = useCallback(() => setActiveModal(null), [])
 
   return (
     <>
@@ -27,11 +27,14 @@ export default function ParallaxWeddingApp() {
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 1.5]}
         camera={{ position: [0, 0, 20], fov: 15 }}
-        style={{ position: 'fixed', inset: 0, background: '#0c0a08' }}
+        style={{
+          position: 'fixed', inset: 0,
+          background: '#ffffff',
+          pointerEvents: activeModal ? 'none' : 'auto',
+        }}
       >
         <Suspense fallback={null}>
           <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
-
             <Scroll>
               <HeroImages project={project} content={content} />
               <LoveStoryImages content={content} />
@@ -39,9 +42,8 @@ export default function ParallaxWeddingApp() {
               <GalleryImages content={content} />
             </Scroll>
 
-            {/* Pass data as props — NO useWedding() inside Scroll html */}
             <Scroll html>
-              <HtmlContent project={project} content={content} />
+              <HtmlContent project={project} content={content} onOpenModal={openModal} />
             </Scroll>
 
             <Preload />
@@ -49,6 +51,12 @@ export default function ParallaxWeddingApp() {
         </Suspense>
       </Canvas>
       <Loader />
+      <ParallaxModal
+        active={activeModal}
+        onClose={closeModal}
+        project={project}
+        content={content}
+      />
     </>
   )
 }

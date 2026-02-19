@@ -5,8 +5,8 @@
 import { Component } from 'react'
 import { Image } from '@react-three/drei'
 
-// Tiny 1x1 beige PNG as data-URL (matches theme background)
-const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMya77HwAEbAJSHgdhNAAAAABJRU5ErkJggg=='
+// Tiny 1x1 white PNG as data-URL (matches theme background)
+const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/58BAwAI/AL+hc2rNAAAAABJRU5ErkJggg=='
 
 class ImageErrorBoundary extends Component {
   state = { hasError: false }
