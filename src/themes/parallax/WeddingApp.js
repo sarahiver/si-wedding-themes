@@ -77,20 +77,17 @@ export default function ParallaxWeddingApp() {
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
   const countdownRef = useRef(null)
-  const cdDate = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
+  // Countdown-Datum: target_date hat Vorrang, aber wenn veraltet → wedding_date nutzen
+  const cdDateRaw = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
+  const cdDate = (() => {
+    const parsed = parseCountdownDate(cdDateRaw)
+    if (parsed && parsed < new Date() && project?.wedding_date) {
+      const wd = parseCountdownDate(project.wedding_date)
+      if (wd && wd > new Date()) return project.wedding_date
+    }
+    return cdDateRaw
+  })()
   const cd = useCountdown(cdDate)
-
-  // Debug: welches Datum wird tatsächlich verwendet?
-  useEffect(() => {
-    console.warn('[Parallax Countdown]', {
-      'content.countdown.target_date': content?.countdown?.target_date,
-      'project.wedding_date': project?.wedding_date,
-      'cdDate (verwendet)': cdDate,
-      'parsed': parseCountdownDate(cdDate)?.toISOString(),
-      'past': cd.past,
-      'ready': cd.ready,
-    })
-  }, [cdDate, cd.past, cd.ready])
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -342,10 +339,6 @@ export default function ParallaxWeddingApp() {
               margin: 0,
             }}>WIR HABEN GEHEIRATET</p>
           )}
-          {/* DEBUG - ENTFERNEN NACH FIX */}
-          <p style={{ fontSize: '0.6rem', color: 'red', marginTop: '0.5rem' }}>
-            DEBUG: cdDate="{cdDate}" | countdown.target_date="{content?.countdown?.target_date || '(leer)'}" | wedding_date="{project?.wedding_date || '(leer)'}" | past={String(cd.past)} | ready={String(cd.ready)}
-          </p>
         </div>
       )}
 
