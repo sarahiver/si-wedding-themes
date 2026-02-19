@@ -342,6 +342,10 @@ export default function ParallaxWeddingApp() {
               margin: 0,
             }}>WIR HABEN GEHEIRATET</p>
           )}
+          {/* DEBUG - ENTFERNEN NACH FIX */}
+          <p style={{ fontSize: '0.6rem', color: 'red', marginTop: '0.5rem' }}>
+            DEBUG: cdDate="{cdDate}" | countdown.target_date="{content?.countdown?.target_date || '(leer)'}" | wedding_date="{project?.wedding_date || '(leer)'}" | past={String(cd.past)} | ready={String(cd.ready)}
+          </p>
         </div>
       )}
 
