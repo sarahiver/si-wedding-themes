@@ -3,7 +3,8 @@
 
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { useScroll, Image } from '@react-three/drei'
+import { useScroll } from '@react-three/drei'
+import SafeImage from './SafeImage'
 import { r, HERO } from './scrollConfig'
 
 // picsum.photos: reliable CORS-friendly images, consistent aspect ratios
@@ -33,13 +34,13 @@ export default function HeroImages({ project, content }) {
 
   return (
     <group ref={group}>
-      <Image
+      <SafeImage
         position={[-width * 0.14, 0, 0]}
         scale={[width * 0.62, height, 1]}
         url={img1}
         transparent
       />
-      <Image
+      <SafeImage
         position={[width * 0.24, height * 0.04, 3]}
         scale={[width * 0.33, height * 0.76, 1]}
         url={img2}

@@ -3,7 +3,8 @@
 
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { useScroll, Image } from '@react-three/drei'
+import { useScroll } from '@react-three/drei'
+import SafeImage from './SafeImage'
 import { r, GALLERY } from './scrollConfig'
 
 const FALLBACK = [
@@ -48,13 +49,13 @@ export default function GalleryImages({ content }) {
 
   return (
     <group position={[0, yOff, 0]} ref={group}>
-      <Image url={imgs[0]} position={[-width*0.18, 0,                      0   ]} scale={[width*0.5,  height,      1]} transparent />
-      <Image url={imgs[1]} position={[ width*0.2,  0,                      3   ]} scale={[width*0.3,  height*0.6,  1]} transparent />
-      <Image url={imgs[2]} position={[-width*0.17, -pageH*GALLERY[1]*0.38, 6   ]} scale={[width*0.18, height*0.9,  1]} transparent radius={0.02} />
-      <Image url={imgs[3]} position={[-width*0.04, -pageH*GALLERY[1]*0.38, 9   ]} scale={[width*0.2,  height*0.65, 1]} transparent radius={0.02} />
-      <Image url={imgs[4]} position={[ width*0.2,  -pageH*GALLERY[1]*0.38, 10.5]} scale={[width*0.22, height*0.5,  1]} transparent radius={0.02} />
-      <Image url={imgs[5]} position={[ 0,          -pageH*GALLERY[1]*0.6,  7.5 ]} scale={[width*0.35, height*0.85, 1]} transparent grayscale={1} />
-      <Image url={imgs[6]} position={[ 0,          -pageH*GALLERY[1]*0.88, 0   ]} scale={[width,      height*0.95, 1]} transparent />
+      <SafeImage url={imgs[0]} position={[-width*0.18, 0,                      0   ]} scale={[width*0.5,  height,      1]} transparent />
+      <SafeImage url={imgs[1]} position={[ width*0.2,  0,                      3   ]} scale={[width*0.3,  height*0.6,  1]} transparent />
+      <SafeImage url={imgs[2]} position={[-width*0.17, -pageH*GALLERY[1]*0.38, 6   ]} scale={[width*0.18, height*0.9,  1]} transparent radius={0.02} />
+      <SafeImage url={imgs[3]} position={[-width*0.04, -pageH*GALLERY[1]*0.38, 9   ]} scale={[width*0.2,  height*0.65, 1]} transparent radius={0.02} />
+      <SafeImage url={imgs[4]} position={[ width*0.2,  -pageH*GALLERY[1]*0.38, 10.5]} scale={[width*0.22, height*0.5,  1]} transparent radius={0.02} />
+      <SafeImage url={imgs[5]} position={[ 0,          -pageH*GALLERY[1]*0.6,  7.5 ]} scale={[width*0.35, height*0.85, 1]} transparent grayscale={1} />
+      <SafeImage url={imgs[6]} position={[ 0,          -pageH*GALLERY[1]*0.88, 0   ]} scale={[width,      height*0.95, 1]} transparent />
     </group>
   )
 }

@@ -4,7 +4,8 @@
 
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { useScroll, Image } from '@react-three/drei'
+import { useScroll } from '@react-three/drei'
+import SafeImage from './SafeImage'
 import { r, COUNTDOWN } from './scrollConfig'
 
 const FALLBACK = 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1400&q=80'
@@ -36,7 +37,7 @@ export default function CountdownImages() {
   return (
     <group position={[0, yOffset, 0]} ref={group}>
       {/* Background photo */}
-      <Image
+      <SafeImage
         position={[0, 0, -2]}
         scale={[width, height, 1]}
         url={FALLBACK}

@@ -3,7 +3,8 @@
 
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
-import { useScroll, Image } from '@react-three/drei'
+import { useScroll } from '@react-three/drei'
+import SafeImage from './SafeImage'
 import { r, LOVESTORY } from './scrollConfig'
 
 const FALLBACK = [
@@ -55,11 +56,11 @@ export default function LoveStoryImages({ content }) {
 
   return (
     <group position={[0, yOffset, 0]} ref={group}>
-      <Image position={[-width*0.1, 0, 0]}                          scale={[width*0.55, height*0.95, 1]} url={images[0]} transparent grayscale={1} opacity={0} />
-      <Image position={[width*0.15, -pageH*chapterLen, 6]}          scale={[width*0.45, height*0.9, 1]}  url={images[1]} transparent grayscale={1} opacity={0} />
-      <Image position={[-width*0.08, -pageH*chapterLen*2, 0]}       scale={[width*0.6,  height,    1]}   url={images[2]} transparent grayscale={1} opacity={0} />
-      <Image position={[width*0.28, -pageH*0.2, 9]}                 scale={[width*0.18, height*0.35, 1]} url={images[1]} transparent radius={0.03} />
-      <Image position={[-width*0.28, -pageH*chapterLen*1.4, 10.5]}  scale={[width*0.16, height*0.3, 1]}  url={images[0]} transparent radius={0.03} />
+      <SafeImage position={[-width*0.1, 0, 0]}                          scale={[width*0.55, height*0.95, 1]} url={images[0]} transparent grayscale={1} opacity={0} />
+      <SafeImage position={[width*0.15, -pageH*chapterLen, 6]}          scale={[width*0.45, height*0.9, 1]}  url={images[1]} transparent grayscale={1} opacity={0} />
+      <SafeImage position={[-width*0.08, -pageH*chapterLen*2, 0]}       scale={[width*0.6,  height,    1]}   url={images[2]} transparent grayscale={1} opacity={0} />
+      <SafeImage position={[width*0.28, -pageH*0.2, 9]}                 scale={[width*0.18, height*0.35, 1]} url={images[1]} transparent radius={0.03} />
+      <SafeImage position={[-width*0.28, -pageH*chapterLen*1.4, 10.5]}  scale={[width*0.16, height*0.3, 1]}  url={images[0]} transparent radius={0.03} />
     </group>
   )
 }
