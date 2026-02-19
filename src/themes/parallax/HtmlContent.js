@@ -1,9 +1,8 @@
 // src/themes/parallax/HtmlContent.js
-// White text zones that cover images behind them
-// Each zone: bold headline (clickable → opens modal)
+// Scattered bold titles across the page + Hero with countdown + Footer
 
 import { useState, useEffect, useRef } from 'react'
-import { HERO_TXT, LS_TXT, CD_TXT, GAL_TXT, DETAILS_TXT, FOOTER } from './scrollConfig'
+import { HERO_TXT, FOOTER } from './scrollConfig'
 
 function useCountdown(weddingDate) {
   const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
@@ -30,6 +29,7 @@ function useCountdown(weddingDate) {
 
 const p2 = n => String(n).padStart(2, '0')
 
+// White block zone (only Hero + Footer)
 function TextZone({ range, children }) {
   const top = range[0] * 100
   const height = range[1] * 100
@@ -52,47 +52,59 @@ function TextZone({ range, children }) {
   )
 }
 
-// Clickable title (big heading)
-function ClickableTitle({ text, onClick, style }) {
+// Clickable title — scattered across the page
+function ScatteredTitle({ text, modalId, onOpenModal, style }) {
   const ref = useRef(null)
   const handleClick = () => {
     const rect = ref.current?.getBoundingClientRect()
     const origin = rect
       ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
       : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-    onClick(origin, text)
+    onOpenModal?.(modalId, origin, text)
   }
   return (
     <h2
       ref={ref}
       onClick={handleClick}
-      style={{ ...style, cursor: 'pointer' }}
+      style={{
+        position: 'absolute',
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 800,
+        color: '#000',
+        background: '#fff',
+        padding: '0.15em 0.4em',
+        lineHeight: 1.1,
+        letterSpacing: '-0.02em',
+        margin: 0,
+        cursor: 'pointer',
+        zIndex: 2,
+        whiteSpace: 'nowrap',
+        ...style,
+      }}
     >
       {text}
     </h2>
   )
 }
 
-// Smaller clickable text
-function ClickableLink({ text, onClick, style }) {
-  const ref = useRef(null)
-  const handleClick = () => {
-    const rect = ref.current?.getBoundingClientRect()
-    const origin = rect
-      ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-      : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-    onClick(origin, text)
-  }
-  return (
-    <span
-      ref={ref}
-      onClick={handleClick}
-      style={{ ...style, cursor: 'pointer' }}
-    >
-      {text}
-    </span>
-  )
-}
+// ── Layout: scattered titles across the full scroll page ──
+// Positions in vh, alternating left/right, varying sizes
+const TITLES = [
+  { id: 'lovestory',      text: 'Love Story',      top: 75,  left: '6%',              size: 'clamp(3rem, 7vw, 6rem)' },
+  { id: 'timeline',       text: 'Tagesablauf',     top: 140, right: '8%',             size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'dresscode',      text: 'Dresscode',       top: 210, left: '22%',             size: 'clamp(2.5rem, 5vw, 4rem)' },
+  { id: 'rsvp',           text: 'RSVP',            top: 275, right: '10%',            size: 'clamp(3.5rem, 8vw, 7rem)' },
+  { id: 'locations',      text: 'Locations',       top: 340, left: '8%',              size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'gallery',        text: 'Galerie',         top: 405, right: '5%',             size: 'clamp(3rem, 7vw, 6rem)' },
+  { id: 'gifts',          text: 'Geschenke',       top: 470, left: '12%',             size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'guestbook',      text: 'Gästebuch',       top: 535, right: '12%',            size: 'clamp(2.5rem, 5vw, 4rem)' },
+  { id: 'musicwishes',    text: 'Musikwünsche',    top: 595, left: '3%',              size: 'clamp(2rem, 4.5vw, 3.5rem)' },
+  { id: 'photoupload',    text: 'Eure Fotos',      top: 645, right: '6%',             size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'accommodations', text: 'Unterkunft',      top: 695, left: '18%',             size: 'clamp(2.5rem, 5vw, 4rem)' },
+  { id: 'faq',            text: 'FAQ',             top: 740, right: '15%',            size: 'clamp(3rem, 7vw, 5.5rem)' },
+  { id: 'witnesses',      text: 'Trauzeugen',      top: 780, left: '5%',              size: 'clamp(2.5rem, 5vw, 4rem)' },
+  { id: 'weddingabc',     text: 'Hochzeits-ABC',   top: 815, right: '8%',             size: 'clamp(2rem, 4.5vw, 3.5rem)' },
+]
 
 export default function HtmlContent({ project, content, onOpenModal }) {
   const cd = useCountdown(project?.wedding_date)
@@ -101,24 +113,14 @@ export default function HtmlContent({ project, content, onOpenModal }) {
   return (
     <div style={{ userSelect: 'none', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── HERO TEXT (names in fixed overlay in WeddingApp) ── */}
-      <TextZone range={HERO_TXT} />
-
-      {/* ── LOVESTORY TEXT ── */}
-      <TextZone range={LS_TXT}>
-        <p style={s.label}>UNSERE GESCHICHTE</p>
-        <ClickableTitle
-          text="Love Story"
-          onClick={(origin, label) => onOpenModal?.('lovestory', origin, label)}
-          style={s.sectionTitle}
-        />
-      </TextZone>
-
-      {/* ── COUNTDOWN TEXT ── */}
-      <TextZone range={CD_TXT}>
-        {!cd.past ? (
-          <>
-            <p style={s.label}>NOCH</p>
+      {/* ── HERO (countdown at bottom, names are in fixed overlay) ── */}
+      <TextZone range={HERO_TXT}>
+        <div style={{
+          position: 'absolute',
+          bottom: '8%',
+          textAlign: 'center',
+        }}>
+          {!cd.past ? (
             <div style={s.countRow}>
               {[
                 { v: p2(cd.d), l: 'TAGE' },
@@ -133,55 +135,32 @@ export default function HtmlContent({ project, content, onOpenModal }) {
                 </div>
               ))}
             </div>
-          </>
-        ) : (
-          <p style={s.label}>WIR HABEN GEHEIRATET</p>
-        )}
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Tagesablauf" onClick={(o, l) => onOpenModal?.('timeline', o, l)} style={s.clickableLink} />
-          <ClickableLink text="Dresscode" onClick={(o, l) => onOpenModal?.('dresscode', o, l)} style={s.clickableLink} />
-        </div>
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Infos" onClick={(o, l) => onOpenModal?.('info', o, l)} style={s.clickableLink} />
-          <ClickableLink text="RSVP" onClick={(o, l) => onOpenModal?.('rsvp', o, l)} style={s.clickableLink} />
+          ) : (
+            <p style={s.pastLabel}>WIR HABEN GEHEIRATET</p>
+          )}
         </div>
       </TextZone>
 
-      {/* ── GALLERY TEXT ── */}
-      <TextZone range={GAL_TXT}>
-        <p style={s.label}>MOMENTE</p>
-        <ClickableTitle
-          text="Galerie"
-          onClick={(origin, label) => onOpenModal?.('gallery', origin, label)}
-          style={s.sectionTitle}
+      {/* ── SCATTERED TITLES — bold, large, across the entire page ── */}
+      {TITLES.map((t) => (
+        <ScatteredTitle
+          key={t.id}
+          text={t.text}
+          modalId={t.id}
+          onOpenModal={onOpenModal}
+          style={{
+            top: `${t.top}vh`,
+            ...(t.left ? { left: t.left } : {}),
+            ...(t.right ? { right: t.right } : {}),
+            fontSize: t.size,
+          }}
         />
-      </TextZone>
-
-      {/* ── DETAILS TEXT (additional sections) ── */}
-      <TextZone range={DETAILS_TXT}>
-        <p style={s.label}>MEHR ENTDECKEN</p>
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Geschenke" onClick={(o, l) => onOpenModal?.('gifts', o, l)} style={s.clickableLink} />
-          <ClickableLink text="Gästebuch" onClick={(o, l) => onOpenModal?.('guestbook', o, l)} style={s.clickableLink} />
-        </div>
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Musikwünsche" onClick={(o, l) => onOpenModal?.('musicwishes', o, l)} style={s.clickableLink} />
-          <ClickableLink text="Eure Fotos" onClick={(o, l) => onOpenModal?.('photoupload', o, l)} style={s.clickableLink} />
-        </div>
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Unterkunft" onClick={(o, l) => onOpenModal?.('accommodations', o, l)} style={s.clickableLink} />
-          <ClickableLink text="FAQ" onClick={(o, l) => onOpenModal?.('faq', o, l)} style={s.clickableLink} />
-        </div>
-        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '0.8rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <ClickableLink text="Trauzeugen" onClick={(o, l) => onOpenModal?.('witnesses', o, l)} style={s.clickableLink} />
-          <ClickableLink text="Hochzeits-ABC" onClick={(o, l) => onOpenModal?.('weddingabc', o, l)} style={s.clickableLink} />
-        </div>
-      </TextZone>
+      ))}
 
       {/* ── FOOTER ── */}
       <TextZone range={FOOTER}>
         <p style={s.footerNames}>{cn}</p>
-        <p style={{ ...s.label, opacity: 0.25, marginTop: '0.6rem' }}>MIT LIEBE</p>
+        <p style={{ ...s.pastLabel, opacity: 0.25, marginTop: '0.6rem' }}>MIT LIEBE</p>
       </TextZone>
 
     </div>
@@ -189,40 +168,14 @@ export default function HtmlContent({ project, content, onOpenModal }) {
 }
 
 const s = {
-  label: {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '0.7rem',
-    fontWeight: 700,
-    letterSpacing: '0.2em',
-    textTransform: 'uppercase',
-    color: 'rgba(0,0,0,0.35)',
-    marginBottom: '0.6rem',
-  },
-  sectionTitle: {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: 'clamp(2rem, 5vw, 4rem)',
-    fontWeight: 800,
-    color: '#000',
-    lineHeight: 1.1,
-    marginBottom: '0',
-  },
-  clickableLink: {
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '0.85rem',
-    fontWeight: 700,
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
-    color: '#000',
-  },
   countRow: {
     display: 'flex',
     justifyContent: 'center',
     gap: 'clamp(1.5rem, 4vw, 3rem)',
-    margin: '0.5rem 0',
   },
   countNum: {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+    fontSize: 'clamp(1.8rem, 4vw, 3rem)',
     fontWeight: 800,
     color: '#000',
     lineHeight: 1,
@@ -230,11 +183,19 @@ const s = {
   },
   countLabel: {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: '0.6rem',
+    fontSize: '0.55rem',
     fontWeight: 700,
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
-    color: 'rgba(0,0,0,0.3)',
+    color: 'rgba(0,0,0,0.25)',
+  },
+  pastLabel: {
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: '0.7rem',
+    fontWeight: 700,
+    letterSpacing: '0.2em',
+    textTransform: 'uppercase',
+    color: 'rgba(0,0,0,0.35)',
   },
   footerNames: {
     fontFamily: "'DM Sans', sans-serif",

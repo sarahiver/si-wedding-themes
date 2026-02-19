@@ -112,7 +112,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
     const p = { content, project, scrollTop }
     switch (id) {
       case 'lovestory':     return <LoveStoryContent {...p} />
-      case 'info':          return <InfoContent {...p} />
+      case 'locations':     return <LocationsContent {...p} />
       case 'rsvp':          return <RSVPContent {...p} />
       case 'gallery':       return <GalleryContent {...p} />
       case 'timeline':      return <TimelineContent {...p} />
@@ -248,47 +248,19 @@ function LoveStoryContent({ content, scrollTop }) {
   )
 }
 
-// ── INFO ──
-function InfoContent({ project, content, scrollTop }) {
-  const [cd, setCd] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
-  const weddingDate = project?.wedding_date
-  useEffect(() => {
-    if (!weddingDate) return
-    const target = new Date(weddingDate)
-    const tick = () => {
-      const diff = target - new Date()
-      if (diff <= 0) { setCd(p => ({ ...p, past: true })); return }
-      setCd({ d: Math.floor(diff / 86400000), h: Math.floor((diff % 86400000) / 3600000), m: Math.floor((diff % 3600000) / 60000), s: Math.floor((diff % 60000) / 1000), past: false })
-    }
-    tick(); const id = setInterval(tick, 1000); return () => clearInterval(id)
-  }, [weddingDate])
-  const p2 = n => String(n).padStart(2, '0')
-  const dateStr = weddingDate ? new Date(weddingDate).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+// ── LOCATIONS (Orte + Anfahrt, kein Countdown mehr) ──
+function LocationsContent({ content, scrollTop }) {
   const locations = content?.locations?.locations || content?.locations?.items || content?.locations?.venues || []
   const directions = content?.directions || {}
 
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 2rem 2rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
-        <h2 style={st.modalTitle}>Infos</h2>
-      </div>
-      <div style={{ textAlign: 'center', padding: '4rem 2rem 5rem', transform: `translateY(${px(scrollTop, 0.65)}px)` }}>
-        <p style={st.label}>{cd.past ? 'WIR HABEN GEHEIRATET' : 'COUNTDOWN'}</p>
-        {!cd.past && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', margin: '2rem 0' }}>
-            {[{ v: p2(cd.d), l: 'Tage' }, { v: p2(cd.h), l: 'Std' }, { v: p2(cd.m), l: 'Min' }, { v: p2(cd.s), l: 'Sek' }].map(({ v, l }) => (
-              <div key={l} style={{ textAlign: 'center' }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(2.5rem, 7vw, 5rem)', fontWeight: 800, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{v}</span>
-                <br /><span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>{l}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {dateStr && <p style={{ ...st.bodyText, textAlign: 'center', marginTop: '1rem' }}>{dateStr}</p>}
+        <h2 style={st.modalTitle}>Locations</h2>
       </div>
       {locations.length > 0 && (
         <div style={{ padding: '0 2rem' }}>
-          <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}><p style={st.label}>LOCATIONS</p></div>
+          <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}><p style={st.label}>ORTE</p></div>
           {locations.map((loc, i) => (
             <div key={i} style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)` }}>
               <h3 style={{ ...st.sectionTitle, fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)' }}>{loc.name || loc.title}</h3>

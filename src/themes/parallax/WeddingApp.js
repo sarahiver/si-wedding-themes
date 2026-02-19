@@ -13,9 +13,19 @@ import ParallaxModal   from './ParallaxModal'
 import Loader from './Loader'
 import { PAGES } from './scrollConfig'
 
-function ScrollBridge({ scrollRef }) {
+function ScrollBridge({ scrollRef, scrollToTopRef }) {
   const scroll = useScroll()
   useFrame(() => { scrollRef.current = scroll.offset })
+
+  // Expose scroll-to-top for logo click
+  useEffect(() => {
+    if (scrollToTopRef) {
+      scrollToTopRef.current = () => {
+        if (scroll.el) scroll.el.scrollTop = 0
+      }
+    }
+  }, [scroll.el, scrollToTopRef])
+
   return null
 }
 
@@ -23,6 +33,7 @@ export default function ParallaxWeddingApp() {
   const { project, content } = useWedding()
   const [activeModal, setActiveModal] = useState(null)
   const scrollOffsetRef = useRef(0)
+  const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
 
   const openModal = useCallback((id, origin, label) => {
@@ -42,6 +53,11 @@ export default function ParallaxWeddingApp() {
       })
     : '16. August 2025'
 
+  // Logo click → scroll to top
+  const handleLogoClick = useCallback(() => {
+    scrollToTopRef.current?.()
+  }, [])
+
   // Animate hero names: center → top-right on scroll
   useEffect(() => {
     let raf
@@ -50,6 +66,7 @@ export default function ParallaxWeddingApp() {
       if (el) {
         if (activeModal) {
           el.style.opacity = '0'
+          el.style.pointerEvents = 'none'
         } else {
           el.style.opacity = '1'
           const offset = scrollOffsetRef.current
@@ -61,7 +78,7 @@ export default function ParallaxWeddingApp() {
 
           // Position: center of hero zone → top-right corner
           const x = vw / 2 + ((vw - 80) - vw / 2) * e
-          const y = vh * 0.25 + (22 - vh * 0.25) * e
+          const y = vh * 0.22 + (22 - vh * 0.22) * e
           el.style.left = `${x}px`
           el.style.top = `${y}px`
 
@@ -69,7 +86,6 @@ export default function ParallaxWeddingApp() {
           const startSize = Math.min(Math.max(vw * 0.08, 48), 112)
           const endSize = 12
           const sz = startSize + (endSize - startSize) * e
-
           const ampStart = Math.min(Math.max(vw * 0.03, 24), 40)
           const ampEnd = endSize * 0.8
 
@@ -95,13 +111,22 @@ export default function ParallaxWeddingApp() {
           // Amp
           ch[2].style.fontSize = `${ampStart + (ampEnd - ampStart) * e}px`
 
-          // Layout: column → row at threshold
+          // Layout: column → row
           if (e > 0.6) {
             el.style.flexDirection = 'row'
             ch[2].style.margin = '0 0.15em'
           } else {
             el.style.flexDirection = 'column'
             ch[2].style.margin = '0.2rem 0'
+          }
+
+          // Enable clicking when at logo position
+          if (e > 0.9) {
+            el.style.pointerEvents = 'auto'
+            el.style.cursor = 'pointer'
+          } else {
+            el.style.pointerEvents = 'none'
+            el.style.cursor = 'default'
           }
         }
       }
@@ -115,13 +140,14 @@ export default function ParallaxWeddingApp() {
     <>
       <GlobalStyles />
 
-      {/* ── HERO NAMES — the actual h1/span/h1, animated from center to top-right ── */}
+      {/* ── HERO NAMES — animate from center to top-right, click → scroll top ── */}
       <div
         ref={heroRef}
+        onClick={handleLogoClick}
         style={{
           position: 'fixed',
           left: '50%',
-          top: '25%',
+          top: '22%',
           zIndex: 100,
           fontFamily: "'DM Sans', sans-serif",
           fontWeight: 800,
@@ -172,7 +198,7 @@ export default function ParallaxWeddingApp() {
       >
         <Suspense fallback={null}>
           <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
-            <ScrollBridge scrollRef={scrollOffsetRef} />
+            <ScrollBridge scrollRef={scrollOffsetRef} scrollToTopRef={scrollToTopRef} />
             <Scroll>
               <HeroImages project={project} content={content} />
               <LoveStoryImages content={content} />
