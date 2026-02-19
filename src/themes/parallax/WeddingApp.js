@@ -23,7 +23,7 @@ export default function ParallaxWeddingApp() {
   const { project, content } = useWedding()
   const [activeModal, setActiveModal] = useState(null)
   const scrollOffsetRef = useRef(0)
-  const logoRef = useRef(null)
+  const heroRef = useRef(null)
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -35,19 +35,74 @@ export default function ParallaxWeddingApp() {
   const closeModal = useCallback(() => setActiveModal(null), [])
 
   const cn = project?.couple_names || 'Lena & Jonas'
+  const [n1, n2] = cn.includes('&') ? cn.split('&').map(s => s.trim()) : [cn, '']
+  const wDate = project?.wedding_date
+    ? new Date(project.wedding_date).toLocaleDateString('de-DE', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      })
+    : '16. August 2025'
 
-  // Logo: pure opacity fade — hero text "fades" to this position
+  // Animate hero names: center → top-right on scroll
   useEffect(() => {
     let raf
     const update = () => {
-      if (logoRef.current) {
+      const el = heroRef.current
+      if (el) {
         if (activeModal) {
-          logoRef.current.style.opacity = '0'
+          el.style.opacity = '0'
         } else {
+          el.style.opacity = '1'
           const offset = scrollOffsetRef.current
-          const t = Math.max(0, Math.min((offset - 0.08) / 0.06, 1))
-          const ease = t * t * (3 - 2 * t)
-          logoRef.current.style.opacity = `${ease}`
+          const t = Math.max(0, Math.min(offset / 0.07, 1))
+          const e = t * t * (3 - 2 * t) // smoothstep
+
+          const vw = window.innerWidth
+          const vh = window.innerHeight
+
+          // Position: center of hero zone → top-right corner
+          const x = vw / 2 + ((vw - 80) - vw / 2) * e
+          const y = vh * 0.25 + (22 - vh * 0.25) * e
+          el.style.left = `${x}px`
+          el.style.top = `${y}px`
+
+          // Font sizes
+          const startSize = Math.min(Math.max(vw * 0.08, 48), 112)
+          const endSize = 12
+          const sz = startSize + (endSize - startSize) * e
+
+          const ampStart = Math.min(Math.max(vw * 0.03, 24), 40)
+          const ampEnd = endSize * 0.8
+
+          const ch = el.children
+          // ch[0] = date, ch[1] = n1, ch[2] = amp, ch[3] = n2
+
+          // Date fades out quickly
+          ch[0].style.opacity = `${Math.max(0, 1 - e * 5)}`
+          if (e > 0.2) {
+            ch[0].style.height = '0'
+            ch[0].style.marginBottom = '0'
+            ch[0].style.overflow = 'hidden'
+          } else {
+            ch[0].style.height = 'auto'
+            ch[0].style.marginBottom = '0.6rem'
+            ch[0].style.overflow = 'visible'
+          }
+
+          // Names
+          ch[1].style.fontSize = `${sz}px`
+          ch[3].style.fontSize = `${sz}px`
+
+          // Amp
+          ch[2].style.fontSize = `${ampStart + (ampEnd - ampStart) * e}px`
+
+          // Layout: column → row at threshold
+          if (e > 0.6) {
+            el.style.flexDirection = 'row'
+            ch[2].style.margin = '0 0.15em'
+          } else {
+            el.style.flexDirection = 'column'
+            ch[2].style.margin = '0.2rem 0'
+          }
         }
       }
       raf = requestAnimationFrame(update)
@@ -60,25 +115,49 @@ export default function ParallaxWeddingApp() {
     <>
       <GlobalStyles />
 
-      {/* ── FIXED LOGO — hero text fades to here ── */}
+      {/* ── HERO NAMES — the actual h1/span/h1, animated from center to top-right ── */}
       <div
-        ref={logoRef}
+        ref={heroRef}
         style={{
           position: 'fixed',
-          top: '1.2rem',
-          right: '1.5rem',
+          left: '50%',
+          top: '25%',
           zIndex: 100,
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: '0.75rem',
           fontWeight: 800,
-          letterSpacing: '0.05em',
           color: '#000',
           pointerEvents: 'none',
           userSelect: 'none',
-          opacity: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          transform: 'translate(-50%, -50%)',
         }}
       >
-        {cn}
+        <p style={{
+          fontSize: '0.7rem',
+          fontWeight: 700,
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          color: 'rgba(0,0,0,0.35)',
+          marginTop: 0,
+          marginBottom: '0.6rem',
+        }}>{wDate}</p>
+        <span style={{
+          fontSize: 'clamp(3rem, 8vw, 7rem)',
+          lineHeight: 0.95,
+          letterSpacing: '-0.03em',
+        }}>{n1}</span>
+        <span style={{
+          fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+          color: 'rgba(0,0,0,0.2)',
+          margin: '0.2rem 0',
+        }}>&</span>
+        <span style={{
+          fontSize: 'clamp(3rem, 8vw, 7rem)',
+          lineHeight: 0.95,
+          letterSpacing: '-0.03em',
+        }}>{n2}</span>
       </div>
 
       <Canvas

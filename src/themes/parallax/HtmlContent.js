@@ -107,13 +107,8 @@ export default function HtmlContent({ project, content, onOpenModal }) {
   return (
     <div style={{ userSelect: 'none', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── HERO TEXT ── */}
-      <TextZone range={HERO_TXT}>
-        <p style={s.label}>{wDate || '16. August 2025'}</p>
-        <h1 style={s.heroName}>{n1}</h1>
-        <span style={s.amp}>&</span>
-        <h1 style={s.heroName}>{n2}</h1>
-      </TextZone>
+      {/* ── HERO TEXT (names moved to fixed overlay in WeddingApp) ── */}
+      <TextZone range={HERO_TXT} />
 
       {/* ── LOVESTORY TEXT ── */}
       <TextZone range={LS_TXT}>

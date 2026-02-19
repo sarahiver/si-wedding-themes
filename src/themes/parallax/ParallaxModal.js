@@ -32,10 +32,10 @@ function ensureKeyframes() {
     }
     @keyframes fadeToBlack {
       from { background: rgba(0,0,0,0); }
-      to { background: rgba(0,0,0,1); }
+      to { background: rgba(0,0,0,0.45); }
     }
     @keyframes contentAppear {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
     @keyframes modalFadeOut {
@@ -50,9 +50,9 @@ function ensureKeyframes() {
   document.head.appendChild(style)
 }
 
-// Parallax helper: offset based on scrollTop and speed
+// Parallax offset — dramatically increased
 function px(scrollTop, speed) {
-  return scrollTop * (speed - 0.5) * 0.15
+  return scrollTop * (speed - 0.5) * 0.6
 }
 
 // ── MAIN MODAL ──
@@ -112,11 +112,11 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
       position: 'fixed', inset: 0, zIndex: 10000,
       animation: phase === 'closing' ? 'modalFadeOut 0.5s ease forwards' : 'none',
     }}>
-      {/* ── BACKDROP ── */}
+      {/* ── BACKDROP (semi-transparent — homepage visible on left) ── */}
       <div
         style={{
           position: 'absolute', inset: 0,
-          background: phase === 'letters' ? undefined : '#000',
+          background: phase === 'letters' ? undefined : 'rgba(0,0,0,0.45)',
           animation: phase === 'letters' ? 'fadeToBlack 0.9s ease forwards' : 'none',
         }}
         onClick={handleClose}
@@ -151,7 +151,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         </div>
       )}
 
-      {/* ── X CLOSE BUTTON (spins in, same position as logo) ── */}
+      {/* ── X CLOSE BUTTON (spins in) ── */}
       {phase === 'open' && (
         <button
           onClick={handleClose}
@@ -180,7 +180,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         </button>
       )}
 
-      {/* ── CONTENT PANEL (2/3 right) ── */}
+      {/* ── CONTENT PANEL (2/3 right, solid black background) ── */}
       <div
         style={{
           position: 'absolute',
@@ -188,6 +188,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
           top: 0,
           width: isMobile ? '100vw' : '66vw',
           height: '100vh',
+          background: '#000',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1,
@@ -204,7 +205,8 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         >
           <div style={{
             ...styles.contentInner,
-            maxWidth: current.id === 'gallery' ? '900px' : '600px',
+            maxWidth: current.id === 'gallery' ? 'none' : '600px',
+            padding: current.id === 'gallery' ? '0' : '0 2rem',
           }}>
             {current.id === 'lovestory' && <LoveStoryContent content={content} scrollTop={scrollTop} />}
             {current.id === 'info' && <InfoContent project={project} content={content} scrollTop={scrollTop} />}
@@ -217,7 +219,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
   )
 }
 
-// ── LOVESTORY (with parallax) ──
+// ── LOVESTORY (full-bleed images, zoom, grayscale, dramatic parallax) ──
 function LoveStoryContent({ content, scrollTop }) {
   const ls = content?.lovestory || {}
   const chapters = ls.events?.length >= 2
@@ -229,31 +231,62 @@ function LoveStoryContent({ content, scrollTop }) {
       ]
 
   return (
-    <div style={{ padding: '5rem 0 8rem' }}>
-      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-        <h2 style={styles.modalTitle}>Unsere Geschichte</h2>
+    <div style={{ paddingBottom: '8rem' }}>
+      {/* Title with slow parallax */}
+      <div style={{
+        padding: '6rem 2rem 4rem',
+        transform: `translateY(${px(scrollTop, 0.15)}px)`,
+      }}>
+        <p style={styles.label}>UNSERE GESCHICHTE</p>
+        <h2 style={styles.modalTitle}>Love Story</h2>
       </div>
-      {chapters.map((ch, i) => (
-        <div key={i} style={{ marginBottom: '6rem' }}>
-          <div style={{ transform: `translateY(${px(scrollTop, 0.35 + i * 0.08)}px)` }}>
-            <p style={styles.label}>{ch.date}</p>
-            <h3 style={styles.sectionTitle}>{ch.title}</h3>
-          </div>
-          {ch.image && typeof ch.image === 'string' && ch.image.startsWith('http') && (
-            <div style={{ overflow: 'hidden', transform: `translateY(${px(scrollTop, 0.65 + i * 0.05)}px)` }}>
-              <img src={ch.image} alt={ch.title} style={styles.chapterImg} loading="lazy" />
+
+      {chapters.map((ch, i) => {
+        const hasImg = ch.image && typeof ch.image === 'string' && ch.image.startsWith('http')
+        const imgZoom = 1 + scrollTop * 0.0004
+        const imgGray = Math.max(0, Math.min(1, 1 - (scrollTop - i * 200) * 0.004))
+
+        return (
+          <div key={i} style={{ marginBottom: '6rem' }}>
+            {/* Full-bleed image with zoom + grayscale */}
+            {hasImg && (
+              <div style={{
+                overflow: 'hidden',
+                height: '55vh',
+                transform: `translateY(${px(scrollTop, 0.7 + i * 0.06)}px)`,
+              }}>
+                <img src={ch.image} alt={ch.title} loading="lazy" style={{
+                  width: '100%',
+                  height: '120%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: `scale(${imgZoom})`,
+                  filter: `grayscale(${imgGray})`,
+                  transition: 'filter 0.3s ease-out',
+                }} />
+              </div>
+            )}
+
+            {/* Text block with different parallax speed */}
+            <div style={{
+              padding: '3rem 2rem',
+              transform: `translateY(${px(scrollTop, 0.25 + i * 0.1)}px)`,
+            }}>
+              <p style={styles.label}>{ch.date}</p>
+              <h3 style={{
+                ...styles.sectionTitle,
+                fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+              }}>{ch.title}</h3>
+              <p style={styles.bodyText}>{ch.description}</p>
             </div>
-          )}
-          <div style={{ transform: `translateY(${px(scrollTop, 0.4 + i * 0.06)}px)` }}>
-            <p style={styles.bodyText}>{ch.description}</p>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
 
-// ── INFO (with parallax) ──
+// ── INFO (dramatic parallax layout) ──
 function InfoContent({ project, content, scrollTop }) {
   const [cd, setCd] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
   const weddingDate = project?.wedding_date
@@ -286,15 +319,24 @@ function InfoContent({ project, content, scrollTop }) {
   const directions = content?.directions || {}
 
   return (
-    <div style={{ padding: '5rem 0 8rem' }}>
-      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+    <div style={{ paddingBottom: '8rem' }}>
+      {/* Title */}
+      <div style={{
+        padding: '6rem 2rem 2rem',
+        transform: `translateY(${px(scrollTop, 0.15)}px)`,
+      }}>
         <h2 style={styles.modalTitle}>Infos</h2>
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '5rem', transform: `translateY(${px(scrollTop, 0.6)}px)` }}>
+      {/* Countdown — large, dramatic */}
+      <div style={{
+        textAlign: 'center',
+        padding: '4rem 2rem 5rem',
+        transform: `translateY(${px(scrollTop, 0.65)}px)`,
+      }}>
         <p style={styles.label}>{cd.past ? 'WIR HABEN GEHEIRATET' : 'COUNTDOWN'}</p>
         {!cd.past && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', margin: '1.5rem 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', margin: '2rem 0' }}>
             {[
               { v: p2(cd.d), l: 'Tage' },
               { v: p2(cd.h), l: 'Std' },
@@ -302,22 +344,44 @@ function InfoContent({ project, content, scrollTop }) {
               { v: p2(cd.s), l: 'Sek' },
             ].map(({ v, l }) => (
               <div key={l} style={{ textAlign: 'center' }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '2.5rem', fontWeight: 800, color: '#fff' }}>{v}</span>
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 'clamp(2.5rem, 7vw, 5rem)',
+                  fontWeight: 800,
+                  color: '#fff',
+                  lineHeight: 1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>{v}</span>
                 <br />
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>{l}</span>
+                <span style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.3)',
+                }}>{l}</span>
               </div>
             ))}
           </div>
         )}
-        {dateStr && <p style={{ ...styles.bodyText, textAlign: 'center' }}>{dateStr}</p>}
+        {dateStr && <p style={{ ...styles.bodyText, textAlign: 'center', marginTop: '1rem' }}>{dateStr}</p>}
       </div>
 
+      {/* Locations — each with parallax */}
       {locations.length > 0 && (
-        <div style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
-          <p style={styles.label}>LOCATIONS</p>
+        <div style={{ padding: '0 2rem' }}>
+          <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+            <p style={styles.label}>LOCATIONS</p>
+          </div>
           {locations.map((loc, i) => (
-            <div key={i} style={{ marginBottom: '2.5rem', transform: `translateY(${px(scrollTop, 0.45 + i * 0.1)}px)` }}>
-              <h3 style={styles.sectionTitle}>{loc.name || loc.title}</h3>
+            <div key={i} style={{
+              marginBottom: '4rem',
+              transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)`,
+            }}>
+              <h3 style={{
+                ...styles.sectionTitle,
+                fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)',
+              }}>{loc.name || loc.title}</h3>
               {loc.address && <p style={styles.bodyText}>{loc.address}</p>}
               {loc.time && <p style={styles.bodyText}>{loc.time}</p>}
               {loc.description && <p style={styles.bodyText}>{loc.description}</p>}
@@ -326,8 +390,12 @@ function InfoContent({ project, content, scrollTop }) {
         </div>
       )}
 
+      {/* Directions */}
       {directions.description && (
-        <div style={{ transform: `translateY(${px(scrollTop, 0.55)}px)` }}>
+        <div style={{
+          padding: '0 2rem',
+          transform: `translateY(${px(scrollTop, 0.55)}px)`,
+        }}>
           <p style={styles.label}>ANFAHRT</p>
           <p style={styles.bodyText}>{directions.description}</p>
         </div>
@@ -336,14 +404,14 @@ function InfoContent({ project, content, scrollTop }) {
   )
 }
 
-// ── RSVP (title with parallax, form stays stable) ──
+// ── RSVP ──
 function RSVPContent({ content, scrollTop }) {
   const rsvp = useRSVP()
   const rsvpConfig = content?.rsvp || {}
 
   if (rsvp.submitted) {
     return (
-      <div style={{ padding: '5rem 0', textAlign: 'center' }}>
+      <div style={{ padding: '6rem 0', textAlign: 'center' }}>
         <h2 style={styles.modalTitle}>Danke!</h2>
         <p style={styles.bodyText}>Deine Rückmeldung wurde gespeichert.</p>
         <button style={styles.formBtn} onClick={rsvp.resetForm}>Neue Antwort</button>
@@ -352,12 +420,15 @@ function RSVPContent({ content, scrollTop }) {
   }
 
   return (
-    <div style={{ padding: '5rem 0 8rem' }}>
-      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+    <div style={{ paddingBottom: '8rem' }}>
+      <div style={{
+        padding: '6rem 0 2rem',
+        transform: `translateY(${px(scrollTop, 0.2)}px)`,
+      }}>
         <h2 style={styles.modalTitle}>{rsvpConfig.title || 'RSVP'}</h2>
       </div>
       {rsvpConfig.description && (
-        <div style={{ transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
+        <div style={{ transform: `translateY(${px(scrollTop, 0.35)}px)` }}>
           <p style={{ ...styles.bodyText, marginBottom: '2rem' }}>{rsvpConfig.description}</p>
         </div>
       )}
@@ -431,18 +502,8 @@ function RSVPContent({ content, scrollTop }) {
   )
 }
 
-// ── GALLERY (parallax scroll on images) ──
-const GALLERY_LAYOUT = [
-  { span: 2, speed: 0.3 },
-  { span: 1, speed: 0.5 },
-  { span: 1, speed: 0.7 },
-  { span: 2, speed: 0.4 },
-  { span: 1, speed: 0.6 },
-  { span: 1, speed: 0.35 },
-  { span: 2, speed: 0.55 },
-  { span: 1, speed: 0.45 },
-  { span: 1, speed: 0.65 },
-]
+// ── GALLERY (full-bleed staggered images with zoom, grayscale, overlap) ──
+const GALLERY_SPEEDS = [0.3, 0.55, 0.7, 0.35, 0.6, 0.45, 0.5, 0.65, 0.4]
 
 function GalleryContent({ content, scrollTop }) {
   const rawImgs = content?.gallery?.images || []
@@ -460,52 +521,62 @@ function GalleryContent({ content, scrollTop }) {
   const isMobile = window.innerWidth < 768
 
   return (
-    <div style={{ padding: '5rem 0 8rem' }}>
-      <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-        <h2 style={{ ...styles.modalTitle, marginBottom: '2rem' }}>Galerie</h2>
-        <p style={{ ...styles.label, marginBottom: '3rem' }}>MOMENTE</p>
-      </div>
-
+    <div style={{ paddingBottom: '8rem' }}>
+      {/* Title */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-        gap: '1.5rem',
+        padding: '6rem 2rem 3rem',
+        transform: `translateY(${px(scrollTop, 0.15)}px)`,
       }}>
-        {images.map((src, i) => {
-          const layout = GALLERY_LAYOUT[i % GALLERY_LAYOUT.length]
-          const speed = layout.speed
-          const parallaxY = scrollTop * (speed - 0.5) * 0.3
-          const spanFull = !isMobile && layout.span === 2
-
-          return (
-            <div
-              key={i}
-              style={{
-                gridColumn: spanFull ? '1 / -1' : 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <img
-                src={src}
-                alt={`Foto ${i + 1}`}
-                loading="lazy"
-                style={{
-                  width: '100%',
-                  height: spanFull ? '55vh' : '40vh',
-                  objectFit: 'cover',
-                  display: 'block',
-                  transform: `translateY(${parallaxY}px)`,
-                }}
-              />
-            </div>
-          )
-        })}
+        <p style={styles.label}>MOMENTE</p>
+        <h2 style={styles.modalTitle}>Galerie</h2>
       </div>
+
+      {/* Staggered full-bleed images */}
+      {images.map((src, i) => {
+        const speed = GALLERY_SPEEDS[i % GALLERY_SPEEDS.length]
+        const isWide = i % 3 === 0 // every 3rd image is full-width
+        const isLeft = i % 2 === 0
+        const zoom = 1 + scrollTop * speed * 0.0004
+        const gray = Math.max(0, Math.min(1, 1 - (scrollTop - i * 120) * 0.004))
+        const parallaxY = scrollTop * (speed - 0.5) * 0.5
+
+        return (
+          <div
+            key={i}
+            style={{
+              overflow: 'hidden',
+              height: isWide ? '70vh' : '50vh',
+              width: isWide || isMobile ? '100%' : '70%',
+              marginLeft: isWide || isMobile ? 0 : (isLeft ? 0 : 'auto'),
+              marginRight: isWide || isMobile ? 0 : (isLeft ? 'auto' : 0),
+              marginBottom: '-3vh',
+              position: 'relative',
+              zIndex: images.length - i,
+              transform: `translateY(${parallaxY}px)`,
+            }}
+          >
+            <img
+              src={src}
+              alt={`Foto ${i + 1}`}
+              loading="lazy"
+              style={{
+                width: '100%',
+                height: '130%',
+                objectFit: 'cover',
+                display: 'block',
+                transform: `scale(${zoom})`,
+                filter: `grayscale(${gray})`,
+                transition: 'filter 0.3s ease-out',
+              }}
+            />
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-// ── STYLES (white on black) ──
+// ── STYLES ──
 const styles = {
   scrollArea: {
     overflowY: 'auto',
@@ -520,11 +591,12 @@ const styles = {
   },
   modalTitle: {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+    fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
     fontWeight: 800,
     color: '#fff',
-    marginBottom: '2rem',
-    lineHeight: 1.1,
+    marginBottom: '1rem',
+    lineHeight: 1,
+    letterSpacing: '-0.02em',
   },
   label: {
     fontFamily: "'DM Sans', sans-serif",
@@ -532,7 +604,7 @@ const styles = {
     fontWeight: 700,
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.35)',
+    color: 'rgba(255,255,255,0.3)',
     marginBottom: '0.5rem',
   },
   sectionTitle: {
@@ -547,21 +619,14 @@ const styles = {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.95rem',
     fontWeight: 500,
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(255,255,255,0.55)',
     lineHeight: 1.7,
     whiteSpace: 'pre-line',
-  },
-  chapterImg: {
-    width: '100%',
-    height: 'auto',
-    maxHeight: '400px',
-    objectFit: 'cover',
-    margin: '1.5rem 0',
   },
   input: {
     width: '100%',
     padding: '0.9rem 1rem',
-    border: '1px solid rgba(255,255,255,0.3)',
+    border: '1px solid rgba(255,255,255,0.25)',
     borderRadius: 0,
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.9rem',
@@ -574,7 +639,7 @@ const styles = {
   toggleBtn: {
     flex: 1,
     padding: '0.8rem',
-    border: '1px solid rgba(255,255,255,0.3)',
+    border: '1px solid rgba(255,255,255,0.25)',
     background: 'transparent',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.85rem',
@@ -589,7 +654,7 @@ const styles = {
   adjustBtn: {
     width: '36px',
     height: '36px',
-    border: '1px solid rgba(255,255,255,0.3)',
+    border: '1px solid rgba(255,255,255,0.25)',
     background: 'transparent',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '1.1rem',
