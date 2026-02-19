@@ -80,6 +80,18 @@ export default function ParallaxWeddingApp() {
   const cdDate = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
   const cd = useCountdown(cdDate)
 
+  // Debug: welches Datum wird tatsächlich verwendet?
+  useEffect(() => {
+    console.warn('[Parallax Countdown]', {
+      'content.countdown.target_date': content?.countdown?.target_date,
+      'project.wedding_date': project?.wedding_date,
+      'cdDate (verwendet)': cdDate,
+      'parsed': parseCountdownDate(cdDate)?.toISOString(),
+      'past': cd.past,
+      'ready': cd.ready,
+    })
+  }, [cdDate, cd.past, cd.ready])
+
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
       id,
