@@ -61,7 +61,8 @@ export default function ParallaxWeddingApp() {
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
   const countdownRef = useRef(null)
-  const cd = useCountdown(project?.wedding_date || '2026-09-20')
+  const cdDate = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
+  const cd = useCountdown(cdDate)
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -262,13 +263,15 @@ export default function ParallaxWeddingApp() {
         style={{
           position: 'fixed',
           left: '50%',
-          bottom: '8vh',
+          bottom: '6vh',
           transform: 'translateX(-50%)',
           zIndex: 200,
           textAlign: 'center',
           pointerEvents: 'none',
           userSelect: 'none',
           fontFamily: "'DM Sans', sans-serif",
+          background: '#fff',
+          padding: '1.2rem 2.5rem',
         }}
       >
         {!cd.past ? (
@@ -305,6 +308,7 @@ export default function ParallaxWeddingApp() {
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'rgba(0,0,0,0.35)',
+            margin: 0,
           }}>WIR HABEN GEHEIRATET</p>
         )}
       </div>
