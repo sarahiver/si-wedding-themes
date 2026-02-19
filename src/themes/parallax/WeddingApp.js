@@ -33,7 +33,9 @@ function useCountdown(weddingDate) {
   const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
   useEffect(() => {
     if (!weddingDate) return
-    const target = new window.Date(weddingDate)
+    // Append T12:00:00 to date-only strings to avoid UTC midnight timezone issues
+    const dateStr = weddingDate.includes('T') ? weddingDate : weddingDate + 'T12:00:00'
+    const target = new window.Date(dateStr)
     const tick = () => {
       const diff = target - new window.Date()
       if (diff <= 0) { setT(p => ({ ...p, past: true })); return }

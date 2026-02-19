@@ -18,6 +18,7 @@ function HeroEditor({ components: C }) {
   const showLocationShort = !['contemporary', 'luxe', 'neon'].includes(theme);
   const showMobileBg = ['classic', 'editorial'].includes(theme);
   const isSummerTheme = theme === 'summer';
+  const isParallax = theme === 'parallax';
 
   // State for showing mobile upload option
   const [showMobileUpload, setShowMobileUpload] = useState(
@@ -34,31 +35,39 @@ function HeroEditor({ components: C }) {
       </C.PanelHeader>
       <C.PanelContent>
         {/* Desktop Background */}
-        <C.SectionLabel style={{ marginBottom: '0.5rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
-          Desktop Hintergrund
-        </C.SectionLabel>
-        
-        {isVideoTheme ? (
-          <MediaUploader
-            components={C}
-            media={content.background_media}
-            onUpload={(media) => update('background_media', media)}
-            folder={baseFolder + '/hero'}
-            label="Hintergrund (Video oder Bild)"
-            ratio="16/9"
-            maxHeight="150px"
-            allowVideo={true}
-          />
+        {isParallax ? (
+          <C.AlertBox $type="info" style={{ marginBottom: '1rem' }}>
+            Parallax Theme: Bilder werden automatisch aus der Galerie verteilt. Lade mindestens 10 Bilder unter „Galerie" hoch.
+          </C.AlertBox>
         ) : (
-          <ImageUploader
-            components={C}
-            image={content.background_image}
-            onUpload={(url) => update('background_image', url)}
-            folder={baseFolder + '/hero'}
-            label="Hintergrundbild"
-            ratio="16/9"
-            maxHeight="150px"
-          />
+          <>
+            <C.SectionLabel style={{ marginBottom: '0.5rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888' }}>
+              Desktop Hintergrund
+            </C.SectionLabel>
+
+            {isVideoTheme ? (
+              <MediaUploader
+                components={C}
+                media={content.background_media}
+                onUpload={(media) => update('background_media', media)}
+                folder={baseFolder + '/hero'}
+                label="Hintergrund (Video oder Bild)"
+                ratio="16/9"
+                maxHeight="150px"
+                allowVideo={true}
+              />
+            ) : (
+              <ImageUploader
+                components={C}
+                image={content.background_image}
+                onUpload={(url) => update('background_image', url)}
+                folder={baseFolder + '/hero'}
+                label="Hintergrundbild"
+                ratio="16/9"
+                maxHeight="150px"
+              />
+            )}
+          </>
         )}
 
         {/* Classic Theme: Optional Video Background */}
@@ -120,7 +129,7 @@ function HeroEditor({ components: C }) {
           </>
         )}
 
-        {showMobileBg && (
+        {showMobileBg && !isParallax && (
           <>
             <C.Divider />
 

@@ -8,7 +8,7 @@ function MusicWishesEditor({ components: C }) {
   const content = contentStates.musicwishes || {};
   const theme = project?.theme;
   const isClassic = theme === 'classic';
-  const showSpotify = ['botanical', 'editorial'].includes(theme);
+  const showSpotify = ['botanical', 'editorial', 'parallax'].includes(theme);
   const update = (field, value) => updateContentField('musicwishes', field, value);
 
   return (
