@@ -18,6 +18,7 @@ export default function CountdownImages() {
   const yOffset = -(COUNTDOWN[0] * pageH)
 
   useFrame(() => {
+    if (!group.current) return
     const c = group.current.children
     if (c.length < 2) return
 

@@ -22,9 +22,11 @@ export default function GalleryImages({ content }) {
   const { width, height } = useThree(s => s.viewport)
 
   const rawImgs = content?.gallery?.images
-  const imgs = rawImgs?.length >= 4
-    ? rawImgs.slice(0, 7).map(i => typeof i === 'string' ? i : i.url)
-    : FALLBACK
+  const mapped = rawImgs?.length >= 4
+    ? rawImgs.slice(0, 7).map(i => typeof i === 'string' ? i : i.url).filter(Boolean)
+    : []
+  // Always ensure exactly 7 images — pad with fallbacks
+  const imgs = Array.from({ length: 7 }, (_, i) => mapped[i] || FALLBACK[i % FALLBACK.length])
 
   const [gs, gl] = r(...GALLERY)
   const third  = gl / 3
@@ -32,6 +34,7 @@ export default function GalleryImages({ content }) {
   const yOff   = -(GALLERY[0] * pageH)
 
   useFrame(() => {
+    if (!group.current) return
     const c = group.current.children
     if (c.length < 7) return
     c[0].material.zoom = 1 + data.range(gs,              third) / 3

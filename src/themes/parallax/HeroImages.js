@@ -15,11 +15,15 @@ export default function HeroImages({ project, content }) {
   const data  = useScroll()
   const { width, height } = useThree(s => s.viewport)
 
-  const img1 = content?.hero?.background_image || FALLBACK_1
-  const img2 = content?.hero?.image2 || content?.lovestory?.image_front || FALLBACK_2
+  const img1 = (content?.hero?.background_image && content.hero.background_image.startsWith('http')) ? content.hero.background_image : FALLBACK_1
+  const img2 = (content?.hero?.image2 && content.hero.image2.startsWith('http')) ? content.hero.image2
+    : (content?.lovestory?.image_front && content.lovestory.image_front.startsWith('http')) ? content.lovestory.image_front
+    : FALLBACK_2
 
   useFrame(() => {
+    if (!group.current) return
     const c = group.current.children
+    if (c.length < 2) return
     const [start, len] = r(...HERO)
     c[0].material.zoom    = 1 + data.range(start, len) / 3
     c[1].material.zoom    = 1 + data.range(start, len) / 6

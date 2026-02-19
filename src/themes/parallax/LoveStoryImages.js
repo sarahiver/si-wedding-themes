@@ -19,13 +19,14 @@ export default function LoveStoryImages({ content }) {
 
   const events = content?.lovestory?.events
   const images = events?.length >= 3
-    ? events.slice(0, 3).map((e, i) => e.image || FALLBACK[i])
+    ? events.slice(0, 3).map((e, i) => (e.image && typeof e.image === 'string' && e.image.startsWith('http')) ? e.image : FALLBACK[i])
     : FALLBACK
 
   const chapterLen = LOVESTORY[1] / 3
   const pageH = height
 
   useFrame(() => {
+    if (!group.current) return
     const c = group.current.children
     if (c.length < 5) return
 

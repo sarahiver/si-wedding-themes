@@ -30,6 +30,7 @@ import VideoGlobalStyles from './themes/video/GlobalStyles';
 import EditorialGlobalStyles from './themes/editorial/GlobalStyles';
 import ClassicGlobalStyles from './themes/classic/GlobalStyles';
 import SummerGlobalStyles from './themes/summer/GlobalStyles';
+import ParallaxGlobalStyles from './themes/parallax/GlobalStyles';
 
 const globalStylesMap = {
   botanical: BotanicalGlobalStyles,
@@ -40,6 +41,7 @@ const globalStylesMap = {
   editorial: EditorialGlobalStyles,
   classic: ClassicGlobalStyles,
   summer: SummerGlobalStyles,
+  parallax: ParallaxGlobalStyles,
 };
 
 // Lazy load theme-specific pages (aber nicht GlobalStyles)
@@ -80,6 +82,11 @@ const themePages = {
     SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
   },
   summer: {
+    AdminDashboard: lazy(() => import('./themes/classic/AdminDashboard')),
+    ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
+    SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
+  },
+  parallax: {
     AdminDashboard: lazy(() => import('./themes/classic/AdminDashboard')),
     ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
