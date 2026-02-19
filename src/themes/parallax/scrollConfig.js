@@ -5,7 +5,7 @@ export const PAGES = 9   // total ScrollControls pages
 
 // ── TEXT zones (only Hero + Footer remain as white blocks) ──
 export const HERO_TXT  = [0,   0.5]   // Names + Date + Countdown
-export const FOOTER    = [8.2, 0.5]   // Credits/Footer
+export const FOOTER    = [8.2, 0.8]   // Credits/Footer
 
 // ── IMAGE zones (Three.js canvas) ──
 export const HERO_IMG  = [0.5, 1.0]   // Hero images

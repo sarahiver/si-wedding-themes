@@ -248,9 +248,13 @@ function LoveStoryContent({ content, scrollTop }) {
   )
 }
 
-// ── LOCATIONS (Orte + Anfahrt, kein Countdown mehr) ──
+// ── LOCATIONS (Orte + Anfahrt) ──
 function LocationsContent({ content, scrollTop }) {
-  const locations = content?.locations?.locations || content?.locations?.items || content?.locations?.venues || []
+  const raw = content?.locations?.locations || content?.locations?.items || content?.locations?.venues || []
+  const locations = raw.length > 0 ? raw : [
+    { name: 'Kirche St. Peter', time: '14:00 Uhr', address: 'Kirchstraße 12, 80331 München', description: 'Hier beginnt unser gemeinsamer Weg.' },
+    { name: 'Gut Sonnenhof', time: '16:00 Uhr', address: 'Sonnenweg 5, 82049 Pullach', description: 'Empfang, Dinner & Party bis in die Nacht.' },
+  ]
   const directions = content?.directions || {}
 
   return (
@@ -258,20 +262,18 @@ function LocationsContent({ content, scrollTop }) {
       <div style={{ padding: '6rem 2rem 2rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <h2 style={st.modalTitle}>Locations</h2>
       </div>
-      {locations.length > 0 && (
-        <div style={{ padding: '0 2rem' }}>
-          <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}><p style={st.label}>ORTE</p></div>
-          {locations.map((loc, i) => (
-            <div key={i} style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)` }}>
-              <h3 style={{ ...st.sectionTitle, fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)' }}>{loc.name || loc.title}</h3>
-              {loc.time && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{loc.time}</p>}
-              {loc.address && <p style={st.bodyText}>{loc.address}</p>}
-              {loc.description && <p style={st.bodyText}>{loc.description}</p>}
-              {loc.maps_url && <a href={loc.maps_url} target="_blank" rel="noopener noreferrer" style={st.link}>Karte anzeigen</a>}
-            </div>
-          ))}
-        </div>
-      )}
+      <div style={{ padding: '0 2rem' }}>
+        <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}><p style={st.label}>ORTE</p></div>
+        {locations.map((loc, i) => (
+          <div key={i} style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)` }}>
+            <h3 style={{ ...st.sectionTitle, fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)' }}>{loc.name || loc.title}</h3>
+            {loc.time && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{loc.time}</p>}
+            {loc.address && <p style={st.bodyText}>{loc.address}</p>}
+            {loc.description && <p style={st.bodyText}>{loc.description}</p>}
+            {loc.maps_url && <a href={loc.maps_url} target="_blank" rel="noopener noreferrer" style={st.link}>Karte anzeigen</a>}
+          </div>
+        ))}
+      </div>
       {directions.description && (
         <div style={{ padding: '0 2rem', transform: `translateY(${px(scrollTop, 0.55)}px)` }}>
           <p style={st.label}>ANFAHRT</p>
@@ -419,34 +421,31 @@ function TimelineContent({ content, scrollTop }) {
 // ── DRESSCODE ──
 function DresscodeContent({ content, scrollTop }) {
   const dc = content?.dresscode || {}
+  const code = dc.code || 'Festlich Elegant'
+  const desc = dc.description || 'Wir freuen uns, wenn ihr euch festlich kleidet. Tragt, worin ihr euch wohlfühlt — Hauptsache, ihr feiert mit uns!'
+  const colors = dc.colors?.length > 0 ? dc.colors : ['#8B7355', '#A8B5A2', '#F5F0EB', '#D4C5B2', '#2C3E2D']
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>KLEIDUNG</p>
         <h2 style={st.modalTitle}>{dc.title || 'Dresscode'}</h2>
       </div>
-      {dc.code && (
-        <div style={{ textAlign: 'center', marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.6)}px)` }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-            {dc.code}
-          </span>
+      <div style={{ textAlign: 'center', marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.6)}px)` }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+          {code}
+        </span>
+      </div>
+      <div style={{ transform: `translateY(${px(scrollTop, 0.35)}px)`, marginBottom: '3rem' }}>
+        <p style={st.bodyText}>{desc}</p>
+      </div>
+      <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.45)}px)` }}>
+        <p style={st.label}>FARBPALETTE</p>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+          {colors.map((c, i) => (
+            <div key={i} style={{ width: '48px', height: '48px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.2)' }} />
+          ))}
         </div>
-      )}
-      {dc.description && (
-        <div style={{ transform: `translateY(${px(scrollTop, 0.35)}px)`, marginBottom: '3rem' }}>
-          <p style={st.bodyText}>{dc.description}</p>
-        </div>
-      )}
-      {dc.colors?.length > 0 && (
-        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.45)}px)` }}>
-          <p style={st.label}>FARBPALETTE</p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-            {dc.colors.map((c, i) => (
-              <div key={i} style={{ width: '48px', height: '48px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.2)' }} />
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
       {dc.dos?.length > 0 && (
         <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.5)}px)` }}>
           <p style={st.label}>GERNE GESEHEN</p>
@@ -467,6 +466,7 @@ function DresscodeContent({ content, scrollTop }) {
 function GiftsContent({ content, scrollTop }) {
   const gifts = useGifts()
   const gc = content?.gifts || {}
+  const fallbackDesc = gc.description || 'Das größte Geschenk ist eure Anwesenheit an unserem Tag. Wer uns dennoch etwas schenken möchte, darf gerne zu unserer Reisekasse beitragen.'
   const items = gc.items?.length > 0 ? gc.items : []
   const [reservingId, setReservingId] = useState(null)
   const [reserveName, setReserveName] = useState('')
@@ -486,11 +486,9 @@ function GiftsContent({ content, scrollTop }) {
         <p style={st.label}>WUNSCHLISTE</p>
         <h2 style={st.modalTitle}>{gc.title || 'Geschenke'}</h2>
       </div>
-      {gc.description && (
-        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-          <p style={st.bodyText}>{gc.description}</p>
-        </div>
-      )}
+      <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <p style={st.bodyText}>{fallbackDesc}</p>
+      </div>
       {gc.bank_details && (
         <div style={{ marginBottom: '3rem', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.15)', transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
           <p style={st.label}>BANKVERBINDUNG</p>
@@ -550,18 +548,21 @@ function GiftsContent({ content, scrollTop }) {
 // ── ACCOMMODATIONS (Unterkunft) ──
 function AccommodationsContent({ content, scrollTop }) {
   const ac = content?.accommodations || {}
-  const hotels = ac.hotels || []
+  const desc = ac.description || 'Für alle, die von weiter anreisen oder einfach die Nacht durchfeiern wollen — hier ein paar Empfehlungen in der Nähe.'
+  const hotels = ac.hotels?.length > 0 ? ac.hotels : [
+    { name: 'Hotel Bergblick', distance: '5 Min. zur Location', price_range: 'ab 89 € / Nacht', address: 'Bergstraße 15, 82049 Pullach' },
+    { name: 'Gasthof zur Post', distance: '10 Min. zur Location', price_range: 'ab 69 € / Nacht', address: 'Postplatz 3, 82049 Pullach' },
+    { name: 'Pension am See', distance: '15 Min. zur Location', price_range: 'ab 55 € / Nacht', address: 'Seeweg 8, 82049 Pullach' },
+  ]
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>SCHLAFEN</p>
         <h2 style={st.modalTitle}>{ac.title || 'Unterkunft'}</h2>
       </div>
-      {ac.description && (
-        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-          <p style={st.bodyText}>{ac.description}</p>
-        </div>
-      )}
+      <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <p style={st.bodyText}>{desc}</p>
+      </div>
       {hotels.map((h, i) => (
         <div key={i} style={{
           marginBottom: '4rem', padding: '1.5rem 0',
@@ -584,18 +585,20 @@ function AccommodationsContent({ content, scrollTop }) {
 // ── WITNESSES (Trauzeugen) ──
 function WitnessesContent({ content, scrollTop }) {
   const wt = content?.witnesses || {}
-  const persons = wt.persons || []
+  const desc = wt.description || 'Die Menschen, die uns auf diesem Weg begleiten und ohne die dieser Tag nicht derselbe wäre.'
+  const persons = wt.persons?.length > 0 ? wt.persons : [
+    { name: 'Anna Müller', role: 'Trauzeugin der Braut', description: 'Beste Freundin seit der Schulzeit. Immer an meiner Seite — vom ersten Liebeskummer bis zum Brautkleidkauf.' },
+    { name: 'Max Weber', role: 'Trauzeuge des Bräutigams', description: 'Seit dem Studium unzertrennlich. Partner in Crime, bester Ratgeber und offizieller Ring-Bewacher.' },
+  ]
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>UNSERE BEGLEITER</p>
         <h2 style={st.modalTitle}>{wt.title || 'Trauzeugen'}</h2>
       </div>
-      {wt.description && (
-        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-          <p style={st.bodyText}>{wt.description}</p>
-        </div>
-      )}
+      <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <p style={st.bodyText}>{desc}</p>
+      </div>
       {persons.map((p, i) => (
         <div key={i} style={{
           marginBottom: '4rem',
@@ -779,7 +782,14 @@ function PhotoUploadContent({ content, scrollTop }) {
 // ── FAQ ──
 function FAQContent({ content, scrollTop }) {
   const faqData = content?.faq || {}
-  const questions = faqData.questions || []
+  const questions = faqData.questions?.length > 0 ? faqData.questions : [
+    { question: 'Kann ich jemanden mitbringen?', answer: 'Bitte sprecht uns vorher an, falls ihr noch eine Begleitung mitbringen möchtet. Wir planen mit festen Platzzahlen.' },
+    { question: 'Gibt es Parkplätze?', answer: 'Ja, kostenlose Parkplätze sind direkt an der Location vorhanden. Bitte bildet Fahrgemeinschaften, wenn möglich.' },
+    { question: 'Sind Kinder willkommen?', answer: 'Natürlich! Für die kleinen Gäste wird es eine Spielecke und Kinderbetreuung geben.' },
+    { question: 'Was passiert bei Regen?', answer: 'Keine Sorge — die Location bietet genug Platz für drinnen und draußen. Plan B steht!' },
+    { question: 'Bis wann muss ich zusagen?', answer: 'Bitte gebt uns bis spätestens 6 Wochen vor der Hochzeit Bescheid, damit wir alles planen können.' },
+    { question: 'Gibt es ein Shuttle?', answer: 'Wir organisieren Sammeltaxis für die Rückfahrt. Details folgen rechtzeitig.' },
+  ]
   const [openIdx, setOpenIdx] = useState(null)
   return (
     <div style={{ paddingBottom: '8rem' }}>
@@ -823,18 +833,30 @@ function FAQContent({ content, scrollTop }) {
 // ── WEDDING ABC (Hochzeits-ABC) ──
 function WeddingABCContent({ content, scrollTop }) {
   const abc = content?.weddingabc || {}
-  const entries = abc.entries || []
+  const desc = abc.description || 'Alles, was ihr über unseren großen Tag wissen müsst — alphabetisch sortiert.'
+  const entries = abc.entries?.length > 0 ? abc.entries : [
+    { letter: 'A', title: 'Anfahrt', description: 'Parkplätze sind direkt an der Location vorhanden. Bildet gerne Fahrgemeinschaften!' },
+    { letter: 'B', title: 'Blumenkinder', description: 'Wer möchte, darf gerne nach der Trauung Blütenblätter streuen. Meldet euch bei den Trauzeugen.' },
+    { letter: 'D', title: 'Dresscode', description: 'Festlich elegant. Farben: Erdtöne, Salbei, Creme. Tragt, worin ihr euch wohlfühlt!' },
+    { letter: 'F', title: 'Fotos', description: 'Nutzt gerne unsere Foto-Upload-Funktion auf dieser Seite. Wir freuen uns über eure Perspektive!' },
+    { letter: 'G', title: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk. Wer dennoch etwas geben möchte: unsere Reisekasse freut sich.' },
+    { letter: 'K', title: 'Kinder', description: 'Herzlich willkommen! Kinderbetreuung und Spielecke sind vorhanden.' },
+    { letter: 'M', title: 'Musik', description: 'Songwünsche könnt ihr vorab über diese Seite einreichen. Die DJ-Playlist freut sich!' },
+    { letter: 'P', title: 'Party', description: 'Wir feiern bis in die Nacht. Bequeme Tanzschuhe empfohlen!' },
+    { letter: 'R', title: 'Reden', description: 'Wer eine Rede halten möchte, meldet sich bitte vorab bei den Trauzeugen.' },
+    { letter: 'T', title: 'Taxis', description: 'Sammeltaxis für die Heimfahrt werden organisiert. Details folgen rechtzeitig.' },
+    { letter: 'U', title: 'Unterkunft', description: 'Empfehlungen für Übernachtungen findet ihr unter "Unterkunft" auf dieser Seite.' },
+    { letter: 'W', title: 'Wetter', description: 'Wir haben einen Plan B für schlechtes Wetter. Kommt einfach — egal was der Himmel macht!' },
+  ]
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>VON A BIS Z</p>
         <h2 style={st.modalTitle}>{abc.title || 'Hochzeits-ABC'}</h2>
       </div>
-      {abc.description && (
-        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
-          <p style={st.bodyText}>{abc.description}</p>
-        </div>
-      )}
+      <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+        <p style={st.bodyText}>{desc}</p>
+      </div>
       {entries.map((e, i) => (
         <div key={i} style={{
           display: 'flex', gap: '1.5rem', marginBottom: '2.5rem',

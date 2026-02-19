@@ -61,7 +61,7 @@ export default function ParallaxWeddingApp() {
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
   const countdownRef = useRef(null)
-  const cd = useCountdown(project?.wedding_date)
+  const cd = useCountdown(project?.wedding_date || '2025-08-16')
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -226,7 +226,37 @@ export default function ParallaxWeddingApp() {
         }}>{n2}</span>
       </div>
 
-      {/* ── COUNTDOWN — fixed overlay, fades out on scroll ── */}
+      <Canvas
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 20], fov: 15 }}
+        style={{
+          position: 'fixed', inset: 0,
+          background: '#ffffff',
+          pointerEvents: activeModal ? 'none' : 'auto',
+        }}
+      >
+        <Suspense fallback={null}>
+          <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
+            <ScrollBridge scrollRef={scrollOffsetRef} scrollToTopRef={scrollToTopRef} />
+            <Scroll>
+              <HeroImages project={project} content={content} />
+              <LoveStoryImages content={content} />
+              <CountdownImages project={project} />
+              <GalleryImages content={content} />
+            </Scroll>
+
+            <Scroll html>
+              <HtmlContent project={project} content={content} onOpenModal={openModal} scrollOffsetRef={scrollOffsetRef} />
+            </Scroll>
+
+            <Preload />
+          </ScrollControls>
+        </Suspense>
+      </Canvas>
+      <Loader />
+
+      {/* ── COUNTDOWN — after Canvas so it renders on top ── */}
       <div
         ref={countdownRef}
         style={{
@@ -234,7 +264,7 @@ export default function ParallaxWeddingApp() {
           left: '50%',
           bottom: '8vh',
           transform: 'translateX(-50%)',
-          zIndex: 99,
+          zIndex: 200,
           textAlign: 'center',
           pointerEvents: 'none',
           userSelect: 'none',
@@ -279,35 +309,6 @@ export default function ParallaxWeddingApp() {
         )}
       </div>
 
-      <Canvas
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
-        dpr={[1, 1.5]}
-        camera={{ position: [0, 0, 20], fov: 15 }}
-        style={{
-          position: 'fixed', inset: 0,
-          background: '#ffffff',
-          pointerEvents: activeModal ? 'none' : 'auto',
-        }}
-      >
-        <Suspense fallback={null}>
-          <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
-            <ScrollBridge scrollRef={scrollOffsetRef} scrollToTopRef={scrollToTopRef} />
-            <Scroll>
-              <HeroImages project={project} content={content} />
-              <LoveStoryImages content={content} />
-              <CountdownImages project={project} />
-              <GalleryImages content={content} />
-            </Scroll>
-
-            <Scroll html>
-              <HtmlContent project={project} content={content} onOpenModal={openModal} scrollOffsetRef={scrollOffsetRef} />
-            </Scroll>
-
-            <Preload />
-          </ScrollControls>
-        </Suspense>
-      </Canvas>
-      <Loader />
       <ParallaxModal
         activeModal={activeModal}
         onClose={closeModal}

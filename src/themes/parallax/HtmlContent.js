@@ -8,22 +8,25 @@ import { FOOTER, PAGES } from './scrollConfig'
 const TITLES = [
   { id: 'lovestory',      text: 'Love Story',    top: 70,  left: '48%',  speed: 0.82, size: 'clamp(3.5rem, 8vw, 7rem)' },
   { id: 'timeline',       text: 'Tagesablauf',   top: 125, left: '4%',   speed: 1.2,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
-  { id: 'dresscode',      text: 'Dresscode',     top: 195, left: '55%',  speed: 0.88, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'dresscode',      text: 'Dresscode',     top: 190, left: '55%',  speed: 0.88, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
   { id: 'rsvp',           text: 'RSVP',          top: 250, left: '18%',  speed: 1.15, size: 'clamp(4rem, 9vw, 8rem)' },
-  { id: 'locations',      text: 'Locations',     top: 320, left: '62%',  speed: 0.8,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
-  { id: 'gallery',        text: 'Galerie',       top: 380, left: '2%',   speed: 1.22, size: 'clamp(3.5rem, 8vw, 7rem)' },
-  { id: 'gifts',          text: 'Geschenke',     top: 445, left: '42%',  speed: 0.84, size: 'clamp(2.5rem, 6vw, 5rem)' },
-  { id: 'guestbook',      text: 'Gästebuch',     top: 515, left: '6%',   speed: 1.14, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
-  { id: 'musicwishes',    text: 'Musikwünsche',  top: 570, left: '50%',  speed: 0.9,  size: 'clamp(2rem, 4.5vw, 3.5rem)' },
-  { id: 'photoupload',    text: 'Eure Fotos',    top: 630, left: '12%',  speed: 1.18, size: 'clamp(2.5rem, 6vw, 5rem)' },
-  { id: 'accommodations', text: 'Unterkunft',    top: 685, left: '58%',  speed: 0.83, size: 'clamp(2.5rem, 5vw, 4rem)' },
-  { id: 'faq',            text: 'FAQ',           top: 735, left: '5%',   speed: 1.2,  size: 'clamp(3.5rem, 8vw, 6.5rem)' },
-  { id: 'witnesses',      text: 'Trauzeugen',    top: 780, left: '44%',  speed: 0.82, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
-  { id: 'weddingabc',     text: 'Hochzeits-ABC', top: 825, left: '15%',  speed: 1.16, size: 'clamp(2rem, 5vw, 4rem)' },
+  { id: 'locations',      text: 'Locations',     top: 315, left: '62%',  speed: 0.8,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'gallery',        text: 'Galerie',       top: 375, left: '2%',   speed: 1.22, size: 'clamp(3.5rem, 8vw, 7rem)' },
+  { id: 'gifts',          text: 'Geschenke',     top: 435, left: '42%',  speed: 0.84, size: 'clamp(2.5rem, 6vw, 5rem)' },
+  { id: 'guestbook',      text: 'Gästebuch',     top: 490, left: '6%',   speed: 1.14, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'musicwishes',    text: 'Musikwünsche',  top: 540, left: '50%',  speed: 0.9,  size: 'clamp(2rem, 4.5vw, 3.5rem)' },
+  { id: 'photoupload',    text: 'Eure Fotos',    top: 590, left: '12%',  speed: 1.18, size: 'clamp(2.5rem, 6vw, 5rem)' },
+  { id: 'accommodations', text: 'Unterkunft',    top: 640, left: '58%',  speed: 0.83, size: 'clamp(2.5rem, 5vw, 4rem)' },
+  { id: 'faq',            text: 'FAQ',           top: 690, left: '5%',   speed: 1.2,  size: 'clamp(3.5rem, 8vw, 6.5rem)' },
+  { id: 'witnesses',      text: 'Trauzeugen',    top: 735, left: '44%',  speed: 0.82, size: 'clamp(2.5rem, 5.5vw, 4.5rem)' },
+  { id: 'weddingabc',     text: 'Hochzeits-ABC', top: 775, left: '15%',  speed: 1.16, size: 'clamp(2rem, 5vw, 4rem)' },
 ]
 
 export default function HtmlContent({ project, content, onOpenModal, scrollOffsetRef }) {
   const cn = project?.couple_names || 'Lena & Jonas'
+  const wDate = project?.wedding_date
+    ? new Date(project.wedding_date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '16. August 2025'
   const containerRef = useRef(null)
 
   // rAF loop for individual parallax on each title
@@ -77,9 +80,13 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
+        gap: '0.8rem',
       }}>
+        <p style={s.footerSub}>WIR FREUEN UNS AUF EUCH</p>
         <p style={s.footerNames}>{cn}</p>
-        <p style={{ ...s.footerSub, opacity: 0.25, marginTop: '0.6rem' }}>MIT LIEBE</p>
+        <p style={{ ...s.footerSub, opacity: 0.4 }}>{wDate}</p>
+        <div style={{ width: '40px', height: '1px', background: 'rgba(0,0,0,0.15)', margin: '1.5rem 0 0.5rem' }} />
+        <p style={{ ...s.footerSub, opacity: 0.2, fontSize: '0.55rem' }}>MADE WITH LOVE</p>
       </div>
 
     </div>
