@@ -1,6 +1,6 @@
 // src/themes/parallax/HtmlContent.js
 // White text zones that cover images behind them
-// Each zone: bold headline + subtitle + "Entdecken" button
+// Each zone: bold headline (clickable → opens modal)
 
 import { useState, useEffect, useRef } from 'react'
 import { HERO_TXT, LS_TXT, CD_TXT, GAL_TXT, FOOTER } from './scrollConfig'
@@ -52,24 +52,45 @@ function TextZone({ range, children }) {
   )
 }
 
-function DiscoverBtn({ onClick, label }) {
+// Clickable title — replaces DiscoverBtn
+function ClickableTitle({ text, onClick, style }) {
   const ref = useRef(null)
-  const displayLabel = label || 'Entdecken'
   const handleClick = () => {
     const rect = ref.current?.getBoundingClientRect()
-    const origin = rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-    onClick(origin, displayLabel)
+    const origin = rect
+      ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+      : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+    onClick(origin, text)
   }
   return (
-    <button
+    <h2
       ref={ref}
       onClick={handleClick}
-      style={s.discoverBtn}
-      onMouseEnter={e => { e.target.style.background = '#000'; e.target.style.color = '#fff' }}
-      onMouseLeave={e => { e.target.style.background = '#fff'; e.target.style.color = '#000' }}
+      style={{ ...style, cursor: 'pointer' }}
     >
-      {displayLabel}
-    </button>
+      {text}
+    </h2>
+  )
+}
+
+// Smaller clickable text for Infos/RSVP
+function ClickableLink({ text, onClick, style }) {
+  const ref = useRef(null)
+  const handleClick = () => {
+    const rect = ref.current?.getBoundingClientRect()
+    const origin = rect
+      ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+      : { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+    onClick(origin, text)
+  }
+  return (
+    <span
+      ref={ref}
+      onClick={handleClick}
+      style={{ ...style, cursor: 'pointer' }}
+    >
+      {text}
+    </span>
   )
 }
 
@@ -97,8 +118,11 @@ export default function HtmlContent({ project, content, onOpenModal }) {
       {/* ── LOVESTORY TEXT ── */}
       <TextZone range={LS_TXT}>
         <p style={s.label}>UNSERE GESCHICHTE</p>
-        <h2 style={s.sectionTitle}>Love Story</h2>
-        <DiscoverBtn onClick={(origin, label) => onOpenModal?.('lovestory', origin, label)} />
+        <ClickableTitle
+          text="Love Story"
+          onClick={(origin, label) => onOpenModal?.('lovestory', origin, label)}
+          style={s.sectionTitle}
+        />
       </TextZone>
 
       {/* ── COUNTDOWN TEXT ── */}
@@ -124,17 +148,28 @@ export default function HtmlContent({ project, content, onOpenModal }) {
         ) : (
           <p style={s.label}>WIR HABEN GEHEIRATET</p>
         )}
-        <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
-          <DiscoverBtn onClick={(origin, label) => onOpenModal?.('info', origin, label)} label="Infos" />
-          <DiscoverBtn onClick={(origin, label) => onOpenModal?.('rsvp', origin, label)} label="RSVP" />
+        <div style={{ display: 'flex', gap: '2.5rem', marginTop: '1.5rem' }}>
+          <ClickableLink
+            text="Infos"
+            onClick={(origin, label) => onOpenModal?.('info', origin, label)}
+            style={s.clickableLink}
+          />
+          <ClickableLink
+            text="RSVP"
+            onClick={(origin, label) => onOpenModal?.('rsvp', origin, label)}
+            style={s.clickableLink}
+          />
         </div>
       </TextZone>
 
       {/* ── GALLERY TEXT ── */}
       <TextZone range={GAL_TXT}>
         <p style={s.label}>MOMENTE</p>
-        <h2 style={s.sectionTitle}>Galerie</h2>
-        <DiscoverBtn onClick={(origin, label) => onOpenModal?.('gallery', origin, label)} />
+        <ClickableTitle
+          text="Galerie"
+          onClick={(origin, label) => onOpenModal?.('gallery', origin, label)}
+          style={s.sectionTitle}
+        />
       </TextZone>
 
       {/* ── FOOTER ── */}
@@ -180,20 +215,15 @@ const s = {
     fontWeight: 800,
     color: '#000',
     lineHeight: 1.1,
-    marginBottom: '1rem',
+    marginBottom: '0',
   },
-  discoverBtn: {
-    padding: '0.8rem 2.2rem',
-    border: '2px solid #000',
-    background: '#fff',
-    color: '#000',
+  clickableLink: {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: '0.8rem',
+    fontSize: '0.85rem',
     fontWeight: 700,
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    cursor: 'pointer',
-    transition: 'background 0.2s, color 0.2s',
+    color: '#000',
   },
   countRow: {
     display: 'flex',

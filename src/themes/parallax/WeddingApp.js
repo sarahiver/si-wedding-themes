@@ -47,12 +47,12 @@ export default function ParallaxWeddingApp() {
           logoRef.current.style.transform = 'translateX(0) translateY(0) scale(1)'
         } else {
           const offset = scrollOffsetRef.current
-          // Hero ends at ~0.0625 (0.5 pages / 8 pages). Animate over 0.03–0.10
-          const t = Math.max(0, Math.min((offset - 0.03) / 0.07, 1))
+          // Hero text fully exits viewport around offset ~0.10. Appear 0.08–0.14
+          const t = Math.max(0, Math.min((offset - 0.08) / 0.06, 1))
           const ease = t * t * (3 - 2 * t) // smoothstep
           logoRef.current.style.opacity = `${ease}`
-          // Fly in from roughly where hero text was (center-left, below)
-          logoRef.current.style.transform = `translateX(${-(1 - ease) * 20}vw) translateY(${(1 - ease) * 12}vh) scale(${1 + (1 - ease) * 4})`
+          // Subtle settle from hero area (center-ish) to top-right
+          logoRef.current.style.transform = `translateX(${-(1 - ease) * 8}vw) translateY(${(1 - ease) * 4}vh) scale(${1 + (1 - ease) * 1})`
         }
       }
       raf = requestAnimationFrame(update)

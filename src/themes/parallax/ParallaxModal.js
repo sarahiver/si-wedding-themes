@@ -56,15 +56,16 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
 
   useEffect(() => { ensureKeyframes() }, [])
 
-  // Open sequence
+  // Open sequence — only depends on activeModal (not current!)
+  // Including current would cause cleanup → cancel timer → content never shows
   useEffect(() => {
-    if (activeModal && !current) {
+    if (activeModal) {
       setCurrent(activeModal)
       setPhase('letters')
       const t = setTimeout(() => setPhase('open'), 1200)
       return () => clearTimeout(t)
     }
-  }, [activeModal, current])
+  }, [activeModal])
 
   // Close
   const handleClose = useCallback(() => {
@@ -97,7 +98,6 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
 
   if (!current) return null
 
-  const isMobile = window.innerWidth < 768
   const label = current.label || 'Entdecken'
   const letters = label.split('')
   const origin = current.origin || { x: window.innerWidth / 2, y: window.innerHeight / 2 }
@@ -146,14 +146,11 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         </div>
       )}
 
-      {/* ── CONTENT PANEL ── */}
+      {/* ── CONTENT PANEL (fullscreen) ── */}
       <div
         style={{
           position: 'absolute',
-          right: 0,
-          top: 0,
-          width: isMobile ? '100vw' : '66vw',
-          height: '100vh',
+          inset: 0,
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1,
@@ -163,11 +160,6 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button style={styles.closeBtn} onClick={handleClose} aria-label="Schließen">
-          ✕
-        </button>
-
         {/* Scroll area */}
         <div data-scroll-area style={styles.scrollArea}>
           <div style={{
@@ -469,24 +461,6 @@ function GalleryContent({ content }) {
 
 // ── STYLES (inverted: white on black) ──
 const styles = {
-  closeBtn: {
-    position: 'absolute',
-    top: '1.2rem',
-    left: '1.2rem',
-    zIndex: 10,
-    background: 'none',
-    border: 'none',
-    fontSize: '1.5rem',
-    fontWeight: 800,
-    color: '#fff',
-    cursor: 'pointer',
-    width: '44px',
-    height: '44px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: "'DM Sans', sans-serif",
-  },
   scrollArea: {
     overflowY: 'auto',
     height: '100vh',

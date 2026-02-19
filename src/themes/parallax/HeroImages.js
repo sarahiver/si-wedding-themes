@@ -26,10 +26,8 @@ export default function HeroImages({ project, content }) {
     const c = group.current.children
     if (c.length < 2) return
     const [start, len] = r(...HERO_IMG)
-    c[0].material.zoom    = 1 + data.range(start, len) / 3
-    c[1].material.zoom    = 1 + data.range(start, len) / 6
-    c[0].material.opacity = 1 - data.range(start + len * 0.5, len * 0.5)
-    c[1].material.opacity = 1 - data.range(start + len * 0.6, len * 0.4)
+    c[0].material.zoom = 1 + data.range(start, len) / 3
+    c[1].material.zoom = 1 + data.range(start, len) / 6
   })
 
   return (

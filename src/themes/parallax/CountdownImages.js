@@ -23,9 +23,7 @@ export default function CountdownImages() {
 
     const [start, len] = r(...CD_IMG)
 
-    c[0].material.opacity = Math.min(data.range(start, len * 0.3) * 4, 1)
-                          * (1 - data.range(start + len * 0.7, len * 0.3))
-    c[0].material.zoom    = 1 + data.range(start, len) / 5
+    c[0].material.zoom = 1 + data.range(start, len) / 5
   })
 
   return (
@@ -35,7 +33,6 @@ export default function CountdownImages() {
         scale={[width, height, 1]}
         url={FALLBACK}
         transparent
-        opacity={0}
       />
     </group>
   )
