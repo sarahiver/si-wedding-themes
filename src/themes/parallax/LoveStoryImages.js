@@ -9,7 +9,7 @@ import { r, LOVESTORY } from './scrollConfig'
 const FALLBACK = [
   'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=900&q=80&auto=format',
   'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=900&q=80&auto=format',
-  'https://images.unsplash.com/photo-1591604329141-c2b78069a79c?w=900&q=80&auto=format',
+  'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=900&q=80&auto=format',
 ]
 
 export default function LoveStoryImages({ content }) {

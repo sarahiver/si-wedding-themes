@@ -9,7 +9,7 @@ import { r, GALLERY } from './scrollConfig'
 const FALLBACK = [
   'https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80&auto=format',
   'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=900&q=80&auto=format',
-  'https://images.unsplash.com/photo-1591604329141-c2b78069a79c?w=900&q=80&auto=format',
+  'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=900&q=80&auto=format',
   'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=900&q=80&auto=format',
   'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=900&q=80&auto=format',
   'https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?w=900&q=80&auto=format',
