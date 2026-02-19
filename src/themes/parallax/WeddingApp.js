@@ -1,23 +1,25 @@
 // src/themes/parallax/WeddingApp.js
-// React Three Fiber wedding theme — Hero, LoveStory, Countdown, Gallery
-// Parallax: images zoom at different rates based on Z-depth (data.range() pattern)
+// Fix: useWedding() data fetched HERE (inside WeddingProvider) 
+// then passed as props into Scroll html — avoids portal context loss
 
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ScrollControls, Preload, Scroll } from '@react-three/drei'
 import { useWedding } from '../../context/WeddingContext'
 import GlobalStyles from './GlobalStyles'
-import HeroImages   from './HeroImages'
+import HeroImages      from './HeroImages'
 import LoveStoryImages from './LoveStoryImages'
 import CountdownImages from './CountdownImages'
 import GalleryImages   from './GalleryImages'
-import HtmlContent from './HtmlContent'
+import HtmlContent     from './HtmlContent'
 import Loader from './Loader'
 
-// Total scroll pages — tune this if sections feel too fast/slow
 const PAGES = 8
 
 export default function ParallaxWeddingApp() {
+  // Fetch data HERE — this component is inside WeddingProvider
+  const { project, content } = useWedding()
+
   return (
     <>
       <GlobalStyles />
@@ -30,17 +32,16 @@ export default function ParallaxWeddingApp() {
         <Suspense fallback={null}>
           <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
 
-            {/* All 3D image layers */}
             <Scroll>
-              <HeroImages />
-              <LoveStoryImages />
-              <CountdownImages />
-              <GalleryImages />
+              <HeroImages project={project} content={content} />
+              <LoveStoryImages content={content} />
+              <CountdownImages project={project} />
+              <GalleryImages content={content} />
             </Scroll>
 
-            {/* All HTML text content */}
+            {/* Pass data as props — NO useWedding() inside Scroll html */}
             <Scroll html>
-              <HtmlContent />
+              <HtmlContent project={project} content={content} />
             </Scroll>
 
             <Preload />
