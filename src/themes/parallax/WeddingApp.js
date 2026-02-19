@@ -29,12 +29,39 @@ function ScrollBridge({ scrollRef, scrollToTopRef }) {
   return null
 }
 
+function useCountdown(weddingDate) {
+  const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
+  useEffect(() => {
+    if (!weddingDate) return
+    const target = new window.Date(weddingDate)
+    const tick = () => {
+      const diff = target - new window.Date()
+      if (diff <= 0) { setT(p => ({ ...p, past: true })); return }
+      setT({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+        past: false,
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [weddingDate])
+  return t
+}
+
+const p2 = n => String(n).padStart(2, '0')
+
 export default function ParallaxWeddingApp() {
   const { project, content } = useWedding()
   const [activeModal, setActiveModal] = useState(null)
   const scrollOffsetRef = useRef(0)
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
+  const countdownRef = useRef(null)
+  const cd = useCountdown(project?.wedding_date)
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -130,6 +157,19 @@ export default function ParallaxWeddingApp() {
           }
         }
       }
+
+      // Countdown fades out on scroll
+      const cdEl = countdownRef.current
+      if (cdEl) {
+        if (activeModal) {
+          cdEl.style.opacity = '0'
+        } else {
+          const offset = scrollOffsetRef.current
+          const fade = Math.max(0, 1 - offset / 0.04)
+          cdEl.style.opacity = `${fade}`
+        }
+      }
+
       raf = requestAnimationFrame(update)
     }
     raf = requestAnimationFrame(update)
@@ -184,6 +224,59 @@ export default function ParallaxWeddingApp() {
           lineHeight: 0.95,
           letterSpacing: '-0.03em',
         }}>{n2}</span>
+      </div>
+
+      {/* ── COUNTDOWN — fixed overlay, fades out on scroll ── */}
+      <div
+        ref={countdownRef}
+        style={{
+          position: 'fixed',
+          left: '50%',
+          bottom: '8vh',
+          transform: 'translateX(-50%)',
+          zIndex: 99,
+          textAlign: 'center',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        {!cd.past ? (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)' }}>
+            {[
+              { v: p2(cd.d), l: 'TAGE' },
+              { v: p2(cd.h), l: 'STD' },
+              { v: p2(cd.m), l: 'MIN' },
+              { v: p2(cd.s), l: 'SEK' },
+            ].map(({ v, l }) => (
+              <div key={l} style={{ textAlign: 'center' }}>
+                <span style={{
+                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                  fontWeight: 800,
+                  color: '#000',
+                  lineHeight: 1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>{v}</span>
+                <br />
+                <span style={{
+                  fontSize: '0.6rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(0,0,0,0.3)',
+                }}>{l}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'rgba(0,0,0,0.35)',
+          }}>WIR HABEN GEHEIRATET</p>
+        )}
       </div>
 
       <Canvas
