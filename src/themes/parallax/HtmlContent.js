@@ -2,7 +2,7 @@
 // White text zones that cover images behind them
 // Each zone: bold headline + subtitle + "Entdecken" button
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { HERO_TXT, LS_TXT, CD_TXT, GAL_TXT, FOOTER } from './scrollConfig'
 
 function useCountdown(weddingDate) {
@@ -53,9 +53,15 @@ function TextZone({ range, children }) {
 }
 
 function DiscoverBtn({ onClick, label }) {
+  const ref = useRef(null)
+  const handleClick = () => {
+    const rect = ref.current?.getBoundingClientRect()
+    onClick(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight / 2 })
+  }
   return (
     <button
-      onClick={onClick}
+      ref={ref}
+      onClick={handleClick}
       style={s.discoverBtn}
       onMouseEnter={e => { e.target.style.background = '#000'; e.target.style.color = '#fff' }}
       onMouseLeave={e => { e.target.style.background = '#fff'; e.target.style.color = '#000' }}
@@ -90,7 +96,7 @@ export default function HtmlContent({ project, content, onOpenModal }) {
       <TextZone range={LS_TXT}>
         <p style={s.label}>UNSERE GESCHICHTE</p>
         <h2 style={s.sectionTitle}>Love Story</h2>
-        <DiscoverBtn onClick={() => onOpenModal?.('lovestory')} />
+        <DiscoverBtn onClick={(origin) => onOpenModal?.('lovestory', origin)} />
       </TextZone>
 
       {/* ── COUNTDOWN TEXT ── */}
@@ -117,8 +123,8 @@ export default function HtmlContent({ project, content, onOpenModal }) {
           <p style={s.label}>WIR HABEN GEHEIRATET</p>
         )}
         <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.5rem' }}>
-          <DiscoverBtn onClick={() => onOpenModal?.('info')} label="Infos" />
-          <DiscoverBtn onClick={() => onOpenModal?.('rsvp')} label="RSVP" />
+          <DiscoverBtn onClick={(origin) => onOpenModal?.('info', origin)} label="Infos" />
+          <DiscoverBtn onClick={(origin) => onOpenModal?.('rsvp', origin)} label="RSVP" />
         </div>
       </TextZone>
 
@@ -126,7 +132,7 @@ export default function HtmlContent({ project, content, onOpenModal }) {
       <TextZone range={GAL_TXT}>
         <p style={s.label}>MOMENTE</p>
         <h2 style={s.sectionTitle}>Galerie</h2>
-        <DiscoverBtn onClick={() => onOpenModal?.('gallery')} />
+        <DiscoverBtn onClick={(origin) => onOpenModal?.('gallery', origin)} />
       </TextZone>
 
       {/* ── FOOTER ── */}

@@ -15,14 +15,40 @@ import { PAGES } from './scrollConfig'
 
 export default function ParallaxWeddingApp() {
   const { project, content } = useWedding()
+  // activeModal: null | { id: string, origin: { x, y } }
   const [activeModal, setActiveModal] = useState(null)
 
-  const openModal = useCallback((id) => setActiveModal(id), [])
+  const openModal = useCallback((id, origin) => {
+    setActiveModal({ id, origin: origin || { x: window.innerWidth / 2, y: window.innerHeight / 2 } })
+  }, [])
   const closeModal = useCallback(() => setActiveModal(null), [])
+
+  const cn = project?.couple_names || 'Lena & Jonas'
 
   return (
     <>
       <GlobalStyles />
+
+      {/* ── FIXED LOGO ── */}
+      <div
+        onClick={activeModal ? closeModal : undefined}
+        style={{
+          position: 'fixed',
+          top: '1.2rem',
+          right: '1.5rem',
+          zIndex: 100,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '0.75rem',
+          fontWeight: 800,
+          letterSpacing: '0.05em',
+          color: '#000',
+          cursor: activeModal ? 'pointer' : 'default',
+          userSelect: 'none',
+        }}
+      >
+        {cn}
+      </div>
+
       <Canvas
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         dpr={[1, 1.5]}
@@ -52,7 +78,7 @@ export default function ParallaxWeddingApp() {
       </Canvas>
       <Loader />
       <ParallaxModal
-        active={activeModal}
+        activeModal={activeModal}
         onClose={closeModal}
         project={project}
         content={content}

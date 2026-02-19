@@ -1,42 +1,165 @@
 // src/themes/parallax/ParallaxModal.js
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { useRSVP } from '../../components/shared/RSVPCore'
 
-export default function ParallaxModal({ active, onClose, project, content }) {
-  // Lock body scroll when modal is open
+// ── KEYFRAMES (injected once) ──
+const STYLE_ID = 'parallax-modal-keyframes'
+function ensureKeyframes() {
+  if (document.getElementById(STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = STYLE_ID
+  style.textContent = `
+    @keyframes modalMorphIn {
+      0% { transform: translate(var(--ox), var(--oy)) scale(0.05) rotate(0deg); opacity: 0.8; border-radius: 8px; }
+      60% { transform: translate(0, 0) scale(0.7) rotate(270deg); opacity: 1; border-radius: 4px; }
+      100% { transform: translate(0, 0) scale(1) rotate(360deg); opacity: 1; border-radius: 0; }
+    }
+    @keyframes modalMorphOut {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; border-radius: 0; }
+      40% { transform: translate(0, 0) scale(0.7) rotate(-90deg); opacity: 1; border-radius: 4px; }
+      100% { transform: translate(var(--ox), var(--oy)) scale(0.05) rotate(-360deg); opacity: 0; border-radius: 8px; }
+    }
+    @keyframes contentFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes contentFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    @keyframes backdropIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes backdropOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  `
+  document.head.appendChild(style)
+}
+
+// ── MAIN MODAL ──
+export default function ParallaxModal({ activeModal, onClose, project, content }) {
+  // phase: null | 'morph-in' | 'open' | 'closing'
+  const [phase, setPhase] = useState(null)
+  const [current, setCurrent] = useState(null) // { id, origin }
+  const panelRef = useRef(null)
+
+  useEffect(() => { ensureKeyframes() }, [])
+
+  // Open
   useEffect(() => {
-    if (active) {
+    if (activeModal && !current) {
+      setCurrent(activeModal)
+      setPhase('morph-in')
+      const t = setTimeout(() => setPhase('open'), 550)
+      return () => clearTimeout(t)
+    }
+  }, [activeModal, current])
+
+  // Close trigger
+  const handleClose = useCallback(() => {
+    if (phase === 'closing') return
+    setPhase('closing')
+    setTimeout(() => {
+      setPhase(null)
+      setCurrent(null)
+      onClose()
+    }, 450)
+  }, [phase, onClose])
+
+  // Lock body scroll
+  useEffect(() => {
+    if (current) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
     }
     return () => { document.body.style.overflow = '' }
-  }, [active])
+  }, [current])
 
-  // ESC key to close
+  // ESC to close
   useEffect(() => {
-    if (!active) return
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    if (!current) return
+    const onKey = (e) => { if (e.key === 'Escape') handleClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, onClose])
+  }, [current, handleClose])
 
-  if (!active) return null
+  if (!current) return null
+
+  const isMobile = window.innerWidth < 768
+  const panelWidth = isMobile ? '100vw' : '66vw'
+
+  // Origin offset for animation (from center of button to panel center)
+  const panelCenterX = isMobile ? window.innerWidth / 2 : window.innerWidth - (window.innerWidth * 0.66) / 2
+  const panelCenterY = window.innerHeight / 2
+  const ox = (current.origin?.x || window.innerWidth / 2) - panelCenterX
+  const oy = (current.origin?.y || window.innerHeight / 2) - panelCenterY
+
+  const panelStyle = {
+    position: 'fixed',
+    right: 0,
+    top: 0,
+    width: panelWidth,
+    height: '100vh',
+    background: '#fff',
+    zIndex: 10001,
+    display: 'flex',
+    flexDirection: 'column',
+    transformOrigin: 'center center',
+    '--ox': `${ox}px`,
+    '--oy': `${oy}px`,
+    animation: phase === 'morph-in'
+      ? 'modalMorphIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards'
+      : phase === 'closing'
+      ? 'modalMorphOut 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards'
+      : 'none',
+  }
+
+  const contentStyle = {
+    opacity: phase === 'open' ? 1 : 0,
+    animation: phase === 'open'
+      ? 'contentFadeIn 0.25s ease forwards'
+      : phase === 'closing'
+      ? 'contentFadeOut 0.15s ease forwards'
+      : 'none',
+  }
+
+  const backdropStyle = {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 10000,
+    background: 'rgba(0,0,0,0.06)',
+    animation: phase === 'closing'
+      ? 'backdropOut 0.4s ease forwards'
+      : 'backdropIn 0.3s ease forwards',
+  }
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.container} onClick={e => e.stopPropagation()}>
-        <button style={styles.closeBtn} onClick={onClose} aria-label="Schließen">
+    <>
+      {/* Backdrop */}
+      <div style={backdropStyle} onClick={handleClose} />
+
+      {/* Panel */}
+      <div ref={panelRef} style={panelStyle} onClick={e => e.stopPropagation()}>
+        {/* Close button */}
+        <button style={styles.closeBtn} onClick={handleClose} aria-label="Schließen">
           ✕
         </button>
-        <div style={styles.scrollArea}>
-          {active === 'lovestory' && <LoveStoryContent content={content} />}
-          {active === 'info' && <InfoContent project={project} content={content} />}
-          {active === 'rsvp' && <RSVPContent content={content} />}
-          {active === 'gallery' && <GalleryContent content={content} />}
+
+        {/* Scroll area with content */}
+        <div data-scroll-area style={{ ...styles.scrollArea, ...contentStyle }}>
+          <div style={styles.contentInner}>
+            {current.id === 'lovestory' && <LoveStoryContent content={content} />}
+            {current.id === 'info' && <InfoContent project={project} content={content} />}
+            {current.id === 'rsvp' && <RSVPContent content={content} />}
+            {current.id === 'gallery' && <GalleryContent content={content} />}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -52,14 +175,14 @@ function LoveStoryContent({ content }) {
       ]
 
   return (
-    <div style={{ padding: '3rem 0' }}>
+    <div style={{ padding: '4rem 0 6rem' }}>
       <h2 style={styles.modalTitle}>Unsere Geschichte</h2>
       {chapters.map((ch, i) => (
-        <div key={i} style={{ marginBottom: '3rem' }}>
+        <div key={i} style={{ marginBottom: '5rem' }}>
           <p style={styles.label}>{ch.date}</p>
           <h3 style={styles.sectionTitle}>{ch.title}</h3>
           {ch.image && typeof ch.image === 'string' && ch.image.startsWith('http') && (
-            <img src={ch.image} alt={ch.title} style={styles.chapterImg} />
+            <img src={ch.image} alt={ch.title} style={styles.chapterImg} loading="lazy" />
           )}
           <p style={styles.bodyText}>{ch.description}</p>
         </div>
@@ -68,7 +191,7 @@ function LoveStoryContent({ content }) {
   )
 }
 
-// ── INFO (Countdown, Location, Anfahrt) ──
+// ── INFO ──
 function InfoContent({ project, content }) {
   const [cd, setCd] = useState({ d: 0, h: 0, m: 0, s: 0, past: false })
   const weddingDate = project?.wedding_date
@@ -101,11 +224,10 @@ function InfoContent({ project, content }) {
   const directions = content?.directions || {}
 
   return (
-    <div style={{ padding: '3rem 0' }}>
+    <div style={{ padding: '4rem 0 6rem' }}>
       <h2 style={styles.modalTitle}>Infos</h2>
 
-      {/* Countdown */}
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
         <p style={styles.label}>{cd.past ? 'WIR HABEN GEHEIRATET' : 'COUNTDOWN'}</p>
         {!cd.past && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', margin: '1.5rem 0' }}>
@@ -126,12 +248,11 @@ function InfoContent({ project, content }) {
         {dateStr && <p style={{ ...styles.bodyText, textAlign: 'center' }}>{dateStr}</p>}
       </div>
 
-      {/* Locations */}
       {locations.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '3rem' }}>
           <p style={styles.label}>LOCATIONS</p>
           {locations.map((loc, i) => (
-            <div key={i} style={{ marginBottom: '1.5rem' }}>
+            <div key={i} style={{ marginBottom: '2rem' }}>
               <h3 style={styles.sectionTitle}>{loc.name || loc.title}</h3>
               {loc.address && <p style={styles.bodyText}>{loc.address}</p>}
               {loc.time && <p style={styles.bodyText}>{loc.time}</p>}
@@ -141,7 +262,6 @@ function InfoContent({ project, content }) {
         </div>
       )}
 
-      {/* Directions */}
       {directions.description && (
         <div>
           <p style={styles.label}>ANFAHRT</p>
@@ -159,7 +279,7 @@ function RSVPContent({ content }) {
 
   if (rsvp.submitted) {
     return (
-      <div style={{ padding: '3rem 0', textAlign: 'center' }}>
+      <div style={{ padding: '4rem 0', textAlign: 'center' }}>
         <h2 style={styles.modalTitle}>Danke!</h2>
         <p style={styles.bodyText}>Deine Rückmeldung wurde gespeichert.</p>
         <button style={styles.formBtn} onClick={rsvp.resetForm}>Neue Antwort</button>
@@ -168,7 +288,7 @@ function RSVPContent({ content }) {
   }
 
   return (
-    <div style={{ padding: '3rem 0' }}>
+    <div style={{ padding: '4rem 0 6rem' }}>
       <h2 style={styles.modalTitle}>{rsvpConfig.title || 'RSVP'}</h2>
       {rsvpConfig.description && <p style={{ ...styles.bodyText, marginBottom: '2rem' }}>{rsvpConfig.description}</p>}
 
@@ -187,7 +307,6 @@ function RSVPContent({ content }) {
           onChange={e => rsvp.updateField('email', e.target.value)}
         />
 
-        {/* Attendance */}
         <div style={{ display: 'flex', gap: '0.8rem' }}>
           <button
             style={{ ...styles.toggleBtn, ...(rsvp.formData.attending ? styles.toggleActive : {}) }}
@@ -205,7 +324,6 @@ function RSVPContent({ content }) {
 
         {rsvp.formData.attending && (
           <>
-            {/* Persons */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>Personen:</span>
               <button style={styles.adjustBtn} onClick={() => rsvp.adjustPersons(-1)}>−</button>
@@ -243,9 +361,23 @@ function RSVPContent({ content }) {
   )
 }
 
-// ── GALLERY ──
+// ── GALLERY with parallax scroll ──
+const GALLERY_LAYOUT = [
+  { col: 0, span: 2, speed: 0.3 },   // full-width
+  { col: 0, span: 1, speed: 0.5 },   // left half
+  { col: 1, span: 1, speed: 0.7 },   // right half
+  { col: 0, span: 2, speed: 0.4 },   // full-width
+  { col: 0, span: 1, speed: 0.6 },   // left half
+  { col: 1, span: 1, speed: 0.35 },  // right half
+  { col: 0, span: 2, speed: 0.55 },  // full-width
+  { col: 0, span: 1, speed: 0.45 },
+  { col: 1, span: 1, speed: 0.65 },
+]
+
 function GalleryContent({ content }) {
-  const [current, setCurrent] = useState(0)
+  const scrollRef = useRef(null)
+  const [scrollTop, setScrollTop] = useState(0)
+
   const rawImgs = content?.gallery?.images || []
   const imgs = rawImgs.map(i => typeof i === 'string' ? i : i.url).filter(Boolean)
 
@@ -253,84 +385,76 @@ function GalleryContent({ content }) {
     'https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&q=80&auto=format',
     'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1400&q=80&auto=format',
     'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1400&q=80&auto=format',
+    'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1400&q=80&auto=format',
+    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1400&q=80&auto=format',
+    'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1400&q=80&auto=format',
   ]
   const images = imgs.length > 0 ? imgs : FALLBACK
 
-  const prev = useCallback(() => setCurrent(c => (c - 1 + images.length) % images.length), [images.length])
-  const next = useCallback(() => setCurrent(c => (c + 1) % images.length), [images.length])
-
-  // Keyboard nav
+  // We listen on the parent scrollArea, bubbled via a passed-in callback
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'ArrowLeft') prev()
-      if (e.key === 'ArrowRight') next()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [prev, next])
+    const scrollArea = scrollRef.current?.closest('[data-scroll-area]')
+    if (!scrollArea) return
+    const onScroll = () => setScrollTop(scrollArea.scrollTop)
+    scrollArea.addEventListener('scroll', onScroll, { passive: true })
+    return () => scrollArea.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const isMobile = window.innerWidth < 768
 
   return (
-    <div style={{ padding: '2rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100%', justifyContent: 'center' }}>
-      <h2 style={{ ...styles.modalTitle, marginBottom: '1.5rem' }}>Galerie</h2>
+    <div ref={scrollRef} style={{ padding: '4rem 0 6rem' }}>
+      <h2 style={{ ...styles.modalTitle, marginBottom: '2rem' }}>Galerie</h2>
+      <p style={{ ...styles.label, marginBottom: '3rem' }}>MOMENTE</p>
 
-      <div style={{ position: 'relative', width: '100%', maxWidth: '800px' }}>
-        <img
-          src={images[current]}
-          alt={`Foto ${current + 1}`}
-          style={{ width: '100%', height: 'auto', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}
-        />
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: '1.5rem',
+      }}>
+        {images.map((src, i) => {
+          const layout = GALLERY_LAYOUT[i % GALLERY_LAYOUT.length]
+          const speed = layout.speed
+          const parallaxY = scrollTop * (speed - 0.5) * 0.3
+          const spanFull = !isMobile && layout.span === 2
 
-        {/* Nav buttons */}
-        <button
-          style={{ ...styles.navBtn, left: '0.5rem' }}
-          onClick={prev}
-          aria-label="Vorheriges Bild"
-        >
-          ‹
-        </button>
-        <button
-          style={{ ...styles.navBtn, right: '0.5rem' }}
-          onClick={next}
-          aria-label="Nächstes Bild"
-        >
-          ›
-        </button>
+          return (
+            <div
+              key={i}
+              style={{
+                gridColumn: spanFull ? '1 / -1' : 'auto',
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <img
+                src={src}
+                alt={`Foto ${i + 1}`}
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  height: spanFull ? '55vh' : '40vh',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transform: `translateY(${parallaxY}px)`,
+                  transition: 'transform 0.1s linear',
+                }}
+              />
+            </div>
+          )
+        })}
       </div>
-
-      <p style={{ fontWeight: 700, fontSize: '0.85rem', marginTop: '1rem', opacity: 0.4 }}>
-        {current + 1} / {images.length}
-      </p>
     </div>
   )
 }
 
 // ── STYLES ──
 const styles = {
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    zIndex: 10000,
-    background: '#ffffff',
-    display: 'flex',
-    alignItems: 'stretch',
-    justifyContent: 'center',
-  },
-  container: {
-    position: 'relative',
-    width: '100%',
-    maxWidth: '700px',
-    padding: '0 2rem',
-  },
-  scrollArea: {
-    overflowY: 'auto',
-    height: '100vh',
-    WebkitOverflowScrolling: 'touch',
-  },
   closeBtn: {
-    position: 'fixed',
-    top: '1.5rem',
-    right: '1.5rem',
-    zIndex: 10001,
+    position: 'absolute',
+    top: '1.2rem',
+    left: '1.2rem',
+    zIndex: 10,
     background: 'none',
     border: 'none',
     fontSize: '1.5rem',
@@ -343,6 +467,17 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontFamily: "'DM Sans', sans-serif",
+  },
+  scrollArea: {
+    overflowY: 'auto',
+    height: '100vh',
+    WebkitOverflowScrolling: 'touch',
+    flex: 1,
+  },
+  contentInner: {
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '0 2rem',
   },
   modalTitle: {
     fontFamily: "'DM Sans', sans-serif",
@@ -382,7 +517,7 @@ const styles = {
     height: 'auto',
     maxHeight: '400px',
     objectFit: 'cover',
-    margin: '1rem 0',
+    margin: '1.5rem 0',
   },
   input: {
     width: '100%',
@@ -437,22 +572,5 @@ const styles = {
     letterSpacing: '0.05em',
     cursor: 'pointer',
     textTransform: 'uppercase',
-  },
-  navBtn: {
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'rgba(255,255,255,0.9)',
-    border: '2px solid #000',
-    width: '44px',
-    height: '44px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '1.5rem',
-    fontWeight: 800,
-    color: '#000',
-    cursor: 'pointer',
   },
 }
