@@ -87,7 +87,7 @@ const themePages = {
     SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
   },
   parallax: {
-    AdminDashboard: lazy(() => import('./themes/classic/AdminDashboard')),
+    AdminDashboard: lazy(() => import('./themes/parallax/AdminDashboard')),
     ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
   },

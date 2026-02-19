@@ -14,6 +14,7 @@ import { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 import { NeonAdminComponents } from './styles/NeonAdminStyles';
 import { VideoAdminComponents } from './styles/VideoAdminStyles';
 import { ClassicAdminComponents } from './styles/ClassicAdminStyles';
+import { ParallaxAdminComponents } from './styles/ParallaxAdminStyles';
 
 // ============================================
 // Core exports (for creating custom themes)
@@ -60,6 +61,11 @@ export function ClassicAdmin() {
   return <AdminShell components={ClassicAdminComponents} />;
 }
 
+// Parallax - White/black, DM Sans, bold typography
+export function ParallaxAdmin() {
+  return <AdminShell components={ParallaxAdminComponents} />;
+}
+
 // ============================================
 // Style components exports (for customization)
 // ============================================
@@ -70,3 +76,4 @@ export { LuxeAdminComponents } from './styles/LuxeAdminStyles';
 export { NeonAdminComponents } from './styles/NeonAdminStyles';
 export { VideoAdminComponents } from './styles/VideoAdminStyles';
 export { ClassicAdminComponents } from './styles/ClassicAdminStyles';
+export { ParallaxAdminComponents } from './styles/ParallaxAdminStyles';

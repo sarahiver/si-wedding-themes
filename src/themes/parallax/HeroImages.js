@@ -1,22 +1,19 @@
 // src/themes/parallax/HeroImages.js
+// Uses gallery images (positions 0,1) — all website images come from gallery uploads
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { useScroll } from '@react-three/drei'
 import SafeImage from './SafeImage'
 import { r, HERO_IMG } from './scrollConfig'
-
-const FALLBACK_1 = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&q=80&auto=format'
-const FALLBACK_2 = 'https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?w=900&q=80&auto=format'
+import { getGalleryUrl } from './galleryHelper'
 
 export default function HeroImages({ project, content }) {
   const group = useRef()
   const data  = useScroll()
   const { width, height } = useThree(s => s.viewport)
 
-  const img1 = (content?.hero?.background_image && content.hero.background_image.startsWith('http')) ? content.hero.background_image : FALLBACK_1
-  const img2 = (content?.hero?.image2 && content.hero.image2.startsWith('http')) ? content.hero.image2
-    : (content?.lovestory?.image_front && content.lovestory.image_front.startsWith('http')) ? content.lovestory.image_front
-    : FALLBACK_2
+  const img1 = getGalleryUrl(content, 0)
+  const img2 = getGalleryUrl(content, 1)
 
   const pageH = height
   const yOffset = -(HERO_IMG[0] * pageH)

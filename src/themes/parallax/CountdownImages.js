@@ -1,14 +1,13 @@
 // src/themes/parallax/CountdownImages.js
-// Single atmospheric full-bleed image, no dark scrim
+// Single atmospheric full-bleed image — uses gallery image position 5
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { useScroll } from '@react-three/drei'
 import SafeImage from './SafeImage'
 import { r, CD_IMG } from './scrollConfig'
+import { getGalleryUrl } from './galleryHelper'
 
-const FALLBACK = 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1400&q=80'
-
-export default function CountdownImages() {
+export default function CountdownImages({ content }) {
   const group = useRef()
   const data  = useScroll()
   const { width, height } = useThree(s => s.viewport)
@@ -31,7 +30,7 @@ export default function CountdownImages() {
       <SafeImage
         position={[0, 0, 0]}
         scale={[width, height, 1]}
-        url={FALLBACK}
+        url={getGalleryUrl(content, 5)}
         transparent
       />
     </group>

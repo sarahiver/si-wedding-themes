@@ -242,7 +242,7 @@ export default function ParallaxWeddingApp() {
             <Scroll>
               <HeroImages project={project} content={content} />
               <LoveStoryImages content={content} />
-              <CountdownImages project={project} />
+              <CountdownImages content={content} />
               <GalleryImages content={content} />
             </Scroll>
 

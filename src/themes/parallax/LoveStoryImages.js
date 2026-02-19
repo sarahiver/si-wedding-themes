@@ -1,25 +1,22 @@
 // src/themes/parallax/LoveStoryImages.js
+// Uses gallery images (positions 2,3,4) — all website images come from gallery uploads
 import { useRef } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
 import { useScroll } from '@react-three/drei'
 import SafeImage from './SafeImage'
 import { r, LS_IMG } from './scrollConfig'
-
-const FALLBACK = [
-  'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=900&q=80&auto=format',
-  'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=900&q=80&auto=format',
-  'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=900&q=80&auto=format',
-]
+import { getGalleryUrl } from './galleryHelper'
 
 export default function LoveStoryImages({ content }) {
   const group = useRef()
   const data  = useScroll()
   const { width, height } = useThree(s => s.viewport)
 
-  const events = content?.lovestory?.events
-  const images = events?.length >= 3
-    ? events.slice(0, 3).map((e, i) => (e.image && typeof e.image === 'string' && e.image.startsWith('http')) ? e.image : FALLBACK[i])
-    : FALLBACK
+  const images = [
+    getGalleryUrl(content, 2),
+    getGalleryUrl(content, 3),
+    getGalleryUrl(content, 4),
+  ]
 
   const chapterLen = LS_IMG[1] / 3
   const pageH = height

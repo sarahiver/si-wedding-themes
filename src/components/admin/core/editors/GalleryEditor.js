@@ -6,6 +6,7 @@ import MultiImageUploader from './MultiImageUploader';
 function GalleryEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
   const showCaptions = ['botanical', 'editorial', 'video'].includes(project?.theme);
+  const isParallax = project?.theme === 'parallax';
   const content = contentStates.gallery || {};
   const update = (field, value) => updateContentField('gallery', field, value);
 
@@ -44,6 +45,14 @@ function GalleryEditor({ components: C }) {
         <C.HelpText style={{ marginBottom: '1rem' }}>
           Bilder per Drag &amp; Drop hochladen. Reihenfolge durch Ziehen ändern.
         </C.HelpText>
+        {isParallax && (
+          <C.AlertBox $type={images.length >= 10 ? 'success' : 'warning'} style={{ marginBottom: '1rem' }}>
+            {images.length >= 10
+              ? `${images.length} Bilder hochgeladen — alle Website-Bereiche sind versorgt.`
+              : `Parallax Theme: Mindestens 10 Bilder hochladen (aktuell: ${images.length}). Die Bilder werden automatisch auf alle Bereiche der Website verteilt (Hero, Love Story, Countdown, Galerie).`
+            }
+          </C.AlertBox>
+        )}
         
         <MultiImageUploader
           components={C}

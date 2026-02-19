@@ -5,6 +5,7 @@ import { useGuestbook } from '../../components/shared/GuestbookCore'
 import { useMusicWishes } from '../../components/shared/MusicWishesCore'
 import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore'
 import { useGifts } from '../../components/shared/GiftsCore'
+import { getAllGalleryUrls } from './galleryHelper'
 
 // ── KEYFRAMES ──
 const STYLE_ID = 'parallax-modal-keyframes'
@@ -113,6 +114,7 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
     switch (id) {
       case 'lovestory':     return <LoveStoryContent {...p} />
       case 'locations':     return <LocationsContent {...p} />
+      case 'directions':    return <DirectionsContent {...p} />
       case 'rsvp':          return <RSVPContent {...p} />
       case 'gallery':       return <GalleryContent {...p} />
       case 'timeline':      return <TimelineContent {...p} />
@@ -220,7 +222,7 @@ function LoveStoryContent({ content, scrollTop }) {
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 2rem 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>UNSERE GESCHICHTE</p>
-        <h2 style={st.modalTitle}>Love Story</h2>
+        <h2 style={st.modalTitle}>{ls.title || 'Love Story'}</h2>
       </div>
       {chapters.map((ch, i) => {
         const hasImg = ch.image && typeof ch.image === 'string' && ch.image.startsWith('http')
@@ -250,7 +252,8 @@ function LoveStoryContent({ content, scrollTop }) {
 
 // ── LOCATIONS (Orte + Anfahrt) ──
 function LocationsContent({ content, scrollTop }) {
-  const raw = content?.locations?.locations || content?.locations?.items || content?.locations?.venues || []
+  const lc = content?.locations || {}
+  const raw = lc.locations || lc.items || lc.venues || []
   const locations = raw.length > 0 ? raw : [
     { name: 'Kirche St. Peter', time: '14:00 Uhr', address: 'Kirchstraße 12, 80331 München', description: 'Hier beginnt unser gemeinsamer Weg.' },
     { name: 'Gut Sonnenhof', time: '16:00 Uhr', address: 'Sonnenweg 5, 82049 Pullach', description: 'Empfang, Dinner & Party bis in die Nacht.' },
@@ -260,12 +263,21 @@ function LocationsContent({ content, scrollTop }) {
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 2rem 2rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
-        <h2 style={st.modalTitle}>Locations</h2>
+        <h2 style={st.modalTitle}>{lc.title || 'Locations'}</h2>
       </div>
       <div style={{ padding: '0 2rem' }}>
         <div style={{ transform: `translateY(${px(scrollTop, 0.3)}px)` }}><p style={st.label}>ORTE</p></div>
         {locations.map((loc, i) => (
           <div key={i} style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)` }}>
+            {loc.image && (
+              <div style={{ overflow: 'hidden', height: '40vh', marginBottom: '1.5rem' }}>
+                <img src={loc.image} alt={loc.name} loading="lazy" style={{
+                  width: '100%', height: '120%', objectFit: 'cover', display: 'block',
+                  transform: `scale(${1 + scrollTop * 0.0003})`,
+                }} />
+              </div>
+            )}
+            {loc.label && <p style={st.label}>{loc.label}</p>}
             <h3 style={{ ...st.sectionTitle, fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)' }}>{loc.name || loc.title}</h3>
             {loc.time && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{loc.time}</p>}
             {loc.address && <p style={st.bodyText}>{loc.address}</p>}
@@ -274,18 +286,59 @@ function LocationsContent({ content, scrollTop }) {
           </div>
         ))}
       </div>
-      {directions.description && (
+      {(directions.title || directions.address || directions.items?.length > 0 || directions.note) && (
         <div style={{ padding: '0 2rem', transform: `translateY(${px(scrollTop, 0.55)}px)` }}>
           <p style={st.label}>ANFAHRT</p>
-          <p style={st.bodyText}>{directions.description}</p>
-          {directions.options?.map((opt, i) => (
+          {directions.address && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)', marginBottom: '1rem' }}>{directions.address}</p>}
+          {directions.maps_embed && (
+            <div style={{ marginBottom: '2rem', height: '250px', overflow: 'hidden' }}>
+              <iframe src={directions.maps_embed} width="100%" height="250" style={{ border: 0, filter: 'invert(0.9) grayscale(1)' }} allowFullScreen loading="lazy" title="Anfahrt" />
+            </div>
+          )}
+          {directions.note && <p style={{ ...st.bodyText, marginBottom: '1.5rem' }}>{directions.note}</p>}
+          {directions.items?.map((item, i) => (
             <div key={i} style={{ marginTop: '1.5rem', transform: `translateY(${px(scrollTop, 0.6 + i * 0.1)}px)` }}>
-              <h4 style={{ ...st.sectionTitle, fontSize: '1rem' }}>{opt.method}</h4>
-              <p style={st.bodyText}>{opt.description}</p>
+              <h4 style={{ ...st.sectionTitle, fontSize: '1rem' }}>{item.title}</h4>
+              <p style={st.bodyText}>{item.description}</p>
             </div>
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── DIRECTIONS (Standalone Anfahrt) ──
+function DirectionsContent({ content, scrollTop }) {
+  const dir = content?.directions || {}
+  const items = dir.items?.length > 0 ? dir.items : []
+  return (
+    <div style={{ paddingBottom: '8rem' }}>
+      <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
+        <p style={st.label}>WEGBESCHREIBUNG</p>
+        <h2 style={st.modalTitle}>{dir.title || 'Anfahrt'}</h2>
+      </div>
+      {dir.address && (
+        <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.3)}px)` }}>
+          <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{dir.address}</p>
+        </div>
+      )}
+      {dir.maps_embed && (
+        <div style={{ marginBottom: '2rem', height: '300px', overflow: 'hidden', transform: `translateY(${px(scrollTop, 0.35)}px)` }}>
+          <iframe src={dir.maps_embed} width="100%" height="300" style={{ border: 0, filter: 'invert(0.9) grayscale(1)' }} allowFullScreen loading="lazy" title="Anfahrt" />
+        </div>
+      )}
+      {dir.note && (
+        <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.4)}px)` }}>
+          <p style={st.bodyText}>{dir.note}</p>
+        </div>
+      )}
+      {items.map((item, i) => (
+        <div key={i} style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.12)}px)` }}>
+          <h3 style={st.sectionTitle}>{item.title}</h3>
+          {item.description && <p style={st.bodyText}>{item.description}</p>}
+        </div>
+      ))}
     </div>
   )
 }
@@ -309,6 +362,11 @@ function RSVPContent({ content, scrollTop }) {
         <h2 style={st.modalTitle}>{cfg.title || 'RSVP'}</h2>
       </div>
       {cfg.description && <div style={{ transform: `translateY(${px(scrollTop, 0.35)}px)` }}><p style={{ ...st.bodyText, marginBottom: '2rem' }}>{cfg.description}</p></div>}
+      {cfg.deadline && (
+        <div style={{ marginBottom: '1.5rem', transform: `translateY(${px(scrollTop, 0.38)}px)` }}>
+          <p style={{ ...st.label, color: 'rgba(255,255,255,0.5)' }}>BITTE BIS {cfg.deadline} ANTWORTEN</p>
+        </div>
+      )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
         <input style={st.input} placeholder="Name *" value={rsvp.formData.name} onChange={e => rsvp.updateField('name', e.target.value)} />
         <input style={st.input} type="email" placeholder="E-Mail *" value={rsvp.formData.email} onChange={e => rsvp.updateField('email', e.target.value)} />
@@ -324,8 +382,13 @@ function RSVPContent({ content, scrollTop }) {
               <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '1.5rem', textAlign: 'center', color: '#fff' }}>{rsvp.formData.persons}</span>
               <button style={st.adjustBtn} onClick={() => rsvp.adjustPersons(1)}>+</button>
             </div>
-            <input style={st.input} placeholder="Unverträglichkeiten / Allergien" value={rsvp.formData.dietary} onChange={e => rsvp.updateField('dietary', e.target.value)} />
+            {(cfg.ask_dietary !== false) && (
+              <input style={st.input} placeholder="Unverträglichkeiten / Allergien" value={rsvp.formData.dietary} onChange={e => rsvp.updateField('dietary', e.target.value)} />
+            )}
           </>
+        )}
+        {cfg.custom_question && (
+          <input style={st.input} placeholder={cfg.custom_question} value={rsvp.formData.custom_answer || ''} onChange={e => rsvp.updateField('custom_answer', e.target.value)} />
         )}
         <textarea style={{ ...st.input, minHeight: '80px', resize: 'vertical' }} placeholder="Nachricht (optional)" value={rsvp.formData.message} onChange={e => rsvp.updateField('message', e.target.value)} />
         {rsvp.error && <p style={{ color: '#f66', fontWeight: 700, fontSize: '0.85rem' }}>{rsvp.error}</p>}
@@ -338,17 +401,7 @@ function RSVPContent({ content, scrollTop }) {
 // ── GALLERY ──
 const GALLERY_SPEEDS = [0.3, 0.55, 0.7, 0.35, 0.6, 0.45, 0.5, 0.65, 0.4]
 function GalleryContent({ content, scrollTop }) {
-  const rawImgs = content?.gallery?.images || []
-  const imgs = rawImgs.map(i => typeof i === 'string' ? i : i.url).filter(Boolean)
-  const FALLBACK = [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=1400&q=80&auto=format',
-    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1400&q=80&auto=format',
-    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1400&q=80&auto=format',
-    'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1400&q=80&auto=format',
-    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1400&q=80&auto=format',
-    'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1400&q=80&auto=format',
-  ]
-  const images = imgs.length > 0 ? imgs : FALLBACK
+  const images = getAllGalleryUrls(content)
   const isMobile = window.innerWidth < 768
   return (
     <div style={{ paddingBottom: '8rem' }}>
@@ -423,7 +476,8 @@ function DresscodeContent({ content, scrollTop }) {
   const dc = content?.dresscode || {}
   const code = dc.code || 'Festlich Elegant'
   const desc = dc.description || 'Wir freuen uns, wenn ihr euch festlich kleidet. Tragt, worin ihr euch wohlfühlt — Hauptsache, ihr feiert mit uns!'
-  const colors = dc.colors?.length > 0 ? dc.colors : ['#8B7355', '#A8B5A2', '#F5F0EB', '#D4C5B2', '#2C3E2D']
+  const rawColors = dc.colors?.length > 0 ? dc.colors : [{ hex: '#8B7355' }, { hex: '#A8B5A2' }, { hex: '#F5F0EB' }, { hex: '#D4C5B2' }, { hex: '#2C3E2D' }]
+  const colors = rawColors.map(c => typeof c === 'string' ? { hex: c, name: '' } : c)
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
@@ -442,7 +496,10 @@ function DresscodeContent({ content, scrollTop }) {
         <p style={st.label}>FARBPALETTE</p>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
           {colors.map((c, i) => (
-            <div key={i} style={{ width: '48px', height: '48px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.2)' }} />
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: c.hex, border: '2px solid rgba(255,255,255,0.2)' }} />
+              {c.name && <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textAlign: 'center' }}>{c.name}</span>}
+            </div>
           ))}
         </div>
       </div>
@@ -500,6 +557,11 @@ function GiftsContent({ content, scrollTop }) {
           <a href={gc.paypal_link} target="_blank" rel="noopener noreferrer" style={st.link}>PayPal</a>
         </div>
       )}
+      {gc.show_registry && gc.registry_url && (
+        <div style={{ marginBottom: '3rem', transform: `translateY(${px(scrollTop, 0.44)}px)` }}>
+          <a href={gc.registry_url} target="_blank" rel="noopener noreferrer" style={st.link}>Wunschliste anzeigen</a>
+        </div>
+      )}
       {items.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           {items.map((item, i) => {
@@ -519,9 +581,10 @@ function GiftsContent({ content, scrollTop }) {
                     }} />
                   </div>
                 )}
-                <h3 style={st.sectionTitle}>{item.name || item.title}</h3>
-                {item.price && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{item.price}</p>}
+                <h3 style={st.sectionTitle}>{item.title || item.name}</h3>
+                {item.cost && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{item.cost}</p>}
                 {item.description && <p style={st.bodyText}>{item.description}</p>}
+                {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ ...st.link, marginBottom: '0.5rem' }}>Ansehen</a>}
                 {reserved ? (
                   <p style={{ ...st.label, marginTop: '1rem', color: 'rgba(255,255,255,0.3)' }}>RESERVIERT</p>
                 ) : reservingId === (item.id || i) ? (
@@ -569,13 +632,23 @@ function AccommodationsContent({ content, scrollTop }) {
           borderBottom: '1px solid rgba(255,255,255,0.08)',
           transform: `translateY(${px(scrollTop, 0.35 + i * 0.12)}px)`,
         }}>
+          {h.image && (
+            <div style={{ overflow: 'hidden', height: '35vh', marginBottom: '1.5rem' }}>
+              <img src={h.image} alt={h.name} loading="lazy" style={{
+                width: '100%', height: '120%', objectFit: 'cover', display: 'block',
+                transform: `scale(${1 + scrollTop * 0.0003})`,
+              }} />
+            </div>
+          )}
           <h3 style={st.sectionTitle}>{h.name}</h3>
           {h.distance && <p style={{ ...st.label, marginTop: '0.5rem' }}>{h.distance}</p>}
           {h.price_range && <p style={{ ...st.bodyText, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{h.price_range}</p>}
           {h.address && <p style={st.bodyText}>{h.address}</p>}
-          {h.description && <p style={st.bodyText}>{h.description}</p>}
-          {h.phone && <p style={st.bodyText}>Tel: {h.phone}</p>}
-          {h.website && <a href={h.website} target="_blank" rel="noopener noreferrer" style={st.link}>Website</a>}
+          {h.booking_code && <p style={{ ...st.bodyText, fontStyle: 'italic' }}>Buchungscode: {h.booking_code}</p>}
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+            {h.maps_url && <a href={h.maps_url} target="_blank" rel="noopener noreferrer" style={st.link}>Karte</a>}
+            {(h.booking_url || h.url) && <a href={h.booking_url || h.url} target="_blank" rel="noopener noreferrer" style={st.link}>Buchen</a>}
+          </div>
         </div>
       ))}
     </div>
@@ -617,8 +690,9 @@ function WitnessesContent({ content, scrollTop }) {
           <h3 style={st.sectionTitle}>{p.name}</h3>
           {p.role && <p style={{ ...st.label, marginTop: '0.3rem' }}>{p.role}</p>}
           {p.description && <p style={st.bodyText}>{p.description}</p>}
-          {p.contact?.phone && <p style={st.bodyText}>Tel: {p.contact.phone}</p>}
-          {p.contact?.email && <p style={st.bodyText}>{p.contact.email}</p>}
+          {(p.phone || p.contact?.phone) && <p style={st.bodyText}>Tel: {p.phone || p.contact.phone}</p>}
+          {(p.email || p.contact?.email) && <p style={st.bodyText}>{p.email || p.contact.email}</p>}
+          {p.whatsapp && <a href={`https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" style={st.link}>WhatsApp</a>}
         </div>
       ))}
     </div>
@@ -626,14 +700,20 @@ function WitnessesContent({ content, scrollTop }) {
 }
 
 // ── GUESTBOOK (Gästebuch) ──
-function GuestbookContent({ scrollTop }) {
+function GuestbookContent({ content, scrollTop }) {
   const gb = useGuestbook()
+  const cfg = content?.guestbook || {}
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>WÜNSCHE & GRÜSSE</p>
-        <h2 style={st.modalTitle}>Gästebuch</h2>
+        <h2 style={st.modalTitle}>{cfg.title || 'Gästebuch'}</h2>
       </div>
+      {cfg.description && (
+        <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.25)}px)` }}>
+          <p style={st.bodyText}>{cfg.description}</p>
+        </div>
+      )}
 
       {gb.success ? (
         <div style={{ textAlign: 'center', padding: '2rem 0' }}>
@@ -672,14 +752,25 @@ function GuestbookContent({ scrollTop }) {
 }
 
 // ── MUSIC WISHES (Musikwünsche) ──
-function MusicWishesContent({ scrollTop }) {
+function MusicWishesContent({ content, scrollTop }) {
   const mw = useMusicWishes()
+  const cfg = content?.musicwishes || {}
   return (
     <div style={{ paddingBottom: '8rem' }}>
       <div style={{ padding: '6rem 0 4rem', transform: `translateY(${px(scrollTop, 0.15)}px)` }}>
         <p style={st.label}>PLAYLIST</p>
-        <h2 style={st.modalTitle}>Musikwünsche</h2>
+        <h2 style={st.modalTitle}>{cfg.title || 'Musikwünsche'}</h2>
       </div>
+      {cfg.description && (
+        <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.25)}px)` }}>
+          <p style={st.bodyText}>{cfg.description}</p>
+        </div>
+      )}
+      {cfg.spotify_playlist && (
+        <div style={{ marginBottom: '2rem', transform: `translateY(${px(scrollTop, 0.28)}px)` }}>
+          <a href={cfg.spotify_playlist} target="_blank" rel="noopener noreferrer" style={st.link}>Spotify Playlist anhören</a>
+        </div>
+      )}
 
       {mw.success ? (
         <div style={{ textAlign: 'center', padding: '2rem 0' }}>
@@ -835,18 +926,18 @@ function WeddingABCContent({ content, scrollTop }) {
   const abc = content?.weddingabc || {}
   const desc = abc.description || 'Alles, was ihr über unseren großen Tag wissen müsst — alphabetisch sortiert.'
   const entries = abc.entries?.length > 0 ? abc.entries : [
-    { letter: 'A', title: 'Anfahrt', description: 'Parkplätze sind direkt an der Location vorhanden. Bildet gerne Fahrgemeinschaften!' },
-    { letter: 'B', title: 'Blumenkinder', description: 'Wer möchte, darf gerne nach der Trauung Blütenblätter streuen. Meldet euch bei den Trauzeugen.' },
-    { letter: 'D', title: 'Dresscode', description: 'Festlich elegant. Farben: Erdtöne, Salbei, Creme. Tragt, worin ihr euch wohlfühlt!' },
-    { letter: 'F', title: 'Fotos', description: 'Nutzt gerne unsere Foto-Upload-Funktion auf dieser Seite. Wir freuen uns über eure Perspektive!' },
-    { letter: 'G', title: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk. Wer dennoch etwas geben möchte: unsere Reisekasse freut sich.' },
-    { letter: 'K', title: 'Kinder', description: 'Herzlich willkommen! Kinderbetreuung und Spielecke sind vorhanden.' },
-    { letter: 'M', title: 'Musik', description: 'Songwünsche könnt ihr vorab über diese Seite einreichen. Die DJ-Playlist freut sich!' },
-    { letter: 'P', title: 'Party', description: 'Wir feiern bis in die Nacht. Bequeme Tanzschuhe empfohlen!' },
-    { letter: 'R', title: 'Reden', description: 'Wer eine Rede halten möchte, meldet sich bitte vorab bei den Trauzeugen.' },
-    { letter: 'T', title: 'Taxis', description: 'Sammeltaxis für die Heimfahrt werden organisiert. Details folgen rechtzeitig.' },
-    { letter: 'U', title: 'Unterkunft', description: 'Empfehlungen für Übernachtungen findet ihr unter "Unterkunft" auf dieser Seite.' },
-    { letter: 'W', title: 'Wetter', description: 'Wir haben einen Plan B für schlechtes Wetter. Kommt einfach — egal was der Himmel macht!' },
+    { letter: 'A', word: 'Anfahrt', description: 'Parkplätze sind direkt an der Location vorhanden. Bildet gerne Fahrgemeinschaften!' },
+    { letter: 'B', word: 'Blumenkinder', description: 'Wer möchte, darf gerne nach der Trauung Blütenblätter streuen. Meldet euch bei den Trauzeugen.' },
+    { letter: 'D', word: 'Dresscode', description: 'Festlich elegant. Farben: Erdtöne, Salbei, Creme. Tragt, worin ihr euch wohlfühlt!' },
+    { letter: 'F', word: 'Fotos', description: 'Nutzt gerne unsere Foto-Upload-Funktion auf dieser Seite. Wir freuen uns über eure Perspektive!' },
+    { letter: 'G', word: 'Geschenke', description: 'Eure Anwesenheit ist das größte Geschenk. Wer dennoch etwas geben möchte: unsere Reisekasse freut sich.' },
+    { letter: 'K', word: 'Kinder', description: 'Herzlich willkommen! Kinderbetreuung und Spielecke sind vorhanden.' },
+    { letter: 'M', word: 'Musik', description: 'Songwünsche könnt ihr vorab über diese Seite einreichen. Die DJ-Playlist freut sich!' },
+    { letter: 'P', word: 'Party', description: 'Wir feiern bis in die Nacht. Bequeme Tanzschuhe empfohlen!' },
+    { letter: 'R', word: 'Reden', description: 'Wer eine Rede halten möchte, meldet sich bitte vorab bei den Trauzeugen.' },
+    { letter: 'T', word: 'Taxis', description: 'Sammeltaxis für die Heimfahrt werden organisiert. Details folgen rechtzeitig.' },
+    { letter: 'U', word: 'Unterkunft', description: 'Empfehlungen für Übernachtungen findet ihr unter "Unterkunft" auf dieser Seite.' },
+    { letter: 'W', word: 'Wetter', description: 'Wir haben einen Plan B für schlechtes Wetter. Kommt einfach — egal was der Himmel macht!' },
   ]
   return (
     <div style={{ paddingBottom: '8rem' }}>
@@ -871,7 +962,7 @@ function WeddingABCContent({ content, scrollTop }) {
             minWidth: '2.5rem',
           }}>{e.letter}</span>
           <div>
-            <h3 style={{ ...st.sectionTitle, fontSize: '1.1rem' }}>{e.title}</h3>
+            <h3 style={{ ...st.sectionTitle, fontSize: '1.1rem' }}>{e.word || e.title}</h3>
             <p style={st.bodyText}>{e.description}</p>
           </div>
         </div>
