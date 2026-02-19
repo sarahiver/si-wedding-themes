@@ -3,7 +3,7 @@ import { Suspense, useState, useCallback, useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ScrollControls, Preload, Scroll, useScroll } from '@react-three/drei'
 import { useWedding } from '../../context/WeddingContext'
-import GlobalStyles from './GlobalStyles'
+import GlobalStyles, { ParallaxPageStyles } from './GlobalStyles'
 import HeroImages      from './HeroImages'
 import LoveStoryImages from './LoveStoryImages'
 import CountdownImages from './CountdownImages'
@@ -180,6 +180,7 @@ export default function ParallaxWeddingApp() {
   return (
     <>
       <GlobalStyles />
+      <ParallaxPageStyles />
 
       {/* ── HERO NAMES — animate from center to top-right, click → scroll top ── */}
       <div

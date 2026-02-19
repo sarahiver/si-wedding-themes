@@ -17,18 +17,23 @@ const GlobalStyles = createGlobalStyle`
     font-family: var(--font-b);
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
+  }
+
+  canvas { display: block; }
+`
+
+// Separate styles only for the 3D wedding page (not admin)
+export const ParallaxPageStyles = createGlobalStyle`
+  html, body {
     overflow: hidden;
     height: 100%;
   }
-
   #root {
     width: 100vw;
     height: 100vh;
     position: fixed;
     top: 0; left: 0;
   }
-
-  canvas { display: block; }
 `
 
 export default GlobalStyles
