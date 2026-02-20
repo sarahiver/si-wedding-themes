@@ -1,6 +1,7 @@
 // core/editors/DirectionsEditor.js - Mit Google Maps Integration
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ListEditor from './ListEditor';
 import AddressSearch from './AddressSearch';
 import ImageUploader from './ImageUploader';
@@ -23,6 +24,7 @@ const TRANSPORT_OPTIONS = [
 
 function DirectionsEditor({ components: C }) {
   const { contentStates, updateContent, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('directions', project);
   const content = contentStates.directions || {};
   const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('directions', field, value);
@@ -211,8 +213,8 @@ function DirectionsEditor({ components: C }) {
 
         {isClassic && (<>
           <C.SectionLabel>Bilder</C.SectionLabel>
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Hauptbild" helpText="Bild rechts neben dem Text" />
-          <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+          {!hidden('image') && <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Hauptbild" helpText="Bild rechts neben dem Text" />}
+          {!hidden('accent_image') && <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />}
         </>)}
 
         <C.Divider />

@@ -1,6 +1,7 @@
 // core/editors/HotelsEditor.js - Mit Google Maps Link + Buchungslink
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 import AddressSearch from './AddressSearch';
@@ -8,6 +9,7 @@ import { generateMapsUrl, isGoogleMapsAvailable } from '../../../../lib/googleMa
 
 function HotelsEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('accommodations', project);
   const content = contentStates.accommodations || {};
   const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('accommodations', field, value);
@@ -134,7 +136,7 @@ function HotelsEditor({ components: C }) {
         
         {isClassic && (<>
           <C.SectionLabel>Hero-Bild</C.SectionLabel>
-          <ImageUploader components={C} image={content.hero_image} onUpload={(url) => update('hero_image', url)} folder={`${baseFolder}/accommodations`} label="Vollbild oben" helpText="Großes Bild über der Hotels-Sektion" />
+          {!hidden('hero_image') && <ImageUploader components={C} image={content.hero_image} onUpload={(url) => update('hero_image', url)} folder={`${baseFolder}/accommodations`} label="Vollbild oben" helpText="Großes Bild über der Hotels-Sektion" />}
         </>)}
 
         <C.SectionLabel>Hotels (max. 4)</C.SectionLabel>

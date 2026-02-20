@@ -1,6 +1,7 @@
 // core/editors/LocationsEditor.js - Mit Google Maps, Icon-Picker & PDF Export
 import React, { useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 import AddressSearch from './AddressSearch';
@@ -55,6 +56,7 @@ function ExportBar({ locations, coupleNames }) {
 function LocationsEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder, coupleNames, project } = useAdmin();
   const isClassic = project?.theme === 'classic';
+  const { hidden } = useHiddenFields('locations', project);
   const content = contentStates.locations || {};
   const update = (field, value) => updateContentField('locations', field, value);
 
@@ -80,7 +82,7 @@ function LocationsEditor({ components: C }) {
         {isClassic && (
           <ImageUploader
             components={C}
-            image={item.accent_image}
+            /* hidden check applied via config */ image={item.accent_image}
             onUpload={(url) => onChange('accent_image', url)}
             folder={`${baseFolder}/locations`}
             ratio="1/1"
@@ -107,6 +109,7 @@ function LocationsEditor({ components: C }) {
               placeholder="Standesamt / Kirche / Location"
             />
           </C.FormGroup>
+          {!hidden('icon') && (
           <C.FormGroup style={{ width: '100px', flexShrink: 0 }}>
             <C.Label>Icon</C.Label>
             <IconPicker
@@ -115,6 +118,7 @@ function LocationsEditor({ components: C }) {
               components={C}
             />
           </C.FormGroup>
+          )}
         </C.FormRow>
 
         {/* Typ + Uhrzeit */}

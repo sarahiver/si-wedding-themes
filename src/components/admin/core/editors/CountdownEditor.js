@@ -1,9 +1,11 @@
 // core/editors/CountdownEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 
 function CountdownEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, project } = useAdmin();
+  const { hidden } = useHiddenFields('countdown', project);
   const content = contentStates.countdown || {};
   const update = (field, value) => updateContentField('countdown', field, value);
 
@@ -16,6 +18,7 @@ function CountdownEditor({ components: C }) {
         <C.PanelTitle>Countdown bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
+        {!hidden('title') && (
         <C.FormGroup>
           <C.Label>Titel</C.Label>
           <C.Input 
@@ -24,6 +27,7 @@ function CountdownEditor({ components: C }) {
             placeholder="Noch"
           />
         </C.FormGroup>
+        )}
         
         <C.FormGroup>
           <C.Label>Zieldatum *</C.Label>
@@ -39,6 +43,7 @@ function CountdownEditor({ components: C }) {
           )}
         </C.FormGroup>
         
+        {!hidden('show_seconds') && (
         <C.FormGroup>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <input
@@ -50,6 +55,7 @@ function CountdownEditor({ components: C }) {
             <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Sekunden anzeigen</span>
           </label>
         </C.FormGroup>
+        )}
         
         <C.Divider />
         <C.Button onClick={() => {

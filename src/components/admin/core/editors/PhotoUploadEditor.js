@@ -1,10 +1,12 @@
 // core/editors/PhotoUploadEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 function PhotoUploadEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('photoupload', project);
   const content = contentStates.photoupload || {};
   const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('photoupload', field, value);
@@ -15,7 +17,7 @@ function PhotoUploadEditor({ components: C }) {
         <C.PanelTitle>Foto-Upload bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
-        {isClassic && (
+        {isClassic && !hidden('background_image') && (
           <ImageUploader
             components={C}
             image={content.background_image}

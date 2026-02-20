@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ListEditor from './ListEditor';
 import IconPicker from './IconPicker';
 import ImageUploader from './ImageUploader';
@@ -10,6 +11,7 @@ function TimelineEditor({ components: C }) {
   const showIcon = ['botanical', 'editorial', 'contemporary'].includes(theme);
   const showLocation = ['editorial', 'contemporary', 'neon'].includes(theme);
   const showImage = theme === 'classic';
+  const { hidden } = useHiddenFields('timeline', project);
   const content = contentStates.timeline || {};
   const update = (field, value) => updateContentField('timeline', field, value);
 

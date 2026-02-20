@@ -1,12 +1,27 @@
 // core/editors/SaveTheDateEditor.js - Editor für Save the Date Seite
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 function SaveTheDateEditor({ components: C }) {
-  const { contentStates, updateContentField, saveContent, isSaving, baseFolder } = useAdmin();
+  const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const { hiddenSection } = useHiddenFields('savethedate', project);
   const content = contentStates.savethedate || {};
   const update = (field, value) => updateContentField('savethedate', field, value);
+
+  if (hiddenSection) {
+    return (
+      <C.Panel>
+        <C.PanelHeader><C.PanelTitle>Save the Date</C.PanelTitle></C.PanelHeader>
+        <C.PanelContent>
+          <C.AlertBox $type="info">
+            Diese Funktion wird im aktuellen Theme nicht unterstützt.
+          </C.AlertBox>
+        </C.PanelContent>
+      </C.Panel>
+    );
+  }
 
   return (
     <C.Panel>

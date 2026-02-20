@@ -1,10 +1,12 @@
 // core/editors/RSVPEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 function RSVPEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('rsvp', project);
   const content = contentStates.rsvp || {};
   const theme = project?.theme;
   const isClassic = theme === 'classic';
@@ -51,7 +53,7 @@ function RSVPEditor({ components: C }) {
           <C.SectionLabel>Hintergrundbild</C.SectionLabel>
         )}
         {isClassic && (
-          <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+          {!hidden('background_image') && <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />}
         )}
 
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>
@@ -68,6 +70,7 @@ function RSVPEditor({ components: C }) {
           </label>
         </C.FormGroup>
         
+        {!hidden('ask_allergies') && (
         <C.FormGroup>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <input
@@ -79,6 +82,7 @@ function RSVPEditor({ components: C }) {
             <span style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.7))' }}>Allergien/Unverträglichkeiten abfragen</span>
           </label>
         </C.FormGroup>
+        )}
 
         {showCustomQuestion && (
           <>

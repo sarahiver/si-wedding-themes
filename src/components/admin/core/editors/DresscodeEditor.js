@@ -1,10 +1,12 @@
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ListEditor from './ListEditor';
 import ImageUploader from './ImageUploader';
 
 function DresscodeEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('dresscode', project);
   const content = contentStates.dresscode || {};
   const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('dresscode', field, value);
@@ -57,8 +59,8 @@ function DresscodeEditor({ components: C }) {
 
         {isClassic && (<>
           <C.SectionLabel>Bilder</C.SectionLabel>
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/dresscode`} label="Hauptbild" helpText="Großes Bild links" />
-          <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/dresscode`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />
+          {!hidden('image') && <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/dresscode`} label="Hauptbild" helpText="Großes Bild links" />}
+          {!hidden('accent_image') && <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/dresscode`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />}
         </>)}
 
         <C.SectionLabel>Farbpalette</C.SectionLabel>

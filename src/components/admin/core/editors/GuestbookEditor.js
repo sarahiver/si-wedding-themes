@@ -1,10 +1,12 @@
 // core/editors/GuestbookEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 function GuestbookEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('guestbook', project);
   const content = contentStates.guestbook || {};
   const isClassic = project?.theme === 'classic';
   const update = (field, value) => updateContentField('guestbook', field, value);
@@ -35,7 +37,7 @@ function GuestbookEditor({ components: C }) {
         
         {isClassic && (<>
           <C.SectionLabel>Bild</C.SectionLabel>
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />
+          {!hidden('image') && <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/guestbook`} label="Section-Bild" helpText="Vollbild am unteren Rand des Gästebuchs" />}
         </>)}
 
         <C.Divider />

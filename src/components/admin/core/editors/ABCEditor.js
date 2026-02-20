@@ -1,12 +1,14 @@
 // core/editors/ABCEditor.js - Alle 26 Buchstaben fix vorgegeben
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 function ABCEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder, project } = useAdmin();
+  const { hidden } = useHiddenFields('weddingabc', project);
   const content = contentStates.weddingabc || {};
   const isClassic = project?.theme === 'classic';
   const entries = content.entries || [];
@@ -41,7 +43,7 @@ function ABCEditor({ components: C }) {
         <C.PanelTitle>Hochzeits-ABC bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
-        {isClassic && (
+        {isClassic && !hidden('hero_image') && (
           <ImageUploader
             components={C}
             image={content.hero_image}

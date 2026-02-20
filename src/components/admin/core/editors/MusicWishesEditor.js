@@ -1,10 +1,12 @@
 // core/editors/MusicWishesEditor.js - Schema-konform
 import React from 'react';
 import { useAdmin } from '../AdminContext';
+import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
 
 function MusicWishesEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
+  const { hidden } = useHiddenFields('musicwishes', project);
   const content = contentStates.musicwishes || {};
   const theme = project?.theme;
   const isClassic = theme === 'classic';
@@ -48,8 +50,8 @@ function MusicWishesEditor({ components: C }) {
         
         {isClassic && (<>
           <C.SectionLabel>Bilder</C.SectionLabel>
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/musicwishes`} label="Bild 1" helpText="Erstes Bild (hinten, links)" />
-          <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} folder={`${baseFolder}/musicwishes`} label="Bild 2" helpText="Zweites Bild (vorne, rechts)" />
+          {!hidden('image') && <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/musicwishes`} label="Bild 1" helpText="Erstes Bild (hinten, links)" />}
+          {!hidden('image2') && <ImageUploader components={C} image={content.image2} onUpload={(url) => update('image2', url)} folder={`${baseFolder}/musicwishes`} label="Bild 2" helpText="Zweites Bild (vorne, rechts)" />}
         </>)}
 
         <C.Divider />
