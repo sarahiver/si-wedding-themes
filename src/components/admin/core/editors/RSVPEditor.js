@@ -52,8 +52,8 @@ function RSVPEditor({ components: C }) {
         {isClassic && (
           <C.SectionLabel>Hintergrundbild</C.SectionLabel>
         )}
-        {isClassic && (
-          {!hidden('background_image') && <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />}
+        {isClassic && !hidden('background_image') && (
+          <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
         )}
 
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>
