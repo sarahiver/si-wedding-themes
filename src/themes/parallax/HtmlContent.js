@@ -2,8 +2,31 @@
 // Scattered bold titles with individual parallax + Footer
 // Respects project.active_components from SuperAdmin
 
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import { FOOTER, PAGES } from './scrollConfig'
+
+// Inject bounce keyframes once
+function ensureBounceKeyframes() {
+  if (document.getElementById('parallax-bounce-kf')) return
+  const style = document.createElement('style')
+  style.id = 'parallax-bounce-kf'
+  style.textContent = `
+    @keyframes letterBounce {
+      0% { transform: translateY(0); }
+      30% { transform: translateY(-0.25em); }
+      50% { transform: translateY(0.04em); }
+      70% { transform: translateY(-0.06em); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes hintFadeInOut {
+      0% { opacity: 0; transform: translateY(8px); }
+      15% { opacity: 1; transform: translateY(0); }
+      75% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-5px); }
+    }
+  `
+  document.head.appendChild(style)
+}
 
 // ── Scattered title definitions — base layout before filtering ──
 const ALL_TITLES = [
@@ -40,6 +63,9 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
     ? new Date(project.wedding_date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '16. August 2025'
   const containerRef = useRef(null)
+  const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
+
+  useEffect(() => { ensureBounceKeyframes() }, [])
 
   // Filter titles by active_components + respect component_order for sequencing
   const titles = useMemo(() => {
@@ -93,13 +119,41 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
     }}>
 
       {/* ── SCATTERED TITLES — filtered by active_components, each with own parallax ── */}
-      {titles.map((t) => (
+      {titles.map((t, idx) => (
         <ScatteredTitle
           key={t.id}
           t={t}
+          idx={idx}
+          isMobile={isMobile}
           onOpenModal={onOpenModal}
         />
       ))}
+
+      {/* ── MOBILE TAP HINT ── */}
+      {isMobile && titles.length > 0 && (
+        <div style={{
+          position: 'absolute',
+          top: `${titles[0].top + 8}vh`,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 3,
+          animation: 'hintFadeInOut 4s ease 3.5s both',
+          pointerEvents: 'none',
+          textAlign: 'center',
+        }}>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '0.65rem',
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            color: 'rgba(0,0,0,0.35)',
+            background: '#fff',
+            padding: '0.5em 1em',
+            display: 'inline-block',
+          }}>↑ Tippe auf eine Headline</p>
+        </div>
+      )}
 
       {/* ── FOOTER ── */}
       <div style={{
@@ -128,9 +182,8 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
 }
 
 // Single scattered title element
-function ScatteredTitle({ t, onOpenModal }) {
+function ScatteredTitle({ t, idx, isMobile, onOpenModal }) {
   const ref = useRef(null)
-  const mobile = typeof window !== 'undefined' && window.innerWidth < 768
   const handleClick = () => {
     const rect = ref.current?.getBoundingClientRect()
     const origin = rect
@@ -143,11 +196,21 @@ function ScatteredTitle({ t, onOpenModal }) {
       ref={ref}
       data-speed={t.speed}
       onClick={handleClick}
+      onMouseEnter={(e) => {
+        const spans = e.currentTarget.querySelectorAll('.bounce-letter')
+        spans.forEach((span, i) => {
+          span.style.animation = `letterBounce 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${i * 0.03}s both`
+        })
+      }}
+      onMouseLeave={(e) => {
+        const spans = e.currentTarget.querySelectorAll('.bounce-letter')
+        spans.forEach(span => { span.style.animation = 'none' })
+      }}
       style={{
         position: 'absolute',
         top: `${t.top}vh`,
-        left: mobile ? (t.mLeft || t.left) : t.left,
-        fontSize: mobile ? (t.mSize || t.size) : t.size,
+        left: isMobile ? (t.mLeft || t.left) : t.left,
+        fontSize: isMobile ? (t.mSize || t.size) : t.size,
         fontFamily: "'DM Sans', sans-serif",
         fontWeight: 800,
         color: '#000',
@@ -161,7 +224,22 @@ function ScatteredTitle({ t, onOpenModal }) {
         maxWidth: '85vw',
       }}
     >
-      {t.text}
+      {t.text.split('').map((char, i) => (
+        <span
+          key={i}
+          className="bounce-letter"
+          style={{
+            display: 'inline-block',
+            whiteSpace: char === ' ' ? 'pre' : 'normal',
+            // Auto-wink on first title after 2.5s
+            ...(idx === 0 ? {
+              animation: `letterBounce 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${2.5 + i * 0.03}s both`,
+            } : {}),
+          }}
+        >
+          {char}
+        </span>
+      ))}
     </h2>
   )
 }
