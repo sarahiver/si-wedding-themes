@@ -281,7 +281,7 @@ export default function ParallaxWeddingApp() {
           </ScrollControls>
         </Suspense>
       </Canvas>
-      <Loader />
+      <Loader coupleNames={cn} />
 
       {/* ── COUNTDOWN — after Canvas so it renders on top ── */}
       {cd.ready && (

@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react'
 
-export default function Loader() {
+export default function Loader({ coupleNames }) {
   const [visible, setVisible] = useState(true)
   useEffect(() => {
     const id = setTimeout(() => setVisible(false), 3000)
     return () => clearTimeout(id)
   }, [])
+
+  // Extract initials from couple names (e.g. "Lena & Jonas" → "L&J.")
+  // Avoid showing "S&I." as it's our brand logo — show nothing instead
+  const initials = (() => {
+    if (!coupleNames) return ''
+    const parts = coupleNames.split('&').map(s => s.trim())
+    if (parts.length === 2 && parts[0] && parts[1]) {
+      const init = `${parts[0][0]}&${parts[1][0]}.`
+      // Skip if it matches our brand
+      if (init === 'S&I.') return ''
+      return init
+    }
+    return ''
+  })()
 
   if (!visible) return null
   return (
@@ -26,7 +40,7 @@ export default function Loader() {
       }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '1.1rem', fontWeight: 800, color: '#000', letterSpacing: '0.05em' }}>
-        S&amp;I.
+        {initials}
       </div>
     </div>
   )
