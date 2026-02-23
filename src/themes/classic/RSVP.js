@@ -44,6 +44,10 @@ function RSVP(){
   const{formData,submitting,submitted,error,updateField,submit}=useRSVP();
   const[ref,v]=useInView();
   const bgImage=r.background_image||content?.hero?.background_image||null;
+  const askDietary = r.ask_dietary;
+  const askAllergies = r.ask_allergies;
+  const customQ = r.custom_question;
+  const deadline = r.deadline;
 
   if(submitted)return(
     <S id="rsvp"><BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
@@ -55,6 +59,8 @@ function RSVP(){
       <Card $v={v} ref={ref}>
         <Eye>wir freuen uns auf euch</Eye>
         <H2>{r.title||'RSVP'}</H2>
+        {r.description&&<p style={{textAlign:'center',fontSize:'0.85rem',color:'var(--c-text-sec)',lineHeight:1.7,marginBottom:'1.5rem'}}>{r.description}</p>}
+        {deadline&&<p style={{textAlign:'center',fontSize:'0.75rem',color:'var(--c-text-muted)',marginBottom:'2rem'}}>Bitte antwortet bis zum {new Date(deadline).toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'})}</p>}
         <form onSubmit={e=>{e.preventDefault();submit();}}>
           <Lbl>Teilnahme</Lbl>
           <TogRow>
@@ -64,7 +70,10 @@ function RSVP(){
           <Lbl>Name</Lbl><Inp placeholder="Euer Name" value={formData.name||''} onChange={e=>updateField('name',e.target.value)} required/>
           <Lbl>E-Mail</Lbl><Inp type="email" placeholder="email@beispiel.de" value={formData.email||''} onChange={e=>updateField('email',e.target.value)} required/>
           {formData.attending!=='no'&&<><Lbl>Personen</Lbl><Sel value={formData.guests||'1'} onChange={e=>updateField('guests',e.target.value)}>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</Sel></>}
-          <Lbl>Nachricht</Lbl><Txt placeholder="Allergien, Sonderwünsche..." value={formData.message||''} onChange={e=>updateField('message',e.target.value)}/>
+          {formData.attending!=='no'&&askDietary&&<><Lbl>Ernährungswünsche</Lbl><Sel value={formData.dietary||''} onChange={e=>updateField('dietary',e.target.value)}><option value="">Keine Angabe</option><option value="vegetarisch">Vegetarisch</option><option value="vegan">Vegan</option><option value="pescetarisch">Pescetarisch</option><option value="glutenfrei">Glutenfrei</option><option value="sonstiges">Sonstiges</option></Sel></>}
+          {formData.attending!=='no'&&askAllergies&&<><Lbl>Allergien / Unverträglichkeiten</Lbl><Inp placeholder="z.B. Nüsse, Laktose..." value={formData.allergies||''} onChange={e=>updateField('allergies',e.target.value)}/></>}
+          {formData.attending!=='no'&&customQ&&<><Lbl>{customQ}</Lbl><Txt placeholder="Deine Antwort..." value={formData.customAnswer||''} onChange={e=>updateField('customAnswer',e.target.value)} style={{minHeight:'50px'}}/></>}
+          <Lbl>Nachricht</Lbl><Txt placeholder="Sonderwünsche, Grüße..." value={formData.message||''} onChange={e=>updateField('message',e.target.value)}/>
           <Btn type="submit" disabled={submitting}>{submitting?'Wird gesendet...':'Absenden'}</Btn>
           {error&&<Err>{error}</Err>}
         </form>
