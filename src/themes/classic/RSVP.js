@@ -11,8 +11,7 @@ const S = styled.section`position:relative;overflow:hidden;min-height:100vh;
 const BgV = styled.div`position:absolute;inset:0;z-index:0;background:#1a1a1a;
   img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.35);}`;
 const Card = styled.div`position:relative;z-index:2;
-  background:var(--c-white,#fff);
-  border:8px solid white;
+  background:var(--c-white,#fff);border:8px solid white;
   box-shadow:0 30px 80px rgba(0,0,0,0.25);
   padding:clamp(2.5rem,5vw,4.5rem);max-width:520px;width:100%;
   opacity:0;${p=>p.$v&&css`animation:${fadeUp} 1s var(--ease) forwards;`}`;
@@ -39,6 +38,15 @@ const Err = styled.p`font-size:0.75rem;color:#c44;text-align:center;margin-top:1
 const SuccT = styled.h3`font-family:var(--font-d);font-size:2.5rem;font-weight:300;color:var(--c-text);text-align:center;margin-bottom:1rem;`;
 const SuccP = styled.p`font-size:0.85rem;color:var(--c-text-sec);text-align:center;`;
 
+/* Guest detail section */
+const GuestBox = styled.div`margin-top:1.5rem;padding:1.25rem;background:var(--c-cream,#faf9f7);border:1px solid var(--c-border,rgba(0,0,0,0.06));`;
+const GuestTitle = styled.p`font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--c-text-muted);
+  margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--c-border,rgba(0,0,0,0.06));`;
+const GuestCard = styled.div`padding:0.75rem 0;border-bottom:1px solid var(--c-border,rgba(0,0,0,0.04));
+  &:last-child{border-bottom:none;padding-bottom:0;}&:first-of-type{padding-top:0;}`;
+const GuestNum = styled.span`font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--c-accent,#999);
+  font-weight:600;display:block;margin-bottom:0.6rem;`;
+
 function RSVP(){
   const{content}=useWedding();const r=content?.rsvp||{};
   const{formData,submitting,submitted,error,updateField,submit}=useRSVP();
@@ -49,9 +57,37 @@ function RSVP(){
   const customQ = r.custom_question;
   const deadline = r.deadline;
 
+  // Handle person count change — sync guests array (like Editorial)
+  const handlePersonsChange = (newCount) => {
+    const count = parseInt(newCount);
+    updateField('persons', count);
+    const currentGuests = formData.guests || [];
+    if (count > currentGuests.length) {
+      const newGuests = [...currentGuests];
+      for (let i = currentGuests.length; i < count; i++) {
+        newGuests.push({ name: '', dietary: '', allergies: '' });
+      }
+      updateField('guests', newGuests);
+    } else {
+      updateField('guests', currentGuests.slice(0, count));
+    }
+  };
+
+  // Update a single guest's field
+  const updateGuest = (index, field, value) => {
+    const newGuests = [...(formData.guests || [])];
+    if (!newGuests[index]) newGuests[index] = { name: '', dietary: '', allergies: '' };
+    newGuests[index] = { ...newGuests[index], [field]: value };
+    updateField('guests', newGuests);
+  };
+
+  const persons = formData.persons || 1;
+  const attending = formData.attending;
+  const showDetails = attending !== 'no' && attending !== false;
+
   if(submitted)return(
     <S id="rsvp"><BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
-    <Card $v={true} ref={ref}><SuccT>Vielen Dank!</SuccT><SuccP>{formData.attending==='yes'?'Wir freuen uns auf euch!':'Schade – wir werden euch vermissen.'}</SuccP></Card></S>);
+    <Card $v={true} ref={ref}><SuccT>Vielen Dank!</SuccT><SuccP>{attending===true?'Wir freuen uns auf euch!':'Schade – wir werden euch vermissen.'}</SuccP></Card></S>);
 
   return(
     <S id="rsvp">
@@ -64,15 +100,42 @@ function RSVP(){
         <form onSubmit={e=>{e.preventDefault();submit();}}>
           <Lbl>Teilnahme</Lbl>
           <TogRow>
-            <Tog type="button" $a={formData.attending==='yes'} onClick={()=>updateField('attending','yes')}>Wir kommen gerne</Tog>
-            <Tog type="button" $a={formData.attending==='no'} onClick={()=>updateField('attending','no')}>Leider nicht</Tog>
+            <Tog type="button" $a={attending===true} onClick={()=>updateField('attending',true)}>Wir kommen gerne</Tog>
+            <Tog type="button" $a={attending===false} onClick={()=>updateField('attending',false)}>Leider nicht</Tog>
           </TogRow>
           <Lbl>Name</Lbl><Inp placeholder="Euer Name" value={formData.name||''} onChange={e=>updateField('name',e.target.value)} required/>
           <Lbl>E-Mail</Lbl><Inp type="email" placeholder="email@beispiel.de" value={formData.email||''} onChange={e=>updateField('email',e.target.value)} required/>
-          {formData.attending!=='no'&&<><Lbl>Personen</Lbl><Sel value={formData.guests||'1'} onChange={e=>updateField('guests',e.target.value)}>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</Sel></>}
-          {formData.attending!=='no'&&askDietary&&<><Lbl>Ernährungswünsche</Lbl><Sel value={formData.dietary||''} onChange={e=>updateField('dietary',e.target.value)}><option value="">Keine Angabe</option><option value="vegetarisch">Vegetarisch</option><option value="vegan">Vegan</option><option value="pescetarisch">Pescetarisch</option><option value="glutenfrei">Glutenfrei</option><option value="sonstiges">Sonstiges</option></Sel></>}
-          {formData.attending!=='no'&&askAllergies&&<><Lbl>Allergien / Unverträglichkeiten</Lbl><Inp placeholder="z.B. Nüsse, Laktose..." value={formData.allergies||''} onChange={e=>updateField('allergies',e.target.value)}/></>}
-          {formData.attending!=='no'&&customQ&&<><Lbl>{customQ}</Lbl><Txt placeholder="Deine Antwort..." value={formData.customAnswer||''} onChange={e=>updateField('customAnswer',e.target.value)} style={{minHeight:'50px'}}/></>}
+
+          {showDetails&&<>
+            <Lbl>Anzahl Personen</Lbl>
+            <Sel value={persons} onChange={e=>handlePersonsChange(e.target.value)}>
+              {[1,2,3,4,5].map(n=><option key={n} value={n}>{n} {n===1?'Person':'Personen'}</option>)}
+            </Sel>
+
+            {/* Single person: simple fields */}
+            {persons===1&&askDietary&&<><Lbl>Ernährungswünsche</Lbl><Sel value={formData.dietary||''} onChange={e=>updateField('dietary',e.target.value)}><option value="">Keine besonderen Wünsche</option><option value="vegetarisch">Vegetarisch</option><option value="vegan">Vegan</option><option value="pescetarisch">Pescetarisch</option><option value="glutenfrei">Glutenfrei</option><option value="sonstiges">Sonstiges</option></Sel></>}
+            {persons===1&&askAllergies&&<><Lbl>Allergien / Unverträglichkeiten</Lbl><Inp placeholder="z.B. Nüsse, Laktose..." value={formData.allergies||''} onChange={e=>updateField('allergies',e.target.value)}/></>}
+
+            {/* Multiple persons: per-person fields (like Editorial) */}
+            {persons>1&&(askDietary||askAllergies)&&
+              <GuestBox>
+                <GuestTitle>Angaben pro Person</GuestTitle>
+                {Array.from({length:persons},(_,i)=>{
+                  const guest = formData.guests?.[i] || { name:'', dietary:'', allergies:'' };
+                  return(
+                    <GuestCard key={i}>
+                      <GuestNum>Person {i+1}{i===0?' (Hauptgast)':''}</GuestNum>
+                      {i>0&&<><Lbl style={{margin:'0 0 0.2rem'}}>Name</Lbl><Inp placeholder={`Name Person ${i+1}`} value={guest.name||''} onChange={e=>updateGuest(i,'name',e.target.value)}/></>}
+                      {askDietary&&<><Lbl style={{margin:'0.75rem 0 0.2rem'}}>Ernährung</Lbl><Sel value={i===0?(formData.dietary||''):(guest.dietary||'')} onChange={e=>i===0?updateField('dietary',e.target.value):updateGuest(i,'dietary',e.target.value)}><option value="">Keine besonderen Wünsche</option><option value="vegetarisch">Vegetarisch</option><option value="vegan">Vegan</option><option value="pescetarisch">Pescetarisch</option><option value="glutenfrei">Glutenfrei</option><option value="sonstiges">Sonstiges</option></Sel></>}
+                      {askAllergies&&<><Lbl style={{margin:'0.75rem 0 0.2rem'}}>Allergien</Lbl><Inp placeholder="z.B. Nüsse, Laktose..." value={i===0?(formData.allergies||''):(guest.allergies||'')} onChange={e=>i===0?updateField('allergies',e.target.value):updateGuest(i,'allergies',e.target.value)}/></>}
+                    </GuestCard>
+                  );
+                })}
+              </GuestBox>
+            }
+          </>}
+
+          {showDetails&&customQ&&<><Lbl>{customQ}</Lbl><Txt placeholder="Deine Antwort..." value={formData.customAnswer||''} onChange={e=>updateField('customAnswer',e.target.value)} style={{minHeight:'50px'}}/></>}
           <Lbl>Nachricht</Lbl><Txt placeholder="Sonderwünsche, Grüße..." value={formData.message||''} onChange={e=>updateField('message',e.target.value)}/>
           <Btn type="submit" disabled={submitting}>{submitting?'Wird gesendet...':'Absenden'}</Btn>
           {error&&<Err>{error}</Err>}

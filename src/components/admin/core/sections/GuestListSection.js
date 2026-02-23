@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent } from '../../../../lib/supabase';
+import * as XLSX from 'xlsx';
 
 // CSV/Excel parsing (simple, no library needed)
 function parseCSV(text) {
@@ -34,6 +35,41 @@ function parseCSV(text) {
     }
   }
   return guests;
+}
+
+// XLSX parsing
+function parseXLSX(buffer) {
+  try {
+    const wb = XLSX.read(buffer, { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    if (!rows.length) return [];
+
+    // Find column names (case-insensitive)
+    const keys = Object.keys(rows[0]);
+    const findCol = (candidates) => keys.find(k => candidates.includes(k.toLowerCase().trim()));
+    const nameCol = findCol(['name', 'gast', 'gästename', 'gastname', 'vorname']);
+    const emailCol = findCol(['email', 'e-mail', 'mail', 'emailadresse']);
+    const groupCol = findCol(['gruppe', 'group', 'kategorie', 'kreis']);
+
+    if (!nameCol || !emailCol) return null;
+
+    const guests = [];
+    for (const row of rows) {
+      const name = String(row[nameCol] || '').trim();
+      const email = String(row[emailCol] || '').trim();
+      if (name && email && email.includes('@')) {
+        guests.push({
+          name,
+          email: email.toLowerCase(),
+          group_name: groupCol ? String(row[groupCol] || '').trim() : '',
+        });
+      }
+    }
+    return guests;
+  } catch {
+    return null;
+  }
 }
 
 function GuestListSection({ components: C }) {
@@ -162,8 +198,16 @@ function GuestListSection({ components: C }) {
 
     setUploading(true);
     try {
-      const text = await file.text();
-      const guests = parseCSV(text);
+      let guests;
+      const isXlsx = file.name.match(/\.xlsx?$/i);
+
+      if (isXlsx) {
+        const buffer = await file.arrayBuffer();
+        guests = parseXLSX(buffer);
+      } else {
+        const text = await file.text();
+        guests = parseCSV(text);
+      }
 
       if (guests === null) {
         showFeedback('error', 'Ungültiges Format. Die Datei muss mindestens die Spalten "Name" und "Email" enthalten.');
@@ -282,7 +326,7 @@ function GuestListSection({ components: C }) {
         />
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <C.ActionButton onClick={() => setShowUpload(!showUpload)}>
-            📤 CSV importieren
+            📤 Importieren
           </C.ActionButton>
           {stats.pending > 0 && (
             <C.ActionButton
@@ -359,11 +403,11 @@ function GuestListSection({ components: C }) {
             Lisa Weber;lisa@example.de;Kollegen
           </div>
           <p style={{ marginBottom: '1rem', fontSize: '0.8rem', opacity: 0.5 }}>
-            Unterstützt: .csv (Komma oder Semikolon getrennt). Duplikate (gleiche E-Mail) werden übersprungen.
+            Unterstützt: .csv (Komma oder Semikolon getrennt) und .xlsx (Excel). Duplikate (gleiche E-Mail) werden übersprungen.
           </p>
           <input
             type="file"
-            accept=".csv,.txt"
+            accept=".csv,.txt,.xlsx,.xls"
             onChange={handleFileUpload}
             disabled={uploading}
             style={{ fontSize: '0.9rem' }}
@@ -390,7 +434,7 @@ function GuestListSection({ components: C }) {
             <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>1</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
-              <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>CSV erstellen</p>
+              <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Datei erstellen</p>
               <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalten "Name" und "Email" anlegen, als CSV speichern</p>
             </div>
             {/* Step 2 */}
@@ -398,7 +442,7 @@ function GuestListSection({ components: C }) {
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>2</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📤</div>
               <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Hochladen</p>
-              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>CSV hier importieren – Duplikate werden automatisch erkannt</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>CSV oder Excel hier importieren – Duplikate werden automatisch erkannt</p>
             </div>
             {/* Step 3 */}
             <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
@@ -435,7 +479,7 @@ function GuestListSection({ components: C }) {
           {/* CTA */}
           <div style={{ textAlign: 'center' }}>
             <C.ActionButton $primary onClick={() => setShowUpload(true)} style={{ padding: '0.75rem 2rem', fontSize: '0.9rem' }}>
-              📤 CSV importieren
+              📤 Importieren
             </C.ActionButton>
           </div>
         </C.Card>
