@@ -10,8 +10,8 @@ function RSVPEditor({ components: C }) {
   const content = contentStates.rsvp || {};
   const theme = project?.theme;
   const isClassic = theme === 'classic';
-  const showDeadline = ['botanical', 'editorial', 'parallax', 'classic'].includes(theme);
-  const showCustomQuestion = !['neon', 'video'].includes(theme);
+  const showDeadline = true;
+  const showCustomQuestion = true;
   const update = (field, value) => updateContentField('rsvp', field, value);
 
   return (

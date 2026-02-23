@@ -347,6 +347,33 @@ function DirectionsContent({ content, scrollTop }) {
 function RSVPContent({ content, scrollTop }) {
   const rsvp = useRSVP()
   const cfg = content?.rsvp || {}
+  const askDietary = cfg.ask_dietary !== false
+  const askAllergies = cfg.ask_allergies !== false
+  const persons = rsvp.formData.persons || 1
+
+  // Handle persons change — sync guests array
+  const handlePersonsChange = (delta) => {
+    const newCount = Math.max(1, Math.min(5, persons + delta))
+    rsvp.updateField('persons', newCount)
+    const currentGuests = rsvp.formData.guests || []
+    if (newCount > currentGuests.length) {
+      const newGuests = [...currentGuests]
+      for (let i = currentGuests.length; i < newCount; i++) {
+        newGuests.push({ name: '', dietary: '', allergies: '' })
+      }
+      rsvp.updateField('guests', newGuests)
+    } else {
+      rsvp.updateField('guests', currentGuests.slice(0, newCount))
+    }
+  }
+
+  const updateGuest = (index, field, value) => {
+    const newGuests = [...(rsvp.formData.guests || [])]
+    if (!newGuests[index]) newGuests[index] = { name: '', dietary: '', allergies: '' }
+    newGuests[index] = { ...newGuests[index], [field]: value }
+    rsvp.updateField('guests', newGuests)
+  }
+
   if (rsvp.submitted) {
     return (
       <div style={{ padding: '6rem 0', textAlign: 'center' }}>
@@ -378,12 +405,51 @@ function RSVPContent({ content, scrollTop }) {
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>Personen:</span>
-              <button style={st.adjustBtn} onClick={() => rsvp.adjustPersons(-1)}>−</button>
-              <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '1.5rem', textAlign: 'center', color: '#fff' }}>{rsvp.formData.persons}</span>
-              <button style={st.adjustBtn} onClick={() => rsvp.adjustPersons(1)}>+</button>
+              <button style={st.adjustBtn} onClick={() => handlePersonsChange(-1)}>−</button>
+              <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '1.5rem', textAlign: 'center', color: '#fff' }}>{persons}</span>
+              <button style={st.adjustBtn} onClick={() => handlePersonsChange(1)}>+</button>
             </div>
-            {(cfg.ask_dietary !== false) && (
-              <input style={st.input} placeholder="Unverträglichkeiten / Allergien" value={rsvp.formData.dietary} onChange={e => rsvp.updateField('dietary', e.target.value)} />
+
+            {/* Single person fields */}
+            {persons === 1 && askDietary && (
+              <select style={st.input} value={rsvp.formData.dietary || ''} onChange={e => rsvp.updateField('dietary', e.target.value)}>
+                <option value="">Keine besonderen Wünsche</option>
+                <option value="vegetarisch">Vegetarisch</option>
+                <option value="vegan">Vegan</option>
+                <option value="pescetarisch">Pescetarisch</option>
+                <option value="andere">Andere</option>
+              </select>
+            )}
+            {persons === 1 && askAllergies && (
+              <input style={st.input} placeholder="Allergien / Unverträglichkeiten" value={rsvp.formData.allergies || ''} onChange={e => rsvp.updateField('allergies', e.target.value)} />
+            )}
+
+            {/* Multi-person fields */}
+            {persons > 1 && (askDietary || askAllergies) && (
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '1.25rem' }}>
+                <p style={{ ...st.label, marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>ANGABEN PRO PERSON</p>
+                {Array.from({ length: persons }, (_, i) => {
+                  const guest = rsvp.formData.guests?.[i] || { name: '', dietary: '', allergies: '' }
+                  return (
+                    <div key={i} style={{ paddingBottom: i < persons - 1 ? '1rem' : 0, marginBottom: i < persons - 1 ? '1rem' : 0, borderBottom: i < persons - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <p style={{ fontWeight: 700, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '0.75rem' }}>Person {i + 1}{i === 0 ? ' (Hauptgast)' : ''}</p>
+                      {i > 0 && <input style={{ ...st.input, marginBottom: '0.6rem' }} placeholder={`Name Person ${i + 1}`} value={guest.name || ''} onChange={e => updateGuest(i, 'name', e.target.value)} />}
+                      {askDietary && (
+                        <select style={{ ...st.input, marginBottom: '0.6rem' }} value={i === 0 ? (rsvp.formData.dietary || '') : (guest.dietary || '')} onChange={e => i === 0 ? rsvp.updateField('dietary', e.target.value) : updateGuest(i, 'dietary', e.target.value)}>
+                          <option value="">Keine besonderen Wünsche</option>
+                          <option value="vegetarisch">Vegetarisch</option>
+                          <option value="vegan">Vegan</option>
+                          <option value="pescetarisch">Pescetarisch</option>
+                          <option value="andere">Andere</option>
+                        </select>
+                      )}
+                      {askAllergies && (
+                        <input style={st.input} placeholder="Allergien / Unverträglichkeiten" value={i === 0 ? (rsvp.formData.allergies || '') : (guest.allergies || '')} onChange={e => i === 0 ? rsvp.updateField('allergies', e.target.value) : updateGuest(i, 'allergies', e.target.value)} />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             )}
           </>
         )}

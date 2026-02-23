@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAdmin } from '../AdminContext';
 import { updateProject } from '../../../../lib/supabase';
-import PhoneInput from '../../../shared/PhoneInput';
 
 // ============================================
 // STYLED COMPONENTS
@@ -131,8 +130,6 @@ export default function SettingsSection() {
   // Local state for form fields
   const [location, setLocation] = useState('');
   const [hashtag, setHashtag] = useState('');
-  const [displayEmail, setDisplayEmail] = useState('');
-  const [displayPhone, setDisplayPhone] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
@@ -141,8 +138,6 @@ export default function SettingsSection() {
     if (project) {
       setLocation(project.location || '');
       setHashtag(project.hashtag || '');
-      setDisplayEmail(project.display_email || '');
-      setDisplayPhone(project.display_phone || '');
     }
   }, [project]);
   
@@ -156,8 +151,6 @@ export default function SettingsSection() {
       const { error } = await updateProject(projectId, {
         location: location || null,
         hashtag: hashtag || null,
-        display_email: displayEmail || null,
-        display_phone: displayPhone || null,
       });
       
       if (error) {
@@ -219,33 +212,6 @@ export default function SettingsSection() {
       </FormGroup>
       
       <Divider />
-      
-      <SectionLabel>Kontaktdaten für Gäste</SectionLabel>
-      
-      <FormGroup>
-        <Label>
-          Kontakt-E-Mail
-          <Hint>Diese E-Mail wird auf der Kontakt-Seite angezeigt</Hint>
-        </Label>
-        <Input
-          type="email"
-          value={displayEmail}
-          onChange={(e) => setDisplayEmail(e.target.value)}
-          placeholder="z.B. hochzeit@anna-max.de"
-        />
-      </FormGroup>
-      
-      <FormGroup>
-        <Label>
-          Kontakt-Telefon
-          <Hint>Diese Telefonnummer wird auf der Kontakt-Seite angezeigt</Hint>
-        </Label>
-        <PhoneInput
-          value={displayPhone}
-          onChange={(val) => setDisplayPhone(val)}
-          placeholder="176 1234567"
-        />
-      </FormGroup>
       
       <SaveButton onClick={handleSave} disabled={isSaving}>
         {isSaving ? 'Speichern...' : 'Änderungen speichern'}
