@@ -392,11 +392,11 @@ function GuestListSection({ components: C }) {
         <C.Card style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
-            Lade eine CSV-Datei hoch. Die Datei braucht mindestens zwei Spalten:<br />
+            Lade eine CSV- oder Excel-Datei (.xlsx) hoch. Die Datei braucht mindestens zwei Spalten:<br />
             <strong>Name</strong> und <strong>Email</strong> (optional: <strong>Gruppe</strong>)
           </p>
           <div style={{ background: 'rgba(128,128,128,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.8 }}>
-            <strong>Beispiel CSV:</strong><br />
+            <strong>Beispiel:</strong><br />
             Name;Email;Gruppe<br />
             Anna Müller;anna@example.de;Familie<br />
             Max Schmidt;max@example.de;Freunde<br />
@@ -435,7 +435,7 @@ function GuestListSection({ components: C }) {
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>1</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
               <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Datei erstellen</p>
-              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalten "Name" und "Email" anlegen, als CSV speichern</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalten "Name" und "Email" anlegen. Als .xlsx oder .csv speichern</p>
             </div>
             {/* Step 2 */}
             <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
@@ -455,7 +455,7 @@ function GuestListSection({ components: C }) {
 
           {/* CSV format example */}
           <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-            <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.75rem' }}>📎 So muss eure CSV-Datei aussehen:</p>
+            <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.75rem' }}>📎 So muss eure Datei aussehen (CSV oder Excel):</p>
             <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', lineHeight: 2, overflowX: 'auto' }}>
               <div style={{ opacity: 0.9, fontWeight: 600, borderBottom: '1px solid rgba(128,128,128,0.2)', paddingBottom: '0.25rem', marginBottom: '0.25rem' }}>
                 Name;Email;Gruppe
@@ -473,7 +473,7 @@ function GuestListSection({ components: C }) {
 
           {/* Excel tip */}
           <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.78rem', lineHeight: 1.6 }}>
-            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen, ausfüllen und dann <em>Datei → Speichern unter → CSV (Trennzeichen-getrennt)</em> wählen.
+            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen und ausfüllen. Ihr könnt die Datei direkt als .xlsx hochladen – oder alternativ als <em>CSV (Trennzeichen-getrennt)</em> speichern.
           </div>
 
           {/* CTA */}
