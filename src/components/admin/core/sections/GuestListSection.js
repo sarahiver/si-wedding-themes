@@ -162,15 +162,25 @@ function GuestListSection({ components: C }) {
   };
 
   // Show email preview before sending
-  const showEmailPreview = (type, recipients, onConfirm) => {
+  const showEmailPreview = (type, recipients, sendFn) => {
     const tpl = EMAIL_TEMPLATES[type];
-    setEmailPreview({ type, recipients, subject: tpl.subject, body: tpl.body, label: tpl.label, icon: tpl.icon, onConfirm });
+    setEmailPreview({
+      type, recipients, label: tpl.label, icon: tpl.icon,
+      subject: tpl.subject,
+      body: tpl.body,
+      sendFn,
+    });
+  };
+
+  // Update preview field
+  const updatePreview = (field, value) => {
+    setEmailPreview(prev => prev ? { ...prev, [field]: value } : null);
   };
 
   // Send "Thank You" email to all confirmed guests
   const handleSendThankYou = useCallback(() => {
     if (confirmedGuests.length === 0) return;
-    showEmailPreview('thank_you', confirmedGuests, async () => {
+    showEmailPreview('thank_you', confirmedGuests, async (customSubject, customBody) => {
       setEmailPreview(null);
       setSendingThank(true);
       try {
@@ -181,6 +191,8 @@ function GuestListSection({ components: C }) {
             projectId,
             guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
             type: 'thank_you',
+            customSubject,
+            customBody,
           }),
         });
         const result = await response.json();
@@ -200,7 +212,7 @@ function GuestListSection({ components: C }) {
   // Send "Photo Reminder" email to all confirmed guests
   const handleSendPhotoReminder = useCallback(() => {
     if (confirmedGuests.length === 0) return;
-    showEmailPreview('photo_reminder', confirmedGuests, async () => {
+    showEmailPreview('photo_reminder', confirmedGuests, async (customSubject, customBody) => {
       setEmailPreview(null);
       setSendingPhoto(true);
       try {
@@ -211,6 +223,8 @@ function GuestListSection({ components: C }) {
             projectId,
             guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
             type: 'photo_reminder',
+            customSubject,
+            customBody,
           }),
         });
         const result = await response.json();
@@ -276,7 +290,7 @@ function GuestListSection({ components: C }) {
   // Send reminders to all pending guests
   const handleSendReminders = useCallback(() => {
     if (pendingGuests.length === 0) return;
-    showEmailPreview('rsvp_reminder', pendingGuests, async () => {
+    showEmailPreview('rsvp_reminder', pendingGuests, async (customSubject, customBody) => {
       setEmailPreview(null);
       setSending(true);
       setSendProgress({ sent: 0, total: pendingGuests.length });
@@ -288,6 +302,8 @@ function GuestListSection({ components: C }) {
           body: JSON.stringify({
             projectId,
             guests: pendingGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+            customSubject,
+            customBody,
           }),
         });
 
@@ -413,10 +429,10 @@ function GuestListSection({ components: C }) {
         </C.Card>
       )}
 
-      {/* Email Preview Modal */}
+      {/* Email Preview Modal — editable */}
       {emailPreview && (
         <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', border: '2px solid rgba(201,169,98,0.4)', position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ fontSize: '1.3rem' }}>{emailPreview.icon}</span>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Vorschau: {emailPreview.label}</h3>
@@ -424,17 +440,27 @@ function GuestListSection({ components: C }) {
             <button onClick={() => setEmailPreview(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', opacity: 0.5 }}>✕</button>
           </div>
 
-          <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.3rem' }}>Betreff</p>
-            <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{emailPreview.subject}</p>
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.4rem' }}>Betreff</p>
+            <input
+              type="text"
+              value={emailPreview.subject}
+              onChange={e => updatePreview('subject', e.target.value)}
+              style={{ width: '100%', padding: '0.7rem 0.85rem', fontSize: '0.9rem', fontWeight: 600, border: '1px solid rgba(128,128,128,0.2)', borderRadius: '6px', background: 'rgba(128,128,128,0.05)', fontFamily: 'inherit' }}
+            />
           </div>
 
-          <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.3rem' }}>Inhalt der E-Mail</p>
-            <div style={{ fontSize: '0.85rem', lineHeight: 1.8, whiteSpace: 'pre-line', opacity: 0.8 }}>{emailPreview.body}</div>
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.4rem' }}>Inhalt der E-Mail</p>
+            <textarea
+              value={emailPreview.body}
+              onChange={e => updatePreview('body', e.target.value)}
+              rows={10}
+              style={{ width: '100%', padding: '0.85rem', fontSize: '0.85rem', lineHeight: 1.8, border: '1px solid rgba(128,128,128,0.2)', borderRadius: '6px', background: 'rgba(128,128,128,0.05)', fontFamily: 'inherit', resize: 'vertical', minHeight: '180px' }}
+            />
           </div>
 
-          <div style={{ background: 'rgba(128,128,128,0.05)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.78rem', opacity: 0.6 }}>
+          <div style={{ background: 'rgba(128,128,128,0.05)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.78rem', opacity: 0.6 }}>
             <strong>Empfänger:</strong> {emailPreview.recipients.length} {emailPreview.recipients.length === 1 ? 'Gast' : 'Gäste'}
             {emailPreview.recipients.length <= 5
               ? ` — ${emailPreview.recipients.map(g => g.name).join(', ')}`
@@ -442,12 +468,12 @@ function GuestListSection({ components: C }) {
             }
           </div>
 
-          <p style={{ fontSize: '0.75rem', opacity: 0.45, marginBottom: '1rem', lineHeight: 1.5 }}>
-            ℹ️ Die Mail wird im Design eures Hochzeits-Themes versendet, mit eurem Logo und Link zur Website. [Name] wird automatisch durch den Namen jedes Gastes ersetzt.
+          <p style={{ fontSize: '0.75rem', opacity: 0.45, marginBottom: '1.25rem', lineHeight: 1.5 }}>
+            ℹ️ Die Mail wird im Design eures Themes versendet, mit Logo und Link zur Website. [Name] wird automatisch durch den Namen jedes Gastes ersetzt. Ihr könnt Betreff und Text oben frei anpassen.
           </p>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <C.ActionButton $primary onClick={emailPreview.onConfirm}>
+            <C.ActionButton $primary onClick={() => emailPreview.sendFn(emailPreview.subject, emailPreview.body)}>
               ✉️ Jetzt {emailPreview.recipients.length} {emailPreview.recipients.length === 1 ? 'Mail' : 'Mails'} versenden
             </C.ActionButton>
             <C.ActionButton onClick={() => setEmailPreview(null)}>Abbrechen</C.ActionButton>

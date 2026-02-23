@@ -75,7 +75,7 @@ const THEME_STYLES = {
   },
 };
 
-function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme }) {
+function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme, customBody }) {
   const s = THEME_STYLES[theme] || THEME_STYLES.editorial;
 
   const formattedDate = weddingDate
@@ -85,6 +85,15 @@ function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
   const btnStyle = s.btnBorder
     ? `background:${s.btnBg};color:${s.btnColor};border:${s.borderWidth || '1px'} solid ${s.btnBorder};${s.glowShadow ? `box-shadow:${s.glowShadow};` : ''}`
     : `background:${s.btnBg};color:${s.btnColor};border:none;${s.shadow ? `box-shadow:${s.shadow};` : ''}`;
+
+  // Use custom body or default
+  const bodyHtml = bodyToHtml(customBody, s)
+    || `<p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">
+      Liebe/r ${esc(guestName)},
+    </p>
+    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 24px 0;">
+      wir freuen uns riesig auf unsere Hochzeit${formattedDate ? ` am <strong style="color:${s.text}">${formattedDate}</strong>` : ''} und würden euch so gerne dabei haben! Wir haben gesehen, dass ihr noch nicht zugesagt habt – könntet ihr uns eine kurze Rückmeldung geben?
+    </p>`;
 
   return `
 <!DOCTYPE html>
@@ -108,12 +117,7 @@ function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
     </h1>
 
     <!-- Body -->
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">
-      Liebe/r ${esc(guestName)},
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 24px 0;">
-      wir freuen uns riesig auf unsere Hochzeit${formattedDate ? ` am <strong style="color:${s.text}">${formattedDate}</strong>` : ''} und würden euch so gerne dabei haben! Wir haben gesehen, dass ihr noch nicht zugesagt habt – könntet ihr uns eine kurze Rückmeldung geben?
-    </p>
+    ${bodyHtml}
 
     <!-- Card -->
     <div style="background:${s.cardBg};border:${s.borderWidth || '1px'} solid ${s.border};padding:24px;margin-bottom:28px;${s.shadow ? `box-shadow:${s.shadow};` : ''}">
@@ -139,11 +143,20 @@ function buildReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
 
 const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// Convert custom plain-text body to styled HTML paragraphs
+function bodyToHtml(text, style) {
+  if (!text) return null;
+  return text.split('\n\n').filter(Boolean)
+    .filter(p => !p.startsWith('Button:'))
+    .map(p => `<p style="font-size:15px;color:${style.textSecondary};line-height:1.7;margin:0 0 16px 0;">${esc(p).replace(/\n/g, '<br />')}</p>`)
+    .join('\n');
+}
+
 // ============================================
 // THANK YOU EMAIL TEMPLATE
 // ============================================
 
-function buildThankYouEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme }) {
+function buildThankYouEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme, customBody }) {
   const s = THEME_STYLES[theme] || THEME_STYLES.editorial;
 
   const formattedDate = weddingDate
@@ -153,6 +166,9 @@ function buildThankYouEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
   const btnStyle = s.btnBorder
     ? `background:${s.btnBg};color:${s.btnColor};border:${s.borderWidth || '1px'} solid ${s.btnBorder};${s.glowShadow ? `box-shadow:${s.glowShadow};` : ''}`
     : `background:${s.btnBg};color:${s.btnColor};border:none;${s.shadow ? `box-shadow:${s.shadow};` : ''}`;
+
+  const thankDefault = `<p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">Liebe/r ${esc(guestName)},</p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">wir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag${formattedDate ? ` am <strong style="color:${s.text}">${formattedDate}</strong>` : ''} war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.</p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">Danke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: <strong style="color:${s.text}">pures Glück.</strong></p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 28px 0;">Wir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛</p>`;
+  const thankBodyHtml = bodyToHtml(customBody, s) || thankDefault;
 
   return `
 <!DOCTYPE html>
@@ -176,18 +192,7 @@ function buildThankYouEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
     </h1>
 
     <!-- Body -->
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">
-      Liebe/r ${esc(guestName)},
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">
-      wir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag${formattedDate ? ` am <strong style="color:${s.text}">${formattedDate}</strong>` : ''} war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">
-      Danke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: <strong style="color:${s.text}">pures Glück.</strong>
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 28px 0;">
-      Wir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛
-    </p>
+    ${thankBodyHtml}
 
     <!-- Card -->
     <div style="background:${s.cardBg};border:${s.borderWidth || '1px'} solid ${s.border};padding:24px;margin-bottom:28px;${s.shadow ? `box-shadow:${s.shadow};` : ''}">
@@ -219,7 +224,7 @@ function buildThankYouEmail({ guestName, coupleNames, weddingDate, websiteUrl, t
 // PHOTO REMINDER EMAIL TEMPLATE
 // ============================================
 
-function buildPhotoReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme }) {
+function buildPhotoReminderEmail({ guestName, coupleNames, weddingDate, websiteUrl, theme, customBody }) {
   const s = THEME_STYLES[theme] || THEME_STYLES.editorial;
 
   const formattedDate = weddingDate
@@ -229,6 +234,9 @@ function buildPhotoReminderEmail({ guestName, coupleNames, weddingDate, websiteU
   const btnStyle = s.btnBorder
     ? `background:${s.btnBg};color:${s.btnColor};border:${s.borderWidth || '1px'} solid ${s.btnBorder};${s.glowShadow ? `box-shadow:${s.glowShadow};` : ''}`
     : `background:${s.btnBg};color:${s.btnColor};border:none;${s.shadow ? `box-shadow:${s.shadow};` : ''}`;
+
+  const photoDefault = `<p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">Liebe/r ${esc(guestName)},</p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">wisst ihr, was das Schönste an unserer Hochzeit ist? Dass jeder von euch den Tag aus seiner ganz eigenen Perspektive erlebt hat. Und bestimmt habt ihr dabei Momente eingefangen, die wir selbst gar nicht mitbekommen haben.</p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;"><strong style="color:${s.text}">Wir würden diese Bilder so gerne sehen!</strong> Ob verwackeltes Selfie oder das perfekte Foto vom Sonnenuntergang – für uns ist jedes einzelne Bild ein kleiner Schatz.</p><p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 28px 0;">Ladet eure Fotos einfach direkt auf unserer Website hoch. In voller Qualität, ohne Ablaufdatum, für immer. 💛</p>`;
+  const photoBodyHtml = bodyToHtml(customBody, s) || photoDefault;
 
   return `
 <!DOCTYPE html>
@@ -252,18 +260,7 @@ function buildPhotoReminderEmail({ guestName, coupleNames, weddingDate, websiteU
     </h1>
 
     <!-- Body -->
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 8px 0;">
-      Liebe/r ${esc(guestName)},
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">
-      wisst ihr, was das Schönste an unserer Hochzeit ist? Dass jeder von euch den Tag aus seiner ganz eigenen Perspektive erlebt hat. Und bestimmt habt ihr dabei Momente eingefangen, die wir selbst gar nicht mitbekommen haben – weil wir gerade getanzt, gelacht oder vor Glück geweint haben.
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 16px 0;">
-      <strong style="color:${s.text}">Wir würden diese Bilder so gerne sehen!</strong> Ob verwackeltes Selfie, heimlicher Schnappschuss oder das perfekte Foto vom Sonnenuntergang – für uns ist jedes einzelne Bild ein kleiner Schatz.
-    </p>
-    <p style="font-size:15px;color:${s.textSecondary};line-height:1.7;margin:0 0 28px 0;">
-      Ladet eure Fotos einfach direkt auf unserer Website hoch – das dauert nur einen Moment und die Bilder landen alle an einem Ort. In voller Qualität, ohne Ablaufdatum, für immer. 💛
-    </p>
+    ${photoBodyHtml}
 
     <!-- Card -->
     <div style="background:${s.cardBg};border:${s.borderWidth || '1px'} solid ${s.border};padding:24px;margin-bottom:28px;${s.shadow ? `box-shadow:${s.shadow};` : ''}">
@@ -363,7 +360,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { projectId, guests, type } = req.body;
+    const { projectId, guests, type, customSubject, customBody } = req.body;
     const emailType = type || 'rsvp_reminder'; // default: original behavior
 
     if (!projectId || !guests || !Array.isArray(guests) || guests.length === 0) {
@@ -402,22 +399,23 @@ export default async function handler(req, res) {
         weddingDate: project.wedding_date,
         websiteUrl,
         theme,
+        customBody: customBody ? customBody.replace(/\[Name\]/g, guest.name) : null,
       };
 
       switch (emailType) {
         case 'thank_you':
           return {
-            subject: `💛 ${coupleNames} – Danke, von ganzem Herzen`,
+            subject: customSubject || `💛 ${coupleNames} – Danke, von ganzem Herzen`,
             html: buildThankYouEmail(baseData),
           };
         case 'photo_reminder':
           return {
-            subject: `📸 ${coupleNames} – Habt ihr noch Fotos von unserem Tag?`,
+            subject: customSubject || `📸 ${coupleNames} – Habt ihr noch Fotos von unserem Tag?`,
             html: buildPhotoReminderEmail(baseData),
           };
         default: // rsvp_reminder
           return {
-            subject: `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
+            subject: customSubject || `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
             html: buildReminderEmail(baseData),
           };
       }
