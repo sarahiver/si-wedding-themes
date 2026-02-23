@@ -30,21 +30,24 @@ function ensureBounceKeyframes() {
 
 // ── Scattered title definitions — base layout before filtering ──
 const ALL_TITLES = [
-  { id: 'lovestory',      text: 'Love Story',    left: '48%', mLeft: '25%', speed: 0.82, size: 'clamp(3.5rem, 8vw, 7rem)', mSize: 'clamp(2.2rem, 10vw, 3rem)' },
-  { id: 'timeline',       text: 'Tagesablauf',   left: '4%',  mLeft: '4%',  speed: 1.2,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 7vw, 2.2rem)' },
-  { id: 'dresscode',      text: 'Dresscode',     left: '55%', mLeft: '28%', speed: 0.88, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 7vw, 2.2rem)' },
+  // Short words + low mLeft → can be bigger
+  // Long words + high mLeft → must be smaller to fit in viewport
+  // Formula: (100vw - mLeft) / ~charCount ≈ max safe char width
+  { id: 'lovestory',      text: 'Love Story',    left: '48%', mLeft: '4%',  speed: 0.82, size: 'clamp(3.5rem, 8vw, 7rem)', mSize: 'clamp(2rem, 9vw, 2.8rem)' },
+  { id: 'timeline',       text: 'Tagesablauf',   left: '4%',  mLeft: '4%',  speed: 1.2,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.4rem, 6vw, 2rem)' },
+  { id: 'dresscode',      text: 'Dresscode',     left: '55%', mLeft: '20%', speed: 0.88, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.4rem, 6vw, 2rem)' },
   { id: 'rsvp',           text: 'RSVP',          left: '18%', mLeft: '8%',  speed: 1.15, size: 'clamp(4rem, 9vw, 8rem)', mSize: 'clamp(2.5rem, 11vw, 3.5rem)' },
-  { id: 'locations',      text: 'Locations',     left: '62%', mLeft: '22%', speed: 0.8,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 7vw, 2.2rem)' },
-  { id: 'directions',     text: 'Anfahrt',       left: '8%',  mLeft: '5%',  speed: 1.1,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 7vw, 2.2rem)' },
-  { id: 'gallery',        text: 'Galerie',       left: '2%',  mLeft: '3%',  speed: 1.22, size: 'clamp(3.5rem, 8vw, 7rem)', mSize: 'clamp(2.2rem, 10vw, 3rem)' },
-  { id: 'gifts',          text: 'Geschenke',     left: '42%', mLeft: '20%', speed: 0.84, size: 'clamp(2.5rem, 6vw, 5rem)', mSize: 'clamp(1.6rem, 8vw, 2.5rem)' },
-  { id: 'guestbook',      text: 'Gästebuch',     left: '6%',  mLeft: '4%',  speed: 1.14, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 7vw, 2.2rem)' },
-  { id: 'musicwishes',    text: 'Musikwünsche',  left: '50%', mLeft: '8%',  speed: 0.9,  size: 'clamp(2rem, 4.5vw, 3.5rem)', mSize: 'clamp(1.3rem, 6vw, 1.8rem)' },
-  { id: 'photoupload',    text: 'Eure Fotos',    left: '12%', mLeft: '6%',  speed: 1.18, size: 'clamp(2.5rem, 6vw, 5rem)', mSize: 'clamp(1.6rem, 8vw, 2.5rem)' },
-  { id: 'accommodations', text: 'Unterkunft',    left: '58%', mLeft: '22%', speed: 0.83, size: 'clamp(2.5rem, 5vw, 4rem)', mSize: 'clamp(1.5rem, 7vw, 2rem)' },
-  { id: 'faq',            text: 'FAQ',           left: '5%',  mLeft: '5%',  speed: 1.2,  size: 'clamp(3.5rem, 8vw, 6.5rem)', mSize: 'clamp(2.2rem, 10vw, 3rem)' },
-  { id: 'witnesses',      text: 'Trauzeugen',    left: '44%', mLeft: '15%', speed: 0.82, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.5rem, 7vw, 2rem)' },
-  { id: 'weddingabc',     text: 'Hochzeits-ABC', left: '15%', mLeft: '3%',  speed: 1.16, size: 'clamp(2rem, 5vw, 4rem)', mSize: 'clamp(1.3rem, 6vw, 1.8rem)' },
+  { id: 'locations',      text: 'Locations',     left: '62%', mLeft: '15%', speed: 0.8,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.4rem, 6vw, 2rem)' },
+  { id: 'directions',     text: 'Anfahrt',       left: '8%',  mLeft: '5%',  speed: 1.1,  size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.6rem, 8vw, 2.2rem)' },
+  { id: 'gallery',        text: 'Galerie',       left: '2%',  mLeft: '3%',  speed: 1.22, size: 'clamp(3.5rem, 8vw, 7rem)', mSize: 'clamp(2rem, 10vw, 3rem)' },
+  { id: 'gifts',          text: 'Geschenke',     left: '42%', mLeft: '12%', speed: 0.84, size: 'clamp(2.5rem, 6vw, 5rem)', mSize: 'clamp(1.4rem, 6vw, 2.2rem)' },
+  { id: 'guestbook',      text: 'Gästebuch',     left: '6%',  mLeft: '4%',  speed: 1.14, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.4rem, 6vw, 2rem)' },
+  { id: 'musicwishes',    text: 'Musikwünsche',  left: '50%', mLeft: '3%',  speed: 0.9,  size: 'clamp(2rem, 4.5vw, 3.5rem)', mSize: 'clamp(1.1rem, 5vw, 1.6rem)' },
+  { id: 'photoupload',    text: 'Eure Fotos',    left: '12%', mLeft: '6%',  speed: 1.18, size: 'clamp(2.5rem, 6vw, 5rem)', mSize: 'clamp(1.5rem, 7vw, 2.2rem)' },
+  { id: 'accommodations', text: 'Unterkunft',    left: '58%', mLeft: '10%', speed: 0.83, size: 'clamp(2.5rem, 5vw, 4rem)', mSize: 'clamp(1.4rem, 6vw, 2rem)' },
+  { id: 'faq',            text: 'FAQ',           left: '5%',  mLeft: '5%',  speed: 1.2,  size: 'clamp(3.5rem, 8vw, 6.5rem)', mSize: 'clamp(2.5rem, 11vw, 3.5rem)' },
+  { id: 'witnesses',      text: 'Trauzeugen',    left: '44%', mLeft: '8%',  speed: 0.82, size: 'clamp(2.5rem, 5.5vw, 4.5rem)', mSize: 'clamp(1.3rem, 6vw, 1.8rem)' },
+  { id: 'weddingabc',     text: 'Hochzeits-ABC', left: '15%', mLeft: '3%',  speed: 1.16, size: 'clamp(2rem, 5vw, 4rem)', mSize: 'clamp(1.1rem, 5vw, 1.5rem)' },
 ]
 
 // Start/end in vh for title zone (between hero images and footer)
@@ -223,6 +226,7 @@ function ScatteredTitle({ t, idx, isMobile, onOpenModal }) {
         zIndex: 2,
         maxWidth: '85vw',
         whiteSpace: 'nowrap',
+        overflow: 'hidden',
       }}
     >
       {t.text.split('').map((char, i) => (
