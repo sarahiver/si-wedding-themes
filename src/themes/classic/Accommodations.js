@@ -32,6 +32,16 @@ const HInfo = styled.div`padding:1.5rem;`;
 const HName = styled.h3`font-family:var(--font-d);font-size:1.2rem;font-weight:400;margin-bottom:0.3rem;`;
 const HMeta = styled.p`font-size:0.75rem;color:var(--c-text-muted);`;
 const HP = styled.p`font-size:0.8rem;color:var(--c-text-sec);line-height:1.7;margin-top:0.5rem;`;
+const HAddr = styled.p`font-size:0.78rem;color:var(--c-text-sec);line-height:1.5;margin-top:0.4rem;`;
+const HCode = styled.div`margin-top:0.6rem;padding:0.5rem 0.75rem;background:var(--c-bg,#faf9f7);
+  border:1px dashed rgba(0,0,0,0.12);border-radius:4px;font-size:0.75rem;
+  span{font-weight:600;font-family:monospace;letter-spacing:0.05em;}`;
+const HLinks = styled.div`display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;`;
+const HLink = styled.a`display:inline-flex;align-items:center;gap:0.3rem;font-size:0.75rem;
+  padding:0.4rem 0.8rem;border:1px solid rgba(0,0,0,0.12);border-radius:3px;
+  color:var(--c-text);text-decoration:none;transition:all 0.3s;
+  &:hover{background:var(--c-text);color:var(--c-white);border-color:var(--c-text);}`;
+
 
 const DEFS=[{name:'Hotel am Schlosspark',distance:'5 Min. entfernt',price:'ab 120 € / Nacht',description:'Komfortable Zimmer mit Blick auf den Park.'},
 {name:'Boutique Hotel Gartenblick',distance:'10 Min. entfernt',price:'ab 95 € / Nacht',description:'Charmantes Boutique-Hotel in ruhiger Lage.'}];
@@ -58,7 +68,13 @@ function Accommodations() {
             <HInfo>
               <HName>{h.name||h.titel}</HName>
               <HMeta>{h.distance||h.entfernung}{(h.price_range||h.price)?` · ${h.price_range||h.price}`:''}</HMeta>
+              {h.address&&<HAddr>📍 {h.address}</HAddr>}
               {h.description&&<HP>{h.description}</HP>}
+              {h.booking_code&&<HCode>Buchungscode: <span>{h.booking_code}</span></HCode>}
+              <HLinks>
+                {(h.maps_url||h.maps_link)&&<HLink href={h.maps_url||h.maps_link} target="_blank" rel="noopener noreferrer">📍 Anfahrt</HLink>}
+                {(h.booking_url||h.url)&&<HLink href={h.booking_url||h.url} target="_blank" rel="noopener noreferrer">🔗 Buchen</HLink>}
+              </HLinks>
             </HInfo>
           </HotelCard>
         ))}
