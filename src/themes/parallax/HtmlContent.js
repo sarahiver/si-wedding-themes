@@ -222,6 +222,7 @@ function ScatteredTitle({ t, idx, isMobile, onOpenModal }) {
         cursor: 'pointer',
         zIndex: 2,
         maxWidth: '85vw',
+        whiteSpace: 'nowrap',
       }}
     >
       {t.text.split('').map((char, i) => (

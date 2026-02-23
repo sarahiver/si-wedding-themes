@@ -298,29 +298,32 @@ export default function ParallaxWeddingApp() {
             userSelect: 'none',
             fontFamily: "'DM Sans', sans-serif",
             background: '#fff',
-            padding: 'clamp(1rem, 2vw, 2rem) clamp(2rem, 4vw, 4rem)',
+            padding: 'clamp(0.8rem, 2vw, 2rem) clamp(1rem, 3vw, 4rem)',
+            maxWidth: '95vw',
           }}
         >
           {!cd.past ? (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(2rem, 5vw, 4rem)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1rem, 3vw, 4rem)' }}>
               {[
                 { v: p2(cd.d), l: 'TAGE' },
                 { v: p2(cd.h), l: 'STD' },
                 { v: p2(cd.m), l: 'MIN' },
                 { v: p2(cd.s), l: 'SEK' },
               ].map(({ v, l }) => (
-                <div key={l} style={{ textAlign: 'center' }}>
+                <div key={l} style={{ textAlign: 'center', minWidth: 'clamp(2.5rem, 12vw, 5rem)' }}>
                   <span style={{
-                    fontSize: 'clamp(3.5rem, 7vw, 6rem)',
+                    fontSize: 'clamp(2.5rem, 6vw, 6rem)',
                     fontWeight: 800,
                     color: '#000',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
                     fontVariantNumeric: 'tabular-nums',
+                    display: 'inline-block',
+                    minWidth: '1.8em',
                   }}>{v}</span>
                   <br />
                   <span style={{
-                    fontSize: 'clamp(0.55rem, 1vw, 0.75rem)',
+                    fontSize: 'clamp(0.5rem, 0.9vw, 0.75rem)',
                     fontWeight: 700,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
