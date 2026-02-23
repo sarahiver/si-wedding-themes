@@ -81,6 +81,7 @@ function GuestListSection({ components: C }) {
   const [showUpload, setShowUpload] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [sendProgress, setSendProgress] = useState({ sent: 0, total: 0 });
+  const [emailPreview, setEmailPreview] = useState(null); // { type, recipients, subject, body, onConfirm }
 
   // RSVP-Abgleich: welche E-Mails haben bereits geantwortet?
   const rsvpEmails = useMemo(() => {
@@ -133,62 +134,97 @@ function GuestListSection({ components: C }) {
   // Has photo upload feature?
   const hasPhotoUpload = checkActive?.('photoupload');
 
-  // Send "Thank You" email to all confirmed guests
-  const handleSendThankYou = useCallback(async () => {
-    if (confirmedGuests.length === 0) return;
-    if (!window.confirm(`💌 Danke-Mail an ${confirmedGuests.length} Gäste senden, die zugesagt haben?`)) return;
+  // Email preview templates
+  const coupleNames = project?.couple_names || 'Brautpaar';
+  const weddingDate = project?.wedding_date
+    ? new Date(project.wedding_date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '';
 
-    setSendingThank(true);
-    try {
-      const response = await fetch('/api/reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
-          type: 'thank_you',
-        }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        showFeedback('success', `💌 ${result.sent} Danke-Mails versendet!`);
-        await loadData();
-      } else {
-        showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+  const EMAIL_TEMPLATES = {
+    rsvp_reminder: {
+      icon: '📧',
+      label: 'RSVP-Erinnerung',
+      subject: `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
+      body: `Liebe/r [Name],\n\nwir freuen uns riesig auf unsere Hochzeit${weddingDate ? ` am ${weddingDate}` : ''} und würden euch so gerne dabei haben! Wir haben gesehen, dass ihr noch nicht zugesagt habt – könntet ihr uns eine kurze Rückmeldung geben?\n\nButton: JETZT ZUSAGEN → [Link zur Website]`,
+    },
+    thank_you: {
+      icon: '💌',
+      label: 'Danke-Mail',
+      subject: `💛 ${coupleNames} – Danke, von ganzem Herzen`,
+      body: `Liebe/r [Name],\n\nwir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag${weddingDate ? ` am ${weddingDate}` : ''} war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.\n\nDanke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: pures Glück.\n\nWir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛\n\nButton: ZUR WEBSITE → [Link zur Website]\n\nIn Liebe,\n${coupleNames}`,
+    },
+    photo_reminder: {
+      icon: '📸',
+      label: 'Foto-Erinnerung',
+      subject: `📸 ${coupleNames} – Habt ihr noch Fotos von unserem Tag?`,
+      body: `Liebe/r [Name],\n\nwisst ihr, was das Schönste an unserer Hochzeit ist? Dass jeder von euch den Tag aus seiner ganz eigenen Perspektive erlebt hat. Und bestimmt habt ihr dabei Momente eingefangen, die wir selbst gar nicht mitbekommen haben.\n\nWir würden diese Bilder so gerne sehen! Ob verwackeltes Selfie, heimlicher Schnappschuss oder das perfekte Foto vom Sonnenuntergang – für uns ist jedes einzelne Bild ein kleiner Schatz.\n\nLadet eure Fotos einfach direkt auf unserer Website hoch – das dauert nur einen Moment.\n\nButton: FOTOS HOCHLADEN → [Link zur Website]\n\nDanke, ihr Lieben!\n${coupleNames}`,
+    },
+  };
+
+  // Show email preview before sending
+  const showEmailPreview = (type, recipients, onConfirm) => {
+    const tpl = EMAIL_TEMPLATES[type];
+    setEmailPreview({ type, recipients, subject: tpl.subject, body: tpl.body, label: tpl.label, icon: tpl.icon, onConfirm });
+  };
+
+  // Send "Thank You" email to all confirmed guests
+  const handleSendThankYou = useCallback(() => {
+    if (confirmedGuests.length === 0) return;
+    showEmailPreview('thank_you', confirmedGuests, async () => {
+      setEmailPreview(null);
+      setSendingThank(true);
+      try {
+        const response = await fetch('/api/reminder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId,
+            guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+            type: 'thank_you',
+          }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          showFeedback('success', `💌 ${result.sent} Danke-Mails versendet!`);
+          await loadData();
+        } else {
+          showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+        }
+      } catch (err) {
+        showFeedback('error', 'Netzwerkfehler: ' + err.message);
       }
-    } catch (err) {
-      showFeedback('error', 'Netzwerkfehler: ' + err.message);
-    }
-    setSendingThank(false);
+      setSendingThank(false);
+    });
   }, [projectId, confirmedGuests, showFeedback, loadData]);
 
   // Send "Photo Reminder" email to all confirmed guests
-  const handleSendPhotoReminder = useCallback(async () => {
+  const handleSendPhotoReminder = useCallback(() => {
     if (confirmedGuests.length === 0) return;
-    if (!window.confirm(`📸 Foto-Erinnerung an ${confirmedGuests.length} Gäste senden?`)) return;
-
-    setSendingPhoto(true);
-    try {
-      const response = await fetch('/api/reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
-          type: 'photo_reminder',
-        }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        showFeedback('success', `📸 ${result.sent} Foto-Erinnerungen versendet!`);
-        await loadData();
-      } else {
-        showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+    showEmailPreview('photo_reminder', confirmedGuests, async () => {
+      setEmailPreview(null);
+      setSendingPhoto(true);
+      try {
+        const response = await fetch('/api/reminder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId,
+            guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+            type: 'photo_reminder',
+          }),
+        });
+        const result = await response.json();
+        if (result.success) {
+          showFeedback('success', `📸 ${result.sent} Foto-Erinnerungen versendet!`);
+          await loadData();
+        } else {
+          showFeedback('error', 'Fehler: ' + (result.error || 'Unbekannter Fehler'));
+        }
+      } catch (err) {
+        showFeedback('error', 'Netzwerkfehler: ' + err.message);
       }
-    } catch (err) {
-      showFeedback('error', 'Netzwerkfehler: ' + err.message);
-    }
-    setSendingPhoto(false);
+      setSendingPhoto(false);
+    });
   }, [projectId, confirmedGuests, showFeedback, loadData]);
 
   // CSV Upload Handler
@@ -238,41 +274,42 @@ function GuestListSection({ components: C }) {
   }, [projectId, showFeedback, loadData]);
 
   // Send reminders to all pending guests
-  const handleSendReminders = useCallback(async () => {
+  const handleSendReminders = useCallback(() => {
     if (pendingGuests.length === 0) return;
+    showEmailPreview('rsvp_reminder', pendingGuests, async () => {
+      setEmailPreview(null);
+      setSending(true);
+      setSendProgress({ sent: 0, total: pendingGuests.length });
 
-    setSending(true);
-    setSendProgress({ sent: 0, total: pendingGuests.length });
+      try {
+        const response = await fetch('/api/reminder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId,
+            guests: pendingGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
+          }),
+        });
 
-    try {
-      const response = await fetch('/api/reminder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          guests: pendingGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
-        }),
-      });
+        const result = await response.json();
 
-      const result = await response.json();
+        if (result.success) {
+          setSendProgress({ sent: result.sent, total: pendingGuests.length });
+          showFeedback('success', `${result.sent} Erinnerungen versendet!`);
 
-      if (result.success) {
-        setSendProgress({ sent: result.sent, total: pendingGuests.length });
-        showFeedback('success', `${result.sent} Erinnerungen versendet!`);
-
-        // Mark all as reminded in local state
-        for (const g of pendingGuests) {
-          await markReminderSent(g.id);
+          for (const g of pendingGuests) {
+            await markReminderSent(g.id);
+          }
+          await loadData();
+        } else {
+          showFeedback('error', 'Fehler beim Versenden: ' + (result.error || 'Unbekannter Fehler'));
         }
-        await loadData();
-      } else {
-        showFeedback('error', 'Fehler beim Versenden: ' + (result.error || 'Unbekannter Fehler'));
-      }
     } catch (err) {
       showFeedback('error', 'Netzwerkfehler: ' + err.message);
     }
 
     setSending(false);
+    });
   }, [projectId, pendingGuests, showFeedback, loadData]);
 
   // Delete single guest
@@ -372,6 +409,48 @@ function GuestListSection({ components: C }) {
                 {sendingPhoto ? '⏳ Wird gesendet...' : `📸 Foto-Erinnerung (${stats.confirmed})`}
               </C.ActionButton>
             )}
+          </div>
+        </C.Card>
+      )}
+
+      {/* Email Preview Modal */}
+      {emailPreview && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', border: '2px solid rgba(201,169,98,0.4)', position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>{emailPreview.icon}</span>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Vorschau: {emailPreview.label}</h3>
+            </div>
+            <button onClick={() => setEmailPreview(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', opacity: 0.5 }}>✕</button>
+          </div>
+
+          <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.3rem' }}>Betreff</p>
+            <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{emailPreview.subject}</p>
+          </div>
+
+          <div style={{ background: 'rgba(128,128,128,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5, marginBottom: '0.3rem' }}>Inhalt der E-Mail</p>
+            <div style={{ fontSize: '0.85rem', lineHeight: 1.8, whiteSpace: 'pre-line', opacity: 0.8 }}>{emailPreview.body}</div>
+          </div>
+
+          <div style={{ background: 'rgba(128,128,128,0.05)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.78rem', opacity: 0.6 }}>
+            <strong>Empfänger:</strong> {emailPreview.recipients.length} {emailPreview.recipients.length === 1 ? 'Gast' : 'Gäste'}
+            {emailPreview.recipients.length <= 5
+              ? ` — ${emailPreview.recipients.map(g => g.name).join(', ')}`
+              : ` — ${emailPreview.recipients.slice(0, 3).map(g => g.name).join(', ')} und ${emailPreview.recipients.length - 3} weitere`
+            }
+          </div>
+
+          <p style={{ fontSize: '0.75rem', opacity: 0.45, marginBottom: '1rem', lineHeight: 1.5 }}>
+            ℹ️ Die Mail wird im Design eures Hochzeits-Themes versendet, mit eurem Logo und Link zur Website. [Name] wird automatisch durch den Namen jedes Gastes ersetzt.
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <C.ActionButton $primary onClick={emailPreview.onConfirm}>
+              ✉️ Jetzt {emailPreview.recipients.length} {emailPreview.recipients.length === 1 ? 'Mail' : 'Mails'} versenden
+            </C.ActionButton>
+            <C.ActionButton onClick={() => setEmailPreview(null)}>Abbrechen</C.ActionButton>
           </div>
         </C.Card>
       )}
