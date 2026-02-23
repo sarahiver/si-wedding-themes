@@ -145,19 +145,19 @@ function GuestListSection({ components: C }) {
       icon: '📧',
       label: 'RSVP-Erinnerung',
       subject: `💌 ${coupleNames} – Bitte gebt eure Rückmeldung`,
-      body: `Liebe/r [Name],\n\nwir freuen uns riesig auf unsere Hochzeit${weddingDate ? ` am ${weddingDate}` : ''} und würden euch so gerne dabei haben! Wir haben gesehen, dass ihr noch nicht zugesagt habt – könntet ihr uns eine kurze Rückmeldung geben?\n\nButton: JETZT ZUSAGEN → [Link zur Website]`,
+      body: `Liebe/r [Name],\n\nwir freuen uns riesig auf unsere Hochzeit${weddingDate ? ` am ${weddingDate}` : ''} und würden euch so gerne dabei haben! Wir haben gesehen, dass ihr noch nicht zugesagt habt – könntet ihr uns eine kurze Rückmeldung geben?`,
     },
     thank_you: {
       icon: '💌',
       label: 'Danke-Mail',
       subject: `💛 ${coupleNames} – Danke, von ganzem Herzen`,
-      body: `Liebe/r [Name],\n\nwir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag${weddingDate ? ` am ${weddingDate}` : ''} war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.\n\nDanke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: pures Glück.\n\nWir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛\n\nButton: ZUR WEBSITE → [Link zur Website]\n\nIn Liebe,\n${coupleNames}`,
+      body: `Liebe/r [Name],\n\nwir sitzen hier, blättern durch die Erinnerungen – und müssen einfach lächeln. Unser Hochzeitstag${weddingDate ? ` am ${weddingDate}` : ''} war der schönste Tag unseres Lebens. Und das wäre er ohne euch nicht gewesen.\n\nDanke, dass ihr dabei wart. Danke für eure Umarmungen, euer Lachen, eure Tränen, eure Tanzeinlagen und die Momente, die wir nie vergessen werden. Ihr habt diesen Tag zu dem gemacht, was er war: pures Glück.\n\nWir tragen diesen Tag für immer in unserem Herzen – und euch gleich mit. 💛\n\nIn Liebe,\n${coupleNames}`,
     },
     photo_reminder: {
       icon: '📸',
       label: 'Foto-Erinnerung',
       subject: `📸 ${coupleNames} – Habt ihr noch Fotos von unserem Tag?`,
-      body: `Liebe/r [Name],\n\nwisst ihr, was das Schönste an unserer Hochzeit ist? Dass jeder von euch den Tag aus seiner ganz eigenen Perspektive erlebt hat. Und bestimmt habt ihr dabei Momente eingefangen, die wir selbst gar nicht mitbekommen haben.\n\nWir würden diese Bilder so gerne sehen! Ob verwackeltes Selfie, heimlicher Schnappschuss oder das perfekte Foto vom Sonnenuntergang – für uns ist jedes einzelne Bild ein kleiner Schatz.\n\nLadet eure Fotos einfach direkt auf unserer Website hoch – das dauert nur einen Moment.\n\nButton: FOTOS HOCHLADEN → [Link zur Website]\n\nDanke, ihr Lieben!\n${coupleNames}`,
+      body: `Liebe/r [Name],\n\nwisst ihr, was das Schönste an unserer Hochzeit ist? Dass jeder von euch den Tag aus seiner ganz eigenen Perspektive erlebt hat. Und bestimmt habt ihr dabei Momente eingefangen, die wir selbst gar nicht mitbekommen haben.\n\nWir würden diese Bilder so gerne sehen! Ob verwackeltes Selfie, heimlicher Schnappschuss oder das perfekte Foto vom Sonnenuntergang – für uns ist jedes einzelne Bild ein kleiner Schatz.\n\nLadet eure Fotos einfach direkt auf unserer Website hoch – das dauert nur einen Moment.\n\nDanke, ihr Lieben!\n${coupleNames}`,
     },
   };
 
@@ -469,7 +469,7 @@ function GuestListSection({ components: C }) {
           </div>
 
           <p style={{ fontSize: '0.75rem', opacity: 0.45, marginBottom: '1.25rem', lineHeight: 1.5 }}>
-            ℹ️ Die Mail wird im Design eures Themes versendet, mit Logo und Link zur Website. [Name] wird automatisch durch den Namen jedes Gastes ersetzt. Ihr könnt Betreff und Text oben frei anpassen.
+            ℹ️ Die Mail wird im Design eures Themes versendet. Logo, Button zur Website und Footer werden automatisch hinzugefügt. [Name] wird durch den Namen jedes Gastes ersetzt.
           </p>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
