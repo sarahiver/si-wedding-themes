@@ -22,13 +22,19 @@ export function clearToken() {
   localStorage.removeItem('auth_token');
 }
 
+function handleUnauthorized() {
+  clearToken();
+  sessionStorage.clear();
+  window.location.reload();
+}
+
 /**
  * Authenticated fetch — adds Bearer token to any API call.
  * Use for direct API route calls (e.g. /api/delete-photos, /api/reminder).
  */
 export async function authFetch(url, options = {}) {
   const token = getToken();
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -36,6 +42,12 @@ export async function authFetch(url, options = {}) {
       ...options.headers,
     },
   });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+  }
+
+  return response;
 }
 
 async function dbCall(action, params = {}) {
@@ -50,7 +62,8 @@ async function dbCall(action, params = {}) {
   });
 
   if (response.status === 401) {
-    console.warn('[supabase] Unauthorized — token may be expired');
+    handleUnauthorized();
+    return { data: null, error: 'Unauthorized' };
   }
 
   if (!response.ok) {
