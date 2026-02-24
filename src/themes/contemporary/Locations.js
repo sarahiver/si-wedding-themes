@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const Section = styled.section`
   overflow: hidden;
@@ -293,7 +294,7 @@ function Locations() {
         <Grid>
           {items.map((location, index) => (
             <Card key={index} $index={index} $visible={visible}>
-              {location.image && <CardImage $image={location.image} $index={index} />}
+              {location.image && <CardImage $image={optimizedUrl.card(location.image)} $index={index} />}
               <CardHeader $index={index}>
                 <CardIcon>{location.icon || '📍'}</CardIcon>
                 <CardTitle $index={index}>{location.name}</CardTitle>

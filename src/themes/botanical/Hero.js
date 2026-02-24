@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -303,7 +304,7 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
 
   return (
     <HeroSection id="hero">
-      <HeroBackground $image={heroImage} />
+      <HeroBackground $image={optimizedUrl.hero(heroImage)} />
       
       <GlassCard>
         <Eyebrow>{eyebrowText}</Eyebrow>

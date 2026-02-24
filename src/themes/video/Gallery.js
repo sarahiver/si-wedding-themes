@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import SectionWrapper from './SectionWrapper';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
@@ -45,7 +46,7 @@ function Gallery() {
         <Grid>
           {images.map((img, i) => (
             <ImageWrapper key={i} $visible={visible} $index={i} onClick={() => openLightbox(i)}>
-              {img.url ? <Image $image={img.url} /> : <Placeholder>+</Placeholder>}
+              {img.url ? <Image $image={optimizedUrl.thumb(img.url)} /> : <Placeholder>+</Placeholder>}
             </ImageWrapper>
           ))}
         </Grid>

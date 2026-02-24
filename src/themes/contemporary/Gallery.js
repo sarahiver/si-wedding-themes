@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const morph1 = keyframes`
   0%, 100% { 
@@ -344,7 +345,7 @@ function Gallery() {
                   {barImages.slice(0, 4).map((img, imgIndex) => (
                     <ImageSlot 
                       key={imgIndex}
-                      $image={img.url || img}
+                      $image={optimizedUrl.thumb(img.url || img)}
                       onClick={() => openLightbox(barIndex, imgIndex)}
                     />
                   ))}

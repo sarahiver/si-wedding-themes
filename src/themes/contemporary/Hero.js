@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -354,7 +355,7 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
         )}
       </LeftPanel>
       
-      <RightPanel $image={backgroundImage}>
+      <RightPanel $image={backgroundImage ? optimizedUrl.hero(backgroundImage) : backgroundImage}>
         <FloatingCircle $color="rgba(255,255,255,0.3)" $size="100px" style={{ top: '15%', right: '15%' }} $duration="12s" $delay="1s" />
         <FloatingSquare $color="rgba(255,255,255,0.2)" $size="60px" style={{ bottom: '20%', left: '15%' }} $duration="10s" $delay="2s" />
       </RightPanel>

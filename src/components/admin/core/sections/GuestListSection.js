@@ -3,8 +3,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent, authFetch } from '../../../../lib/supabase';
-import * as XLSX from 'xlsx';
-
 // CSV/Excel parsing (simple, no library needed)
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
@@ -37,9 +35,10 @@ function parseCSV(text) {
   return guests;
 }
 
-// XLSX parsing
-function parseXLSX(buffer) {
+// XLSX parsing (dynamisch geladen)
+async function parseXLSX(buffer) {
   try {
+    const XLSX = await import('xlsx');
     const wb = XLSX.read(buffer, { type: 'array' });
     const sheet = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
@@ -251,7 +250,7 @@ function GuestListSection({ components: C }) {
 
       if (isXlsx) {
         const buffer = await file.arrayBuffer();
-        guests = parseXLSX(buffer);
+        guests = await parseXLSX(buffer);
       } else {
         const text = await file.text();
         guests = parseCSV(text);

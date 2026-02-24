@@ -21,27 +21,17 @@ import PasswordGate from './components/shared/PasswordGate';
 // Legal Pages
 import { Impressum, Datenschutz } from './pages/LegalPages';
 
-// GlobalStyles direkt importieren (nicht lazy) - verhindert Flash of unstyled content
-import BotanicalGlobalStyles from './themes/botanical/GlobalStyles';
-import LuxeGlobalStyles from './themes/luxe/GlobalStyles';
-import NeonGlobalStyles from './themes/neon/GlobalStyles';
-import ContemporaryGlobalStyles from './themes/contemporary/GlobalStyles';
-import VideoGlobalStyles from './themes/video/GlobalStyles';
-import EditorialGlobalStyles from './themes/editorial/GlobalStyles';
-import ClassicGlobalStyles from './themes/classic/GlobalStyles';
-import SummerGlobalStyles from './themes/summer/GlobalStyles';
-import ParallaxGlobalStyles from './themes/parallax/GlobalStyles';
-
+// GlobalStyles dynamisch laden - nur das aktive Theme wird geladen
 const globalStylesMap = {
-  botanical: BotanicalGlobalStyles,
-  luxe: LuxeGlobalStyles,
-  neon: NeonGlobalStyles,
-  contemporary: ContemporaryGlobalStyles,
-  video: VideoGlobalStyles,
-  editorial: EditorialGlobalStyles,
-  classic: ClassicGlobalStyles,
-  summer: SummerGlobalStyles,
-  parallax: ParallaxGlobalStyles,
+  botanical: lazy(() => import('./themes/botanical/GlobalStyles')),
+  luxe: lazy(() => import('./themes/luxe/GlobalStyles')),
+  neon: lazy(() => import('./themes/neon/GlobalStyles')),
+  contemporary: lazy(() => import('./themes/contemporary/GlobalStyles')),
+  video: lazy(() => import('./themes/video/GlobalStyles')),
+  editorial: lazy(() => import('./themes/editorial/GlobalStyles')),
+  classic: lazy(() => import('./themes/classic/GlobalStyles')),
+  summer: lazy(() => import('./themes/summer/GlobalStyles')),
+  parallax: lazy(() => import('./themes/parallax/GlobalStyles')),
 };
 
 // Lazy load theme-specific pages (aber nicht GlobalStyles)

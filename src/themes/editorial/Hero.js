@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -290,7 +291,7 @@ function Hero() {
 
   return (
     <Section id="top">
-      <BackgroundImage $image={backgroundImage} $mobileImage={mobileBackgroundImage} />
+      <BackgroundImage $image={optimizedUrl.hero(backgroundImage)} $mobileImage={mobileBackgroundImage ? optimizedUrl.hero(mobileBackgroundImage) : null} />
       
       <Content>
         <Tagline>{hero.tagline || 'Wir sagen Ja'}</Tagline>

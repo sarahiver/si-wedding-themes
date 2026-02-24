@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(60px); }
@@ -188,7 +189,7 @@ function LoveStory() {
         return (
           <StoryItem key={i} ref={el => itemRefs.current[i] = el} $reverse={isReverse}>
             <ImageWrapper $reverse={isReverse}>
-              <Image $image={item.image} $visible={isVisible} />
+              <Image $image={optimizedUrl.card(item.image)} $visible={isVisible} />
             </ImageWrapper>
             <ContentWrapper $reverse={isReverse} $dark={i % 2 === 0}>
               <Content $visible={isVisible} $reverse={isReverse}>

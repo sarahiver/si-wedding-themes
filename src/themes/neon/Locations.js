@@ -1,5 +1,6 @@
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 // src/components/Locations.js - Neon Theme
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
@@ -268,7 +269,7 @@ function LocationItem({ location, index }) {
   return (
     <LocationBlock ref={ref} $reverse={reverse}>
       <ImageSide $reverse={reverse}>
-        <Image $src={location.image} />
+        <Image $src={optimizedUrl.card(location.image)} />
         <ImageOverlay $reverse={reverse} $color={location.color} />
       </ImageSide>
       

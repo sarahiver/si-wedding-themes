@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.1); } to { opacity: 1; transform: scale(1); }`;
@@ -98,7 +99,7 @@ function Locations() {
           return (
             <LocationCard key={i} $hasImage={!!imageUrl}>
               {imageUrl && (
-                <ImageSection><Image $image={imageUrl} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
+                <ImageSection><Image $image={optimizedUrl.card(imageUrl)} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
               )}
               <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
                 <TypeBadge>{getTypeLabel(loc.type)}</TypeBadge>

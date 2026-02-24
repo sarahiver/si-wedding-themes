@@ -78,19 +78,32 @@ export const uploadMultipleToCloudinary = uploadMultiple;
 
 /**
  * Generate optimized Cloudinary URL
+ * Skips if URL already contains f_auto or q_auto transforms
  */
 export function getOptimizedUrl(url, options = {}) {
   if (!url || !url.includes('cloudinary')) return url;
-  
+  if (url.includes('f_auto') || url.includes('q_auto')) return url;
+
   const { width, height, quality = 'auto', format = 'auto' } = options;
-  
+
   let transforms = `f_${format},q_${quality}`;
   if (width) transforms += `,w_${width}`;
   if (height) transforms += `,h_${height}`;
   if (width || height) transforms += ',c_fill';
-  
+
   return url.replace('/upload/', `/upload/${transforms}/`);
 }
+
+/**
+ * Shorthand helpers for common image sizes
+ */
+export const optimizedUrl = {
+  hero: (url) => getOptimizedUrl(url, { width: 1920 }),
+  card: (url) => getOptimizedUrl(url, { width: 800 }),
+  thumb: (url) => getOptimizedUrl(url, { width: 400 }),
+  avatar: (url) => getOptimizedUrl(url, { width: 200 }),
+  auto: (url) => getOptimizedUrl(url),
+};
 
 /**
  * Check if Cloudinary is configured

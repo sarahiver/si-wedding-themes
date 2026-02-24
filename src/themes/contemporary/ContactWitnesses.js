@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const Section = styled.section`
   overflow: hidden;
@@ -153,7 +154,7 @@ function ContactWitnesses() {
         <Grid>
           {persons.map((person, i) => (
             <Card key={i}>
-              <Avatar $image={person.image}>
+              <Avatar $image={person.image ? optimizedUrl.avatar(person.image) : person.image}>
                 {!person.image && (person.role?.toLowerCase().includes('zeugin') ? '👩' : '👨')}
               </Avatar>
               <Name>{person.name}</Name>

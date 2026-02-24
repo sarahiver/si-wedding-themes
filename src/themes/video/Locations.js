@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 import SectionWrapper from './SectionWrapper';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
@@ -86,7 +87,7 @@ function Locations() {
         <Grid>
           {locations.map((loc, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              {loc.image && <CardImage $image={loc.image} />}
+              {loc.image && <CardImage $image={optimizedUrl.card(loc.image)} />}
               <CardContent>
                 <TypeBadge>{loc.type}</TypeBadge>
                 <CardTitle>{loc.name}</CardTitle>

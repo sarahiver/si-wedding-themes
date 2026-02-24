@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import SectionWrapper from './SectionWrapper';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
@@ -55,7 +56,7 @@ function Accommodations() {
         <Grid>
           {displayHotels.map((hotel, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              {hotel.image && <CardImage $image={hotel.image} />}
+              {hotel.image && <CardImage $image={optimizedUrl.card(hotel.image)} />}
               <CardBody>
                 <CardTitle>{hotel.name}</CardTitle>
                 <CardMeta>

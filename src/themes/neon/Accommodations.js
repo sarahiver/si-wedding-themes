@@ -1,4 +1,5 @@
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -407,7 +408,7 @@ function Accommodations() {
         <AccommodationsGrid>
           {accommodations.map((hotel, i) => (
             <AccommodationCard key={i} $color={hotel.color} $delay={`${i * 0.15}s`}>
-              {hotel.image && <ImageWrapper $color={hotel.color} $image={hotel.image} />}
+              {hotel.image && <ImageWrapper $color={hotel.color} $image={optimizedUrl.card(hotel.image)} />}
 
               <ContentSection>
                 {hotel.price_range && <TypeBadge $color={hotel.color}>{hotel.price_range}</TypeBadge>}

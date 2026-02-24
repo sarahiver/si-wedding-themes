@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
@@ -102,7 +103,7 @@ const getImageUrl = (img) => img?.url || img || '';
 function HotelDetails({ hotel }) {
   return (
     <>
-      {getImageUrl(hotel.image) && <CardImage $image={getImageUrl(hotel.image)} style={{ marginBottom: '1rem' }} />}
+      {getImageUrl(hotel.image) && <CardImage $image={optimizedUrl.card(getImageUrl(hotel.image))} style={{ marginBottom: '1rem' }} />}
       <CardMeta>
         {hotel.address && (
           <MetaItem>
@@ -156,7 +157,7 @@ function Accommodations() {
         <Grid>
           {hotels.map((hotel, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              {getImageUrl(hotel.image) && <CardImage $image={getImageUrl(hotel.image)} />}
+              {getImageUrl(hotel.image) && <CardImage $image={optimizedUrl.card(getImageUrl(hotel.image))} />}
               <CardTitle>{hotel.name}</CardTitle>
               <CardMeta>
                 {hotel.address && (

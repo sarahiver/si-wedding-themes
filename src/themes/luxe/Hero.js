@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // Cinematic Animations
 const fadeIn = keyframes`
@@ -222,7 +223,7 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
   return (
     <Section id="hero">
       <BackgroundMedia>
-        <BackgroundImage $image={backgroundImage} $loaded={loaded} />
+        <BackgroundImage $image={optimizedUrl.hero(backgroundImage)} $loaded={loaded} />
       </BackgroundMedia>
       
       <Content>

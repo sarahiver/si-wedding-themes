@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import EditorialGlobalStyles from './GlobalStyles';
 import PhotoUpload from './PhotoUpload';
 import Footer from './Footer';
@@ -310,7 +311,7 @@ function ArchivePage() {
       <Page>
         {/* Hero mit Danke */}
         <HeroSection>
-          <HeroBackground $image={heroImage} />
+          <HeroBackground $image={optimizedUrl.hero(heroImage)} />
           <HeroContent>
             <Eyebrow>{thankYouTitle}</Eyebrow>
             <HeroTitle>

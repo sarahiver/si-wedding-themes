@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import LuxeGlobalStyles from './GlobalStyles';
 
 // Animations
@@ -278,7 +279,7 @@ function SaveTheDate() {
     <>
       <LuxeGlobalStyles />
       <Page>
-        <BackgroundImage $image={backgroundImage} />
+        <BackgroundImage $image={optimizedUrl.hero(backgroundImage)} />
         
         <Content>
           <Eyebrow>

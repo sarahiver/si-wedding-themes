@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const Section = styled.section`
   padding: clamp(4rem, 10vh, 8rem) 2rem;
@@ -252,7 +253,7 @@ function Accommodations() {
         <Grid>
           {items.map((hotel, i) => (
             <Card key={i}>
-              <CardImage $image={hotel.image}>
+              <CardImage $image={hotel.image ? optimizedUrl.card(hotel.image) : hotel.image}>
                 {!hotel.image && '🏨'}
               </CardImage>
               <CardBody>

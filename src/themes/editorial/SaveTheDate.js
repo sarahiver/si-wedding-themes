@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import EditorialGlobalStyles from './GlobalStyles';
 
 // ============================================
@@ -300,7 +301,7 @@ function SaveTheDate() {
     <>
       <EditorialGlobalStyles />
       <Page>
-        <BackgroundImage $image={backgroundImage} />
+        <BackgroundImage $image={optimizedUrl.hero(backgroundImage)} />
         
         <Content>
           <Eyebrow>{tagline}</Eyebrow>

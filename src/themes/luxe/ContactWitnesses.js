@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
@@ -59,7 +60,7 @@ function ContactWitnesses() {
         <Grid>
           {persons.map((person, i) => (
             <Card key={i} $visible={visible} $index={i}>
-              <Avatar $image={getImageUrl(person.image)} />
+              <Avatar $image={optimizedUrl.avatar(getImageUrl(person.image))} />
               <PersonName>{person.name}</PersonName>
               <Role>{person.role}</Role>
               {getWhatsAppNumber(person) && <Link href={`https://wa.me/${getWhatsAppNumber(person)}`} target="_blank" rel="noopener noreferrer">WhatsApp</Link>}

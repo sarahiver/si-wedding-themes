@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const float = keyframes`
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -258,7 +259,7 @@ function LoveStory() {
   const renderCard = (item, index) => (
     <Card key={index} $index={index} $visible={visible}>
       {item.image && (
-        <CardImage $image={item.image} $emoji={item.emoji || '📸'} />
+        <CardImage $image={optimizedUrl.card(item.image)} $emoji={item.emoji || '📸'} />
       )}
       <Year>{item.date}</Year>
       <CardContent>
