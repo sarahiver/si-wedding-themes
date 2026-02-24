@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useGifts } from '../../components/shared/GiftsCore';
 import FeedbackModal from '../../components/shared/FeedbackModal';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const glitchFlicker = keyframes`
   0%, 100% { opacity: 1; }
@@ -563,7 +564,7 @@ function Gifts() {
                   <GiftCard key={gift.id} $reserved={reserved}>
                     <GiftImage $reserved={reserved}>
                       {gift.image ? (
-                        <img src={gift.image} alt={gift.title} loading="lazy" />
+                        <img src={optimizedUrl.card(gift.image)} alt={gift.title} loading="lazy" />
                       ) : (
                         <GiftPlaceholder>🎁</GiftPlaceholder>
                       )}

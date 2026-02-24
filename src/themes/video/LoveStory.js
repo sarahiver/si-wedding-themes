@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import SectionWrapper from './SectionWrapper';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
 
@@ -101,7 +102,7 @@ function LoveStory() {
                 <ItemText>{item.description || item.text}</ItemText>
                 {item.image && (
                   <ItemImage>
-                    <img src={item.image} alt={item.title} />
+                    <img src={optimizedUrl.card(item.image)} alt={item.title} />
                   </ItemImage>
                 )}
               </ItemContent>

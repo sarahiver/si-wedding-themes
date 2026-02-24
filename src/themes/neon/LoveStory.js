@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -298,7 +299,7 @@ function LoveStory() {
         <ImgPanel onClick={() => goTo(Math.min(active + 1, chapters.length - 1))}>
           {chapters.map((ch, i) => (
             <PanelImg key={i} $active={i === active} $color={ch.color}>
-              <img src={ch.image} alt={ch.title} loading={i === 0 ? 'eager' : 'lazy'} />
+              <img src={optimizedUrl.card(ch.image)} alt={ch.title} loading={i === 0 ? 'eager' : 'lazy'} />
             </PanelImg>
           ))}
           <ImgEdge />

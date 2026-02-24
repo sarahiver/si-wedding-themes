@@ -6,6 +6,7 @@ import { useMusicWishes } from '../../components/shared/MusicWishesCore'
 import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore'
 import { useGifts } from '../../components/shared/GiftsCore'
 import { getAllGalleryUrls } from './galleryHelper'
+import { optimizedUrl } from '../../lib/cloudinary'
 
 // ── KEYFRAMES ──
 const STYLE_ID = 'parallax-modal-keyframes'
@@ -230,7 +231,7 @@ function LoveStoryContent({ content, scrollTop }) {
           <div key={i} style={{ marginBottom: '6rem' }}>
             {hasImg && (
               <div style={{ overflow: 'hidden', height: '55vh', transform: `translateY(${px(scrollTop, 0.7 + i * 0.06)}px)` }}>
-                <img src={ch.image} alt={ch.title} loading="lazy" style={{
+                <img src={optimizedUrl.card(ch.image)} alt={ch.title} loading="lazy" style={{
                   width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                   transform: `scale(${1 + scrollTop * 0.0004})`,
                   filter: `grayscale(${Math.max(0, Math.min(1, 1 - (scrollTop - i * 200) * 0.004))})`,
@@ -271,7 +272,7 @@ function LocationsContent({ content, scrollTop }) {
           <div key={i} style={{ marginBottom: '4rem', transform: `translateY(${px(scrollTop, 0.4 + i * 0.15)}px)` }}>
             {loc.image && (
               <div style={{ overflow: 'hidden', height: '40vh', marginBottom: '1.5rem' }}>
-                <img src={loc.image} alt={loc.name} loading="lazy" style={{
+                <img src={optimizedUrl.card(loc.image)} alt={loc.name} loading="lazy" style={{
                   width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                   transform: `scale(${1 + scrollTop * 0.0003})`,
                 }} />
@@ -488,7 +489,7 @@ function GalleryContent({ content, scrollTop }) {
             marginBottom: '-3vh', position: 'relative', zIndex: images.length - i,
             transform: `translateY(${scrollTop * (speed - 0.5) * 0.5}px)`,
           }}>
-            <img src={src} alt={`Foto ${i + 1}`} loading="lazy" style={{
+            <img src={optimizedUrl.hero(src)} alt={`Foto ${i + 1}`} loading="lazy" style={{
               width: '100%', height: '130%', objectFit: 'cover', display: 'block',
               transform: `scale(${1 + scrollTop * speed * 0.0004})`,
               filter: `grayscale(${Math.max(0, Math.min(1, 1 - (scrollTop - i * 120) * 0.004))})`,
@@ -641,7 +642,7 @@ function GiftsContent({ content, scrollTop }) {
               }}>
                 {item.image && (
                   <div style={{ overflow: 'hidden', height: '30vh', marginBottom: '1rem' }}>
-                    <img src={item.image} alt={item.name || item.title} loading="lazy" style={{
+                    <img src={optimizedUrl.card(item.image)} alt={item.name || item.title} loading="lazy" style={{
                       width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                       transform: `scale(${1 + scrollTop * 0.0003})`,
                     }} />
@@ -700,7 +701,7 @@ function AccommodationsContent({ content, scrollTop }) {
         }}>
           {h.image && (
             <div style={{ overflow: 'hidden', height: '35vh', marginBottom: '1.5rem' }}>
-              <img src={h.image} alt={h.name} loading="lazy" style={{
+              <img src={optimizedUrl.card(h.image)} alt={h.name} loading="lazy" style={{
                 width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                 transform: `scale(${1 + scrollTop * 0.0003})`,
               }} />
@@ -745,7 +746,7 @@ function WitnessesContent({ content, scrollTop }) {
         }}>
           {p.image && (
             <div style={{ overflow: 'hidden', height: '40vh', marginBottom: '1.5rem' }}>
-              <img src={p.image} alt={p.name} loading="lazy" style={{
+              <img src={optimizedUrl.card(p.image)} alt={p.name} loading="lazy" style={{
                 width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                 transform: `scale(${1 + scrollTop * 0.0003})`,
                 filter: `grayscale(${Math.max(0, Math.min(1, 1 - (scrollTop - i * 150) * 0.004))})`,
@@ -923,7 +924,7 @@ function PhotoUploadContent({ content, scrollTop }) {
                 overflow: 'hidden', height: '40vh', marginBottom: '-2vh',
                 transform: `translateY(${scrollTop * (speed - 0.5) * 0.4}px)`,
               }}>
-                <img src={photo.url || photo} alt={`Upload ${i + 1}`} loading="lazy" style={{
+                <img src={optimizedUrl.thumb(photo.url || photo)} alt={`Upload ${i + 1}`} loading="lazy" style={{
                   width: '100%', height: '120%', objectFit: 'cover', display: 'block',
                   transform: `scale(${1 + scrollTop * speed * 0.0003})`,
                 }} />

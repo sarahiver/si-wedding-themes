@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(40px); }
@@ -208,7 +209,7 @@ function ContactWitnesses() {
             <GlassCard key={i} $visible={visible} $index={i}>
               {witness.image ? (
                 <WitnessImage>
-                  <img src={witness.image} alt={witness.name} />
+                  <img src={optimizedUrl.avatar(witness.image)} alt={witness.name} />
                 </WitnessImage>
               ) : (
                 <WitnessPlaceholder>

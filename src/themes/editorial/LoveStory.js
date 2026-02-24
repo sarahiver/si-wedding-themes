@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -473,7 +474,7 @@ function LoveStory() {
                 <ArticleImage $visible={isVisible} $delay={delay}>
                   <ImageFrame>
                     <ImageOverlay $visible={isVisible} $delay={delay}>
-                      {item.image && <img src={item.image} alt={item.title} />}
+                      {item.image && <img src={optimizedUrl.card(item.image)} alt={item.title} />}
                     </ImageOverlay>
                   </ImageFrame>
                   <DateBadge>{item.date}</DateBadge>

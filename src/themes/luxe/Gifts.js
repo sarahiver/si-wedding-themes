@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useGifts } from '../../components/shared/GiftsCore';
 import FeedbackModal from '../../components/shared/FeedbackModal';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 
@@ -518,7 +519,7 @@ function Gifts() {
                   <GiftCard key={gift.id} $reserved={reserved}>
                     <GiftImage $reserved={reserved}>
                       {gift.image ? (
-                        <img src={gift.image} alt={gift.title} loading="lazy" />
+                        <img src={optimizedUrl.card(gift.image)} alt={gift.title} loading="lazy" />
                       ) : (
                         <GiftPlaceholder>🎁</GiftPlaceholder>
                       )}

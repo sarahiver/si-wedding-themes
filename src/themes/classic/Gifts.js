@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useGifts } from '../../components/shared/GiftsCore';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -108,7 +109,7 @@ function Gifts() {
                 style={{ top: pos.top, left: pos.left, width: pos.width }}
                 onClick={() => setActiveIdx(i)}
               >
-                <img src={gift.image || DEMO_IMG} alt={gift.title || ''} loading="lazy" />
+                <img src={optimizedUrl.card(gift.image || DEMO_IMG)} alt={gift.title || ''} loading="lazy" />
               </GiftImg>
             );
           })}

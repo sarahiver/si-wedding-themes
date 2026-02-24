@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const scaleIn = keyframes`from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:scale(1)}`;
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
@@ -40,7 +41,7 @@ function Hero() {
 
   return (
     <S id="top">
-      <BgW>{useVideo && !mob ? <BgV autoPlay muted loop playsInline poster={bgImg}><source src={bgVid} type="video/mp4"/></BgV> : <BgI src={mob ? bgMobile : bgImg} alt="" loading="eager"/>}</BgW>
+      <BgW>{useVideo && !mob ? <BgV autoPlay muted loop playsInline poster={optimizedUrl.hero(bgImg)}><source src={bgVid} type="video/mp4"/></BgV> : <BgI src={optimizedUrl.hero(mob ? bgMobile : bgImg)} alt="" loading="eager"/>}</BgW>
       <Ov/>
       <Ct>
         <Eye>{tagline}</Eye>

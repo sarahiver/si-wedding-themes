@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -394,7 +395,7 @@ function Accommodations() {
             <HotelCard key={i} $visible={visible} $index={i}>
               {hotel.image && (
                 <HotelImage>
-                  <img src={hotel.image} alt={hotel.name} />
+                  <img src={optimizedUrl.card(hotel.image)} alt={hotel.name} />
                 </HotelImage>
               )}
 

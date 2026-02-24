@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const slideLeft  = keyframes`from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:translateX(0)}`;
 const slideRight = keyframes`from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:translateX(0)}`;
@@ -115,8 +116,8 @@ function LoveStory(){
       <S id="lovestory" data-theme-light ref={ref}>
         <Inner>
           <ImgStack $v={v}>
-            <Img1><img src={img1} alt={cn} loading="lazy"/></Img1>
-            <Img2><img src={img2} alt={cn} loading="lazy"/></Img2>
+            <Img1><img src={optimizedUrl.card(img1)} alt={cn} loading="lazy"/></Img1>
+            <Img2><img src={optimizedUrl.card(img2)} alt={cn} loading="lazy"/></Img2>
             {dateTag&&<DateTag>{dateTag}</DateTag>}
           </ImgStack>
           <TextSide $v={v}>
@@ -145,8 +146,8 @@ function LoveStory(){
     <S id="lovestory" data-theme-light ref={ref}>
       <Inner>
         <ImgStack $v={v}>
-          <Img1><img src={img1} alt={cn} loading="lazy"/></Img1>
-          <Img2><img src={img2} alt={cn} loading="lazy"/></Img2>
+          <Img1><img src={optimizedUrl.card(img1)} alt={cn} loading="lazy"/></Img1>
+          <Img2><img src={optimizedUrl.card(img2)} alt={cn} loading="lazy"/></Img2>
           {dateTag&&<DateTag>{dateTag}</DateTag>}
         </ImgStack>
         <TextSide $v={v}>

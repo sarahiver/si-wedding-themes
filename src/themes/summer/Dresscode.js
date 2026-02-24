@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const slideLeft  = keyframes`from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:translateX(0)}`;
 const slideRight = keyframes`from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:translateX(0)}`;
@@ -114,8 +115,8 @@ function Dresscode(){
         </TextSide>
 
         <ImgSide $v={v}>
-          <DImg1><img src={mainImg} alt="Dresscode" loading="lazy"/></DImg1>
-          {accentImg&&<DImg2><img src={accentImg} alt="" loading="lazy"/></DImg2>}
+          <DImg1><img src={optimizedUrl.card(mainImg)} alt="Dresscode" loading="lazy"/></DImg1>
+          {accentImg&&<DImg2><img src={optimizedUrl.card(accentImg)} alt="" loading="lazy"/></DImg2>}
         </ImgSide>
       </Inner>
     </S>

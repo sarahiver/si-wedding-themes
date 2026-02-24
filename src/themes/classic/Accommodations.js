@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -55,7 +56,7 @@ function Accommodations() {
   return (
     <section id="accommodations" data-theme-light style={{position:'relative',zIndex:2,background:'var(--c-white)'}}>
       <HeroImg>
-        <img src={a.hero_image||aImg} alt="" loading="lazy" />
+        <img src={optimizedUrl.hero(a.hero_image||aImg)} alt="" loading="lazy" />
         <HeroOv>
           <HEye>Übernachten</HEye>
           <HTitle>{a.title||'Hotels'}</HTitle>
@@ -64,7 +65,7 @@ function Accommodations() {
       <Content ref={ref}>
         {hotels.map((h,i)=>(
           <HotelCard key={i} $v={v} $d={i*0.15}>
-            <HImg><img src={h.image||HIMGS[i%HIMGS.length]} alt={h.name||''} loading="lazy"/></HImg>
+            <HImg><img src={optimizedUrl.card(h.image||HIMGS[i%HIMGS.length])} alt={h.name||''} loading="lazy"/></HImg>
             <HInfo>
               <HName>{h.name||h.titel}</HName>
               <HMeta>{h.distance||h.entfernung}{(h.price_range||h.price)?` · ${h.price_range||h.price}`:''}</HMeta>

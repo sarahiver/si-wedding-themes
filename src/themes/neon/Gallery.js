@@ -2,6 +2,7 @@ import { useWedding } from '../../context/WeddingContext';
 // src/components/Gallery.js - Neon Theme
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const marqueeScroll = keyframes`
   0% { transform: translateX(0); }
@@ -312,7 +313,7 @@ function Gallery() {
               $height={250}
               onClick={() => openLightbox(i % images.length)}
             >
-              <img src={img.src} alt={`Gallery ${i + 1}`} />
+              <img src={optimizedUrl.thumb(img.src)} alt={`Gallery ${i + 1}`} />
               <ViewOverlay>
                 <ViewIcon>
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -335,7 +336,7 @@ function Gallery() {
               $height={200}
               onClick={() => openLightbox((i + 4) % images.length)}
             >
-              <img src={img.src} alt={`Gallery ${i + 1}`} />
+              <img src={optimizedUrl.thumb(img.src)} alt={`Gallery ${i + 1}`} />
               <ViewOverlay>
                 <ViewIcon>
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -358,7 +359,7 @@ function Gallery() {
               $height={280}
               onClick={() => openLightbox((i + 2) % images.length)}
             >
-              <img src={img.src} alt={`Gallery ${i + 1}`} />
+              <img src={optimizedUrl.thumb(img.src)} alt={`Gallery ${i + 1}`} />
               <ViewOverlay>
                 <ViewIcon>
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -380,7 +381,7 @@ function Gallery() {
           ←
         </NavButton>
         <LightboxImage 
-          src={images[currentImage]?.src} 
+          src={optimizedUrl.card(images[currentImage]?.src)}
           alt="Lightbox"
           onClick={e => e.stopPropagation()}
         />

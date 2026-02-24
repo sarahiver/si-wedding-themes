@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}`;
 const progressAnim = keyframes`from{width:0}to{width:100%}`;
@@ -304,7 +305,7 @@ function PhotoUpload() {
             <PreviewGrid>
               {previews.map((src, i) => (
                 <Preview key={i}>
-                  <img src={src} alt="" />
+                  <img src={optimizedUrl.thumb(src)} alt="" />
                   <RemoveBtn onClick={() => remove(i)}>×</RemoveBtn>
                 </Preview>
               ))}

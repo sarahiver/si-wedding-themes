@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -72,7 +73,7 @@ function Timeline() {
       <TrackWrap $v={v} $gap={items.length > 5 ? '0.5rem' : '1rem'}>
         {items.map((it, i) => (
           <Card key={i} $active={i===active} onClick={() => setActive(i)}>
-            <img src={it.image || IMGS[i % IMGS.length]} alt={it.title||it.titel} loading="lazy" />
+            <img src={optimizedUrl.card(it.image || IMGS[i % IMGS.length])} alt={it.title||it.titel} loading="lazy" />
             <CardOv $active={i===active}>
               <CTime $active={i===active}>{it.time || it.zeit}</CTime>
               <CTitle $active={i===active}>{it.title || it.titel}</CTitle>

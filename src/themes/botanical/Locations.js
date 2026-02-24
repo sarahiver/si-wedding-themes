@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -312,7 +313,7 @@ function Locations() {
             <GlassCard key={i} $visible={visible} $index={i}>
               {location.image && (
                 <CardImage>
-                  <img src={location.image} alt={location.title} loading="lazy" />
+                  <img src={optimizedUrl.card(location.image)} alt={location.title} loading="lazy" />
                 </CardImage>
               )}
               <CardContent>

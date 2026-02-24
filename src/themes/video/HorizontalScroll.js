@@ -1,6 +1,7 @@
 // Video Theme - HorizontalScroll with Fixed Background
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -464,7 +465,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
           activeBackground.type === 'video' ? (
             <video src={activeBackground.url} muted loop autoPlay playsInline />
           ) : (
-            <img src={activeBackground.url} alt="" />
+            <img src={optimizedUrl.hero(activeBackground.url)} alt="" />
           )
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1A1A1A, #0A0A0A)' }} />

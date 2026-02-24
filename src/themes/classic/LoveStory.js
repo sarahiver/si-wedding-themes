@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -61,9 +62,9 @@ function LoveStory() {
     <S id="lovestory" data-theme-light ref={ref}>
       <Grid>
         <ImgStack>
-          <Img1 $v={v}><img src={img1} alt="" loading="lazy" /></Img1>
-          <Img2 $v={v}><img src={img2} alt="" loading="lazy" /></Img2>
-          {img3 && <Img3 $v={v}><img src={img3} alt="" loading="lazy" /></Img3>}
+          <Img1 $v={v}><img src={optimizedUrl.card(img1)} alt="" loading="lazy" /></Img1>
+          <Img2 $v={v}><img src={optimizedUrl.card(img2)} alt="" loading="lazy" /></Img2>
+          {img3 && <Img3 $v={v}><img src={optimizedUrl.card(img3)} alt="" loading="lazy" /></Img3>}
         </ImgStack>
         <Txt>
           <Sub $v={v}>{sub}</Sub>

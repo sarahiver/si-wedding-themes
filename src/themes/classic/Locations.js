@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -64,8 +65,8 @@ function LocationItem({ loc, index }) {
   return (
     <LocCard ref={ref} $rev={rev}>
       <LocImg $rev={rev}>
-        <img src={loc.image || DEF_IMG} alt={loc.name} loading="lazy" />
-        {loc.accent_image && <AccImg $rev={rev}><img src={loc.accent_image} alt="" loading="lazy" /></AccImg>}
+        <img src={optimizedUrl.card(loc.image || DEF_IMG)} alt={loc.name} loading="lazy" />
+        {loc.accent_image && <AccImg $rev={rev}><img src={optimizedUrl.card(loc.accent_image)} alt="" loading="lazy" /></AccImg>}
       </LocImg>
       <LocText $rev={rev}>
         {loc.label && <LocEye $v={v}>{loc.label}</LocEye>}
@@ -90,7 +91,7 @@ function Locations() {
   return (
     <section id="locations" style={{position:'relative',zIndex:2,paddingBottom:'clamp(4rem,8vh,8rem)',background:'var(--c-cream,#F5F0EB)'}}>
       <HeroImg>
-        <img src={heroImg} alt="" loading="lazy" />
+        <img src={optimizedUrl.hero(heroImg)} alt="" loading="lazy" />
         <HeroOverlay>
           <HeroEye>Location</HeroEye>
           <HeroTitle>{ld.title || 'Unsere Location'}</HeroTitle>

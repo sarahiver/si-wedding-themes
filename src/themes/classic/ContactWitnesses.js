@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -37,7 +38,7 @@ function ContactWitnesses() {
         <Grid>
           {w.map((p,i) => (
             <Card key={i}>
-              <Av src={p.image||`https://ui-avatars.com/api/?name=${encodeURIComponent(p.name||'')}&size=200&background=F5F0EB&color=555`} alt={p.name||''} />
+              <Av src={p.image ? optimizedUrl.avatar(p.image) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name||'')}&size=200&background=F5F0EB&color=555`} alt={p.name||''} />
               <CN>{p.name || 'Ansprechpartner'}</CN>
               <Role>{p.role||p.rolle}</Role>
               {p.phone&&<Ph href={`tel:${p.phone.replace(/\s/g,'')}`}>📞 Anrufen</Ph>}

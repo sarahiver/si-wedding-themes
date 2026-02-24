@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const bgImg1='https://res.cloudinary.com/si-weddings/image/upload/v1770718279/wedding_photos/demo-botanical/gxmqpkk0ksnveevic9fp.jpg';
 const bgImg2='https://res.cloudinary.com/si-weddings/image/upload/v1770716464/siwedding/demo-botanical/lovestory/rg54tyya7phb75yg6dsk.jpg';
 
@@ -27,7 +28,7 @@ function Footer(){
   const img2=content?.footer?.image2||bgImg2;
   return(
     <S>
-      <ImgSide><img src={img1} alt="" loading="lazy"/></ImgSide>
+      <ImgSide><img src={optimizedUrl.card(img1)} alt="" loading="lazy"/></ImgSide>
       <TxtSide>
         <Script>{cn}</Script>
         {dt&&<Dt>{dt}</Dt>}
@@ -40,7 +41,7 @@ function Footer(){
           <a href="/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
         </Brand>
       </TxtSide>
-      <ImgSide><img src={img2} alt="" loading="lazy"/></ImgSide>
+      <ImgSide><img src={optimizedUrl.card(img2)} alt="" loading="lazy"/></ImgSide>
     </S>);
 }
 export default Footer;

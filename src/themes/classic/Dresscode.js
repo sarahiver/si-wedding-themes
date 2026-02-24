@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -57,8 +58,8 @@ function Dresscode() {
     <S id="dresscode" data-theme-light ref={ref}>
       <Grid>
         <ImgWrap>
-          <MainImg $v={v}><img src={d.image||dImg} alt="" loading="lazy" /></MainImg>
-          <AccImg $v={v}><img src={d.accent_image||dAcc} alt="" loading="lazy" /></AccImg>
+          <MainImg $v={v}><img src={optimizedUrl.card(d.image||dImg)} alt="" loading="lazy" /></MainImg>
+          <AccImg $v={v}><img src={optimizedUrl.card(d.accent_image||dAcc)} alt="" loading="lazy" /></AccImg>
         </ImgWrap>
         <Txt>
           <Eye $v={v}>Kleiderordnung</Eye>

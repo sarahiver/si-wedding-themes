@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp  = keyframes`from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}`;
 const scaleIn = keyframes`from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}`;
@@ -113,14 +114,14 @@ function Gallery(){
         <Grid>
           {imgs.map((url,i)=>(
             <Thumb key={i} $i={i} $v={v} $feat={i===0} onClick={()=>setModal(i)}>
-              <img src={url} alt="" loading="lazy"/>
+              <img src={optimizedUrl.thumb(url)} alt="" loading="lazy"/>
             </Thumb>
           ))}
         </Grid>
       </Inner>
       {modal!==null&&(
         <LbO onClick={()=>setModal(null)}>
-          <LbImg src={imgs[modal]} alt="" onClick={e=>e.stopPropagation()}/>
+          <LbImg src={optimizedUrl.hero(imgs[modal])} alt="" onClick={e=>e.stopPropagation()}/>
           <LbBtn $d="prev" onClick={e=>{e.stopPropagation();setModal(i=>(i-1+imgs.length)%imgs.length);}}>‹</LbBtn>
           <LbBtn $d="next" onClick={e=>{e.stopPropagation();setModal(i=>(i+1)%imgs.length);}}>›</LbBtn>
           <LbClose onClick={()=>setModal(null)}>×</LbClose>

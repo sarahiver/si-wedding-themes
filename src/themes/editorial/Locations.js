@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -452,7 +453,7 @@ function Locations() {
               <LocationCard key={i} ref={el => cardRefs.current[i] = el}>
                 <ImageSection $visible={isVisible} $delay={delay}>
                   <ImageFrame $visible={isVisible}>
-                    {loc.image && <img src={loc.image} alt={loc.name} />}
+                    {loc.image && <img src={optimizedUrl.card(loc.image)} alt={loc.name} />}
                   </ImageFrame>
                   <TypeBadge>{loc.type}</TypeBadge>
                   {loc.time && <TimeBadge>{loc.time}</TimeBadge>}
