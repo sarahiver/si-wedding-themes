@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -410,9 +411,9 @@ function Gallery() {
                 $index={i}
                 onClick={() => openLightbox(i)}
               >
-                <GalleryImage 
-                  src={image.url || image} 
-                  alt={image.caption || `Bild ${i + 1}`} 
+                <GalleryImage
+                  src={optimizedUrl.thumb(image.url || image)}
+                  alt={image.caption || `Bild ${i + 1}`}
                   loading="lazy"
                 />
                 {image.caption && (
@@ -439,9 +440,9 @@ function Gallery() {
         >
           ←
         </LightboxNav>
-        <LightboxImage 
-          src={items[lightboxIndex]?.url || items[lightboxIndex]} 
-          alt="" 
+        <LightboxImage
+          src={optimizedUrl.card(items[lightboxIndex]?.url || items[lightboxIndex])}
+          alt=""
           onClick={(e) => e.stopPropagation()}
           onLoad={() => setImageLoaded(true)}
           $loaded={imageLoaded}

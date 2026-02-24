@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -75,8 +76,8 @@ function Directions() {
             <MapFrame><iframe src={mapsEmbed} allowFullScreen loading="lazy" title="Anfahrtskarte" /></MapFrame>
           ) : (
             <ImageCluster>
-              <MainImg src={image} alt="Anfahrt" loading="lazy" />
-              <AccentImg src={accentImage} alt="" loading="lazy" />
+              <MainImg src={optimizedUrl.card(image)} alt="Anfahrt" loading="lazy" />
+              <AccentImg src={optimizedUrl.card(accentImage)} alt="" loading="lazy" />
             </ImageCluster>
           )}
         </RightSide>

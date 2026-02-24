@@ -7,6 +7,7 @@ import Hero from './Hero';
 import PhotoUpload from './PhotoUpload';
 import Footer from './Footer';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // Animations
 const fadeIn = keyframes`
@@ -159,7 +160,7 @@ function ArchivePage() {
                 {archiveGalleryImages.map((img, i) => (
                   <GalleryItem key={i}>
                     <img 
-                      src={typeof img === 'string' ? img : img.url} 
+                      src={optimizedUrl.thumb(typeof img === 'string' ? img : img.url)}
                       alt={`Hochzeitsfoto ${i + 1}`} 
                       loading="lazy"
                     />

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -86,12 +87,12 @@ function RSVP(){
   const showDetails = attending !== 'no' && attending !== false;
 
   if(submitted)return(
-    <S id="rsvp"><BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
+    <S id="rsvp"><BgV>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
     <Card $v={true} ref={ref}><SuccT>Vielen Dank!</SuccT><SuccP>{attending===true?'Wir freuen uns auf euch!':'Schade – wir werden euch vermissen.'}</SuccP></Card></S>);
 
   return(
     <S id="rsvp">
-      <BgV>{bgImage&&<img src={bgImage} alt=""/>}</BgV>
+      <BgV>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
       <Card $v={v} ref={ref}>
         <Eye>wir freuen uns auf euch</Eye>
         <H2>{r.title||'RSVP'}</H2>

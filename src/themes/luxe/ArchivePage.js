@@ -294,7 +294,7 @@ function ArchivePage() {
               {archiveGalleryImages.map((img, i) => (
                 <GalleryItem key={i}>
                   <img 
-                    src={typeof img === 'string' ? img : img.url} 
+                    src={optimizedUrl.thumb(typeof img === 'string' ? img : img.url)}
                     alt={`Hochzeitsfoto ${i + 1}`} 
                     loading="lazy"
                   />

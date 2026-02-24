@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useMusicWishes } from '../../components/shared/MusicWishesCore';
+import { optimizedUrl } from '../../lib/cloudinary';
 const bgImg1='https://res.cloudinary.com/si-weddings/image/upload/v1770716441/siwedding/demo-botanical/lovestory/uj61pv6uqigwyh5pidvi.jpg';
 const bgImg2='https://res.cloudinary.com/si-weddings/image/upload/v1770718279/wedding_photos/demo-botanical/gxmqpkk0ksnveevic9fp.jpg';
 
@@ -44,8 +45,8 @@ function MusicWishes(){
     <S id="musicwishes" data-theme-light>
       <Grid>
         <ImgStack>
-          <Img1><img src={m.image||bgImg1} alt="" loading="lazy"/></Img1>
-          <Img2><img src={m.image2||bgImg2} alt="" loading="lazy"/><ScriptOv>Your Song</ScriptOv></Img2>
+          <Img1><img src={optimizedUrl.card(m.image||bgImg1)} alt="" loading="lazy"/></Img1>
+          <Img2><img src={optimizedUrl.card(m.image2||bgImg2)} alt="" loading="lazy"/><ScriptOv>Your Song</ScriptOv></Img2>
         </ImgStack>
         <FormSide>
           <Eye>Playlist</Eye>

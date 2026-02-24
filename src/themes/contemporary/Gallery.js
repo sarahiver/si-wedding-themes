@@ -369,7 +369,7 @@ function Gallery() {
           <LightboxClose onClick={closeLightbox}>×</LightboxClose>
           <LightboxNav $direction="prev" onClick={goPrev}>←</LightboxNav>
           <LightboxImage 
-            src={images[currentIndex]?.url || images[currentIndex]} 
+            src={optimizedUrl.card(images[currentIndex]?.url || images[currentIndex])}
             alt=""
             onClick={(e) => e.stopPropagation()}
           />

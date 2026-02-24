@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useGuestbook } from '../../components/shared/GuestbookCore';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 const bgImg='https://res.cloudinary.com/si-weddings/image/upload/v1770718279/wedding_photos/demo-botanical/gxmqpkk0ksnveevic9fp.jpg';
@@ -60,7 +61,7 @@ function Guestbook(){
           </Entries>
         </Content>
       </Top>
-      <BottomImg><img src={g.image||bgImg} alt="" loading="lazy"/></BottomImg>
+      <BottomImg><img src={optimizedUrl.hero(g.image||bgImg)} alt="" loading="lazy"/></BottomImg>
     </S>);
 }
 export default Guestbook;

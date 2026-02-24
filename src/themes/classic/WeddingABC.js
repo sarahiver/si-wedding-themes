@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -53,7 +54,7 @@ function WeddingABC(){
   const[active,setActive]=useState(null);
   return(
     <S id="weddingabc" data-theme-light>
-      <HeroImg><img src={abc.hero_image||heroImg} alt="" loading="lazy"/>
+      <HeroImg><img src={optimizedUrl.hero(abc.hero_image||heroImg)} alt="" loading="lazy"/>
         <HeroOv><HEye>Von A bis Z</HEye><HTitle>{abc.title||'Hochzeits-ABC'}</HTitle></HeroOv>
       </HeroImg>
       <Content>

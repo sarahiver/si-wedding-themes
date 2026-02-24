@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 // ============================================
 // ANIMATIONS
@@ -287,7 +288,7 @@ function LoveStory() {
                 <Year>{item.date || item.year}</Year>
                 <ItemTitle>{item.title}</ItemTitle>
                 <ItemDescription>{item.description}</ItemDescription>
-                {item.image && <ItemImage src={item.image} alt={item.title} loading="lazy" />}
+                {item.image && <ItemImage src={optimizedUrl.card(item.image)} alt={item.title} loading="lazy" />}
               </GlassCard>
             </TimelineItem>
           ))}

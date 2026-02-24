@@ -52,7 +52,7 @@ function Gallery() {
         </Grid>
       </Content>
       <Lightbox $open={lightbox.open} onClick={closeLightbox}>
-        {images[lightbox.index]?.url && <LightboxImage src={images[lightbox.index].url} alt="" onClick={e => e.stopPropagation()} />}
+        {images[lightbox.index]?.url && <LightboxImage src={optimizedUrl.card(images[lightbox.index].url)} alt="" onClick={e => e.stopPropagation()} />}
         <LightboxClose onClick={closeLightbox}>x</LightboxClose>
         <LightboxNav className="prev" onClick={e => { e.stopPropagation(); navigate(-1); }}>&#8249;</LightboxNav>
         <LightboxNav className="next" onClick={e => { e.stopPropagation(); navigate(1); }}>&#8250;</LightboxNav>

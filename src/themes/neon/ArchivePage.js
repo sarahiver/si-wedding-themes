@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css, createGlobalStyle } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import PhotoUpload from './PhotoUpload';
 import Footer from './Footer';
 
@@ -332,7 +333,7 @@ function ArchivePage() {
               {archiveGalleryImages.map((img, i) => (
                 <GalleryItem key={i}>
                   <img 
-                    src={typeof img === 'string' ? img : img.url} 
+                    src={optimizedUrl.thumb(typeof img === 'string' ? img : img.url)}
                     alt={`Hochzeitsfoto ${i + 1}`} 
                     loading="lazy"
                   />

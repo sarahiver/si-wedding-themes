@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
 const scaleReveal = keyframes`from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); }`;
@@ -139,7 +140,7 @@ function Gallery() {
             const url = getImageUrl(img);
             return (
               <GridItem key={i} $visible={visible} $index={i} onClick={() => openLightbox(i)}>
-                {url ? <GridImage src={url} alt={img.caption || `Bild ${i+1}`} loading="lazy" /> : <Placeholder>✦</Placeholder>}
+                {url ? <GridImage src={optimizedUrl.thumb(url)} alt={img.caption || `Bild ${i+1}`} loading="lazy" /> : <Placeholder>✦</Placeholder>}
               </GridItem>
             );
           })}
@@ -150,7 +151,7 @@ function Gallery() {
       </Container>
 
       <Lightbox $open={lightbox.open} onClick={closeLightbox}>
-        {getImageUrl(images[lightbox.index]) && <LightboxImage src={getImageUrl(images[lightbox.index])} alt="" onClick={e => e.stopPropagation()} />}
+        {getImageUrl(images[lightbox.index]) && <LightboxImage src={optimizedUrl.card(getImageUrl(images[lightbox.index]))} alt="" onClick={e => e.stopPropagation()} />}
         <LightboxClose onClick={closeLightbox}>×</LightboxClose>
         <LightboxNav className="prev" onClick={e => { e.stopPropagation(); nav(-1); }}>‹</LightboxNav>
         <LightboxNav className="next" onClick={e => { e.stopPropagation(); nav(1); }}>›</LightboxNav>

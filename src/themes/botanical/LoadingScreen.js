@@ -1,6 +1,7 @@
 // LoadingScreen.js - Botanical Glass Theme
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeOut = keyframes`
   from { opacity: 1; }
@@ -140,8 +141,8 @@ function LoadingScreen({ onLoadComplete, isDataReady = false }) {
   return (
     <LoadingContainer className={fadeOutState ? 'fade-out' : ''}>
       <MonsteraContainer>
-        <MonsteraGray src={MONSTERA_IMG} alt="" />
-        <MonsteraColor src={MONSTERA_IMG} alt="" $progress={progress} />
+        <MonsteraGray src={optimizedUrl.card(MONSTERA_IMG)} alt="" />
+        <MonsteraColor src={optimizedUrl.card(MONSTERA_IMG)} alt="" $progress={progress} />
       </MonsteraContainer>
       <LoadingText>Wird geladen</LoadingText>
       <ProgressText $progress={progress}>{Math.round(progress)}%</ProgressText>

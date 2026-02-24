@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore';
+import { optimizedUrl } from '../../lib/cloudinary';
 const bgImg='https://res.cloudinary.com/si-weddings/image/upload/v1770723589/siwedding/demo-botanical/gallery/cxlyozhisgrvupguqsa6.jpg';
 const S = styled.section`position:relative;overflow:hidden;z-index:2;
   padding:clamp(8rem,14vh,12rem) clamp(2rem,5vw,5rem);text-align:center;`;
@@ -26,7 +27,7 @@ function PhotoUpload(){
   const[drag,setDrag]=useState(false);
   return(
     <S id="photoupload">
-      <Bg><img src={pu.background_image||bgImg} alt="" loading="lazy"/></Bg>
+      <Bg><img src={optimizedUrl.hero(pu.background_image||bgImg)} alt="" loading="lazy"/></Bg>
       <Inner>
         <Eye>Teilt eure Momente</Eye>
         <Title>{pu.title||'Eure Fotos'}</Title>
