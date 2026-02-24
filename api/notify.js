@@ -9,31 +9,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const SENDER_EMAIL = process.env.NOTIFICATION_SENDER_EMAIL || 'wedding@sarahiver.de';
 
-// Allowed origins — wedding theme sites
-const ALLOWED_ORIGINS = [
-  'https://siwedding.de',
-  'https://www.siwedding.de',
-  'http://localhost:3000',
-  'http://localhost:3001',
-];
-
-// Also allow *.vercel.app (preview deployments) and *.siwedding.de (customer subdomains)
-function isAllowedOrigin(origin) {
-  if (!origin) return false;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin.endsWith('.vercel.app')) return true;
-  if (origin.endsWith('.siwedding.de')) return true;
-  return false;
-}
-
-function getCorsHeaders(origin) {
-  const allowed = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
+const { handleCors, applyRateLimit, getClientIP } = require('./lib/auth');
 
 // ============================================
 // SUPABASE: Fetch project data to get customer_email
@@ -72,23 +48,6 @@ async function getProjectEmail(projectId) {
   return data[0] || null;
 }
 
-// ============================================
-// RATE LIMITING (simple in-memory)
-// ============================================
-const rateLimitMap = new Map();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 min
-const RATE_LIMIT_MAX = 10; // 10 per minute per project
-
-function isRateLimited(key) {
-  const now = Date.now();
-  const entry = rateLimitMap.get(key);
-  if (!entry || now - entry.start > RATE_LIMIT_WINDOW) {
-    rateLimitMap.set(key, { start: now, count: 1 });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
 
 // ============================================
 // EMAIL TEMPLATES
@@ -250,38 +209,24 @@ async function sendEmail(toEmail, toName, subject, htmlContent) {
 // HANDLER
 // ============================================
 export default async function handler(req, res) {
-  const origin = req.headers.origin || '';
-  const corsHeaders = getCorsHeaders(origin);
-
-  if (req.method === 'OPTIONS') {
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-    return res.status(200).end();
-  }
-
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Rate limit: 10 req / 1 min per IP
+  const ip = getClientIP(req);
+  if (applyRateLimit(res, `notify:${ip}`, 10, 60 * 1000)) return;
+
   try {
     const { projectId, type, ...body } = req.body;
 
     console.log(`[notify] Received: type=${type}, projectId=${projectId}, bodyKeys=${Object.keys(body).join(',')}`);
-    console.log(`[notify] ENV check: SUPABASE_URL=${SUPABASE_URL ? 'SET' : 'MISSING'}, SERVICE_KEY=${SUPABASE_SERVICE_KEY ? 'SET' : 'MISSING'}, BREVO=${BREVO_API_KEY ? 'SET' : 'MISSING'}`);
 
     if (!projectId || !type) {
       console.log('[notify] Missing projectId or type');
       return res.status(400).json({ error: 'projectId and type required' });
-    }
-
-    // Rate limit per project
-    if (isRateLimited(projectId)) {
-      return res.status(429).json({ error: 'Too many requests' });
     }
 
     // Valid types

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useWedding } from '../../context/WeddingContext';
-import { submitRSVP, supabase } from '../../lib/supabase';
+import { submitRSVP, checkDuplicateRSVP } from '../../lib/supabase';
 
 /**
  * useRSVP - Hook for RSVP functionality
@@ -69,16 +69,10 @@ export function useRSVP() {
   // Check if email already submitted for this project
   const checkDuplicateEmail = async (email) => {
     if (!projectId || projectId === 'demo') return false;
-    
+
     try {
-      const { data } = await supabase
-        .from('rsvp_responses')
-        .select('id')
-        .eq('project_id', projectId)
-        .eq('email', email.trim().toLowerCase())
-        .maybeSingle();
-      
-      return !!data;
+      const result = await checkDuplicateRSVP(projectId, email);
+      return result.exists || false;
     } catch {
       return false;
     }

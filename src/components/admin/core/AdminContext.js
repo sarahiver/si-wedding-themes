@@ -6,7 +6,7 @@ import {
   getGiftReservations, getGuestList,
   updateProjectStatus, approveGuestbookEntry, deleteGuestbookEntry,
   deleteMusicWish, updateProjectContent, approvePhotoUpload, deletePhotoUpload,
-  submitDataReady,
+  submitDataReady, authFetch,
 } from '../../../lib/supabase';
 
 const AdminContext = createContext(null);
@@ -269,9 +269,8 @@ export function AdminProvider({ children }) {
       // Delete from Cloudinary first (if public_id exists)
       if (photo?.cloudinary_public_id) {
         try {
-          await fetch('/api/delete-photos', {
+          await authFetch('/api/delete-photos', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ public_ids: [photo.cloudinary_public_id], projectId }),
           });
         } catch (cloudErr) {

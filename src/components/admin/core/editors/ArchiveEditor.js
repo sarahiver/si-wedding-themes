@@ -1,6 +1,7 @@
 // core/editors/ArchiveEditor.js - Editor für Archiv-Seite mit Galerie-Upload und Foto-Download
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
+import { authFetch } from '../../../../lib/supabase';
 import ImageUploader from './ImageUploader';
 import MultiImageUploader from './MultiImageUploader';
 
@@ -29,9 +30,8 @@ function ArchiveEditor({ components: C }) {
   const cleanupPhotos = async (photos) => {
     setDeleting(true);
     try {
-      const response = await fetch('/api/cleanup-photos', {
+      const response = await authFetch('/api/cleanup-photos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectId,
           photos: photos.map(p => ({

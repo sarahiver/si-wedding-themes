@@ -2,7 +2,7 @@
 // Gästeliste verwalten: CSV-Upload, RSVP-Abgleich, Erinnerungen senden
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
-import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent } from '../../../../lib/supabase';
+import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent, authFetch } from '../../../../lib/supabase';
 import * as XLSX from 'xlsx';
 
 // CSV/Excel parsing (simple, no library needed)
@@ -184,9 +184,8 @@ function GuestListSection({ components: C }) {
       setEmailPreview(null);
       setSendingThank(true);
       try {
-        const response = await fetch('/api/reminder', {
+        const response = await authFetch('/api/reminder', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             projectId,
             guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
@@ -216,9 +215,8 @@ function GuestListSection({ components: C }) {
       setEmailPreview(null);
       setSendingPhoto(true);
       try {
-        const response = await fetch('/api/reminder', {
+        const response = await authFetch('/api/reminder', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             projectId,
             guests: confirmedGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),
@@ -296,9 +294,8 @@ function GuestListSection({ components: C }) {
       setSendProgress({ sent: 0, total: pendingGuests.length });
 
       try {
-        const response = await fetch('/api/reminder', {
+        const response = await authFetch('/api/reminder', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             projectId,
             guests: pendingGuests.map(g => ({ id: g.id, name: g.name, email: g.email })),

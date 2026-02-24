@@ -1,108 +1,106 @@
 // src/lib/supabase.js
-import { createClient } from '@supabase/supabase-js';
+// All database operations go through the server-side API proxy (/api/db).
+// No Supabase client or anon key in the frontend.
+
 import { notifyRSVP, notifyGuestbook, notifyMusicWish, notifyGiftReserved } from './notifications';
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+// ============================================
+// API HELPER
+// ============================================
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase nicht konfiguriert');
+function getToken() {
+  return sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token') || '';
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export function setToken(token) {
+  sessionStorage.setItem('auth_token', token);
+  localStorage.setItem('auth_token', token);
+}
+
+export function clearToken() {
+  sessionStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_token');
+}
+
+/**
+ * Authenticated fetch — adds Bearer token to any API call.
+ * Use for direct API route calls (e.g. /api/delete-photos, /api/reminder).
+ */
+export async function authFetch(url, options = {}) {
+  const token = getToken();
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+}
+
+async function dbCall(action, params = {}) {
+  const token = getToken();
+  const response = await fetch('/api/db', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ action, params }),
+  });
+
+  if (response.status === 401) {
+    console.warn('[supabase] Unauthorized — token may be expired');
+  }
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({ error: response.statusText }));
+    return { data: null, error: errData.error || 'Request failed' };
+  }
+
+  return await response.json();
+}
+
+// ============================================
+// AUTH (Password verification + token)
+// ============================================
+
+export async function verifyAndGetToken(slug, password, type = 'guest') {
+  const response = await fetch('/api/auth/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug, password, type }),
+  });
+
+  const result = await response.json();
+  if (result.success && result.token) {
+    setToken(result.token);
+  }
+  return result;
+}
 
 // ============================================
 // PROJECT
 // ============================================
 
-// SICHERHEIT: select('*') für Kompatibilität, aber Passwörter
-// werden sofort nach dem Fetch entfernt bevor sie in React State landen
-function stripSensitiveFields(data) {
-  if (!data) return data;
-  const cleaned = { ...data };
-  delete cleaned.admin_password;
-  delete cleaned.preview_password;
-  delete cleaned.guest_password;
-  return cleaned;
-}
-
 export async function getProjectBySlugOrDomain(slugOrDomain) {
-  // First try by slug
-  let { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('slug', slugOrDomain)
-    .single();
-  
-  // If not found, try by custom_domain
-  if (error || !data) {
-    const domainResult = await supabase
-      .from('projects')
-      .select('*')
-      .eq('custom_domain', slugOrDomain)
-      .single();
-    
-    data = domainResult.data;
-    error = domainResult.error;
-  }
-  
-  return { data: stripSensitiveFields(data), error };
+  return dbCall('getProjectBySlugOrDomain', { slugOrDomain });
 }
 
 export async function getProjectContent(projectId) {
-  const { data, error } = await supabase
-    .from('project_content')
-    .select('*')
-    .eq('project_id', projectId);
-  
-  if (error) return { data: {}, error };
-  
-  // Transform array to object keyed by component
-  const contentByComponent = {};
-  data.forEach(item => {
-    contentByComponent[item.component] = item.content;
-  });
-  
-  return { data: contentByComponent, error: null };
+  return dbCall('getProjectContent', { projectId });
 }
 
 export async function updateProjectStatus(projectId, status) {
-  const { data, error } = await supabase
-    .from('projects')
-    .update({ status })
-    .eq('id', projectId)
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('updateProjectStatus', { projectId, status });
 }
 
-// NEU: Allgemeines Project Update (für Settings: location, hashtag, etc.)
 export async function updateProject(projectId, updates) {
-  const { data, error } = await supabase
-    .from('projects')
-    .update(updates)
-    .eq('id', projectId)
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('updateProject', { projectId, updates });
 }
 
 export async function updateProjectContent(projectId, component, contentData) {
-  const { data, error } = await supabase
-    .from('project_content')
-    .upsert({
-      project_id: projectId,
-      component: component,
-      content: contentData,
-    }, {
-      onConflict: 'project_id,component',
-    })
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('updateProjectContent', { projectId, component, contentData });
 }
 
 // ============================================
@@ -110,25 +108,10 @@ export async function updateProjectContent(projectId, component, contentData) {
 // ============================================
 
 export async function submitRSVP(projectId, rsvpData) {
-  const { data, error } = await supabase
-    .from('rsvp_responses')
-    .insert({
-      project_id: projectId,
-      name: rsvpData.name,
-      email: rsvpData.email,
-      persons: rsvpData.persons || 1,
-      attending: rsvpData.attending,
-      dietary: rsvpData.dietary || '',
-      allergies: rsvpData.allergies || '',
-      message: rsvpData.message || '',
-      guests: rsvpData.guests || null,
-      custom_answer: rsvpData.custom_answer || '',
-    })
-    .select()
-    .single();
+  const result = await dbCall('submitRSVP', { projectId, rsvpData });
 
   // Fire-and-forget notification
-  if (data && !error) {
+  if (result.data && !result.error) {
     notifyRSVP(projectId, {
       name: rsvpData.name,
       attending: rsvpData.attending,
@@ -138,46 +121,23 @@ export async function submitRSVP(projectId, rsvpData) {
     });
   }
 
-  return { data, error };
+  return result;
 }
 
 export async function getRSVPResponses(projectId) {
-  const { data, error } = await supabase
-    .from('rsvp_responses')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false });
-  
-  return { data: data || [], error };
+  return dbCall('getRSVPResponses', { projectId });
+}
+
+export async function checkDuplicateRSVP(projectId, email) {
+  return dbCall('checkDuplicateRSVP', { projectId, email });
 }
 
 export async function updateRSVPResponse(id, updates) {
-  const { data, error } = await supabase
-    .from('rsvp_responses')
-    .update({
-      name: updates.name,
-      email: updates.email,
-      persons: updates.persons,
-      attending: updates.attending,
-      dietary: updates.dietary,
-      allergies: updates.allergies,
-      message: updates.message,
-      custom_answer: updates.custom_answer,
-    })
-    .eq('id', id)
-    .select()
-    .single();
-
-  return { data, error };
+  return dbCall('updateRSVPResponse', { id, updates });
 }
 
 export async function deleteRSVPResponse(id) {
-  const { data, error } = await supabase
-    .from('rsvp_responses')
-    .delete()
-    .eq('id', id);
-  
-  return { data, error };
+  return dbCall('deleteRSVPResponse', { id });
 }
 
 // ============================================
@@ -185,62 +145,29 @@ export async function deleteRSVPResponse(id) {
 // ============================================
 
 export async function submitGuestbookEntry(projectId, entryData) {
-  const { data, error } = await supabase
-    .from('guestbook_entries')
-    .insert({
-      project_id: projectId,
-      name: entryData.name,
-      message: entryData.message,
-      image_url: entryData.imageUrl,
-      approved: false,
-    })
-    .select()
-    .single();
+  const result = await dbCall('submitGuestbookEntry', { projectId, entryData });
 
   // Fire-and-forget notification
-  if (data && !error) {
+  if (result.data && !result.error) {
     notifyGuestbook(projectId, {
       name: entryData.name,
       message: entryData.message,
     });
   }
-  
-  return { data, error };
+
+  return result;
 }
 
 export async function getGuestbookEntries(projectId, approvedOnly = true) {
-  let query = supabase
-    .from('guestbook_entries')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false });
-  
-  if (approvedOnly) {
-    query = query.eq('approved', true);
-  }
-  
-  const { data, error } = await query;
-  return { data: data || [], error };
+  return dbCall('getGuestbookEntries', { projectId, approvedOnly });
 }
 
 export async function approveGuestbookEntry(entryId, approved = true) {
-  const { data, error } = await supabase
-    .from('guestbook_entries')
-    .update({ approved })
-    .eq('id', entryId)
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('approveGuestbookEntry', { entryId, approved });
 }
 
 export async function deleteGuestbookEntry(entryId) {
-  const { error } = await supabase
-    .from('guestbook_entries')
-    .delete()
-    .eq('id', entryId);
-  
-  return { error };
+  return dbCall('deleteGuestbookEntry', { entryId });
 }
 
 // ============================================
@@ -248,46 +175,26 @@ export async function deleteGuestbookEntry(entryId) {
 // ============================================
 
 export async function submitMusicWish(projectId, wishData) {
-  const { data, error } = await supabase
-    .from('music_wishes')
-    .insert({
-      project_id: projectId,
-      name: wishData.name,
-      artist: wishData.artist || '',
-      song_title: wishData.song_title || wishData.songTitle || '',
-    })
-    .select()
-    .single();
+  const result = await dbCall('submitMusicWish', { projectId, wishData });
 
   // Fire-and-forget notification
-  if (data && !error) {
+  if (result.data && !result.error) {
     notifyMusicWish(projectId, {
       name: wishData.name,
       artist: wishData.artist,
       songTitle: wishData.song_title || wishData.songTitle,
     });
   }
-  
-  return { data, error };
+
+  return result;
 }
 
 export async function getMusicWishes(projectId) {
-  const { data, error } = await supabase
-    .from('music_wishes')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false });
-  
-  return { data: data || [], error };
+  return dbCall('getMusicWishes', { projectId });
 }
 
 export async function deleteMusicWish(wishId) {
-  const { error } = await supabase
-    .from('music_wishes')
-    .delete()
-    .eq('id', wishId);
-  
-  return { error };
+  return dbCall('deleteMusicWish', { wishId });
 }
 
 // ============================================
@@ -295,55 +202,19 @@ export async function deleteMusicWish(wishId) {
 // ============================================
 
 export async function submitPhotoUpload(projectId, photoData) {
-  const { data, error } = await supabase
-    .from('photo_uploads')
-    .insert({
-      project_id: projectId,
-      uploaded_by: photoData.uploadedBy || 'Guest',
-      cloudinary_url: photoData.cloudinaryUrl,
-      cloudinary_public_id: photoData.cloudinaryPublicId,
-      timeline_event_id: photoData.timelineEventId,
-      approved: false,
-    })
-    .select()
-    .single();
-
-  return { data, error };
+  return dbCall('submitPhotoUpload', { projectId, photoData });
 }
 
 export async function getPhotoUploads(projectId, approvedOnly = true) {
-  let query = supabase
-    .from('photo_uploads')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false });
-  
-  if (approvedOnly) {
-    query = query.eq('approved', true);
-  }
-  
-  const { data, error } = await query;
-  return { data: data || [], error };
+  return dbCall('getPhotoUploads', { projectId, approvedOnly });
 }
 
 export async function approvePhotoUpload(photoId, approved = true) {
-  const { data, error } = await supabase
-    .from('photo_uploads')
-    .update({ approved })
-    .eq('id', photoId)
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('approvePhotoUpload', { photoId, approved });
 }
 
 export async function deletePhotoUpload(photoId) {
-  const { error } = await supabase
-    .from('photo_uploads')
-    .delete()
-    .eq('id', photoId);
-  
-  return { error };
+  return dbCall('deletePhotoUpload', { photoId });
 }
 
 // ============================================
@@ -351,55 +222,29 @@ export async function deletePhotoUpload(photoId) {
 // ============================================
 
 export async function reserveGift(projectId, itemId, reservedBy, reserverEmail = null, giftName = null) {
-  const { data, error } = await supabase
-    .from('gift_reservations')
-    .insert({
-      project_id: projectId,
-      item_id: itemId,
-      reserved_by: reservedBy,
-      reserved_by_email: reserverEmail,
-    })
-    .select()
-    .single();
+  const result = await dbCall('reserveGift', { projectId, itemId, reservedBy, reserverEmail });
 
   // Fire-and-forget notification
-  if (data && !error) {
+  if (result.data && !result.error) {
     notifyGiftReserved(projectId, {
       name: reservedBy,
       giftName: giftName || itemId,
     });
   }
-  
-  return { data, error };
+
+  return result;
 }
 
 export async function getGiftReservations(projectId) {
-  const { data, error } = await supabase
-    .from('gift_reservations')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at', { ascending: false });
-  
-  return { data: data || [], error };
+  return dbCall('getGiftReservations', { projectId });
 }
 
 export async function deleteGiftReservation(reservationId) {
-  const { error } = await supabase
-    .from('gift_reservations')
-    .delete()
-    .eq('id', reservationId);
-  
-  return { error };
+  return dbCall('deleteGiftReservation', { reservationId });
 }
 
 export async function unreserveGiftByItemId(projectId, itemId) {
-  const { error } = await supabase
-    .from('gift_reservations')
-    .delete()
-    .eq('project_id', projectId)
-    .eq('item_id', itemId);
-  
-  return { error };
+  return dbCall('unreserveGiftByItemId', { projectId, itemId });
 }
 
 // ============================================
@@ -407,105 +252,33 @@ export async function unreserveGiftByItemId(projectId, itemId) {
 // ============================================
 
 export async function submitContactRequest(requestData) {
-  const { data, error } = await supabase
-    .from('contact_requests')
-    .insert({
-      name: requestData.name,
-      email: requestData.email,
-      phone: requestData.phone,
-      wedding_date: requestData.weddingDate,
-      message: requestData.message,
-    })
-    .select()
-    .single();
-  
-  return { data, error };
+  return dbCall('submitContactRequest', { requestData });
 }
 
 // ============================================
 // PASSWORD PROTECTION
 // ============================================
 
-/**
- * Prüft ob ein Projekt Passwortschutz hat (ohne Passwort zu verraten)
- */
 export async function checkPasswordRequired(slug) {
-  const { data, error } = await supabase
-    .rpc('check_password_required', { project_slug: slug });
-  
-  if (error) {
-    console.error('Error checking password requirement:', error);
-    return { required: false, error };
-  }
-  
-  return { required: data?.required || false, error: null };
+  return dbCall('checkPasswordRequired', { slug });
 }
 
-/**
- * Verifiziert das eingegebene Passwort serverseitig
- * Das echte Passwort wird NIEMALS ans Frontend geschickt
- */
 export async function verifyProjectPassword(slug, password) {
-  const { data, error } = await supabase
-    .rpc('verify_project_password', { 
-      project_slug: slug, 
-      input_password: password 
-    });
-  
-  if (error) {
-    console.error('Error verifying password:', error);
-    return { success: false, error: error.message };
-  }
-  
-  return { 
-    success: data?.success || false, 
-    error: data?.error || null 
-  };
+  const result = await dbCall('verifyProjectPassword', { slug, password });
+  if (result.success && result.token) setToken(result.token);
+  return result;
 }
 
-/**
- * Verifiziert das Vorschau-Passwort serverseitig
- * Das Passwort wird NIEMALS ans Frontend geschickt
- */
 export async function verifyPreviewPassword(slug, password) {
-  const { data, error } = await supabase
-    .rpc('verify_preview_password', { 
-      project_slug: slug, 
-      input_password: password 
-    });
-  
-  if (error) {
-    console.error('Error verifying preview password:', error);
-    return { success: false, error: error.message };
-  }
-  
-  return { 
-    success: data?.success || false, 
-    error: data?.error || null 
-  };
+  const result = await dbCall('verifyPreviewPassword', { slug, password });
+  if (result.success && result.token) setToken(result.token);
+  return result;
 }
 
-/**
- * Verifiziert das Admin-Passwort (Kunden-Dashboard) serverseitig
- * Prüft gegen admin_password in der projects-Tabelle
- * GETRENNT vom Vorschau-Passwort!
- */
 export async function verifyAdminPassword(slug, password) {
-  const { data, error } = await supabase
-    .rpc('verify_admin_password', { 
-      project_slug: slug, 
-      input_password: password 
-    });
-  
-  if (error) {
-    console.error('Error verifying admin password:', error);
-    return { success: false, error: error.message };
-  }
-  
-  return { 
-    success: data?.success || false, 
-    error: data?.error || null 
-  };
+  const result = await dbCall('verifyAdminPassword', { slug, password });
+  if (result.success && result.token) setToken(result.token);
+  return result;
 }
 
 // ============================================
@@ -513,36 +286,7 @@ export async function verifyAdminPassword(slug, password) {
 // ============================================
 
 export async function submitDataReady(projectId) {
-  // Status auf ready_for_review setzen + Timestamp speichern
-  const { data: project, error: statusError } = await supabase
-    .from('projects')
-    .update({ 
-      status: 'ready_for_review',
-      data_submitted_at: new Date().toISOString()
-    })
-    .eq('id', projectId)
-    .select()
-    .single();
-  
-  if (statusError) {
-    console.error('Error updating status:', statusError);
-    return { success: false, error: statusError };
-  }
-  
-  // Admin-Benachrichtigung in DB speichern (für spätere E-Mail-Verarbeitung)
-  try {
-    await supabase
-      .from('admin_notifications')
-      .insert({
-        project_id: projectId,
-        type: 'data_ready',
-        status: 'pending',
-      });
-  } catch (e) {
-    console.warn('Could not create notification entry:', e);
-  }
-  
-  return { success: true, data: project };
+  return dbCall('submitDataReady', { projectId });
 }
 
 // ============================================
@@ -550,58 +294,21 @@ export async function submitDataReady(projectId) {
 // ============================================
 
 export async function getGuestList(projectId) {
-  const { data, error } = await supabase
-    .from('guest_list')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('name', { ascending: true });
-  
-  return { data: data || [], error };
+  return dbCall('getGuestList', { projectId });
 }
 
 export async function uploadGuestList(projectId, guests) {
-  // Bulk insert with conflict handling (skip duplicates)
-  const rows = guests.map(g => ({
-    project_id: projectId,
-    name: g.name,
-    email: g.email.toLowerCase(),
-    group_name: g.group_name || '',
-  }));
-
-  const { data, error } = await supabase
-    .from('guest_list')
-    .upsert(rows, { onConflict: 'project_id,email', ignoreDuplicates: true })
-    .select();
-  
-  return { data, error, count: data?.length || 0 };
+  return dbCall('uploadGuestList', { projectId, guests });
 }
 
 export async function deleteGuestListEntry(id) {
-  const { error } = await supabase
-    .from('guest_list')
-    .delete()
-    .eq('id', id);
-  
-  return { error };
+  return dbCall('deleteGuestListEntry', { id });
 }
 
 export async function clearGuestList(projectId) {
-  const { error } = await supabase
-    .from('guest_list')
-    .delete()
-    .eq('project_id', projectId);
-  
-  return { error };
+  return dbCall('clearGuestList', { projectId });
 }
 
 export async function markReminderSent(guestId) {
-  const { error } = await supabase
-    .from('guest_list')
-    .update({ 
-      reminder_sent_at: new Date().toISOString(),
-      reminder_count: supabase.raw ? undefined : 1, // Increment would need RPC
-    })
-    .eq('id', guestId);
-  
-  return { error };
+  return dbCall('markReminderSent', { guestId });
 }

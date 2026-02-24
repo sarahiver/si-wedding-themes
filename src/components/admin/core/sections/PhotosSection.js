@@ -1,7 +1,7 @@
 // core/sections/PhotosSection.js - Photo Management with ZIP Download & Auto-Delete
 import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
-import { deletePhotoUpload } from '../../../../lib/supabase';
+import { deletePhotoUpload, authFetch } from '../../../../lib/supabase';
 
 function PhotosSection({ components: C }) {
   const {
@@ -91,9 +91,8 @@ function PhotosSection({ components: C }) {
       // Delete from Cloudinary via API route
       if (publicIds.length > 0) {
         try {
-          const deleteResponse = await fetch('/api/delete-photos', {
+          const deleteResponse = await authFetch('/api/delete-photos', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ public_ids: publicIds, projectId }),
           });
 
@@ -162,9 +161,8 @@ function PhotosSection({ components: C }) {
     
     if (publicIds.length > 0) {
       try {
-        await fetch('/api/delete-photos', {
+        await authFetch('/api/delete-photos', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ public_ids: publicIds, projectId }),
         });
       } catch (err) {

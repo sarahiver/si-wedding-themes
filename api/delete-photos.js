@@ -9,28 +9,7 @@ const API_SECRET = process.env.CLOUDINARY_API_SECRET;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-// CORS — nur erlaubte Origins
-const ALLOWED_ORIGINS = [
-  'https://siwedding.de', 'https://www.siwedding.de',
-  'http://localhost:3000', 'http://localhost:3001',
-];
-
-function isAllowedOrigin(origin) {
-  if (!origin) return false;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (origin.endsWith('.vercel.app')) return true;
-  if (origin.endsWith('.siwedding.de')) return true;
-  return false;
-}
-
-function getCorsHeaders(origin) {
-  const allowed = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
+const { handleCors, requireAuth, applyRateLimit } = require('./lib/auth');
 
 // Projekt-Existenz über Supabase verifizieren
 async function verifyProject(projectId) {
@@ -50,17 +29,18 @@ async function verifyProject(projectId) {
 }
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin || '';
-  const corsHeaders = getCorsHeaders(origin);
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Auth required
+  const auth = requireAuth(req, res);
+  if (!auth) return;
+
+  // Rate limit: 20 req / 15 min per token email
+  if (applyRateLimit(res, `delete-photos:${auth.email}`, 20, 15 * 60 * 1000)) return;
 
   if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
     console.error('Missing Cloudinary credentials:', { CLOUD_NAME: !!CLOUD_NAME, API_KEY: !!API_KEY, API_SECRET: !!API_SECRET });
