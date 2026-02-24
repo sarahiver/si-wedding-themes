@@ -118,7 +118,8 @@ const actions = {
   },
 
   async updateProjectContent({ projectId, component, contentData }) {
-    const result = await supabaseRest('POST', 'project_content', '', {
+    const result = await supabaseRest('POST', 'project_content',
+      'on_conflict=project_id,component', {
       project_id: projectId,
       component,
       content: contentData,
@@ -401,7 +402,8 @@ const actions = {
       group_name: g.group_name || '',
     }));
 
-    const result = await supabaseRest('POST', 'guest_list', 'select=*', rows, {
+    const result = await supabaseRest('POST', 'guest_list',
+      'on_conflict=project_id,email&select=*', rows, {
       'Prefer': 'resolution=merge-duplicates,return=representation',
     });
     return { data: result.data, error: result.error, count: result.data?.length || 0 };
