@@ -214,8 +214,6 @@ const VideoGlobalStyles = createGlobalStyle`
     scrollbar-width: none;
   }
   [data-scroll-x]::-webkit-scrollbar { display: none; }
-`
-
 `;
 
 export default VideoGlobalStyles;
