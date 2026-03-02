@@ -139,7 +139,7 @@ const UploadArea = styled.div`
   position: relative;
   background: rgba(255, 255, 255, 0.03);
   border: 2px dashed ${p => p.$dragging ? 'var(--editorial-red)' : 'rgba(255, 255, 255, 0.2)'};
-  padding: clamp(4rem, 10vw, 7rem) 2rem;
+  padding: clamp(2.5rem, 6vw, 7rem) clamp(1rem, 4vw, 2rem);
   text-align: center;
   cursor: pointer;
   transition: all 0.4s ease;

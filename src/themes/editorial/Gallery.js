@@ -86,18 +86,13 @@ const GalleryGrid = styled.div`
   }
   
   @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 1rem;
-    padding-bottom: 2rem;
-    margin: 0 -1.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.375rem;
   }
 `;
 
@@ -128,20 +123,15 @@ const GalleryItem = styled.div`
   }
   
   @media (max-width: 768px) {
-    flex-shrink: 0;
-    width: 75vw;
-    max-width: 300px;
-    scroll-snap-align: start;
-    
     &:nth-child(4n+1),
     &:nth-child(6n+3) {
-      grid-row: span 1;
+      grid-row: span 2;
     }
     
-    &::before,
+    &::before { padding-top: 100%; }
     &:nth-child(4n+1)::before,
     &:nth-child(6n+3)::before {
-      padding-top: 120%;
+      padding-top: 200%;
     }
   }
 `;

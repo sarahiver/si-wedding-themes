@@ -107,6 +107,8 @@ const RSVPButton = styled.a`
 
 // Burger menu button - always visible
 const MenuButton = styled.button`
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   display: flex;
   align-items: center;
   justify-content: center;

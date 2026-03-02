@@ -116,6 +116,8 @@ const RSVPButton = styled.a`
 
 // Mobile Menu
 const MenuButton = styled.button`
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   display: flex;
   flex-direction: column;
   gap: 6px;

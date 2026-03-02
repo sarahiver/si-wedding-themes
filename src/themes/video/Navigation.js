@@ -91,6 +91,8 @@ const CTAButton = styled.a`
 `;
 
 const MobileMenuButton = styled.button`
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   display: flex;
   flex-direction: column;
   gap: 6px;

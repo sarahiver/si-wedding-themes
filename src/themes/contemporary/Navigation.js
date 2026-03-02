@@ -139,6 +139,8 @@ const MobileButton = styled.button`
 `;
 
 const Hamburger = styled.div`
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   width: 18px;
   height: 12px;
   position: relative;

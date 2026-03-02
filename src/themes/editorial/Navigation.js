@@ -67,9 +67,11 @@ const Logo = styled.a`
 `;
 
 const MenuButton = styled.button`
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: transparent;
   border: none;
   cursor: pointer;

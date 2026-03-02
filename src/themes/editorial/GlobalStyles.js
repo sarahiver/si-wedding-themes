@@ -132,6 +132,49 @@ const EditorialGlobalStyles = createGlobalStyle`
   .grayscale:hover {
     filter: grayscale(0%);
   }
+
+  /* ===== MOBILE OPTIMIERUNGEN ===== */
+  
+  /* Verhindert automatische Schriftvergrößerung auf iOS */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Kein horizontales Bounce auf iOS */
+  body {
+    overscroll-behavior-x: none;
+  }
+  
+  /* Touch-Optimierungen */
+  a, button, [role="button"], label {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Buttons: Mindest-Touch-Größe 44px */
+  button, [role="button"] {
+    min-height: 44px;
+  }
+  
+  /* Inputs: 16px verhindert iOS-Zoom beim Fokus */
+  input, textarea, select {
+    font-size: max(16px, 1em);
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Horizontale Scroll-Container */
+  [data-scroll-x] {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  [data-scroll-x]::-webkit-scrollbar { display: none; }
+`
+
 `;
 
 export default EditorialGlobalStyles;
