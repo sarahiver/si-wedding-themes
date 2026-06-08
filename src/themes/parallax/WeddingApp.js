@@ -1,5 +1,5 @@
 // src/themes/parallax/WeddingApp.js
-import { Suspense, useState, useCallback, useRef, useEffect } from 'react'
+import { Suspense, useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ScrollControls, Preload, Scroll, useScroll } from '@react-three/drei'
 import { useWedding } from '../../context/WeddingContext'
@@ -12,6 +12,15 @@ import HtmlContent     from './HtmlContent'
 import ParallaxModal   from './ParallaxModal'
 import Loader from './Loader'
 import { PAGES } from './scrollConfig'
+
+// ── Stabile Canvas-Konfiguration als Modulkonstanten ──
+// WICHTIG: Diese Objekte/Arrays NICHT inline an <Canvas> übergeben.
+// Inline-Literale bekommen bei jedem Render eine neue Identität; in Kombination
+// mit dem 1-Sekunden-Countdown-Tick führte das dazu, dass R3F/drei die
+// ScrollControls neu aufsetzten und sich doppelte Scroll-Layer aufstauten.
+const GL = { antialias: true, powerPreference: 'high-performance' }
+const DPR = [1, 1.5]
+const CAMERA = { position: [0, 0, 20], fov: 15 }
 
 function ScrollBridge({ scrollRef, scrollToTopRef }) {
   const scroll = useScroll()
@@ -70,6 +79,75 @@ function useCountdown(weddingDate) {
 
 const p2 = n => String(n).padStart(2, '0')
 
+// ── Countdown als eigene Komponente ──
+// Der 1-Sekunden-Tick (setState) re-rendert dadurch NUR diese Komponente,
+// nicht mehr ParallaxWeddingApp und damit auch nicht den <Canvas>/ScrollControls.
+function ParallaxCountdown({ cdDate, countdownRef }) {
+  const cd = useCountdown(cdDate)
+  if (!cd.ready) return null
+
+  return (
+    <div
+      ref={countdownRef}
+      style={{
+        position: 'fixed',
+        left: '50%',
+        bottom: '5vh',
+        transform: 'translateX(-50%)',
+        zIndex: 200,
+        textAlign: 'center',
+        pointerEvents: 'none',
+        userSelect: 'none',
+        fontFamily: "'DM Sans', sans-serif",
+        background: '#fff',
+        padding: 'clamp(0.8rem, 2vw, 2rem) clamp(1rem, 3vw, 4rem)',
+        maxWidth: '95vw',
+      }}
+    >
+      {!cd.past ? (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1rem, 3vw, 4rem)' }}>
+          {[
+            { v: p2(cd.d), l: 'TAGE' },
+            { v: p2(cd.h), l: 'STD' },
+            { v: p2(cd.m), l: 'MIN' },
+            { v: p2(cd.s), l: 'SEK' },
+          ].map(({ v, l }) => (
+            <div key={l} style={{ textAlign: 'center', minWidth: 'clamp(2.5rem, 12vw, 5rem)' }}>
+              <span style={{
+                fontSize: 'clamp(2.5rem, 6vw, 6rem)',
+                fontWeight: 800,
+                color: '#000',
+                lineHeight: 1,
+                letterSpacing: '-0.02em',
+                fontVariantNumeric: 'tabular-nums',
+                display: 'inline-block',
+                minWidth: '1.8em',
+              }}>{v}</span>
+              <br />
+              <span style={{
+                fontSize: 'clamp(0.5rem, 0.9vw, 0.75rem)',
+                fontWeight: 700,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(0,0,0,0.3)',
+              }}>{l}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p style={{
+          fontSize: 'clamp(0.7rem, 1.2vw, 1rem)',
+          fontWeight: 700,
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          color: 'rgba(0,0,0,0.35)',
+          margin: 0,
+        }}>WIR HABEN GEHEIRATET</p>
+      )}
+    </div>
+  )
+}
+
 export default function ParallaxWeddingApp() {
   const { project, content } = useWedding()
   const [activeModal, setActiveModal] = useState(null)
@@ -77,17 +155,17 @@ export default function ParallaxWeddingApp() {
   const scrollToTopRef = useRef(null)
   const heroRef = useRef(null)
   const countdownRef = useRef(null)
+
   // Countdown-Datum: target_date hat Vorrang, aber wenn veraltet → wedding_date nutzen
   const cdDateRaw = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
-  const cdDate = (() => {
+  const cdDate = useMemo(() => {
     const parsed = parseCountdownDate(cdDateRaw)
     if (parsed && parsed < new Date() && project?.wedding_date) {
       const wd = parseCountdownDate(project.wedding_date)
       if (wd && wd > new Date()) return project.wedding_date
     }
     return cdDateRaw
-  })()
-  const cd = useCountdown(cdDate)
+  }, [cdDateRaw, project?.wedding_date])
 
   const openModal = useCallback((id, origin, label) => {
     setActiveModal({
@@ -110,6 +188,13 @@ export default function ParallaxWeddingApp() {
   const handleLogoClick = useCallback(() => {
     scrollToTopRef.current?.()
   }, [])
+
+  // Stabile Canvas-Style-Referenz (ändert sich nur bei Modal-Wechsel)
+  const canvasStyle = useMemo(() => ({
+    position: 'fixed', inset: 0,
+    background: '#ffffff',
+    pointerEvents: activeModal ? 'none' : 'auto',
+  }), [activeModal])
 
   // Animate hero names: center → top-right on scroll
   useEffect(() => {
@@ -254,14 +339,10 @@ export default function ParallaxWeddingApp() {
       </div>
 
       <Canvas
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
-        dpr={[1, 1.5]}
-        camera={{ position: [0, 0, 20], fov: 15 }}
-        style={{
-          position: 'fixed', inset: 0,
-          background: '#ffffff',
-          pointerEvents: activeModal ? 'none' : 'auto',
-        }}
+        gl={GL}
+        dpr={DPR}
+        camera={CAMERA}
+        style={canvasStyle}
       >
         <Suspense fallback={null}>
           <ScrollControls damping={0.2} pages={PAGES} distance={0.5}>
@@ -283,67 +364,8 @@ export default function ParallaxWeddingApp() {
       </Canvas>
       <Loader coupleNames={cn} />
 
-      {/* ── COUNTDOWN — after Canvas so it renders on top ── */}
-      {cd.ready && (
-        <div
-          ref={countdownRef}
-          style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: '5vh',
-            transform: 'translateX(-50%)',
-            zIndex: 200,
-            textAlign: 'center',
-            pointerEvents: 'none',
-            userSelect: 'none',
-            fontFamily: "'DM Sans', sans-serif",
-            background: '#fff',
-            padding: 'clamp(0.8rem, 2vw, 2rem) clamp(1rem, 3vw, 4rem)',
-            maxWidth: '95vw',
-          }}
-        >
-          {!cd.past ? (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1rem, 3vw, 4rem)' }}>
-              {[
-                { v: p2(cd.d), l: 'TAGE' },
-                { v: p2(cd.h), l: 'STD' },
-                { v: p2(cd.m), l: 'MIN' },
-                { v: p2(cd.s), l: 'SEK' },
-              ].map(({ v, l }) => (
-                <div key={l} style={{ textAlign: 'center', minWidth: 'clamp(2.5rem, 12vw, 5rem)' }}>
-                  <span style={{
-                    fontSize: 'clamp(2.5rem, 6vw, 6rem)',
-                    fontWeight: 800,
-                    color: '#000',
-                    lineHeight: 1,
-                    letterSpacing: '-0.02em',
-                    fontVariantNumeric: 'tabular-nums',
-                    display: 'inline-block',
-                    minWidth: '1.8em',
-                  }}>{v}</span>
-                  <br />
-                  <span style={{
-                    fontSize: 'clamp(0.5rem, 0.9vw, 0.75rem)',
-                    fontWeight: 700,
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(0,0,0,0.3)',
-                  }}>{l}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{
-              fontSize: 'clamp(0.7rem, 1.2vw, 1rem)',
-              fontWeight: 700,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'rgba(0,0,0,0.35)',
-              margin: 0,
-            }}>WIR HABEN GEHEIRATET</p>
-          )}
-        </div>
-      )}
+      {/* ── COUNTDOWN — eigene Komponente, damit der Sekunden-Tick nicht den Canvas neu rendert ── */}
+      <ParallaxCountdown cdDate={cdDate} countdownRef={countdownRef} />
 
       <ParallaxModal
         activeModal={activeModal}
