@@ -117,7 +117,10 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
     <div ref={containerRef} style={{
       position: 'relative',
       width: '100vw',
-      overflowX: 'hidden',
+      // KEIN overflowX hier: 'overflow-x: hidden' zwingt per CSS-Quirk
+      // 'overflow-y' auf 'auto' → dieser Container wurde zur Scroll-Falle
+      // und fing die Wheel/Touch-Events vor drei's ScrollControls ab.
+      // Horizontales Clipping übernimmt bereits drei's 'fixed' (overflow:hidden).
       userSelect: 'none',
       fontFamily: "'DM Sans', sans-serif",
     }}>
