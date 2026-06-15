@@ -1,6 +1,7 @@
 // core/AdminShell.js - Main Layout (Logic Only)
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdmin, AdminProvider } from './AdminContext';
+import { AdminMobileStyles, SidebarBackdrop } from './AdminMobile';
 
 // Import Sections
 import DashboardSection from './sections/DashboardSection';
@@ -105,6 +106,18 @@ function AdminShellInner({ components: C, LoginComponent }) {
     feedback, closeFeedback,
   } = admin;
 
+  // Body einfrieren, solange das Slide-in-Menü auf dem Handy offen ist
+  useEffect(() => {
+    const isMobile = typeof window !== 'undefined'
+      && window.matchMedia('(max-width: 968px)').matches;
+    if (sidebarOpen && isMobile) {
+      document.body.classList.add('si-admin-menu-open');
+    } else {
+      document.body.classList.remove('si-admin-menu-open');
+    }
+    return () => document.body.classList.remove('si-admin-menu-open');
+  }, [sidebarOpen]);
+
   // Tab titles
   const titles = {
     'dashboard': 'Übersicht',
@@ -198,10 +211,13 @@ function AdminShellInner({ components: C, LoginComponent }) {
 
   // MAIN DASHBOARD
   return (
-    <C.DashboardContainer>
+    <C.DashboardContainer className="si-admin">
+      <AdminMobileStyles />
       <C.MobileMenuToggle onClick={() => setSidebarOpen(!sidebarOpen)}>
-        ☰
+        {sidebarOpen ? '✕' : '☰'}
       </C.MobileMenuToggle>
+
+      <SidebarBackdrop $open={sidebarOpen} onClick={() => setSidebarOpen(false)} />
 
       <C.Sidebar $open={sidebarOpen}>
         <C.SidebarHeader>
@@ -264,7 +280,8 @@ function DefaultLogin({ components: C, onLogin, error, coupleNames, slug }) {
   };
 
   return (
-    <C.LoginContainer>
+    <C.LoginContainer className="si-admin">
+      <AdminMobileStyles />
       <C.LoginBox>
         <C.LoginLogo>
           <h1>Admin <span>Panel</span></h1>
