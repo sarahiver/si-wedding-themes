@@ -17,6 +17,7 @@ import DemoAllPage from './pages/DemoAllPage';
 // Shared Components
 import ComingSoon from './components/shared/ComingSoon';
 import PasswordGate from './components/shared/PasswordGate';
+import DemoOverlay from './components/shared/DemoOverlay';
 
 // Legal Pages
 import { Impressum, Datenschutz } from './pages/LegalPages';
@@ -296,6 +297,10 @@ function ThemeRouter() {
   const publicStatuses = ['live', 'std', 'archive', 'archiv', 'save-the-date', 'demo'];
   const isPublic = publicStatuses.includes(status);
 
+  // Demo-Kennzeichnung: im SuperAdmin als Demo angelegt (status='demo')
+  // ODER der Slug enthält "demo" (z.B. demo-classic)
+  const isDemo = status === 'demo' || (slug || '').toLowerCase().includes('demo');
+
   // Render basierend auf Status UND Passwortschutz
   const renderMain = () => {
     // Nicht öffentlich und kein Admin-Zugang → Coming Soon
@@ -354,6 +359,7 @@ function ThemeRouter() {
   return (
     <Suspense fallback={<Loading />}>
       <GlobalStyles />
+      {isDemo && <DemoOverlay theme={themeName} slug={slug} />}
       <Routes>
         <Route path="/" element={renderMain()} />
         <Route path="/admin" element={<AdminDashboard />} />
