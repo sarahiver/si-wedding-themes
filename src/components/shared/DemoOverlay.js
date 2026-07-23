@@ -3,8 +3,9 @@
 // per CTA zum Kontaktformular auf sarahiver.com.
 // Wird angezeigt wenn: status === 'demo' (SuperAdmin) ODER der Slug "demo" enthält.
 // Minimierbar (nicht schließbar) — die Kennzeichnung soll bestehen bleiben.
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { getDemoConsent, setDemoConsent, loadDemoAnalytics, removeDemoAnalytics } from '../../lib/demoAnalytics';
 
 const CONTACT_URL = 'https://www.sarahiver.com/#contact';
 
@@ -125,8 +126,69 @@ const RestorePill = styled.button`
   }
 `;
 
+const ConsentRow = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
+  background: #0f0f0f;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: 'Josefin Sans', -apple-system, sans-serif;
+`;
+
+const ConsentText = styled.span`
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+  font-weight: 300;
+
+  a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
+  }
+`;
+
+const ConsentBtn = styled.button`
+  background: ${p => (p.$primary ? '#fdfcfa' : 'transparent')};
+  color: ${p => (p.$primary ? '#1a1a1a' : 'rgba(255,255,255,0.8)')};
+  border: 1px solid ${p => (p.$primary ? '#fdfcfa' : 'rgba(255,255,255,0.35)')};
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  border-radius: 3px;
+  cursor: pointer;
+`;
+
 const DemoOverlay = ({ theme, slug }) => {
   const [minimized, setMinimized] = useState(false);
+  const [consent, setConsent] = useState(() => getDemoConsent());
+
+  // Wiederkehrende Besucher mit bestehender Einwilligung: GA direkt laden
+  useEffect(() => {
+    if (consent === 'accepted') {
+      loadDemoAnalytics();
+    }
+  }, [consent]);
+
+  const handleAccept = () => {
+    setDemoConsent('accepted');
+    setConsent('accepted');
+  };
+
+  const handleDecline = () => {
+    setDemoConsent('declined');
+    setConsent('declined');
+    removeDemoAnalytics();
+  };
 
   const handleCTAClick = () => {
     if (typeof window !== 'undefined' && window.gtag) {
@@ -137,6 +199,19 @@ const DemoOverlay = ({ theme, slug }) => {
       });
     }
   };
+
+  if (consent === null) {
+    return (
+      <ConsentRow role="dialog" aria-label="Cookie-Einwilligung für Demo-Statistik">
+        <ConsentText>
+          Diese Demo nutzt anonyme Statistik (Google Analytics), um zu verstehen, welche Designs euch gefallen.{' '}
+          <a href="https://www.sarahiver.com/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutz</a>
+        </ConsentText>
+        <ConsentBtn onClick={handleDecline}>Nur nötige</ConsentBtn>
+        <ConsentBtn $primary onClick={handleAccept}>Einverstanden</ConsentBtn>
+      </ConsentRow>
+    );
+  }
 
   return (
     <>
