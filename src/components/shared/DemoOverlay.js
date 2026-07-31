@@ -5,7 +5,7 @@
 // Minimierbar (nicht schließbar) — die Kennzeichnung soll bestehen bleiben.
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getDemoConsent, setDemoConsent, loadDemoAnalytics, removeDemoAnalytics } from '../../lib/demoAnalytics';
+import { getDemoConsent, setDemoConsent, loadDemoAnalytics, removeDemoAnalytics, initDemoConsentMode } from '../../lib/demoAnalytics';
 
 const CONTACT_URL = 'https://www.sarahiver.com/#contact';
 
@@ -172,7 +172,13 @@ const DemoOverlay = ({ theme, slug }) => {
   const [minimized, setMinimized] = useState(false);
   const [consent, setConsent] = useState(() => getDemoConsent());
 
-  // Wiederkehrende Besucher mit bestehender Einwilligung: GA direkt laden
+  // Consent Mode v2: GA sofort im Denied-Modus starten (cookielose Pings),
+  // bestehende Einwilligung wird darin automatisch angewendet
+  useEffect(() => {
+    initDemoConsentMode();
+  }, []);
+
+  // Nach Klick auf "Einverstanden": auf volles Tracking hochstufen
   useEffect(() => {
     if (consent === 'accepted') {
       loadDemoAnalytics();
