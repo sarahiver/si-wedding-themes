@@ -166,9 +166,21 @@ const EditorialGlobal = createGlobalStyle`
   input, textarea, select {
     font-size: max(16px, 1em);
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* appearance:none nur fuer Text-Inputs — Checkboxen/Radios/Color-Picker
+     brauchen ihr natives Rendering (sonst unsichtbar, z.B. im Kunden-Dashboard) */
+  input:not([type='checkbox']):not([type='radio']):not([type='color']):not([type='file']):not([type='range']),
+  textarea,
+  select {
     border-radius: 0;
     -webkit-appearance: none;
     appearance: none;
+  }
+
+  input[type='checkbox'], input[type='radio'] {
+    -webkit-appearance: auto;
+    appearance: auto;
   }
   
   /* Horizontale Scroll-Container */
