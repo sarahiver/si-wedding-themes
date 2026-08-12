@@ -1,6 +1,11 @@
+import React, { useContext } from 'react';
 import { createGlobalStyle } from 'styled-components';
+import WeddingContext from '../../context/WeddingContext';
 
-const EditorialGlobalStyles = createGlobalStyle`
+const DEFAULT_ACCENT = '#C41E3A';
+const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+const EditorialGlobal = createGlobalStyle`
   /* 
    * Editorial Theme - Magazine/Bold Style
    * Inspired by modern editorial design with strong typography
@@ -14,7 +19,7 @@ const EditorialGlobalStyles = createGlobalStyle`
     /* Colors */
     --editorial-black: #0A0A0A;
     --editorial-white: #FAFAFA;
-    --editorial-red: #C41E3A;
+    --editorial-red: ${p => p.$accent || DEFAULT_ACCENT};
     --editorial-gray: #666666;
     --editorial-light-gray: #E5E5E5;
     
@@ -174,5 +179,14 @@ const EditorialGlobalStyles = createGlobalStyle`
   }
   [data-scroll-x]::-webkit-scrollbar { display: none; }
 `;
+
+// Liest die Highlight-Farbe aus project.custom_styles.accent_color (im SuperAdmin pflegbar).
+// Null-safe: außerhalb des WeddingProviders (z.B. ThemeRenderer/Demo) greift der Standard.
+function EditorialGlobalStyles(props) {
+  const wedding = useContext(WeddingContext);
+  const raw = wedding?.project?.custom_styles?.accent_color;
+  const accent = typeof raw === 'string' && HEX_COLOR.test(raw.trim()) ? raw.trim() : undefined;
+  return <EditorialGlobal $accent={accent} {...props} />;
+}
 
 export default EditorialGlobalStyles;

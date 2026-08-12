@@ -13,10 +13,15 @@ const AdminContext = createContext(null);
 
 // Paket-Definitionen (müssen mit SuperAdmin übereinstimmen)
 const PACKAGE_FEATURES = {
+  // Aktuelle Paket-IDs (SuperAdmin: constants.js)
+  starter: { save_the_date: false, archive: false },
+  standard: { save_the_date: false, archive: false },
+  premium: { save_the_date: true, archive: true },
+  individual: { save_the_date: true, archive: true }, // Custom - hat alles
+  // Legacy-Paketnamen (alte Projekte)
   klassik: { save_the_date: false, archive: false },
   signature: { save_the_date: true, archive: false },
   couture: { save_the_date: true, archive: true },
-  individual: { save_the_date: true, archive: true }, // Custom - hat alles
 };
 
 // Prüft ob ein Feature im Paket oder in den Addons enthalten ist
@@ -73,14 +78,18 @@ export function AdminProvider({ children }) {
   const baseFolder = `siwedding/${slug || 'default'}`;
   
   // Feature-Verfügbarkeit basierend auf Paket
-  const hasSaveTheDate = useMemo(() => 
-    isFeatureAvailable(project?.package, project?.addons, 'save_the_date'),
-    [project?.package, project?.addons]
-  );
-  const hasArchive = useMemo(() => 
-    isFeatureAvailable(project?.package, project?.addons, 'archive'),
-    [project?.package, project?.addons]
-  );
+  // has_std / has_archive werden vom SuperAdmin explizit gepflegt und haben Vorrang.
+  // Fallback: Paket-/Addon-Logik (für Projekte ohne diese Felder).
+  const hasSaveTheDate = useMemo(() => (
+    typeof project?.has_std === 'boolean'
+      ? project.has_std
+      : isFeatureAvailable(project?.package, project?.addons, 'save_the_date')
+  ), [project?.has_std, project?.package, project?.addons]);
+  const hasArchive = useMemo(() => (
+    typeof project?.has_archive === 'boolean'
+      ? project.has_archive
+      : isFeatureAvailable(project?.package, project?.addons, 'archive')
+  ), [project?.has_archive, project?.package, project?.addons]);
 
   // Initialize content from wedding context - Schema-compliant defaults
   useEffect(() => {
