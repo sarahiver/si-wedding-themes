@@ -8,29 +8,13 @@ import {
   deleteMusicWish, updateProjectContent, approvePhotoUpload, deletePhotoUpload,
   submitDataReady, authFetch,
 } from '../../../lib/supabase';
+import { hasFeature, getProcessSteps, getPackage } from '../../../lib/pricing';
 
 const AdminContext = createContext(null);
 
-// Paket-Definitionen (müssen mit SuperAdmin übereinstimmen)
-const PACKAGE_FEATURES = {
-  // Aktuelle Paket-IDs (SuperAdmin: constants.js)
-  starter: { save_the_date: false, archive: false },
-  standard: { save_the_date: false, archive: false },
-  premium: { save_the_date: true, archive: true },
-  individual: { save_the_date: true, archive: true }, // Custom - hat alles
-  // Legacy-Paketnamen (alte Projekte)
-  klassik: { save_the_date: false, archive: false },
-  signature: { save_the_date: true, archive: false },
-  couture: { save_the_date: true, archive: true },
-};
-
-// Prüft ob ein Feature im Paket oder in den Addons enthalten ist
-const isFeatureAvailable = (packageName, addons, feature) => {
-  const pkg = PACKAGE_FEATURES[packageName] || PACKAGE_FEATURES.klassik;
-  if (pkg[feature]) return true;
-  if (addons && addons.includes(feature)) return true;
-  return false;
-};
+// Paket-Logik kommt aus lib/pricing.js (Spiegel von si-superadmin).
+// Vorher lag hier eine eigene PACKAGE_FEATURES-Kopie mit Legacy-Namen,
+// die bei jeder Preis-/Paketänderung vergessen wurde.
 
 export function AdminProvider({ children }) {
   const wedding = useWedding();
@@ -80,16 +64,21 @@ export function AdminProvider({ children }) {
   // Feature-Verfügbarkeit basierend auf Paket
   // has_std / has_archive werden vom SuperAdmin explizit gepflegt und haben Vorrang.
   // Fallback: Paket-/Addon-Logik (für Projekte ohne diese Felder).
-  const hasSaveTheDate = useMemo(() => (
-    typeof project?.has_std === 'boolean'
-      ? project.has_std
-      : isFeatureAvailable(project?.package, project?.addons, 'save_the_date')
-  ), [project?.has_std, project?.package, project?.addons]);
-  const hasArchive = useMemo(() => (
-    typeof project?.has_archive === 'boolean'
-      ? project.has_archive
-      : isFeatureAvailable(project?.package, project?.addons, 'archive')
-  ), [project?.has_archive, project?.package, project?.addons]);
+  // hasFeature berücksichtigt has_std/has_archive mit Vorrang und fällt
+  // sonst auf Paket + Add-ons zurück (inkl. Legacy-Paketnamen).
+  const hasSaveTheDate = useMemo(
+    () => hasFeature(project, 'save_the_date'),
+    [project]
+  );
+  const hasArchive = useMemo(
+    () => hasFeature(project, 'archive'),
+    [project]
+  );
+
+  // Kundenprozess je nach Paket — Website pflegt selbst ein, All In nicht.
+  const processSteps = useMemo(() => getProcessSteps(project?.package), [project?.package]);
+  const packageInfo = useMemo(() => getPackage(project?.package), [project?.package]);
+  const contentByCouple = packageInfo?.contentBy === 'couple';
 
   // Initialize content from wedding context - Schema-compliant defaults
   useEffect(() => {
@@ -508,6 +497,7 @@ export function AdminProvider({ children }) {
     
     // Features
     hasArchive, hasSaveTheDate, checkActive,
+    processSteps, packageInfo, contentByCouple,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

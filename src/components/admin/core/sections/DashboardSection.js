@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import { useAdmin } from '../AdminContext';
 
 function DashboardSection({ components: C }) {
-  const { stats, rsvpData, cloudinaryConfigured, currentStatus, markAsDataReady, coupleNames } = useAdmin();
+  const {
+    stats, rsvpData, cloudinaryConfigured, currentStatus, markAsDataReady, coupleNames,
+    processSteps, packageInfo, contentByCouple,
+  } = useAdmin();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -27,12 +30,40 @@ function DashboardSection({ components: C }) {
   };
   
   // Zeige Button nur wenn Status "in_progress" ist
-  const showDataReadyButton = currentStatus === 'in_progress' && !submitted;
+  const showDataReadyButton = currentStatus === 'in_progress' && !submitted && contentByCouple;
   // Zeige Success-Message wenn gerade submitted oder Status schon ready_for_review
   const showSuccessMessage = submitted || currentStatus === 'ready_for_review';
   
+  // Aktueller Schritt grob aus dem Projektstatus abgeleitet
+  const stepIndexByStatus = {
+    draft: 0, inquiry: 0, in_progress: 1, ready_for_review: 2, live: 5, std: 5, archive: 5,
+  };
+  const activeStep = stepIndexByStatus[currentStatus] ?? 0;
+
   return (
     <>
+      {/* So läuft es ab — Schritte richten sich nach dem gebuchten Paket */}
+      {processSteps?.length > 0 && (
+        <C.AlertBox $type="info" style={{ marginBottom: '1.5rem' }}>
+          <strong style={{ display: 'block', marginBottom: '0.75rem' }}>
+            So läuft es ab{packageInfo?.name ? ` — ${packageInfo.name}` : ''}
+          </strong>
+          <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.9rem', lineHeight: 1.9 }}>
+            {processSteps.map((step, i) => (
+              <li key={step} style={{ opacity: i <= activeStep ? 1 : 0.5, fontWeight: i === activeStep ? 600 : 400 }}>
+                {step}{i === activeStep ? ' ← ihr seid hier' : ''}
+              </li>
+            ))}
+          </ol>
+          {!contentByCouple && (
+            <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', opacity: 0.8 }}>
+              Ihr müsst hier nichts selbst einpflegen — schickt uns eure Inhalte,
+              wir bauen eure Website komplett auf.
+            </div>
+          )}
+        </C.AlertBox>
+      )}
+
       {/* Data Ready Section - Nur bei in_progress */}
       {showDataReadyButton && (
         <C.AlertBox $type="info" style={{ marginBottom: '1.5rem' }}>
