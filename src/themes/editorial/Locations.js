@@ -120,7 +120,10 @@ const LocationCard = styled.article`
     grid-template-columns: 1fr;
     gap: 2rem;
     
+    /* Gleiche Spezifität wie die Desktop-Regel oben, sonst bleibt jede
+       zweite Location auf Mobile zweispaltig (Bild zu klein) */
     &:nth-child(even) {
+      grid-template-columns: 1fr;
       > *:first-child { order: 1; }
       > *:last-child { order: 2; }
     }

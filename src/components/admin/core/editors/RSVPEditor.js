@@ -3,6 +3,7 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
+import MediaUploader from './MediaUploader';
 
 function RSVPEditor({ components: C }) {
   const { contentStates, updateContentField, saveContent, isSaving, baseFolder , project} = useAdmin();
@@ -10,6 +11,7 @@ function RSVPEditor({ components: C }) {
   const content = contentStates.rsvp || {};
   const theme = project?.theme;
   const isClassic = theme === 'classic';
+  const isEditorial = theme === 'editorial';
   const showDeadline = true;
   const showCustomQuestion = true;
   const update = (field, value) => updateContentField('rsvp', field, value);
@@ -54,6 +56,23 @@ function RSVPEditor({ components: C }) {
         )}
         {isClassic && !hidden('background_image') && (
           <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+        )}
+
+        {isEditorial && !hidden('background_media') && (
+          <>
+            <C.SectionLabel>Hintergrund</C.SectionLabel>
+            <MediaUploader
+              components={C}
+              media={content.background_media}
+              onUpload={(media) => update('background_media', media)}
+              folder={`${baseFolder}/rsvp`}
+              label="Hintergrund (Video oder Bild)"
+              ratio="16/9"
+              maxHeight="150px"
+              allowVideo={true}
+            />
+            <C.HelpText>Leer lassen für das Standard-Video. Wird schwarz-weiß dargestellt.</C.HelpText>
+          </>
         )}
 
         <C.SectionLabel>Formular-Optionen</C.SectionLabel>

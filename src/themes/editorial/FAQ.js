@@ -107,8 +107,11 @@ const Title = styled.h2`
   color: var(--editorial-black);
   text-transform: uppercase;
   letter-spacing: -0.03em;
-  line-height: 0.85;
+  line-height: 0.95;
+  /* overflow: hidden bleibt für den Letter-Reveal – Padding verhindert,
+     dass Unterlängen (z.B. das "Q") abgeschnitten werden */
   overflow: hidden;
+  padding: 0.05em 0 0.18em;
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.15em;
@@ -179,8 +182,17 @@ const FAQQuestion = styled.button`
   text-align: left;
   transition: all 0.3s ease;
   
-  &:hover {
-    padding-left: 1rem;
+  @media (hover: hover) {
+    &:hover {
+      padding-left: 1rem;
+    }
+  }
+
+  /* Mobile: Nummer ist ausgeblendet → Icon links, Text rechts daneben */
+  @media (max-width: 600px) {
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1.5rem 0;
   }
 `;
 
@@ -224,8 +236,10 @@ const QuestionIcon = styled.span`
   font-weight: 700;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform: rotate(${p => p.$open ? '45deg' : '0'});
+  flex-shrink: 0;
   
   @media (max-width: 600px) {
+    order: -1;
     width: 40px;
     height: 40px;
     font-size: 1.2rem;

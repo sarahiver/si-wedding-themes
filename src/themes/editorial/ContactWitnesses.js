@@ -230,8 +230,8 @@ function ContactWitnesses() {
   const { content } = useWedding();
   const witnessData = content?.witnesses || {};
 
-  const title = witnessData.title || 'Trauzeugen';
-  const description = witnessData.description || 'Für Überraschungen, Fragen oder geheime Absprachen – wendet euch an unsere Trauzeugen.';
+  const title = witnessData.title || 'Trauzeug:innen';
+  const description = witnessData.description || 'Für Überraschungen, Fragen oder geheime Absprachen – wendet euch an unsere Trauzeug:innen.';
   const witnesses = witnessData.persons || [];
   const note = witnessData.note || '';
 

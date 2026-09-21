@@ -67,7 +67,7 @@ function WitnessesEditor({ components: C }) {
   return (
     <C.Panel>
       <C.PanelHeader>
-        <C.PanelTitle>Trauzeugen bearbeiten</C.PanelTitle>
+        <C.PanelTitle>Trauzeug:innen bearbeiten</C.PanelTitle>
       </C.PanelHeader>
       <C.PanelContent>
         <C.FormGroup>

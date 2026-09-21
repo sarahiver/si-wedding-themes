@@ -45,7 +45,8 @@ const VideoBackground = styled.div`
     background: rgba(0, 0, 0, 0.6);
   }
   
-  video {
+  video,
+  img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -449,16 +450,30 @@ function RSVP() {
     return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  // Video URL
-  const videoUrl = rsvpData.video_background || 
-    'https://res.cloudinary.com/si-weddings/video/upload/v1770287435/212698_small_cibloj.mp4';
+  // Hintergrund: eigenes Bild/Video aus dem Dashboard, sonst Default-Video
+  const DEFAULT_VIDEO = 'https://res.cloudinary.com/si-weddings/video/upload/v1770287435/212698_small_cibloj.mp4';
+  const customMedia = rsvpData.background_media;
+  const customUrl = typeof customMedia === 'string' ? customMedia : customMedia?.url;
+  const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || '') || /\/video\/upload\//.test(url || '');
+  let bgType = 'video';
+  let bgUrl = DEFAULT_VIDEO;
+  if (customUrl) {
+    bgUrl = customUrl;
+    bgType = (typeof customMedia === 'object' && customMedia?.type) || (isVideoUrl(customUrl) ? 'video' : 'image');
+  } else if (rsvpData.video_background) {
+    bgUrl = rsvpData.video_background; // Legacy-Feld
+  }
 
   return (
     <Section id="rsvp" ref={sectionRef}>
       <VideoBackground>
-        <video autoPlay muted loop playsInline>
-          <source src={videoUrl} type="video/mp4" />
-        </video>
+        {bgType === 'image' ? (
+          <img src={bgUrl} alt="" />
+        ) : (
+          <video key={bgUrl} autoPlay muted loop playsInline>
+            <source src={bgUrl} />
+          </video>
+        )}
       </VideoBackground>
       
       <Container>
@@ -550,7 +565,7 @@ function RSVP() {
                       }
                     }}
                   >
-                    {[1, 2, 3, 4, 5].map(n => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                       <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
                     ))}
                   </Select>

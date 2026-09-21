@@ -396,7 +396,7 @@ export function AdminProvider({ children }) {
     photoupload: { id: 'edit-photoupload', label: 'Foto-Upload', icon: '📸' },
     faq: { id: 'edit-faq', label: 'FAQ', icon: '❓' },
     weddingabc: { id: 'edit-abc', label: 'ABC', icon: '🔤' },
-    witnesses: { id: 'edit-witnesses', label: 'Trauzeugen', icon: '👫' },
+    witnesses: { id: 'edit-witnesses', label: 'Trauzeug:innen', icon: '👫' },
     footer: { id: 'edit-footer', label: 'Footer', icon: '📝', always: true },
   };
 

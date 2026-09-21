@@ -58,7 +58,7 @@ const defaultContent = {
     hotels: [],
   },
   witnesses: {
-    title: 'Trauzeugen',
+    title: 'Trauzeug:innen',
     persons: [],
   },
   gallery: {

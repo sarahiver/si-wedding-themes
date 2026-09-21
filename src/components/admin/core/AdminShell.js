@@ -137,7 +137,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'edit-dresscode': 'Dresscode',
     'edit-gifts': 'Geschenke',
     'edit-hotels': 'Hotels',
-    'edit-witnesses': 'Trauzeugen',
+    'edit-witnesses': 'Trauzeug:innen',
     'edit-gallery': 'Galerie',
     'edit-guestbook': 'Gästebuch bearbeiten',
     'edit-musicwishes': 'Musikwünsche bearbeiten',

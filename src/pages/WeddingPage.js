@@ -388,7 +388,7 @@ function VideoWeddingPage() {
     guestbook: { Component: components.Guestbook, sectionId: "guestbook", label: "Gästebuch" },
     musicwishes: { Component: components.MusicWishes, sectionId: "music", label: "Musik" },
     gifts: { Component: components.Gifts, sectionId: "gifts", label: "Geschenke" },
-    witnesses: { Component: components.ContactWitnesses, sectionId: "witnesses", label: "Trauzeugen" },
+    witnesses: { Component: components.ContactWitnesses, sectionId: "witnesses", label: "Trauzeug:innen" },
     faq: { Component: components.FAQ, sectionId: "faq", label: "FAQ" },
     weddingabc: { Component: components.WeddingABC, sectionId: "abc", label: "ABC" },
   }

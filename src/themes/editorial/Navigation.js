@@ -281,7 +281,7 @@ function Navigation() {
     { id: 'photoupload', label: 'Fotos' },
     { id: 'faq', label: 'FAQ' },
     { id: 'weddingabc', label: 'ABC' },
-    { id: 'witnesses', label: 'Trauzeugen' },
+    { id: 'witnesses', label: 'Trauzeug:innen' },
   ];
 
   // Burger menu items - all active components sorted by component_order
