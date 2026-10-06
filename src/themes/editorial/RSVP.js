@@ -1,3 +1,4 @@
+import { focalCss } from '../../lib/focalPoint';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -50,7 +51,13 @@ const VideoBackground = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Fokuspunkt getrennt für Desktop und Mobile */
+    object-position: ${p => p.$focal?.desktop || 'center'};
     filter: grayscale(100%);
+  }
+
+  @media (max-width: 768px) {
+    video, img { object-position: ${p => p.$focal?.mobile || 'center'}; }
   }
 `;
 
@@ -466,7 +473,7 @@ function RSVP() {
 
   return (
     <Section id="rsvp" ref={sectionRef}>
-      <VideoBackground>
+      <VideoBackground $focal={focalCss(rsvpData.background_focal)}>
         {bgType === 'image' ? (
           <img src={bgUrl} alt="" />
         ) : (

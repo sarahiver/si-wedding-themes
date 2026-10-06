@@ -1,5 +1,6 @@
 // core/editors/HeroEditor.js - Mit Video-Support und separatem Mobile Background
 import React, { useState } from 'react';
+import FocalPicker from './FocalPicker';
 import { useAdmin } from '../AdminContext';
 import ImageUploader from './ImageUploader';
 import MediaUploader from './MediaUploader';
@@ -57,6 +58,7 @@ function HeroEditor({ components: C }) {
                 allowVideo={true}
               />
             ) : (
+              <>
               <ImageUploader
                 components={C}
                 image={content.background_image}
@@ -66,6 +68,14 @@ function HeroEditor({ components: C }) {
                 ratio="16/9"
                 maxHeight="150px"
               />
+              {content.background_image && (
+                <FocalPicker
+                  image={content.background_image}
+                  value={content.background_focal}
+                  onChange={(v) => update('background_focal', v)}
+                />
+              )}
+              </>
             )}
           </>
         )}
