@@ -19,7 +19,7 @@ const MaskedMark = styled.span`
   flex-shrink: 0;
   width: ${p => p.$size};
   height: ${p => p.$size};
-  background-color: currentColor;
+  background-color: ${p => p.$color};
   -webkit-mask-image: url(${p => p.$src});
   mask-image: url(${p => p.$src});
   -webkit-mask-repeat: no-repeat;
@@ -35,10 +35,26 @@ const MaskedMark = styled.span`
 export const monogramUrl = (project) =>
   project?.custom_styles?.monogram_url || '';
 
-const Monogram = ({ project, src, size = 'clamp(2.4rem, 4vw, 3.4rem)', title = 'Monogramm' }) => {
+// Farbe des Monogramms. Standard ist die Highlight-Farbe aus dem SuperAdmin.
+// 'currentColor' erbt stattdessen die Logo-Farbe des Themes — sinnvoll auf
+// dunklen Hintergründen, wo ein dunkles Weinrot untergehen würde.
+export const monogramColor = (project) =>
+  project?.custom_styles?.monogram_color
+  || project?.custom_styles?.accent_color
+  || 'currentColor';
+
+const Monogram = ({ project, src, color, size = 'clamp(3.4rem, 5vw, 4.6rem)', title = 'Monogramm' }) => {
   const url = src || monogramUrl(project);
   if (!url) return null;
-  return <MaskedMark $src={url} $size={size} role="img" aria-label={title} />;
+  return (
+    <MaskedMark
+      $src={url}
+      $size={size}
+      $color={color || monogramColor(project)}
+      role="img"
+      aria-label={title}
+    />
+  );
 };
 
 export default Monogram;

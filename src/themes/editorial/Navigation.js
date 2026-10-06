@@ -309,7 +309,7 @@ function Navigation() {
             vom Logo-Element, also aus der gewählten Akzentfarbe. */}
         <Logo href="#top" onClick={(e) => handleLinkClick(e, 'top')} aria-label={logoText}>
           {monogram
-            ? <Monogram project={project} size="clamp(2.6rem, 4vw, 3.6rem)" title={logoText} />
+            ? <Monogram project={project} size="clamp(3.6rem, 5.5vw, 5rem)" title={logoText} />
             : logoText}
         </Logo>
         

@@ -164,7 +164,7 @@ function Navigation() {
     <>
       <Nav $solid={solid || mobileOpen}>
         <Logo $light={isLight} href="#" onClick={e => scrollTo(e, '#top')}>
-          {monogramUrl(project) ? <Monogram project={project} size="clamp(2.2rem, 3.4vw, 3rem)" /> : cn}
+          {monogramUrl(project) ? <Monogram project={project} size="clamp(3.2rem, 4.8vw, 4.2rem)" /> : cn}
         </Logo>
         <BurgerBtn
           $light={isLight}
@@ -177,7 +177,7 @@ function Navigation() {
       </Nav>
 
       <Overlay $open={mobileOpen}>
-        <OverlayLogo $open={mobileOpen}>{monogramUrl(project) ? <Monogram project={project} size="clamp(2.2rem, 3.4vw, 3rem)" /> : cn}</OverlayLogo>
+        <OverlayLogo $open={mobileOpen}>{monogramUrl(project) ? <Monogram project={project} size="clamp(3.2rem, 4.8vw, 4.2rem)" /> : cn}</OverlayLogo>
         <OverlayDivider />
         {navItems.map((item, i) => (
           <NavItem
