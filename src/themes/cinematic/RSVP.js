@@ -21,12 +21,17 @@ const Media = styled.div`
   opacity: 0.3;
 
   @media (max-width: 768px) {
+    /* Eigene Fläche im Verhältnis 4:5 — siehe Kommentar im Editorial-RSVP */
+    inset: auto 0 auto 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: auto;
+    aspect-ratio: 4 / 5;
     background-position: ${p => p.$focal?.mobile || 'center'};
     background-size: ${p => p.$focal?.mobileSize || 'cover'};
 
-    /* Bildband statt Vollfläche — siehe Kommentar im Editorial-RSVP */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 76%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 76%, transparent 100%);
   }
   ${p => p.$shown && driftLayer}
 `;
