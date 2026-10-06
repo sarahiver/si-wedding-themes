@@ -254,6 +254,16 @@ const Input = styled.input`
   background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+
+  /* Safari zeichnet backdrop-filter deutlich kräftiger als Chrome — auf dem
+     Handy verschwindet das Bild dahinter fast vollständig. Dort genügt ein
+     Hauch Unschärfe; die Lesbarkeit trägt der Rand und etwas mehr Deckkraft. */
+  @media (max-width: 768px) {
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+    background: rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
   border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
@@ -280,6 +290,16 @@ const Select = styled.select`
   background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+
+  /* Safari zeichnet backdrop-filter deutlich kräftiger als Chrome — auf dem
+     Handy verschwindet das Bild dahinter fast vollständig. Dort genügt ein
+     Hauch Unschärfe; die Lesbarkeit trägt der Rand und etwas mehr Deckkraft. */
+  @media (max-width: 768px) {
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+    background: rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
   border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
@@ -306,6 +326,16 @@ const TextArea = styled.textarea`
   background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+
+  /* Safari zeichnet backdrop-filter deutlich kräftiger als Chrome — auf dem
+     Handy verschwindet das Bild dahinter fast vollständig. Dort genügt ein
+     Hauch Unschärfe; die Lesbarkeit trägt der Rand und etwas mehr Deckkraft. */
+  @media (max-width: 768px) {
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+    background: rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
   border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
