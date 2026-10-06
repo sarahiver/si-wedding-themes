@@ -33,6 +33,10 @@ const Section = styled.section`
   padding: var(--section-padding) 0;
   min-height: 100vh;
   overflow: hidden;
+  /* Dunkler Grund: Die Maske auf Mobile macht das Bild an den Rändern
+     durchsichtig — ohne eigenen Hintergrund läge dort das Seitenweiß,
+     und das Bild liefe nach Weiß statt nach Schwarz aus. */
+  background: #0A0A0B;
 `;
 
 const VideoBackground = styled.div`
