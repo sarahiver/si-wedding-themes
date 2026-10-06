@@ -86,8 +86,13 @@ function RSVPEditor({ components: C }) {
             {(() => {
               const m = content.background_media;
               const url = typeof m === 'string' ? m : m?.url;
-              const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || '')
-                || /\/video\/upload\//.test(url || '');
+              // Explizites type-Feld hat Vorrang: nicht jede Cloudinary-
+              // Video-URL trägt eine Dateiendung oder /video/upload/.
+              const isVideo =
+                (typeof m === 'object' && m?.type === 'video')
+                || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || '')
+                || /\/video\/upload\//.test(url || '')
+                || /res\.cloudinary\.com\/[^/]+\/video\//.test(url || '');
               return url && !isVideo ? (
                 <FocalPicker
                   image={url}

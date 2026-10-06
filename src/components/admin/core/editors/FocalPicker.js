@@ -23,7 +23,7 @@ const lbl = {
   color: 'rgba(255,255,255,0.5)', marginBottom: '0.4rem', display: 'block',
 };
 
-function Pane({ image, ratio, point, onSet, label }) {
+function Pane({ image, ratio, point, onSet, label, onBroken }) {
   const pick = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
     onSet({
@@ -39,6 +39,7 @@ function Pane({ image, ratio, point, onSet, label }) {
         <img
           src={image}
           alt=""
+          onError={onBroken}
           style={{
             width: '100%', height: '100%', objectFit: 'cover',
             objectPosition: toCss(p), display: 'block',
@@ -58,8 +59,11 @@ function Pane({ image, ratio, point, onSet, label }) {
 export default function FocalPicker({ image, value, onChange }) {
   const initial = parseFocal(value);
   const [focal, setFocal] = useState(initial);
+  // Lädt die Quelle nicht als Bild (etwa weil es doch ein Video ist),
+  // verschwindet der Picker, statt einen kaputten Platzhalter zu zeigen.
+  const [broken, setBroken] = useState(false);
 
-  if (!image) return null;
+  if (!image || broken) return null;
 
   const push = (next) => { setFocal(next); onChange(next); };
 
@@ -71,12 +75,14 @@ export default function FocalPicker({ image, value, onChange }) {
       <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}>
         <Pane
           image={image} ratio="16 / 9" label="Desktop"
+          onBroken={() => setBroken(true)}
           point={focal.desktop}
           onSet={p => push({ ...focal, desktop: p })}
         />
         <div style={{ width: '38%', maxWidth: '150px' }}>
           <Pane
             image={image} ratio="9 / 16" label="Mobile"
+            onBroken={() => setBroken(true)}
             point={focal.mobile || focal.desktop}
             onSet={p => push({ ...focal, mobile: p })}
           />
