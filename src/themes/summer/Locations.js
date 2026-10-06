@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -207,7 +208,7 @@ function Locations() {
                   )}
 
                   <TextBlock $v={v} $delay={i * 0.1}>
-                    {loc.type && <Type>{loc.type}</Type>}
+                    {loc.type && <Type>{locationTypeLabel(loc.type)}</Type>}
                     <LocName>{loc.name}</LocName>
                     {addr && <Addr>{addr}</Addr>}
                     {loc.description && <Desc>{loc.description}</Desc>}

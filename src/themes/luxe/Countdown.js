@@ -1,5 +1,6 @@
 // Luxe Countdown - Elegant Dark with Gold Accents
 import React, { useState, useEffect, useRef } from 'react';
+import { getCountdownTarget } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -105,7 +106,7 @@ function Countdown() {
   const { content, project } = useWedding();
   const countdownData = content?.countdown || {};
   const title = countdownData.title || 'Der grosse Tag';
-  const targetDate = countdownData.target_date || project?.wedding_date || '2025-09-21';
+  const targetDate = getCountdownTarget(countdownData, project?.wedding_date);
   const showSeconds = countdownData.show_seconds !== false;
   
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -120,7 +121,7 @@ function Countdown() {
 
   useEffect(() => {
     const calculate = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
+      const diff = targetDate ? targetDate.getTime() - Date.now() : 0;
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -135,7 +136,7 @@ function Countdown() {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', {
+  const formattedDate = (targetDate || new Date()).toLocaleDateString('de-DE', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 

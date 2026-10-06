@@ -260,7 +260,7 @@ function ContactWitnesses() {
     <Section id="witnesses" ref={sectionRef}>
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Eure Ansprechpartner</Eyebrow>
+          <Eyebrow $visible={visible}>Ansprechpartner:innen</Eyebrow>
           <Title $visible={visible}>{title}</Title>
           <Description $visible={visible}>{description}</Description>
         </Header>

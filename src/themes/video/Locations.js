@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
@@ -89,7 +90,7 @@ function Locations() {
             <Card key={i} $visible={visible} $index={i}>
               {loc.image && <CardImage $image={optimizedUrl.card(loc.image)} />}
               <CardContent>
-                <TypeBadge>{loc.type}</TypeBadge>
+                <TypeBadge>{locationTypeLabel(loc.type)}</TypeBadge>
                 <CardTitle>{loc.name}</CardTitle>
                 <CardAddress>{loc.address}</CardAddress>
                 <CardTime>{loc.time}</CardTime>

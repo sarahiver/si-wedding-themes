@@ -1,5 +1,6 @@
 // Countdown.js - Neon Theme (Supabase integrated)
 import React, { useState, useEffect, useRef } from 'react';
+import { getCountdownTarget } from '../../lib/displayLabels';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -318,7 +319,7 @@ function Countdown() {
   const { content, weddingDate } = useWedding();
   const countdown = content?.countdown || {};
 
-  const targetDate = countdown.target_date || weddingDate || '2026-08-15T14:00:00';
+  const targetDate = getCountdownTarget(countdown, weddingDate);
   const showSeconds = countdown.show_seconds !== false;
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -340,7 +341,7 @@ function Countdown() {
 
   useEffect(() => {
     const calculateTime = () => {
-      const target = new Date(targetDate).getTime();
+      const target = targetDate ? targetDate.getTime() : 0;
       const now = new Date().getTime();
       const diff = target - now;
 

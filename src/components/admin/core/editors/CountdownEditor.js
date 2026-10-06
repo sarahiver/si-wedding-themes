@@ -42,6 +42,22 @@ function CountdownEditor({ components: C }) {
             </span>
           )}
         </C.FormGroup>
+
+        {/* Optional: Ist eine Uhrzeit gesetzt, zählt der Countdown auf diese
+            Uhrzeit herunter. Ohne Uhrzeit auf den Beginn des Tages. */}
+        <C.FormGroup>
+          <C.Label>Uhrzeit (optional)</C.Label>
+          <C.Input
+            type="time"
+            value={content.target_time || ''}
+            onChange={(e) => update('target_time', e.target.value)}
+          />
+          <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.4))', marginTop: '0.25rem', display: 'block' }}>
+            {content.target_time
+              ? `Countdown läuft auf ${content.target_time} Uhr.`
+              : 'Ohne Uhrzeit zählt der Countdown auf den Tag.'}
+          </span>
+        </C.FormGroup>
         
         {!hidden('show_seconds') && (
         <C.FormGroup>

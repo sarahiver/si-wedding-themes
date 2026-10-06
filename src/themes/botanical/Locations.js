@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
@@ -271,7 +272,7 @@ function Locations() {
   const mappedLocations = locations.map(loc => ({
     icon: loc.icon || '📍',
     title: loc.name || loc.title || '',
-    subtitle: loc.type || loc.subtitle || '',
+    subtitle: locationTypeLabel(loc.type) || loc.subtitle || '',
     address: loc.address || '',
     image: loc.image || '',
     mapsUrl: loc.maps_url || loc.mapsUrl || '',

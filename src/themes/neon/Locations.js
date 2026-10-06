@@ -1,4 +1,5 @@
 import { useWedding } from '../../context/WeddingContext';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
 import { optimizedUrl } from '../../lib/cloudinary';
 // src/components/Locations.js - Neon Theme
@@ -405,7 +406,7 @@ function Locations() {
   // Map from editor format to neon format
   const locations = locationsData.locations?.length > 0
     ? locationsData.locations.map((loc, i) => ({
-        type: loc.type || 'Location',
+        type: locationTypeLabel(loc.type) || 'Location',
         name: loc.name,
         description: loc.description || '',
         time: loc.time || '',

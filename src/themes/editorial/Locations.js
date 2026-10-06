@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
@@ -458,7 +459,7 @@ function Locations() {
                   <ImageFrame $visible={isVisible}>
                     {loc.image && <img src={optimizedUrl.card(loc.image)} alt={loc.name} />}
                   </ImageFrame>
-                  <TypeBadge>{loc.type}</TypeBadge>
+                  <TypeBadge>{locationTypeLabel(loc.type)}</TypeBadge>
                   {loc.time && <TimeBadge>{loc.time}</TimeBadge>}
                 </ImageSection>
                 

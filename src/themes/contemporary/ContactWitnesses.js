@@ -146,7 +146,7 @@ function ContactWitnesses() {
     <Section id="witnesses">
       <Container>
         <Header>
-          <Eyebrow>💬 Eure Ansprechpartner</Eyebrow>
+          <Eyebrow>💬 Ansprechpartner:innen</Eyebrow>
           <Title>{title}</Title>
           <Subtitle>{subtitle}</Subtitle>
         </Header>

@@ -40,7 +40,7 @@ function ContactWitnesses() {
   return (
     <SectionWrapper id="witnesses">
       <Content ref={sectionRef}>
-        <Eyebrow $visible={visible}>Ansprechpartner</Eyebrow>
+        <Eyebrow $visible={visible}>Ansprechpartner:innen</Eyebrow>
         <Title $visible={visible}>{title}</Title>
         <Grid>
           {persons.map((person, i) => (

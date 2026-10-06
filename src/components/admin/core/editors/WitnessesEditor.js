@@ -75,7 +75,7 @@ function WitnessesEditor({ components: C }) {
           <C.Input
             value={content.title || ''}
             onChange={(e) => update('title', e.target.value)}
-            placeholder="Eure Ansprechpartner"
+            placeholder="Ansprechpartner:innen"
           />
         </C.FormGroup>
 

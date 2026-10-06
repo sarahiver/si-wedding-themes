@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getCountdownTarget } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -185,7 +186,8 @@ function Countdown() {
     if (!weddingDate) return;
     
     const calculateTimeLeft = () => {
-      const targetDate = new Date(weddingDate);
+      const targetDate = getCountdownTarget(content?.countdown || {}, weddingDate);
+      if (!targetDate) return;
       const now = new Date();
       const diff = targetDate.getTime() - now.getTime();
       

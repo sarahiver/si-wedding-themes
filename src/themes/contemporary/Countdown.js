@@ -1,5 +1,6 @@
 // Contemporary Countdown - Mit Progress Bars, ausbalanciert
 import React, { useState, useEffect, useRef } from 'react';
+import { getCountdownTarget } from '../../lib/displayLabels';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -177,7 +178,7 @@ function Countdown() {
   const countdownData = content?.countdown || {};
   
   const title = countdownData.title || 'Countdown';
-  const targetDate = countdownData.target_date || project?.wedding_date || '2025-08-15';
+  const targetDate = getCountdownTarget(countdownData, project?.wedding_date);
   const startDate = '2026-01-01';
   const showSeconds = countdownData.show_seconds !== false;
   
@@ -197,7 +198,7 @@ function Countdown() {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const target = new Date(targetDate).getTime();
+      const target = targetDate ? targetDate.getTime() : 0;
       const start = new Date(startDate).getTime();
       const now = new Date().getTime();
       const diff = target - now;

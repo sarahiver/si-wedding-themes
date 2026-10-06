@@ -1,5 +1,6 @@
 // Contemporary Locations - Colorful Cards
 import React, { useState, useEffect, useRef } from 'react';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
@@ -298,7 +299,7 @@ function Locations() {
               <CardHeader $index={index}>
                 <CardIcon>{location.icon || '📍'}</CardIcon>
                 <CardTitle $index={index}>{location.name}</CardTitle>
-                <CardType $index={index}>{location.type}</CardType>
+                <CardType $index={index}>{locationTypeLabel(location.type)}</CardType>
               </CardHeader>
               
               <CardBody>

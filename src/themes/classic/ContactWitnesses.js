@@ -32,14 +32,14 @@ function ContactWitnesses() {
     <S id="witnesses">
       <Wrap>
         <Hdr>
-          <Eye>Eure Ansprechpartner</Eye>
+          <Eye>Ansprechpartner:innen</Eye>
           <Title>{c.title || 'Trauzeugen'}</Title>
         </Hdr>
         <Grid>
           {w.map((p,i) => (
             <Card key={i}>
               <Av src={p.image ? optimizedUrl.avatar(p.image) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name||'')}&size=200&background=F5F0EB&color=555`} alt={p.name||''} />
-              <CN>{p.name || 'Ansprechpartner'}</CN>
+              <CN>{p.name || 'Ansprechpartner:in'}</CN>
               <Role>{p.role||p.rolle}</Role>
               {p.phone&&<Ph href={`tel:${p.phone.replace(/\s/g,'')}`}>📞 Anrufen</Ph>}
               {p.email&&<Ph href={`mailto:${p.email}`}>📧 E-Mail</Ph>}

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { downloadLocationsPDF } from '../../lib/locationsPdf';
+import { locationTypeLabel } from '../../lib/displayLabels';
 import { optimizedUrl } from '../../lib/cloudinary';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); }`;
@@ -49,7 +50,7 @@ const CardTime = styled.p`font-family: var(--font-body); font-size: 0.75rem; let
 const ExportSection = styled.div`margin-top: 1.5rem; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: 0.2s;`;
 const ExportButton = styled.button`display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem; background: transparent; border: 1px solid var(--luxe-gold); font-family: var(--font-body); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--luxe-gold); cursor: pointer; transition: all 0.3s ease; &:hover { background: var(--luxe-gold); color: var(--luxe-void); }`;
 
-const typeLabels = { ceremony: 'Trauung', reception: 'Empfang', party: 'Feier' };
+// Typ-Labels liegen zentral in lib/displayLabels.js
 
 function Locations() {
   const { content, project } = useWedding();
@@ -71,7 +72,6 @@ function Locations() {
     if (typeof img === 'string') return img;
     return img.url || img.secure_url || img.src || '';
   };
-  const getTypeLabel = (type) => typeLabels[type] || type || '';
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -102,7 +102,7 @@ function Locations() {
                 <ImageSection><Image $image={optimizedUrl.card(imageUrl)} $visible={visible} $delay={`${0.2 + i * 0.2}s`} /></ImageSection>
               )}
               <ContentSection $visible={visible} $delay={`${0.3 + i * 0.2}s`}>
-                <TypeBadge>{getTypeLabel(loc.type)}</TypeBadge>
+                <TypeBadge>{locationTypeLabel(loc.type)}</TypeBadge>
                 <CardTitle>{loc.name}</CardTitle>
                 <CardAddress>{loc.address}</CardAddress>
                 {loc.time && <CardTime>{loc.time}</CardTime>}

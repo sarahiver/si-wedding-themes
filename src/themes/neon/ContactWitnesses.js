@@ -316,7 +316,7 @@ function ContactWitnesses() {
 
   const getWhatsAppNumber = (witness) => (witness.whatsapp || witness.phone || '').replace(/\D/g, '');
 
-  const note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner!';
+  const note = 'Bei Fragen zur Hochzeit, Überraschungen oder Geschenkideen sind wir eure Ansprechpartner:innen!';
 
   return (
     <Section ref={sectionRef} id="witnesses">

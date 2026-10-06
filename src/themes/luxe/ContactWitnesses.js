@@ -56,7 +56,7 @@ function ContactWitnesses() {
   return (
     <Section ref={sectionRef} id="witnesses">
       <Container>
-        <Header><Eyebrow $visible={visible}>Ansprechpartner</Eyebrow><Title $visible={visible}>{title}</Title></Header>
+        <Header><Eyebrow $visible={visible}>Ansprechpartner:innen</Eyebrow><Title $visible={visible}>{title}</Title></Header>
         <Grid>
           {persons.map((person, i) => (
             <Card key={i} $visible={visible} $index={i}>

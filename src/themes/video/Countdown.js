@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getCountdownTarget } from '../../lib/displayLabels';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import SectionWrapper from './SectionWrapper';
@@ -19,7 +20,7 @@ function Countdown() {
   const { content, project } = useWedding();
   const data = content?.countdown || {};
   const title = data.title || 'Der grosse Tag';
-  const targetDate = data.target_date || project?.wedding_date || '2025-06-21';
+  const targetDate = getCountdownTarget(data, project?.wedding_date);
   const showSeconds = data.show_seconds !== false;
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [visible, setVisible] = useState(false);
@@ -33,7 +34,7 @@ function Countdown() {
 
   useEffect(() => {
     const calc = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
+      const diff = targetDate ? targetDate.getTime() - Date.now() : 0;
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -48,7 +49,7 @@ function Countdown() {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const formattedDate = new Date(targetDate).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedDate = (targetDate || new Date()).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const units = [
     { value: timeLeft.days, label: 'Tage' },
     { value: timeLeft.hours, label: 'Stunden' },
