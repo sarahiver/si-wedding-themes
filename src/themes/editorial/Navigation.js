@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Monogram from '../../components/shared/Monogram';
+import Monogram, { monogramUrl } from '../../components/shared/Monogram';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -240,7 +240,7 @@ function Navigation() {
   const names = coupleNames?.split(/\s*[&+]\s*/) || ['Braut', 'Bräutigam'];
   const logoText = `${names[0]?.charAt(0) || 'B'} & ${names[1]?.charAt(0) || 'B'}`;
   // Im Dashboard unter Design umschaltbar; ohne Eintrag bleiben die Initialen.
-  const useMonogram = Boolean(project?.use_monogram);
+  const monogram = monogramUrl(project);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -308,8 +308,8 @@ function Navigation() {
             Dashboard aktiviert ist. Die Farbe erbt es über currentColor
             vom Logo-Element, also aus der gewählten Akzentfarbe. */}
         <Logo href="#top" onClick={(e) => handleLinkClick(e, 'top')} aria-label={logoText}>
-          {useMonogram
-            ? <Monogram size="2.1em" title={logoText} />
+          {monogram
+            ? <Monogram project={project} size="2.1em" title={logoText} />
             : logoText}
         </Logo>
         

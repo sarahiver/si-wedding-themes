@@ -1,5 +1,6 @@
 // Luxe Navigation - Minimal Dark with Fullscreen Menu
 import React, { useState, useEffect } from 'react';
+import Monogram, { monogramUrl } from '../../components/shared/Monogram';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -188,7 +189,11 @@ function Navigation() {
   return (
     <>
       <Nav $menuOpen={menuOpen}>
-        <Logo href="#hero" onClick={(e) => handleClick(e, 'hero')}>{name1[0]} & {name2[0]}</Logo>
+        <Logo href="#hero" onClick={(e) => handleClick(e, 'hero')} aria-label={`${name1[0]} & ${name2[0]}`}>
+          {monogramUrl(project)
+            ? <Monogram project={project} size="2em" />
+            : <>{name1[0]} & {name2[0]}</>}
+        </Logo>
         <MenuToggle onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
           <MenuLine $open={menuOpen} />
           <MenuLine $open={menuOpen} />

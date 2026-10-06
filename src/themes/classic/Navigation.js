@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Monogram, { monogramUrl } from '../../components/shared/Monogram';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -92,7 +93,9 @@ function Navigation() {
   return (
     <>
       <Nav>
-        <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#top')}>{cn}</Logo>
+        <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#top')} aria-label={cn}>
+          {monogramUrl(project) ? <Monogram project={project} size="2em" /> : cn}
+        </Logo>
         <Links $dark={dark}>
           {navItems.map(item => (
             <a key={item.id} href={item.href} onClick={e => scrollTo(e, item.href)}>{item.label}</a>

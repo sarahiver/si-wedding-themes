@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Monogram, { monogramUrl } from '../../components/shared/Monogram';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -163,7 +164,7 @@ function Navigation() {
     <>
       <Nav $solid={solid || mobileOpen}>
         <Logo $light={isLight} href="#" onClick={e => scrollTo(e, '#top')}>
-          {cn}
+          {monogramUrl(project) ? <Monogram project={project} size="1.8em" /> : cn}
         </Logo>
         <BurgerBtn
           $light={isLight}
@@ -176,7 +177,7 @@ function Navigation() {
       </Nav>
 
       <Overlay $open={mobileOpen}>
-        <OverlayLogo $open={mobileOpen}>{cn}</OverlayLogo>
+        <OverlayLogo $open={mobileOpen}>{monogramUrl(project) ? <Monogram project={project} size="1.8em" /> : cn}</OverlayLogo>
         <OverlayDivider />
         {navItems.map((item, i) => (
           <NavItem
