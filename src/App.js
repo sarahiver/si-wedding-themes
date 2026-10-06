@@ -4,6 +4,7 @@
 // NEW: Password protection support
 
 import React, { Suspense, lazy, useState, useEffect, Component } from 'react';
+import { resolveSlugFromHost, isPlatformHost } from './lib/customDomain';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 import { checkPasswordRequired } from './lib/supabase';
@@ -431,8 +432,56 @@ function LandingPage() {
   );
 }
 
+// Projekt unter eigener Domain: der Slug kommt nicht aus dem Pfad, sondern
+// aus der Domain. /admin, /save-the-date und /archive funktionieren dadurch
+// ohne Slug davor — genauso wie unter siwedding.de/<slug>/admin.
+function CustomDomainApp({ slug }) {
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', 'noindex, nofollow');
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <WeddingProvider slug={slug}>
+        <ThemeRouter />
+      </WeddingProvider>
+    </ErrorBoundary>
+  );
+}
+
 // Main App
 function App() {
+  // null = noch nicht geprüft, false = Plattform-Domain, string = Projekt-Slug
+  const [domainSlug, setDomainSlug] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveSlugFromHost()
+      .then(slug => { if (!cancelled) setDomainSlug(slug || false); })
+      .catch(() => { if (!cancelled) setDomainSlug(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Kurzer leerer Zustand, bis die Zuordnung steht. Ohne das würde unter
+  // einer Custom Domain für einen Moment die Landingpage aufblitzen.
+  if (domainSlug === null && !isPlatformHost()) {
+    return <div style={{ minHeight: '100vh', background: '#fff' }} />;
+  }
+
+  if (domainSlug) {
+    return (
+      <Router>
+        <CustomDomainApp slug={domainSlug} />
+      </Router>
+    );
+  }
+
   return (
     <Router>
       <Routes>
