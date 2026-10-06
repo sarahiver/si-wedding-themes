@@ -3,6 +3,7 @@ import React from 'react';
 import { useAdmin } from '../AdminContext';
 import { useHiddenFields } from './themeFieldConfig';
 import ImageUploader from './ImageUploader';
+import FocalPicker from './FocalPicker';
 import MediaUploader from './MediaUploader';
 
 function RSVPEditor({ components: C }) {
@@ -55,7 +56,16 @@ function RSVPEditor({ components: C }) {
           <C.SectionLabel>Hintergrundbild</C.SectionLabel>
         )}
         {isClassic && !hidden('background_image') && (
-          <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+          <>
+            <ImageUploader components={C} image={content.background_image} onUpload={(url) => update('background_image', url)} folder={`${baseFolder}/rsvp`} label="Hintergrund" helpText="Video oder Bild hinter dem RSVP-Formular" />
+            {content.background_image && (
+              <FocalPicker
+                image={content.background_image}
+                value={content.background_focal}
+                onChange={(v) => update('background_focal', v)}
+              />
+            )}
+          </>
         )}
 
         {isEditorial && !hidden('background_media') && (
@@ -72,6 +82,20 @@ function RSVPEditor({ components: C }) {
               allowVideo={true}
             />
             <C.HelpText>Leer lassen für das Standard-Video. Wird schwarz-weiß dargestellt.</C.HelpText>
+            {/* Nur bei Bildern: ein Video lässt sich nicht sinnvoll zuschneiden */}
+            {(() => {
+              const m = content.background_media;
+              const url = typeof m === 'string' ? m : m?.url;
+              const isVideo = /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url || '')
+                || /\/video\/upload\//.test(url || '');
+              return url && !isVideo ? (
+                <FocalPicker
+                  image={url}
+                  value={content.background_focal}
+                  onChange={(v) => update('background_focal', v)}
+                />
+              ) : null;
+            })()}
           </>
         )}
 

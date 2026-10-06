@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { focalCss } from '../../lib/focalPoint';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
@@ -9,8 +10,11 @@ function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);u
 const S = styled.section`position:relative;overflow:hidden;min-height:100vh;
   display:flex;align-items:center;justify-content:center;
   padding:clamp(6rem,12vh,10rem) clamp(2rem,5vw,5rem);`;
+// object-position aus dem Fokuspunkt; ohne Angabe bleibt es die Bildmitte
 const BgV = styled.div`position:absolute;inset:0;z-index:0;background:#1a1a1a;
-  img{width:100%;height:100%;object-fit:cover;filter:grayscale(30%) brightness(0.35);}`;
+  img{width:100%;height:100%;object-fit:cover;object-position:${p=>p.$focal?.desktop||'center'};
+      filter:grayscale(30%) brightness(0.35);}
+  @media(max-width:768px){img{object-position:${p=>p.$focal?.mobile||'center'};}}`;
 const Card = styled.div`position:relative;z-index:2;
   background:var(--c-white,#fff);border:8px solid white;
   box-shadow:0 30px 80px rgba(0,0,0,0.25);
@@ -87,12 +91,12 @@ function RSVP(){
   const showDetails = attending !== 'no' && attending !== false;
 
   if(submitted)return(
-    <S id="rsvp"><BgV>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
+    <S id="rsvp"><BgV $focal={focalCss(r.background_focal)}>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
     <Card $v={true} ref={ref}><SuccT>Vielen Dank!</SuccT><SuccP>{attending===true?'Wir freuen uns auf euch!':'Schade – wir werden euch vermissen.'}</SuccP></Card></S>);
 
   return(
     <S id="rsvp">
-      <BgV>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
+      <BgV $focal={focalCss(r.background_focal)}>{bgImage&&<img src={optimizedUrl.hero(bgImage)} alt=""/>}</BgV>
       <Card $v={v} ref={ref}>
         <Eye>wir freuen uns auf euch</Eye>
         <H2>{r.title||'RSVP'}</H2>
