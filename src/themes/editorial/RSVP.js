@@ -2,6 +2,7 @@ import { focalCss } from '../../lib/focalPoint';
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { optimizedUrl } from '../../lib/cloudinary';
 import { useRSVP } from '../../components/shared/RSVPCore';
 
 // ============================================
@@ -53,6 +54,8 @@ const VideoBackground = styled.div`
     object-fit: cover;
     /* Fokuspunkt getrennt für Desktop und Mobile */
     object-position: ${p => p.$focal?.desktop || 'center'};
+    /* Zoom: 'cover' plus Faktor aus dem Zuschnitt-Regler */
+    ${p => p.$focal?.desktopSize && p.$focal.desktopSize !== 'cover' && `width: ${p.$focal.desktopSize}; height: ${p.$focal.desktopSize};`}
     filter: grayscale(100%);
   }
 
@@ -474,8 +477,10 @@ function RSVP() {
   return (
     <Section id="rsvp" ref={sectionRef}>
       <VideoBackground $focal={focalCss(rsvpData.background_focal)}>
+        {/* f_auto über optimizedUrl: ohne Umwandlung bleibt ein HEIC-Upload
+            auf dem Desktop unsichtbar */}
         {bgType === 'image' ? (
-          <img src={bgUrl} alt="" />
+          <img src={optimizedUrl.hero(bgUrl)} alt="" />
         ) : (
           <video key={bgUrl} autoPlay muted loop playsInline>
             <source src={bgUrl} />

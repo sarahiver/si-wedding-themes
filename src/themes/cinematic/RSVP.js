@@ -17,10 +17,12 @@ const Media = styled.div`
   background-image: url(${p => p.$src});
   background-size: cover;
   background-position: ${p => p.$focal?.desktop || 'center'};
+  background-size: ${p => p.$focal?.desktopSize || 'cover'};
   opacity: 0.3;
 
   @media (max-width: 768px) {
     background-position: ${p => p.$focal?.mobile || 'center'};
+    background-size: ${p => p.$focal?.mobileSize || 'cover'};
   }
   ${p => p.$shown && driftLayer}
 `;
@@ -219,7 +221,7 @@ const RSVP = () => {
     <MotionSection id="rsvp" tone="void" noRule>
       {shown => (
         <>
-          {bg && <Media $src={bg} $focal={focalCss(data.background_focal)} $shown={shown} aria-hidden="true" />}
+          {bg && <Media $src={optimizedUrl.hero(bg)} $focal={focalCss(data.background_focal)} $shown={shown} aria-hidden="true" />}
           <Scrim aria-hidden="true" />
           <Inner>
             <Title $shown={shown}>
