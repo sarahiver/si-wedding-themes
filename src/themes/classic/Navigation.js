@@ -94,7 +94,7 @@ function Navigation() {
     <>
       <Nav>
         <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#top')} aria-label={cn}>
-          {monogramUrl(project) ? <Monogram project={project} size="2em" /> : cn}
+          {monogramUrl(project) ? <Monogram project={project} size="clamp(2.4rem, 3.6vw, 3.2rem)" /> : cn}
         </Logo>
         <Links $dark={dark}>
           {navItems.map(item => (

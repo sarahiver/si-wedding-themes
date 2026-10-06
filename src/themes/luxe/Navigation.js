@@ -191,7 +191,7 @@ function Navigation() {
       <Nav $menuOpen={menuOpen}>
         <Logo href="#hero" onClick={(e) => handleClick(e, 'hero')} aria-label={`${name1[0]} & ${name2[0]}`}>
           {monogramUrl(project)
-            ? <Monogram project={project} size="2em" />
+            ? <Monogram project={project} size="clamp(2.4rem, 3.6vw, 3.2rem)" />
             : <>{name1[0]} & {name2[0]}</>}
         </Logo>
         <MenuToggle onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">

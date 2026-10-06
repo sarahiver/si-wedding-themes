@@ -12,8 +12,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+// Größe bewusst in rem, nicht in em: em würde gegen die Schriftgröße des
+// Logos rechnen (ca. 1,3 rem) und die Grafik auf Textgröße schrumpfen.
 const MaskedMark = styled.span`
   display: inline-block;
+  flex-shrink: 0;
   width: ${p => p.$size};
   height: ${p => p.$size};
   background-color: currentColor;
@@ -32,7 +35,7 @@ const MaskedMark = styled.span`
 export const monogramUrl = (project) =>
   project?.custom_styles?.monogram_url || '';
 
-const Monogram = ({ project, src, size = '2em', title = 'Monogramm' }) => {
+const Monogram = ({ project, src, size = 'clamp(2.4rem, 4vw, 3.4rem)', title = 'Monogramm' }) => {
   const url = src || monogramUrl(project);
   if (!url) return null;
   return <MaskedMark $src={url} $size={size} role="img" aria-label={title} />;
