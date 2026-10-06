@@ -6,6 +6,7 @@
 // wird, statt es im Nachhinein zu entdecken.
 import React, { useState } from 'react';
 import { parseFocal, toCss, CENTER } from '../../../../lib/focalPoint';
+import { optimizedUrl } from '../../../../lib/cloudinary';
 
 const box = {
   position: 'relative', overflow: 'hidden', cursor: 'crosshair',
@@ -65,6 +66,9 @@ export default function FocalPicker({ image, value, onChange }) {
 
   if (!image || broken) return null;
 
+  // f_auto: sonst bleibt ein HEIC-Upload außerhalb von Safari unsichtbar
+  const preview = optimizedUrl.preview(image);
+
   const push = (next) => { setFocal(next); onChange(next); };
 
   return (
@@ -74,14 +78,14 @@ export default function FocalPicker({ image, value, onChange }) {
       </span>
       <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}>
         <Pane
-          image={image} ratio="16 / 9" label="Desktop"
+          image={preview} ratio="16 / 9" label="Desktop"
           onBroken={() => setBroken(true)}
           point={focal.desktop}
           onSet={p => push({ ...focal, desktop: p })}
         />
         <div style={{ width: '38%', maxWidth: '150px' }}>
           <Pane
-            image={image} ratio="9 / 16" label="Mobile"
+            image={preview} ratio="9 / 16" label="Mobile"
             onBroken={() => setBroken(true)}
             point={focal.mobile || focal.desktop}
             onSet={p => push({ ...focal, mobile: p })}

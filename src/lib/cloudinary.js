@@ -99,6 +99,14 @@ export function getOptimizedUrl(url, options = {}) {
  */
 export const optimizedUrl = {
   hero: (url) => getOptimizedUrl(url, { width: 1920 }),
+  // Für Vorschauen im Dashboard: nur Format und Qualität, KEIN Zuschnitt.
+  // Wichtig für HEIC (iPhone-Fotos) — ohne f_auto liefert Cloudinary das
+  // Original aus, und außer Safari kann es kein Browser anzeigen.
+  preview: (url) => {
+    if (!url || !url.includes('cloudinary')) return url;
+    if (url.includes('f_auto')) return url;
+    return url.replace('/upload/', '/upload/f_auto,q_auto,w_1200/');
+  },
   card: (url) => getOptimizedUrl(url, { width: 800 }),
   thumb: (url) => getOptimizedUrl(url, { width: 400 }),
   avatar: (url) => getOptimizedUrl(url, { width: 200 }),

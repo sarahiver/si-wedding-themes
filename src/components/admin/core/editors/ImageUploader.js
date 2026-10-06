@@ -1,5 +1,6 @@
 // core/editors/ImageUploader.js - Reusable Image Upload Logic
 import React, { useState, useRef } from 'react';
+import { optimizedUrl } from '../../../../lib/cloudinary';
 import { useAdmin } from '../AdminContext';
 
 function ImageUploader({ 
@@ -77,7 +78,7 @@ function ImageUploader({
       <C.DropZone
         $dragging={dragging}
         $hasImage={!!image}
-        $image={image}
+        $image={optimizedUrl.preview(image)}
         $ratio={ratio}
         style={maxHeight ? { maxHeight, minHeight: maxHeight, aspectRatio: 'unset' } : {}}
         onDrop={handleDrop}

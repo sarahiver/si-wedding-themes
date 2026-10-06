@@ -1,5 +1,6 @@
 // core/editors/MediaUploader.js - Supports Image AND Video Upload
 import React, { useState, useRef } from 'react';
+import { optimizedUrl } from '../../../../lib/cloudinary';
 import { useAdmin } from '../AdminContext';
 
 function MediaUploader({ 
@@ -18,8 +19,11 @@ function MediaUploader({
   const [progress, setProgress] = useState(0);
   const [mediaType, setMediaType] = useState(media?.type || 'image');
   const inputRef = useRef(null);
+  const [uploadError, setUploadError] = useState('');
 
   const mediaUrl = typeof media === 'string' ? media : media?.url;
+  // Vorschau mit f_auto: HEIC-Uploads vom iPhone wären sonst unsichtbar.
+  const previewUrl = optimizedUrl.preview(mediaUrl);
   const currentType = typeof media === 'string' ? 'image' : (media?.type || 'image');
 
   const upload = async (file) => {
@@ -27,6 +31,15 @@ function MediaUploader({
     
     setUploading(true);
     setProgress(0);
+    setUploadError('');
+
+    // HEIC ist das Standardformat der iPhone-Kamera. Cloudinary nimmt es an,
+    // liefert es aber unverändert aus — außer Safari zeigt es kein Browser.
+    // Die Vorschau nutzt f_auto, deshalb funktioniert es trotzdem; der
+    // Hinweis erklärt nur, warum die Datei größer ist als erwartet.
+    if (/\.heic$/i.test(file.name) || file.type === 'image/heic') {
+      setUploadError('HEIC-Datei erkannt — wird automatisch umgewandelt. Für kleinere Dateien vorher als JPEG exportieren.');
+    }
     
     const isVideo = file.type.startsWith('video/');
     const uploadType = isVideo ? 'video' : 'image';
@@ -50,13 +63,22 @@ function MediaUploader({
       if (xhr.status === 200) {
         const data = JSON.parse(xhr.responseText);
         onUpload({ type: uploadType, url: data.secure_url });
+      } else {
+        // Vorher brach der Upload hier wortlos ab — die Oberfläche sah aus,
+        // als sei alles gespeichert worden.
+        let msg = `Upload fehlgeschlagen (${xhr.status})`;
+        try {
+          const err = JSON.parse(xhr.responseText);
+          if (err?.error?.message) msg = err.error.message;
+        } catch { /* Rohantwort unbrauchbar, Standardmeldung bleibt */ }
+        setUploadError(msg);
       }
       setUploading(false);
       setProgress(0);
     };
     
     xhr.onerror = () => {
-      console.error('Upload failed');
+      setUploadError('Netzwerkfehler beim Upload');
       setUploading(false);
       setProgress(0);
     };
@@ -111,7 +133,7 @@ function MediaUploader({
       <C.DropZone
         $dragging={dragging}
         $hasImage={!!mediaUrl}
-        $image={currentType === 'image' ? mediaUrl : null}
+        $image={currentType === 'image' ? previewUrl : null}
         $ratio={ratio}
         style={maxHeight ? { maxHeight, minHeight: maxHeight, aspectRatio: 'unset' } : {}}
         onDrop={handleDrop}
@@ -123,7 +145,7 @@ function MediaUploader({
           <>
             {currentType === 'video' && (
               <video 
-                src={mediaUrl} 
+                src={previewUrl} 
                 muted 
                 loop 
                 autoPlay 
@@ -165,6 +187,15 @@ function MediaUploader({
           style={{ display: 'none' }}
         />
       </C.DropZone>
+
+      {uploadError && (
+        <p style={{
+          marginTop: '0.5rem', fontSize: '0.75rem', lineHeight: 1.5,
+          color: uploadError.startsWith('HEIC') ? '#D8B468' : '#D98B8B',
+        }}>
+          {uploadError}
+        </p>
+      )}
       
       {allowVideo && (
         <C.HelpText style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#888' }}>
