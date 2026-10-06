@@ -20,13 +20,7 @@ function Crop({ image, ratio, point, onChange, label, hint }) {
   const p = point || CENTER;
   const zoom = p.zoom || 1;
 
-  // Je höher der Zoom, desto kleiner der Rahmen: bei zoom 2 ist später
-  // die Hälfte des Bildes zu sehen.
-  const fw = 100 / zoom;
-  const fh = 100 / zoom;
-  const clamp = (v, half) => Math.min(Math.max(v, half), 100 - half);
-  const cx = clamp(p.x, fw / 2);
-  const cy = clamp(p.y, fh / 2);
+  const clamp = (v) => Math.min(Math.max(v, 0), 100);
 
   const setFrom = (e) => {
     const box = boxRef.current;
@@ -36,8 +30,8 @@ function Crop({ image, ratio, point, onChange, label, hint }) {
     const py = e.touches ? e.touches[0].clientY : e.clientY;
     onChange({
       ...p,
-      x: Math.round(clamp(((px - r.left) / r.width) * 100, fw / 2)),
-      y: Math.round(clamp(((py - r.top) / r.height) * 100, fh / 2)),
+      x: Math.round(clamp(((px - r.left) / r.width) * 100)),
+      y: Math.round(clamp(((py - r.top) / r.height) * 100)),
     });
   };
 
@@ -61,6 +55,11 @@ function Crop({ image, ratio, point, onChange, label, hint }) {
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
       <span style={lbl}>{label}</span>
+      {/* Die Vorschau nutzt exakt dieselben CSS-Regeln wie das Frontend:
+          background-position aus x/y, background-size aus dem Zoom. Dadurch
+          kann das Ergebnis gar nicht von der Vorschau abweichen. Vorher
+          hatte ich den Ausschnitt mit einem zweiten Bild nachgebaut — das
+          rechnete den Versatz falsch. */}
       <div
         ref={boxRef}
         onMouseDown={start}
@@ -70,42 +69,19 @@ function Crop({ image, ratio, point, onChange, label, hint }) {
           background: '#111', border: '1px solid rgba(255,255,255,0.14)',
           borderRadius: '6px', aspectRatio: ratio, userSelect: 'none',
           touchAction: 'none',
+          backgroundImage: `url(${image})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: `${p.x}% ${p.y}%`,
+          backgroundSize: zoom <= 1 ? 'cover' : `${zoom * 100}%`,
         }}
       >
-        {/* Vollbild abgedunkelt — so sieht man, was wegfällt */}
-        <img
-          src={image} alt="" draggable={false}
-          style={{
-            width: '100%', height: '100%', objectFit: 'cover',
-            display: 'block', opacity: 0.35, pointerEvents: 'none',
-          }}
-        />
-        {/* Der gewählte Ausschnitt, hell und mit Drittel-Linien */}
+        {/* Drittel-Linien als Gestaltungshilfe */}
         <div style={{
-          position: 'absolute',
-          left: `${cx - fw / 2}%`, top: `${cy - fh / 2}%`,
-          width: `${fw}%`, height: `${fh}%`,
-          overflow: 'hidden', pointerEvents: 'none',
-          boxShadow: '0 0 0 1px #fff, 0 0 0 9999px rgba(0,0,0,0.5)',
-        }}>
-          <img
-            src={image} alt="" draggable={false}
-            style={{
-              position: 'absolute',
-              left: `${-(cx - fw / 2) * (100 / fw)}%`,
-              top: `${-(cy - fh / 2) * (100 / fh)}%`,
-              width: `${100 / fw * 100}%`,
-              height: `${100 / fh * 100}%`,
-              objectFit: 'cover',
-            }}
-          />
-          <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage:
-              'linear-gradient(to right, transparent 33.2%, rgba(255,255,255,0.18) 33.2%, rgba(255,255,255,0.18) 33.5%, transparent 33.5%, transparent 66.2%, rgba(255,255,255,0.18) 66.2%, rgba(255,255,255,0.18) 66.5%, transparent 66.5%),'
-              + 'linear-gradient(to bottom, transparent 33.2%, rgba(255,255,255,0.18) 33.2%, rgba(255,255,255,0.18) 33.5%, transparent 33.5%, transparent 66.2%, rgba(255,255,255,0.18) 66.2%, rgba(255,255,255,0.18) 66.5%, transparent 66.5%)',
-          }} />
-        </div>
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage:
+            'linear-gradient(to right, transparent 33.2%, rgba(255,255,255,0.22) 33.2%, rgba(255,255,255,0.22) 33.5%, transparent 33.5%, transparent 66.2%, rgba(255,255,255,0.22) 66.2%, rgba(255,255,255,0.22) 66.5%, transparent 66.5%),'
+            + 'linear-gradient(to bottom, transparent 33.2%, rgba(255,255,255,0.22) 33.2%, rgba(255,255,255,0.22) 33.5%, transparent 33.5%, transparent 66.2%, rgba(255,255,255,0.22) 66.2%, rgba(255,255,255,0.22) 66.5%, transparent 66.5%)',
+        }} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.55rem' }}>
@@ -139,7 +115,7 @@ export default function FocalPicker({ image, value, onChange, desktopRatio = '16
   return (
     <div style={{ marginTop: '1rem' }}>
       <span style={{ ...lbl, marginBottom: '0.7rem' }}>
-        Bildausschnitt — Rahmen verschieben, Regler für die Nähe
+        Bildausschnitt — ins Bild klicken für die Position, Regler für die Nähe
       </span>
       <img src={preview} alt="" onError={() => setBroken(true)} style={{ display: 'none' }} />
 
