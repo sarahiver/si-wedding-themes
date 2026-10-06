@@ -23,6 +23,10 @@ const Media = styled.div`
   @media (max-width: 768px) {
     background-position: ${p => p.$focal?.mobile || 'center'};
     background-size: ${p => p.$focal?.mobileSize || 'cover'};
+
+    /* Bildband statt Vollfläche — siehe Kommentar im Editorial-RSVP */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 72%, transparent 100%);
   }
   ${p => p.$shown && driftLayer}
 `;

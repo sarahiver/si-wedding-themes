@@ -61,6 +61,35 @@ const VideoBackground = styled.div`
 
   @media (max-width: 768px) {
     video, img { object-position: ${p => p.$focal?.mobile || 'center'}; }
+
+    /* Auf dem Handy ist die Section rund 9:20 hoch. Ein Querformat-Foto
+       formatfüllend zu zeigen hieße, 80 % wegzuschneiden — egal wohin man
+       den Ausschnitt schiebt.
+       Stattdessen bleibt ein Band in der Mitte stehen und läuft nach oben
+       und unten in die dunkle Fläche aus. Der sichtbare Bereich hat damit
+       ein brauchbares Seitenverhältnis, und es gibt keine harte Kante. */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,0.35) 14%,
+      #000 30%,
+      #000 70%,
+      rgba(0,0,0,0.35) 86%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,0.35) 14%,
+      #000 30%,
+      #000 70%,
+      rgba(0,0,0,0.35) 86%,
+      transparent 100%
+    );
+
+    /* Der Verlauf übernimmt das Abdunkeln — das volle Overlay würde das
+       Bild sonst doppelt zudecken. */
+    &::after { background: rgba(0, 0, 0, 0.38); }
   }
 `;
 

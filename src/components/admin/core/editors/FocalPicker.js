@@ -22,25 +22,37 @@ function Crop({ image, ratio, point, onChange, label, hint }) {
 
   const clamp = (v) => Math.min(Math.max(v, 0), 100);
 
-  const setFrom = (e) => {
+  const coords = (e) => ({
+    x: e.touches ? e.touches[0].clientX : e.clientX,
+    y: e.touches ? e.touches[0].clientY : e.clientY,
+  });
+
+  // Relativ verschieben statt absolut setzen: Das Bild springt sonst bei
+  // jedem Klick an die Zeigerposition. Jetzt bewegt es sich nur um die
+  // zurückgelegte Strecke — wie das Verschieben einer Karte.
+  const pan = (e) => {
     const box = boxRef.current;
-    if (!box) return;
+    const from = dragging.current;
+    if (!box || !from) return;
+    const { x: px, y: py } = coords(e);
     const r = box.getBoundingClientRect();
-    const px = e.touches ? e.touches[0].clientX : e.clientX;
-    const py = e.touches ? e.touches[0].clientY : e.clientY;
+    // Umgekehrtes Vorzeichen: zieht man nach rechts, wandert der
+    // Bildinhalt nach rechts, der Ausschnitt also nach links.
+    const dx = ((px - from.px) / r.width) * 100 * -1;
+    const dy = ((py - from.py) / r.height) * 100 * -1;
     onChange({
       ...p,
-      x: Math.round(clamp(((px - r.left) / r.width) * 100)),
-      y: Math.round(clamp(((py - r.top) / r.height) * 100)),
+      x: Math.round(clamp(from.x + dx)),
+      y: Math.round(clamp(from.y + dy)),
     });
   };
 
   const start = (e) => {
-    dragging.current = true;
-    setFrom(e);
-    const move = (ev) => { if (dragging.current) { ev.preventDefault(); setFrom(ev); } };
+    const c = coords(e);
+    dragging.current = { px: c.x, py: c.y, x: p.x, y: p.y };
+    const move = (ev) => { if (dragging.current) { ev.preventDefault(); pan(ev); } };
     const end = () => {
-      dragging.current = false;
+      dragging.current = null;
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', end);
       window.removeEventListener('touchmove', move);
@@ -115,7 +127,7 @@ export default function FocalPicker({ image, value, onChange, desktopRatio = '16
   return (
     <div style={{ marginTop: '1rem' }}>
       <span style={{ ...lbl, marginBottom: '0.7rem' }}>
-        Bildausschnitt — ins Bild klicken für die Position, Regler für die Nähe
+        Bildausschnitt — Bild ziehen zum Verschieben, Regler für die Nähe
       </span>
       <img src={preview} alt="" onError={() => setBroken(true)} style={{ display: 'none' }} />
 
@@ -128,11 +140,14 @@ export default function FocalPicker({ image, value, onChange, desktopRatio = '16
           />
         </div>
         <div style={{ flex: '0 0 165px', maxWidth: '165px' }}>
+          {/* 4:5 statt 9:16: Auf dem Handy wird nicht die ganze Section
+              mit Bild gefüllt, sondern ein Band in der Mitte, das oben und
+              unten ausläuft. Die Vorschau zeigt dieses Band. */}
           <Crop
-            image={preview} ratio="9 / 16" label="Mobile"
+            image={preview} ratio="4 / 5" label="Mobile"
             point={focal.mobile || focal.desktop}
             onChange={pt => push({ ...focal, mobile: pt })}
-            hint="Eigener Ausschnitt fürs Handy"
+            hint="Sichtbares Band auf dem Handy — oben und unten läuft es aus"
           />
         </div>
       </div>
