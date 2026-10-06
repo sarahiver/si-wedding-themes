@@ -248,32 +248,42 @@ const Label = styled.label`
 const Input = styled.input`
   width: 100%;
   padding: 1rem 1.25rem;
-  background: var(--editorial-light-gray);
-  border: 2px solid transparent;
+  /* Halbtransparent statt deckend: Das Hintergrundbild bleibt sichtbar,
+     ohne dass die Felder an Lesbarkeit verlieren. Der dunkle Grund trägt
+     hellen Text, deshalb wechselt auch die Schriftfarbe. */
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   transition: all 0.3s ease;
   
   &:focus {
     outline: none;
     border-color: var(--editorial-red);
-    background: var(--editorial-white);
+    background: rgba(255, 255, 255, 0.16);
   }
   
   &::placeholder {
-    color: var(--editorial-gray);
+    color: rgba(255, 255, 255, 0.5);
   }
 `;
 
 const Select = styled.select`
   width: 100%;
   padding: 1rem 1.25rem;
-  background: var(--editorial-light-gray);
-  border: 2px solid transparent;
+  /* Halbtransparent statt deckend: Das Hintergrundbild bleibt sichtbar,
+     ohne dass die Felder an Lesbarkeit verlieren. Der dunkle Grund trägt
+     hellen Text, deshalb wechselt auch die Schriftfarbe. */
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   cursor: pointer;
   transition: all 0.3s ease;
   
@@ -281,16 +291,25 @@ const Select = styled.select`
     outline: none;
     border-color: var(--editorial-red);
   }
+
+  /* Das Auswahlmenü selbst wird vom Betriebssystem gezeichnet und erbt die
+     Transparenz nicht — ohne eigenen Grund stünde weiß auf weiß. */
+  option { background: #141416; color: #F2EFE9; }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
   padding: 1rem 1.25rem;
-  background: var(--editorial-light-gray);
-  border: 2px solid transparent;
+  /* Halbtransparent statt deckend: Das Hintergrundbild bleibt sichtbar,
+     ohne dass die Felder an Lesbarkeit verlieren. Der dunkle Grund trägt
+     hellen Text, deshalb wechselt auch die Schriftfarbe. */
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--editorial-black);
+  color: var(--editorial-white);
   min-height: 120px;
   resize: vertical;
   transition: all 0.3s ease;
@@ -298,7 +317,7 @@ const TextArea = styled.textarea`
   &:focus {
     outline: none;
     border-color: var(--editorial-red);
-    background: var(--editorial-white);
+    background: rgba(255, 255, 255, 0.16);
   }
 `;
 
