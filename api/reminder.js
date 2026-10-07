@@ -7,7 +7,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const SENDER_EMAIL = process.env.NOTIFICATION_SENDER_EMAIL || 'wedding@sarahiver.de';
 
-const { handleCors, requireAuth, applyRateLimit } = require('./lib/auth');
+const { handleCors, requireProjectAdmin, applyRateLimit } = require('./lib/auth');
 
 // ============================================
 // THEME EMAIL TEMPLATES
@@ -334,12 +334,13 @@ export default async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Auth required
-  const auth = requireAuth(req, res);
-  if (!auth) return;
+  // Admin-Token dieses Projekts erforderlich. Vorher konnte jedes gültige
+  // Token (auch Gäste) Mails mit eigenem Betreff/Text über fremde Projekte senden.
+  const owned = await requireProjectAdmin(req, res, req.body?.projectId);
+  if (!owned) return;
 
   // Rate limit: 15 req / 15 min per token email
-  if (applyRateLimit(res, `reminder:${auth.email}`, 15, 15 * 60 * 1000)) return;
+  if (applyRateLimit(res, `reminder:${owned.auth.email}`, 15, 15 * 60 * 1000)) return;
 
   try {
     const { projectId, guests, type, customSubject, customBody } = req.body;

@@ -8,24 +8,116 @@ import { notifyRSVP, notifyGuestbook, notifyMusicWish, notifyGiftReserved } from
 // API HELPER
 // ============================================
 
+// Zwei getrennte Tokens: Das Gäste-Token (Passwortseite) darf das
+// Admin-Token des Paars nicht überschreiben. Vorher teilten sich beide
+// `auth_token` — wer im selben Browser die eigene Hochzeitsseite mit dem
+// Gäste-Passwort öffnete, verlor die Schreibrechte im Dashboard.
+const GUEST_KEY = 'auth_token';
+const ADMIN_KEY = 'admin_token';
+const TOKEN_MAX_AGE = 24 * 60 * 60 * 1000; // muss zu api/lib/auth.js passen
+
+export const AUTH_EXPIRED_EVENT = 'si:auth-expired';
+
+function readStored(key) {
+  try {
+    return sessionStorage.getItem(key) || localStorage.getItem(key) || '';
+  } catch {
+    return '';
+  }
+}
+
+function writeStored(key, value) {
+  try {
+    sessionStorage.setItem(key, value);
+    localStorage.setItem(key, value);
+  } catch { /* Storage gesperrt */ }
+}
+
+function removeStored(key) {
+  try {
+    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
+  } catch { /* Storage gesperrt */ }
+}
+
+/** Liest den Payload eines Tokens (ohne Signaturprüfung — nur für UI-Zwecke). */
+export function decodeToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const [b64] = token.split('.');
+  if (!b64) return null;
+  try {
+    const norm = b64.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = norm + '='.repeat((4 - (norm.length % 4)) % 4);
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+function isExpired(payload) {
+  return !payload || !payload.iat || Date.now() - payload.iat > TOKEN_MAX_AGE;
+}
+
+/**
+ * Gültige Admin-Sitzung für diesen Slug?
+ * Gibt den Payload zurück oder null.
+ */
+export function getAdminSession(slug) {
+  // Migration: Admin-Tokens aus der Zeit vor der Trennung liegen noch in auth_token
+  if (!readStored(ADMIN_KEY)) {
+    const legacy = readStored(GUEST_KEY);
+    const lp = decodeToken(legacy);
+    if (lp && lp.email === `admin@${lp.slug}`) {
+      writeStored(ADMIN_KEY, legacy);
+      removeStored(GUEST_KEY);
+    }
+  }
+  const payload = decodeToken(readStored(ADMIN_KEY));
+  if (!payload || isExpired(payload)) return null;
+  if (slug && payload.slug !== slug) return null;
+  return payload;
+}
+
 function getToken() {
-  return sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token') || '';
+  const admin = readStored(ADMIN_KEY);
+  const adminPayload = decodeToken(admin);
+  if (admin && adminPayload && !isExpired(adminPayload)) return admin;
+  return readStored(GUEST_KEY);
 }
 
 export function setToken(token) {
-  sessionStorage.setItem('auth_token', token);
-  localStorage.setItem('auth_token', token);
+  const payload = decodeToken(token);
+  const isAdmin = payload && payload.email === `admin@${payload.slug}`;
+  writeStored(isAdmin ? ADMIN_KEY : GUEST_KEY, token);
 }
 
 export function clearToken() {
-  sessionStorage.removeItem('auth_token');
-  localStorage.removeItem('auth_token');
+  removeStored(ADMIN_KEY);
+  removeStored(GUEST_KEY);
 }
 
+export function clearAdminToken() {
+  removeStored(ADMIN_KEY);
+}
+
+// Kein Reload mehr: Der Reload hat ungespeicherte Eingaben im Dashboard
+// verworfen. Stattdessen meldet das AdminContext das Paar ab und zeigt
+// den Login — die Inhalte im Editor bleiben erhalten.
 function handleUnauthorized() {
-  clearToken();
-  sessionStorage.clear();
-  window.location.reload();
+  clearAdminToken();
+  try {
+    window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+  } catch { /* SSR / alter Browser */ }
+}
+
+/** Fehler immer als Objekt mit message — Aufrufer nutzen error.message. */
+function normalizeError(err, httpStatus) {
+  if (!err) return null;
+  const obj = typeof err === 'string'
+    ? { message: err, status: httpStatus }
+    : { message: err.message || 'Unbekannter Fehler', status: err.status || httpStatus, code: err.code || null };
+  obj.toString = function toString() { return this.message; };
+  return obj;
 }
 
 /**
@@ -43,7 +135,7 @@ export async function authFetch(url, options = {}) {
     },
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     handleUnauthorized();
   }
 
@@ -61,17 +153,31 @@ async function dbCall(action, params = {}) {
     body: JSON.stringify({ action, params }),
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     handleUnauthorized();
-    return { data: null, error: 'Unauthorized' };
+    return {
+      data: null,
+      error: normalizeError(
+        response.status === 401 ? 'Sitzung abgelaufen — bitte neu anmelden' : 'Keine Berechtigung für dieses Projekt',
+        response.status
+      ),
+    };
   }
+
+  const body = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const errData = await response.json().catch(() => ({ error: response.statusText }));
-    return { data: null, error: errData.error || 'Request failed' };
+    return {
+      ...(body && typeof body === 'object' ? body : {}),
+      data: body?.data ?? null,
+      error: normalizeError(body?.error || response.statusText || 'Request failed', response.status),
+    };
   }
 
-  return await response.json();
+  if (body && body.error && typeof body.error === 'object') {
+    body.error = normalizeError(body.error, response.status);
+  }
+  return body || { data: null, error: normalizeError('Leere Antwort', response.status) };
 }
 
 // ============================================

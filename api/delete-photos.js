@@ -9,7 +9,7 @@ const API_SECRET = process.env.CLOUDINARY_API_SECRET;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-const { handleCors, requireAuth, applyRateLimit } = require('./lib/auth');
+const { handleCors, requireProjectAdmin, applyRateLimit } = require('./lib/auth');
 
 // Projekt-Existenz über Supabase verifizieren
 async function verifyProject(projectId) {
@@ -35,12 +35,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Auth required
-  const auth = requireAuth(req, res);
-  if (!auth) return;
+  // Admin-Token dieses Projekts erforderlich (Gäste-Token → 403)
+  const owned = await requireProjectAdmin(req, res, req.body?.projectId);
+  if (!owned) return;
 
   // Rate limit: 20 req / 15 min per token email
-  if (applyRateLimit(res, `delete-photos:${auth.email}`, 20, 15 * 60 * 1000)) return;
+  if (applyRateLimit(res, `delete-photos:${owned.auth.email}`, 20, 15 * 60 * 1000)) return;
 
   if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
     console.error('Missing Cloudinary credentials:', { CLOUD_NAME: !!CLOUD_NAME, API_KEY: !!API_KEY, API_SECRET: !!API_SECRET });

@@ -105,6 +105,45 @@ function requireAuth(req, res) {
   return payload;
 }
 
+/**
+ * Token gehört zum Kunden-Dashboard dieses Projekts?
+ * Gäste- und Vorschau-Tokens (guest@slug, preview@slug) sind bewusst
+ * ausgeschlossen — das Gäste-Passwort kennt die ganze Hochzeitsgesellschaft.
+ */
+function isAdminToken(payload) {
+  return !!(payload && payload.slug && payload.email === `admin@${payload.slug}`);
+}
+
+/**
+ * Lädt das Projekt zum Token und prüft, ob projectId dazu passt.
+ * Sendet 403 und gibt null zurück, wenn nicht.
+ * @returns {Promise<{id: string, slug: string} | null>}
+ */
+async function requireProjectAdmin(req, res, projectId) {
+  const auth = requireAuth(req, res);
+  if (!auth) return null;
+
+  if (!isAdminToken(auth)) {
+    res.status(403).json({ error: 'Forbidden' });
+    return null;
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  const r = await fetch(
+    `${url}/rest/v1/projects?slug=eq.${encodeURIComponent(auth.slug)}&select=id,slug`,
+    { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+  );
+  const rows = r.ok ? await r.json() : [];
+  const project = rows?.[0] || null;
+
+  if (!project || (projectId && String(projectId) !== String(project.id))) {
+    res.status(403).json({ error: 'Forbidden' });
+    return null;
+  }
+  return { ...project, auth };
+}
+
 // ============================================
 // RATE LIMITING
 // ============================================
@@ -178,6 +217,8 @@ module.exports = {
   createToken,
   verifyToken,
   requireAuth,
+  isAdminToken,
+  requireProjectAdmin,
   checkRateLimit,
   applyRateLimit,
   getClientIP,

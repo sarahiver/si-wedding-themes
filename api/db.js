@@ -3,7 +3,7 @@
 // All frontend DB operations go through this endpoint.
 // Token-auth required. Action whitelist — no generic query access.
 
-const { handleCors, requireAuth, applyRateLimit, getClientIP, createToken } = require('./lib/auth');
+const { handleCors, requireProjectAdmin, applyRateLimit, getClientIP, createToken } = require('./lib/auth');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -32,7 +32,14 @@ async function supabaseRest(method, table, query = '', body = null, headers = {}
   if (!response.ok) {
     const errText = await response.text();
     console.error(`[db] ${method} ${table} failed:`, errText);
-    return { data: null, error: { message: errText, status: response.status } };
+    let code = null;
+    let message = errText;
+    try {
+      const parsed = JSON.parse(errText);
+      code = parsed.code || null;
+      message = parsed.message || errText;
+    } catch { /* kein JSON */ }
+    return { data: null, error: { message, code, status: response.status } };
   }
 
   // DELETE with return=minimal returns empty body
@@ -76,7 +83,31 @@ function stripSensitiveFields(data) {
 }
 
 // ============================================
+// INPUT HELPERS
+// ============================================
+
+const enc = (v) => encodeURIComponent(String(v ?? ''));
+
+// Komponenten-Namen sind feste Schlüssel ('hero', 'rsvp', …)
+const COMPONENT_RE = /^[a-z][a-z0-9_]{0,40}$/;
+
+// Felder, die das Paar selbst an `projects` ändern darf.
+// Alles andere (Passwörter, Status, Paket, Domain, Theme) nur über den SuperAdmin.
+const COUPLE_EDITABLE_PROJECT_FIELDS = ['location', 'hashtag'];
+
+// Status, die das Paar selbst setzen darf
+const COUPLE_SETTABLE_STATUSES = ['ready_for_review'];
+
+function isMissingConflictTarget(error) {
+  if (!error) return false;
+  return error.code === '42P10'
+    || /no unique or exclusion constraint/i.test(error.message || '');
+}
+
+// ============================================
 // ACTION HANDLERS
+// Geschützte Actions bekommen ctx.projectId — das Projekt aus dem Token.
+// Zeilen-IDs werden immer zusätzlich auf dieses Projekt gefiltert.
 // ============================================
 
 const actions = {
@@ -97,7 +128,7 @@ const actions = {
   },
 
   async getProjectContent({ projectId }) {
-    const result = await supabaseRest('GET', 'project_content', `project_id=eq.${projectId}&select=*`);
+    const result = await supabaseRest('GET', 'project_content', `project_id=eq.${enc(projectId)}&select=*`);
     if (result.error) return { data: {}, error: result.error };
 
     const contentByComponent = {};
@@ -107,26 +138,62 @@ const actions = {
     return { data: contentByComponent, error: null };
   },
 
-  async updateProjectStatus({ projectId, status }) {
-    const result = await supabaseRest('PATCH', 'projects', `id=eq.${projectId}&select=*`, { status });
-    return { data: result.data?.[0] || null, error: result.error };
+  async updateProjectStatus({ status }, ctx) {
+    if (!COUPLE_SETTABLE_STATUSES.includes(status)) {
+      return { data: null, error: { message: 'Status nicht erlaubt', status: 400 } };
+    }
+    const result = await supabaseRest('PATCH', 'projects', `id=eq.${enc(ctx.projectId)}&select=*`, { status });
+    return { data: stripSensitiveFields(result.data?.[0] || null), error: result.error };
   },
 
-  async updateProject({ projectId, updates }) {
-    const result = await supabaseRest('PATCH', 'projects', `id=eq.${projectId}&select=*`, updates);
-    return { data: result.data?.[0] || null, error: result.error };
+  async updateProject({ updates }, ctx) {
+    const safe = {};
+    for (const key of COUPLE_EDITABLE_PROJECT_FIELDS) {
+      if (updates && key in updates) safe[key] = updates[key];
+    }
+    if (Object.keys(safe).length === 0) {
+      return { data: null, error: { message: 'Keine erlaubten Felder', status: 400 } };
+    }
+    const result = await supabaseRest('PATCH', 'projects', `id=eq.${enc(ctx.projectId)}&select=*`, safe);
+    return { data: stripSensitiveFields(result.data?.[0] || null), error: result.error };
   },
 
-  async updateProjectContent({ projectId, component, contentData }) {
-    const result = await supabaseRest('POST', 'project_content',
-      'on_conflict=project_id,component', {
-      project_id: projectId,
-      component,
-      content: contentData,
-    }, {
+  async updateProjectContent({ component, contentData }, ctx) {
+    if (!COMPONENT_RE.test(component || '')) {
+      return { data: null, error: { message: `Ungültige Komponente: ${component}`, status: 400 } };
+    }
+    if (contentData === undefined || contentData === null) {
+      return { data: null, error: { message: 'Kein Inhalt übergeben', status: 400 } };
+    }
+
+    const row = { project_id: ctx.projectId, component, content: contentData };
+
+    // 1. Regulärer Upsert — braucht Unique-Index auf (project_id, component)
+    const upsert = await supabaseRest('POST', 'project_content',
+      'on_conflict=project_id,component&select=*', row, {
       'Prefer': 'resolution=merge-duplicates,return=representation',
     });
-    return { data: result.data?.[0] || null, error: result.error };
+    if (!upsert.error) return { data: upsert.data?.[0] || null, error: null };
+
+    // 2. Fallback ohne Index: lesen, dann PATCH oder INSERT.
+    if (!isMissingConflictTarget(upsert.error)) {
+      return { data: null, error: upsert.error };
+    }
+    console.warn('[db] project_content ohne Unique-Index (project_id, component) — Fallback aktiv');
+
+    const filter = `project_id=eq.${enc(ctx.projectId)}&component=eq.${enc(component)}`;
+    const existing = await supabaseRest('GET', 'project_content', `${filter}&select=id`);
+    if (existing.error) return { data: null, error: existing.error };
+
+    if (existing.data && existing.data.length > 0) {
+      const patched = await supabaseRest('PATCH', 'project_content', `${filter}&select=*`, {
+        content: contentData,
+      });
+      return { data: patched.data?.[0] || null, error: patched.error };
+    }
+
+    const inserted = await supabaseRest('POST', 'project_content', 'select=*', row);
+    return { data: inserted.data?.[0] || null, error: inserted.error };
   },
 
   // --- RSVP ---
@@ -149,18 +216,19 @@ const actions = {
 
   async checkDuplicateRSVP({ projectId, email }) {
     const result = await supabaseRest('GET', 'rsvp_responses',
-      `project_id=eq.${projectId}&email=eq.${encodeURIComponent(email.trim().toLowerCase())}&select=id&limit=1`);
+      `project_id=eq.${enc(projectId)}&email=eq.${encodeURIComponent(email.trim().toLowerCase())}&select=id&limit=1`);
     return { exists: (result.data && result.data.length > 0) || false };
   },
 
-  async getRSVPResponses({ projectId }) {
+  async getRSVPResponses(_params, ctx) {
     const result = await supabaseRest('GET', 'rsvp_responses',
-      `project_id=eq.${projectId}&select=*&order=created_at.desc`);
+      `project_id=eq.${enc(ctx.projectId)}&select=*&order=created_at.desc`);
     return { data: result.data || [], error: result.error };
   },
 
-  async updateRSVPResponse({ id, updates }) {
-    const result = await supabaseRest('PATCH', 'rsvp_responses', `id=eq.${id}&select=*`, {
+  async updateRSVPResponse({ id, updates }, ctx) {
+    const result = await supabaseRest('PATCH', 'rsvp_responses',
+      `id=eq.${enc(id)}&project_id=eq.${enc(ctx.projectId)}&select=*`, {
       name: updates.name,
       email: updates.email,
       persons: updates.persons,
@@ -173,8 +241,9 @@ const actions = {
     return { data: result.data?.[0] || null, error: result.error };
   },
 
-  async deleteRSVPResponse({ id }) {
-    const result = await supabaseRest('DELETE', 'rsvp_responses', `id=eq.${id}`, null, { 'Prefer': 'return=minimal' });
+  async deleteRSVPResponse({ id }, ctx) {
+    const result = await supabaseRest('DELETE', 'rsvp_responses',
+      `id=eq.${enc(id)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { data: null, error: result.error };
   },
 
@@ -192,7 +261,7 @@ const actions = {
   },
 
   async getGuestbookEntries({ projectId, approvedOnly }) {
-    let query = `project_id=eq.${projectId}&select=*&order=created_at.desc`;
+    let query = `project_id=eq.${enc(projectId)}&select=*&order=created_at.desc`;
     if (approvedOnly !== false) {
       query += '&approved=eq.true';
     }
@@ -200,15 +269,17 @@ const actions = {
     return { data: result.data || [], error: result.error };
   },
 
-  async approveGuestbookEntry({ entryId, approved }) {
-    const result = await supabaseRest('PATCH', 'guestbook_entries', `id=eq.${entryId}&select=*`, {
+  async approveGuestbookEntry({ entryId, approved }, ctx) {
+    const result = await supabaseRest('PATCH', 'guestbook_entries',
+      `id=eq.${enc(entryId)}&project_id=eq.${enc(ctx.projectId)}&select=*`, {
       approved: approved !== false,
     });
     return { data: result.data?.[0] || null, error: result.error };
   },
 
-  async deleteGuestbookEntry({ entryId }) {
-    const result = await supabaseRest('DELETE', 'guestbook_entries', `id=eq.${entryId}`, null, { 'Prefer': 'return=minimal' });
+  async deleteGuestbookEntry({ entryId }, ctx) {
+    const result = await supabaseRest('DELETE', 'guestbook_entries',
+      `id=eq.${enc(entryId)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
@@ -226,12 +297,13 @@ const actions = {
 
   async getMusicWishes({ projectId }) {
     const result = await supabaseRest('GET', 'music_wishes',
-      `project_id=eq.${projectId}&select=*&order=created_at.desc`);
+      `project_id=eq.${enc(projectId)}&select=*&order=created_at.desc`);
     return { data: result.data || [], error: result.error };
   },
 
-  async deleteMusicWish({ wishId }) {
-    const result = await supabaseRest('DELETE', 'music_wishes', `id=eq.${wishId}`, null, { 'Prefer': 'return=minimal' });
+  async deleteMusicWish({ wishId }, ctx) {
+    const result = await supabaseRest('DELETE', 'music_wishes',
+      `id=eq.${enc(wishId)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
@@ -250,7 +322,7 @@ const actions = {
   },
 
   async getPhotoUploads({ projectId, approvedOnly }) {
-    let query = `project_id=eq.${projectId}&select=*&order=created_at.desc`;
+    let query = `project_id=eq.${enc(projectId)}&select=*&order=created_at.desc`;
     if (approvedOnly !== false) {
       query += '&approved=eq.true';
     }
@@ -258,15 +330,17 @@ const actions = {
     return { data: result.data || [], error: result.error };
   },
 
-  async approvePhotoUpload({ photoId, approved }) {
-    const result = await supabaseRest('PATCH', 'photo_uploads', `id=eq.${photoId}&select=*`, {
+  async approvePhotoUpload({ photoId, approved }, ctx) {
+    const result = await supabaseRest('PATCH', 'photo_uploads',
+      `id=eq.${enc(photoId)}&project_id=eq.${enc(ctx.projectId)}&select=*`, {
       approved: approved !== false,
     });
     return { data: result.data?.[0] || null, error: result.error };
   },
 
-  async deletePhotoUpload({ photoId }) {
-    const result = await supabaseRest('DELETE', 'photo_uploads', `id=eq.${photoId}`, null, { 'Prefer': 'return=minimal' });
+  async deletePhotoUpload({ photoId }, ctx) {
+    const result = await supabaseRest('DELETE', 'photo_uploads',
+      `id=eq.${enc(photoId)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
@@ -284,18 +358,19 @@ const actions = {
 
   async getGiftReservations({ projectId }) {
     const result = await supabaseRest('GET', 'gift_reservations',
-      `project_id=eq.${projectId}&select=*&order=created_at.desc`);
+      `project_id=eq.${enc(projectId)}&select=*&order=created_at.desc`);
     return { data: result.data || [], error: result.error };
   },
 
-  async deleteGiftReservation({ reservationId }) {
-    const result = await supabaseRest('DELETE', 'gift_reservations', `id=eq.${reservationId}`, null, { 'Prefer': 'return=minimal' });
+  async deleteGiftReservation({ reservationId }, ctx) {
+    const result = await supabaseRest('DELETE', 'gift_reservations',
+      `id=eq.${enc(reservationId)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
-  async unreserveGiftByItemId({ projectId, itemId }) {
+  async unreserveGiftByItemId({ itemId }, ctx) {
     const result = await supabaseRest('DELETE', 'gift_reservations',
-      `project_id=eq.${projectId}&item_id=eq.${encodeURIComponent(itemId)}`, null, { 'Prefer': 'return=minimal' });
+      `project_id=eq.${enc(ctx.projectId)}&item_id=eq.${encodeURIComponent(itemId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
@@ -364,8 +439,9 @@ const actions = {
 
   // --- DATA READY ---
 
-  async submitDataReady({ projectId }) {
-    const result = await supabaseRest('PATCH', 'projects', `id=eq.${projectId}&select=*`, {
+  async submitDataReady(_params, ctx) {
+    const projectId = ctx.projectId;
+    const result = await supabaseRest('PATCH', 'projects', `id=eq.${enc(projectId)}&select=*`, {
       status: 'ready_for_review',
       data_submitted_at: new Date().toISOString(),
     });
@@ -383,20 +459,21 @@ const actions = {
       console.warn('[db] Could not create notification entry:', e);
     }
 
-    return { success: true, data: result.data?.[0] || null };
+    return { success: true, data: stripSensitiveFields(result.data?.[0] || null) };
   },
 
   // --- GUEST LIST ---
 
-  async getGuestList({ projectId }) {
+  async getGuestList(_params, ctx) {
     const result = await supabaseRest('GET', 'guest_list',
-      `project_id=eq.${projectId}&select=*&order=name.asc`);
+      `project_id=eq.${enc(ctx.projectId)}&select=*&order=name.asc`);
     return { data: result.data || [], error: result.error };
   },
 
-  async uploadGuestList({ projectId, guests }) {
+  async uploadGuestList({ guests }, ctx) {
+    if (!Array.isArray(guests)) return { data: null, error: { message: 'guests[] fehlt', status: 400 } };
     const rows = guests.map(g => ({
-      project_id: projectId,
+      project_id: ctx.projectId,
       name: g.name,
       email: g.email.toLowerCase(),
       group_name: g.group_name || '',
@@ -409,18 +486,20 @@ const actions = {
     return { data: result.data, error: result.error, count: result.data?.length || 0 };
   },
 
-  async deleteGuestListEntry({ id }) {
-    const result = await supabaseRest('DELETE', 'guest_list', `id=eq.${id}`, null, { 'Prefer': 'return=minimal' });
+  async deleteGuestListEntry({ id }, ctx) {
+    const result = await supabaseRest('DELETE', 'guest_list',
+      `id=eq.${enc(id)}&project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
-  async clearGuestList({ projectId }) {
-    const result = await supabaseRest('DELETE', 'guest_list', `project_id=eq.${projectId}`, null, { 'Prefer': 'return=minimal' });
+  async clearGuestList(_params, ctx) {
+    const result = await supabaseRest('DELETE', 'guest_list', `project_id=eq.${enc(ctx.projectId)}`, null, { 'Prefer': 'return=minimal' });
     return { error: result.error };
   },
 
-  async markReminderSent({ guestId }) {
-    const result = await supabaseRest('PATCH', 'guest_list', `id=eq.${guestId}`, {
+  async markReminderSent({ guestId }, ctx) {
+    const result = await supabaseRest('PATCH', 'guest_list',
+      `id=eq.${enc(guestId)}&project_id=eq.${enc(ctx.projectId)}`, {
       reminder_sent_at: new Date().toISOString(),
     }, { 'Prefer': 'return=minimal' });
     return { error: result.error };
@@ -476,20 +555,39 @@ export default async function handler(req, res) {
   }
 
   const isPublic = PUBLIC_ACTIONS.has(action);
-
-  if (isPublic) {
-    // Public actions: rate limit by IP, no auth
-    const ip = getClientIP(req);
-    if (applyRateLimit(res, `db-public:${ip}`, 60, 60 * 1000)) return;
-  } else {
-    // Protected actions: auth required + rate limit by token email
-    const auth = requireAuth(req, res);
-    if (!auth) return;
-    if (applyRateLimit(res, `db:${auth.email}`, 100, 60 * 1000)) return;
-  }
+  const safeParams = params || {};
+  let ctx = {};
 
   try {
-    const result = await actions[action](params || {});
+    if (isPublic) {
+      // Public actions: rate limit by IP, no auth
+      const ip = getClientIP(req);
+      if (applyRateLimit(res, `db-public:${ip}`, 60, 60 * 1000)) return;
+    } else {
+      // Protected actions: Admin-Token DIESES Projekts erforderlich.
+      // Gäste-/Vorschau-Tokens und Tokens anderer Projekte → 403.
+      const project = await requireProjectAdmin(req, res, safeParams.projectId);
+      if (!project) return;
+      if (applyRateLimit(res, `db:${project.auth.email}`, 100, 60 * 1000)) return;
+      ctx = { projectId: project.id, slug: project.slug };
+    }
+
+    const result = await actions[action](safeParams, ctx);
+
+    // Datenbankfehler mit echtem HTTP-Status ausliefern, damit sie im
+    // Netzwerk-Tab sichtbar sind. Vorher kam hier immer 200.
+    // Supabase-401/403 (z. B. falscher Service-Key) wird bewusst als 502
+    // gemeldet — ein 401 würde das Frontend ausloggen.
+    const err = result && result.error;
+    if (err && typeof err === 'object' && typeof err.status === 'number') {
+      const httpStatus = (err.status >= 500 || err.status === 401 || err.status === 403)
+        ? 502
+        : (err.status === 400 ? 400 : 422);
+      res.setHeader('X-DB-Status', String(err.status));
+      if (err.code) res.setHeader('X-DB-Code', String(err.code));
+      return res.status(httpStatus).json(result);
+    }
+
     return res.status(200).json(result);
   } catch (error) {
     console.error(`[db] Action ${action} error:`, error);

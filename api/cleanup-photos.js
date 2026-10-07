@@ -8,7 +8,7 @@ const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-const { handleCors, requireAuth, applyRateLimit } = require('./lib/auth');
+const { handleCors, requireProjectAdmin, applyRateLimit } = require('./lib/auth');
 
 // ============================================
 // CLOUDINARY DELETE
@@ -71,13 +71,13 @@ async function deleteFromCloudinary(publicIds) {
 // SUPABASE DELETE
 // ============================================
 
-async function deleteFromSupabase(photoIds) {
+async function deleteFromSupabase(photoIds, projectId) {
   let deleted = 0;
 
   for (const id of photoIds) {
     try {
       const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/photo_uploads?id=eq.${id}`,
+        `${SUPABASE_URL}/rest/v1/photo_uploads?id=eq.${encodeURIComponent(id)}&project_id=eq.${encodeURIComponent(projectId)}`,
         {
           method: 'DELETE',
           headers: {
@@ -94,6 +94,24 @@ async function deleteFromSupabase(photoIds) {
   }
 
   return deleted;
+}
+
+async function loadOwnedPhotos(ids, projectId) {
+  const owned = [];
+  for (let i = 0; i < ids.length; i += 100) {
+    const chunk = ids.slice(i, i + 100).map(id => `"${String(id).replace(/"/g, '')}"`).join(',');
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/photo_uploads?project_id=eq.${encodeURIComponent(projectId)}&id=in.(${encodeURIComponent(chunk)})&select=id,cloudinary_public_id`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        },
+      }
+    );
+    if (response.ok) owned.push(...(await response.json()));
+  }
+  return owned;
 }
 
 // ============================================
@@ -123,12 +141,12 @@ export default async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Auth required
-  const auth = requireAuth(req, res);
-  if (!auth) return;
+  // Admin-Token dieses Projekts erforderlich (Gäste-Token → 403)
+  const owned = await requireProjectAdmin(req, res, req.body?.projectId);
+  if (!owned) return;
 
   // Rate limit: 10 req / 15 min per token email
-  if (applyRateLimit(res, `cleanup-photos:${auth.email}`, 10, 15 * 60 * 1000)) return;
+  if (applyRateLimit(res, `cleanup-photos:${owned.auth.email}`, 10, 15 * 60 * 1000)) return;
 
   try {
     const { projectId, photos } = req.body;
@@ -161,9 +179,15 @@ export default async function handler(req, res) {
 
     console.log(`[cleanup] Deleting ${photos.length} photos for project ${projectId}`);
 
+    // Nur Fotos, die wirklich zu diesem Projekt gehören.
+    // Die public_ids kommen aus der DB, nicht aus dem Request.
+    const requestedIds = photos.map(p => p.id).filter(Boolean);
+    const ownedRows = await loadOwnedPhotos(requestedIds, projectId);
+    const ownedIdSet = new Set(ownedRows.map(r => String(r.id)));
+
     // Step 1: Delete from Cloudinary
-    const publicIds = photos
-      .map(p => p.cloudinary_public_id)
+    const publicIds = ownedRows
+      .map(r => r.cloudinary_public_id)
       .filter(Boolean);
 
     let cloudinaryResult = { deleted: 0, failed: 0 };
@@ -173,8 +197,8 @@ export default async function handler(req, res) {
     }
 
     // Step 2: Delete from Supabase
-    const supabaseIds = photos.map(p => p.id).filter(Boolean);
-    const supabaseDeleted = await deleteFromSupabase(supabaseIds);
+    const supabaseIds = requestedIds.filter(id => ownedIdSet.has(String(id)));
+    const supabaseDeleted = await deleteFromSupabase(supabaseIds, projectId);
     console.log(`[cleanup] Supabase: ${supabaseDeleted} deleted`);
 
     return res.status(200).json({
