@@ -21,6 +21,10 @@ function HeroEditor({ components: C }) {
   const isSummerTheme = theme === 'summer';
   const isParallax = theme === 'parallax';
 
+  // Seitenverhältnis des Hero-Bildes auf dem Desktop — damit die Vorschau
+  // im Picker denselben Ausschnitt zeigt wie die Seite
+  const heroDesktopRatio = { contemporary: '3 / 4', summer: '4 / 5' }[theme] || '16 / 9';
+
   // State for showing mobile upload option
   const [showMobileUpload, setShowMobileUpload] = useState(
     !!(content.background_media_mobile?.url || content.background_image_mobile)
@@ -73,6 +77,7 @@ function HeroEditor({ components: C }) {
                   image={content.background_image}
                   value={content.background_focal}
                   onChange={(v) => update('background_focal', v)}
+                  desktopRatio={heroDesktopRatio}
                 />
               )}
               </>

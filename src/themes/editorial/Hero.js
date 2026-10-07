@@ -1,4 +1,4 @@
-import { focalCss } from '../../lib/focalPoint';
+import { focalCss, focalCssDesktopOnly, bgFocalCss } from '../../lib/focalPoint';
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -64,8 +64,9 @@ const BackgroundImage = styled.div`
   inset: 0;
   background-image: ${p => p.$image ? `url(${p.$image})` : 'none'};
   background-size: cover;
-  /* Fokuspunkt aus dem Dashboard; ohne Angabe wie bisher die Bildmitte */
-  background-position: ${p => p.$focal?.desktop || 'center'};
+  background-position: center;
+  /* Fokuspunkt + Zoom aus dem Dashboard, getrennt für Desktop und Mobile */
+  ${p => bgFocalCss(p.$focal)}
   filter: grayscale(100%);
   opacity: 0;
   animation: ${fadeIn} 1.5s ease forwards;
@@ -293,7 +294,7 @@ function Hero() {
 
   return (
     <Section id="top">
-      <BackgroundImage $focal={focalCss(hero.background_focal)} $image={optimizedUrl.hero(backgroundImage)} $mobileImage={mobileBackgroundImage ? optimizedUrl.hero(mobileBackgroundImage) : null} />
+      <BackgroundImage $focal={mobileBackgroundImage ? focalCssDesktopOnly(hero.background_focal) : focalCss(hero.background_focal)} $image={optimizedUrl.hero(backgroundImage)} $mobileImage={mobileBackgroundImage ? optimizedUrl.hero(mobileBackgroundImage) : null} />
       
       <Content>
         <Tagline>{hero.tagline || 'Wir sagen Ja'}</Tagline>

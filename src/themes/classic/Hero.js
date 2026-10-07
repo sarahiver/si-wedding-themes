@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+import { focalCss, focalCssDesktopOnly, imgFocalCss } from '../../lib/focalPoint';
 
 const scaleIn = keyframes`from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:scale(1)}`;
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
@@ -11,7 +12,7 @@ const float = keyframes`0%,100%{transform:translateY(0)}50%{transform:translateY
 const S = styled.section`position:relative;height:100vh;min-height:650px;overflow:hidden;background:#111;`;
 const BgW = styled.div`position:absolute;inset:0;animation:${scaleIn} 2.5s var(--ease) forwards;`;
 const BgV = styled.video`width:100%;height:100%;object-fit:cover;filter:grayscale(40%) brightness(0.42);`;
-const BgI = styled.img`width:100%;height:100%;object-fit:cover;filter:grayscale(40%) brightness(0.42);`;
+const BgI = styled.img`width:100%;height:100%;object-fit:cover;filter:grayscale(40%) brightness(0.42);${p => imgFocalCss(p.$focal)}`;
 const Ov = styled.div`position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.15) 0%,transparent 40%,rgba(0,0,0,0.35) 100%);`;
 const Ct = styled.div`position:absolute;bottom:clamp(3rem,8vh,6rem);left:clamp(2rem,5vw,5rem);z-index:10;max-width:600px;`;
 const Eye = styled.p`font-family:var(--font-b);font-size:0.5rem;font-weight:300;letter-spacing:0.4em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:1.2rem;opacity:0;animation:${fadeUp} 0.8s var(--ease) forwards;animation-delay:0.8s;`;
@@ -41,7 +42,7 @@ function Hero() {
 
   return (
     <S id="top">
-      <BgW>{useVideo && !mob ? <BgV autoPlay muted loop playsInline poster={optimizedUrl.hero(bgImg)}><source src={bgVid} type="video/mp4"/></BgV> : <BgI src={optimizedUrl.hero(mob ? bgMobile : bgImg)} alt="" loading="eager"/>}</BgW>
+      <BgW>{useVideo && !mob ? <BgV autoPlay muted loop playsInline poster={optimizedUrl.hero(bgImg)}><source src={bgVid} type="video/mp4"/></BgV> : <BgI $focal={h.background_image ? (bgMobile !== bgImg ? focalCssDesktopOnly(h.background_focal) : focalCss(h.background_focal)) : null} src={optimizedUrl.hero(mob ? bgMobile : bgImg)} alt="" loading="eager"/>}</BgW>
       <Ov/>
       <Ct>
         <Eye>{tagline}</Eye>

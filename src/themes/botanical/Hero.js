@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+import { focalCss, bgFocalCss } from '../../lib/focalPoint';
 
 // ============================================
 // ANIMATIONS
@@ -56,6 +57,7 @@ const HeroBackground = styled.div`
     position: absolute;
     inset: 0;
     background: ${p => p.$image ? `url(${p.$image}) center/cover no-repeat` : 'none'};
+    ${p => bgFocalCss(p.$focal)}
     filter: brightness(0.4) saturate(0.8);
   }
   
@@ -304,7 +306,10 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
 
   return (
     <HeroSection id="hero">
-      <HeroBackground $image={optimizedUrl.hero(heroImage)} />
+      <HeroBackground
+        $image={optimizedUrl.hero(heroImage)}
+        $focal={heroImage === heroData.background_image ? focalCss(heroData.background_focal) : null}
+      />
       
       <GlassCard>
         <Eyebrow>{eyebrowText}</Eyebrow>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+import { focalCss, bgFocalCss } from '../../lib/focalPoint';
 
 const float = keyframes`
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -58,6 +59,7 @@ const RightPanel = styled.div`
   background: ${p => p.$image 
     ? `url(${p.$image}) center/cover` 
     : `linear-gradient(135deg, var(--coral) 0%, var(--purple) 50%, var(--electric) 100%)`};
+  ${p => p.$image ? bgFocalCss(p.$focal) : ''}
   
   @media (max-width: 968px) {
     position: absolute;
@@ -355,7 +357,10 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
         )}
       </LeftPanel>
       
-      <RightPanel $image={backgroundImage ? optimizedUrl.hero(backgroundImage) : backgroundImage}>
+      <RightPanel
+        $image={backgroundImage ? optimizedUrl.hero(backgroundImage) : backgroundImage}
+        $focal={backgroundImage && backgroundImage === heroData.background_image ? focalCss(heroData.background_focal) : null}
+      >
         <FloatingCircle $color="rgba(255,255,255,0.3)" $size="100px" style={{ top: '15%', right: '15%' }} $duration="12s" $delay="1s" />
         <FloatingSquare $color="rgba(255,255,255,0.2)" $size="60px" style={{ bottom: '20%', left: '15%' }} $duration="10s" $delay="2s" />
       </RightPanel>

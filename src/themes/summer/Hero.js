@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+import { focalCss, imgFocalCss } from '../../lib/focalPoint';
 
 const slideLeft  = keyframes`from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}`;
 const slideRight = keyframes`from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}`;
@@ -52,7 +53,7 @@ const Img1 = styled.div`
   overflow:hidden;
   border:5px solid rgba(255,255,255,.14);
   box-shadow:0 24px 60px rgba(0,0,0,.45);
-  img{width:100%;height:100%;object-fit:cover;}
+  img{width:100%;height:100%;object-fit:cover;${p => imgFocalCss(p.$focal)}}
   @media(max-width:768px){border-radius:0 20px 0 20px;border-width:3px;}
 `;
 const Img2 = styled.div`
@@ -196,7 +197,7 @@ function Hero() {
       <Inner>
         {/* Images */}
         <ImgSide>
-          <Img1><img src={optimizedUrl.hero(img1)} alt={cn} loading="eager" /></Img1>
+          <Img1 $focal={h.background_image ? focalCss(h.background_focal) : null}><img src={optimizedUrl.hero(img1)} alt={cn} loading="eager" /></Img1>
           <Img2><img src={optimizedUrl.card(img2)} alt={cn} loading="eager" /></Img2>
           <HeartDot>♡</HeartDot>
         </ImgSide>

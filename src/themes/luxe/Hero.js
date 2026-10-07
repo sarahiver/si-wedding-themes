@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+import { focalCss, bgFocalCss } from '../../lib/focalPoint';
 
 // Cinematic Animations
 const fadeIn = keyframes`
@@ -65,6 +66,7 @@ const BackgroundImage = styled.div`
   background: ${p => p.$image ? `url(${p.$image})` : 'linear-gradient(135deg, var(--luxe-charcoal) 0%, var(--luxe-void) 100%)'};
   background-size: cover;
   background-position: center;
+  ${p => p.$image ? bgFocalCss(p.$focal) : ''}
   opacity: ${p => p.$loaded ? 1 : 0};
   transform: scale(${p => p.$loaded ? 1 : 1.2});
   transition: opacity 1.5s ease, transform 8s ease-out;
@@ -223,7 +225,11 @@ function Hero({ isSaveTheDate = false, isArchive = false }) {
   return (
     <Section id="hero">
       <BackgroundMedia>
-        <BackgroundImage $image={optimizedUrl.hero(backgroundImage)} $loaded={loaded} />
+        <BackgroundImage
+          $image={optimizedUrl.hero(backgroundImage)}
+          $focal={backgroundImage && backgroundImage === heroData.background_image ? focalCss(heroData.background_focal) : null}
+          $loaded={loaded}
+        />
       </BackgroundMedia>
       
       <Content>
