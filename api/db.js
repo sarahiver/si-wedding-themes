@@ -3,7 +3,7 @@
 // All frontend DB operations go through this endpoint.
 // Token-auth required. Action whitelist — no generic query access.
 
-const { handleCors, requireProjectAdmin, applyRateLimit, getClientIP, createToken } = require('./lib/auth');
+const { handleCors, requireProjectAdmin, applyRateLimit, getClientIP, createToken, verifyToken } = require('./lib/auth');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -73,14 +73,114 @@ async function supabaseRPC(functionName, params) {
 // ============================================
 
 function stripSensitiveFields(data) {
+  // Antworten an das eingeloggte Paar: nur Render- und Preisfelder,
+  // keine Passwörter/Hashes, Vertrags- oder Rechnungsdaten
   if (!data) return data;
   if (Array.isArray(data)) return data.map(stripSensitiveFields);
-  const cleaned = { ...data };
-  delete cleaned.admin_password;
-  delete cleaned.preview_password;
-  delete cleaned.guest_password;
-  return cleaned;
+  return pickFields(data, [...PUBLIC_PROJECT_FIELDS, ...ADMIN_PROJECT_FIELDS]);
 }
+
+// ============================================
+// ÖFFENTLICHE PROJEKTFELDER
+// Vorher lieferte getProjectBySlugOrDomain die komplette Zeile an jeden
+// Besucher — inkl. Kundenadresse, Telefon, E-Mail, Vertrags- und
+// Rechnungsdaten, Notizen und password_hash. Jetzt: Whitelist.
+// ============================================
+
+// Was jede Seite zum Rendern braucht
+const PUBLIC_PROJECT_FIELDS = [
+  'id', 'slug', 'theme', 'status', 'couple_names', 'partner1_name', 'partner2_name',
+  'wedding_date', 'location', 'hashtag', 'component_order', 'active_components',
+  'component_config', 'custom_styles', 'custom_domain', 'favicon_emoji',
+  'has_std', 'has_archive', 'package', 'addons', 'password_protected',
+];
+
+// Gesperrte Seite (Passwort / Coming Soon): nur, was Gate und Coming Soon zeigen
+const LOCKED_PROJECT_FIELDS = [
+  'id', 'slug', 'theme', 'status', 'couple_names', 'partner1_name', 'partner2_name',
+  'wedding_date', 'custom_styles', 'custom_domain', 'favicon_emoji', 'password_protected',
+];
+
+// Zusätzlich nur für das eingeloggte Paar (Preisberechnung im Dashboard)
+const ADMIN_PROJECT_FIELDS = ['discount', 'custom_price', 'custom_extras'];
+
+function pickFields(row, fields) {
+  if (!row) return row;
+  const out = {};
+  for (const f of fields) if (f in row) out[f] = row[f];
+  return out;
+}
+
+// ============================================
+// ZUGANGSPRÜFUNG FÜR ÖFFENTLICHE ACTIONS
+// Passwortschutz und Coming Soon wurden bisher nur im Browser durchgesetzt.
+// Inhalte, Gästebuch, Fotos usw. waren über die API für jeden abrufbar,
+// der den Slug kannte. Jetzt entscheidet der Server.
+// ============================================
+
+const PUBLIC_STATUSES = ['live', 'std', 'archive', 'archiv', 'save-the-date', 'demo'];
+
+// Alle mitgeschickten Tokens (Authorization + X-Access-Tokens) prüfen
+function collectTokens(req) {
+  const raw = [];
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) raw.push(authHeader.slice(7));
+  const extra = req.headers['x-access-tokens'] || '';
+  extra.split(',').map(t => t.trim()).filter(Boolean).forEach(t => raw.push(t));
+  return raw.slice(0, 4).map(verifyToken).filter(Boolean);
+}
+
+function accessLevel(tokens, slug) {
+  const kinds = tokens
+    .filter(t => t.slug === slug)
+    .map(t => String(t.email || '').split('@')[0]);
+  if (kinds.includes('admin')) return 'admin';
+  if (kinds.includes('preview')) return 'preview';
+  if (kinds.includes('guest')) return 'guest';
+  return null;
+}
+
+// Kurzer Cache pro warmer Instanz: Status und Passwortpflicht ändern sich selten
+const gateCache = new Map();
+const GATE_TTL = 30 * 1000;
+
+async function loadGate({ projectId, slug }) {
+  const key = projectId ? `id:${projectId}` : `slug:${slug}`;
+  const hit = gateCache.get(key);
+  if (hit && Date.now() - hit.ts < GATE_TTL) return hit.gate;
+
+  const query = projectId
+    ? `id=eq.${enc(projectId)}&select=id,slug,status`
+    : `slug=eq.${enc(slug)}&select=id,slug,status`;
+  const result = await supabaseRest('GET', 'projects', query);
+  const row = result.data?.[0];
+  if (!row) return null;
+
+  // Dieselbe Funktion wie das Frontend — keine zweite Wahrheit
+  const rpc = await supabaseRPC('check_password_required', { project_slug: row.slug });
+  // Im Zweifel geschützt: Fehler beim Prüfen darf nicht zum Öffnen führen
+  const passwordRequired = rpc.error ? true : !!rpc.data?.required;
+
+  const gate = { id: row.id, slug: row.slug, status: row.status, passwordRequired };
+  gateCache.set(key, { gate, ts: Date.now() });
+  return gate;
+}
+
+function evaluateAccess(gate, tokens) {
+  const level = accessLevel(tokens, gate.slug);
+  if (level === 'admin' || level === 'preview') return { locked: false, level };
+  if (!PUBLIC_STATUSES.includes(gate.status)) return { locked: true, reason: 'preview', level };
+  if (gate.passwordRequired && level !== 'guest') return { locked: true, reason: 'password', level };
+  return { locked: false, level };
+}
+
+// Öffentliche Actions, die Daten eines Projekts lesen oder schreiben.
+// getProjectBySlugOrDomain und getProjectContent prüfen selbst.
+const GATED_PUBLIC_ACTIONS = new Set([
+  'checkDuplicateRSVP', 'submitRSVP', 'submitGuestbookEntry', 'submitMusicWish',
+  'submitPhotoUpload', 'reserveGift',
+  'getGuestbookEntries', 'getPhotoUploads', 'getMusicWishes', 'getGiftReservations',
+]);
 
 // ============================================
 // INPUT HELPERS
@@ -113,21 +213,45 @@ function isMissingConflictTarget(error) {
 const actions = {
   // --- PROJECT ---
 
-  async getProjectBySlugOrDomain({ slugOrDomain }) {
-    // Try by slug
-    let result = await supabaseRest('GET', 'projects', `slug=eq.${encodeURIComponent(slugOrDomain)}&select=*`);
+  async getProjectBySlugOrDomain({ slugOrDomain }, ctx) {
+    // select=* und Filterung hier: Eine Spalte in der Whitelist, die es in
+    // der DB nicht gibt, würde bei select=a,b,c jede Seite lahmlegen.
+    // Die volle Zeile verlässt den Server trotzdem nie.
+    let result = await supabaseRest('GET', 'projects', `slug=eq.${enc(slugOrDomain)}&select=*`);
     let data = result.data?.[0] || null;
 
     // Try by custom_domain
     if (!data) {
-      result = await supabaseRest('GET', 'projects', `custom_domain=eq.${encodeURIComponent(slugOrDomain)}&select=*`);
+      result = await supabaseRest('GET', 'projects', `custom_domain=eq.${enc(slugOrDomain)}&select=*`);
       data = result.data?.[0] || null;
     }
 
-    return { data: stripSensitiveFields(data), error: data ? null : (result.error || { message: 'Not found' }) };
+    if (!data) return { data: null, error: result.error || { message: 'Not found' } };
+
+    const gate = await loadGate({ slug: data.slug });
+    const access = gate ? evaluateAccess(gate, ctx.tokens || []) : { locked: true, reason: 'preview' };
+
+    let visible;
+    if (access.locked) visible = pickFields(data, LOCKED_PROJECT_FIELDS);
+    else if (access.level === 'admin') visible = pickFields(data, [...PUBLIC_PROJECT_FIELDS, ...ADMIN_PROJECT_FIELDS]);
+    else visible = pickFields(data, PUBLIC_PROJECT_FIELDS);
+
+    return {
+      data: visible,
+      access: { locked: access.locked, reason: access.reason || null },
+      error: null,
+    };
   },
 
-  async getProjectContent({ projectId }) {
+  async getProjectContent({ projectId }, ctx) {
+    const gate = await loadGate({ projectId });
+    if (!gate) return { data: {}, error: null };
+    const access = evaluateAccess(gate, ctx.tokens || []);
+    if (access.locked) {
+      // Gesperrt: keine Inhalte. Das Frontend zeigt Passwortseite/Coming Soon.
+      return { data: {}, locked: true, reason: access.reason, error: null };
+    }
+
     const result = await supabaseRest('GET', 'project_content', `project_id=eq.${enc(projectId)}&select=*`);
     if (result.error) return { data: {}, error: result.error };
 
@@ -560,9 +684,19 @@ export default async function handler(req, res) {
 
   try {
     if (isPublic) {
-      // Public actions: rate limit by IP, no auth
+      // Public actions: rate limit by IP, Tokens optional
       const ip = getClientIP(req);
       if (applyRateLimit(res, `db-public:${ip}`, 60, 60 * 1000)) return;
+      ctx = { tokens: collectTokens(req) };
+
+      if (GATED_PUBLIC_ACTIONS.has(action)) {
+        const gate = await loadGate({ projectId: safeParams.projectId });
+        const access = gate ? evaluateAccess(gate, ctx.tokens) : { locked: true, reason: 'preview' };
+        if (access.locked) {
+          // 423 statt 401/403: Das Frontend soll hier nicht ausloggen
+          return res.status(423).json({ data: null, locked: true, reason: access.reason, error: 'locked' });
+        }
+      }
     } else {
       // Protected actions: Admin-Token DIESES Projekts erforderlich.
       // Gäste-/Vorschau-Tokens und Tokens anderer Projekte → 403.

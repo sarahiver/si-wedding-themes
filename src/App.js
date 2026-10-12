@@ -3,11 +3,10 @@
 // Triple-click on Coming Soon logo shows admin preview login
 // NEW: Password protection support
 
-import React, { Suspense, lazy, useState, useEffect, Component } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useCallback, Component } from 'react';
 import { resolveSlugFromHost, isPlatformHost } from './lib/customDomain';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
-import { checkPasswordRequired } from './lib/supabase';
 
 // Central WeddingPage (handles all themes)
 import WeddingPage from './pages/WeddingPage';
@@ -156,42 +155,17 @@ function PreviewBanner({ status }) {
 
 // Theme Router - handles status-based rendering AND password protection
 function ThemeRouter() {
-  const { project, isLoading, error, status, theme, projectId, slug, coupleNames, content } = useWedding();
-  const [hasPreviewAccess, setHasPreviewAccess] = useState(false);
-  const [passwordRequired, setPasswordRequired] = useState(false);
-  const [passwordChecked, setPasswordChecked] = useState(false);
-  const [hasPasswordAccess, setHasPasswordAccess] = useState(false);
-  
-  // Check sessionStorage für Admin-Vorschau
-  useEffect(() => {
-    if (projectId) {
-      const access = sessionStorage.getItem(`admin_preview_${projectId}`);
-      setHasPreviewAccess(access === 'true');
-    }
-  }, [projectId]);
-  
-  // Check ob Passwortschutz aktiv ist
-  useEffect(() => {
-    async function checkPassword() {
-      if (!slug) return;
-      
-      // Erst prüfen ob bereits Zugang gewährt wurde (Session)
-      const storedAccess = sessionStorage.getItem(`pw_access_${slug}`);
-      if (storedAccess === 'granted') {
-        setHasPasswordAccess(true);
-        setPasswordChecked(true);
-        return;
-      }
-      
-      // Passwortschutz-Status von Supabase abrufen
-      const { required } = await checkPasswordRequired(slug);
-      setPasswordRequired(required);
-      setPasswordChecked(true);
-    }
-    
-    checkPassword();
-  }, [slug]);
-  
+  const { project, access, refetch, isLoading, error, status, theme, projectId, slug, coupleNames, content } = useWedding();
+
+  // Zugang entscheidet der Server (project.access). Vorher reichte ein
+  // sessionStorage-Flag, und die Inhalte lagen ohnehin schon im Browser.
+  const locked = !!access?.locked;
+  const lockReason = access?.reason || null;
+
+  // Nach erfolgreichem Passwort/Vorschau-Login: Projekt + Inhalte neu laden,
+  // jetzt mit Token — erst dann liefert der Server die Inhalte aus.
+  const unlock = useCallback(() => { refetch(); }, [refetch]);
+
   // Dynamische Meta-Tags für Social Sharing (WhatsApp, Instagram, etc.)
   useEffect(() => {
     if (!project) return;
@@ -254,12 +228,9 @@ function ThemeRouter() {
     return () => { };
   }, [project, coupleNames]);
 
-  // WICHTIG: Warte bis project UND theme geladen sind
-  // passwordChecked muss NICHT abgewartet werden wenn kein Passwort benötigt wird
+  // Warte bis project geladen ist — access kommt in derselben Antwort,
+  // es gibt also kein Zwischenstadium, in dem Inhalte kurz sichtbar sind.
   if (isLoading || !project) return <Loading />;
-  
-  // Nur blockieren wenn passwordChecked noch läuft UND ein Passwort tatsächlich benötigt wird
-  if (!passwordChecked && passwordRequired) return <Loading />;
   
   if (error) {
     return (
@@ -302,33 +273,32 @@ function ThemeRouter() {
   // ODER der Slug enthält "demo" (z.B. demo-classic)
   const isDemo = status === 'demo' || (slug || '').toLowerCase().includes('demo');
 
-  // Render basierend auf Status UND Passwortschutz
-  const renderMain = () => {
-    // Nicht öffentlich und kein Admin-Zugang → Coming Soon
-    if (!isPublic && !hasPreviewAccess) {
-      return (
-        <ComingSoon 
-          onAdminAccess={() => {
-            setHasPreviewAccess(true);
-          }} 
-        />
-      );
-    }
-    
-    // Passwortschutz: Wenn aktiv und noch kein Zugang
-    if (passwordRequired && !hasPasswordAccess && !hasPreviewAccess) {
-      // Noch nicht gecheckt → nichts rendern (kurze Pause)
-      if (!passwordChecked) return null;
+  // Ohne Vorschau-/Admin-Token liefert der Server für nicht-öffentliche
+  // Status gar keinen Zugang — kommt die Seite hier entsperrt an, hat der
+  // Besucher eine gültige Vorschau.
+  const hasPreviewAccess = !isPublic && !locked;
+
+  // Gate vor JEDER Inhaltsseite, auch /save-the-date und /archive —
+  // die waren vorher direkt erreichbar, am Passwort vorbei.
+  const gate = () => {
+    if (!locked) return null;
+    if (lockReason === 'password') {
       return (
         <PasswordGate
           slug={slug}
           theme={themeName}
           coupleNames={coupleNames}
-          onSuccess={() => setHasPasswordAccess(true)}
+          onSuccess={unlock}
         />
       );
     }
-    
+    return <ComingSoon onAdminAccess={unlock} />;
+  };
+
+  const renderMain = () => {
+    const blocked = gate();
+    if (blocked) return blocked;
+
     // Render je nach Status
     switch (status) {
       case 'std':
@@ -339,7 +309,6 @@ function ThemeRouter() {
         return <ArchivePage />;
       case 'draft':
       case 'in_progress':
-        // Admin hat Zugang - zeige Vorschau mit Banner
         if (hasPreviewAccess) {
           return (
             <>
@@ -350,7 +319,7 @@ function ThemeRouter() {
             </>
           );
         }
-        return <ComingSoon onAdminAccess={() => setHasPreviewAccess(true)} />;
+        return <ComingSoon onAdminAccess={unlock} />;
       case 'live':
       default:
         return <WeddingPage />;
@@ -364,8 +333,8 @@ function ThemeRouter() {
       <Routes>
         <Route path="/" element={renderMain()} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/save-the-date" element={<SaveTheDate />} />
-        <Route path="/archive" element={<ArchivePage />} />
+        <Route path="/save-the-date" element={gate() || <SaveTheDate />} />
+        <Route path="/archive" element={gate() || <ArchivePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

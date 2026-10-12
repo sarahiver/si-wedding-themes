@@ -190,6 +190,10 @@ export function AdminProvider({ children }) {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(`admin_logged_in_${slug}`, 'true');
         }
+        // Projekt und Inhalte mit Admin-Token neu laden: Bei geschützten
+        // oder noch nicht veröffentlichten Seiten liefert der Server sie
+        // vorher nicht aus, und die Preisfelder kommen nur mit Admin-Token.
+        if (refetch) refetch();
         return true;
       }
       setLoginError('Falsches Passwort');
@@ -198,7 +202,7 @@ export function AdminProvider({ children }) {
       setLoginError('Verbindungsfehler');
       return false;
     }
-  }, [slug]);
+  }, [slug, refetch]);
 
   const logout = useCallback(() => {
     setIsLoggedIn(false);

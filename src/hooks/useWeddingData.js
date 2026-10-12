@@ -102,6 +102,8 @@ const defaultContent = {
 
 export function useWeddingData(slugOrDomain) {
   const [project, setProject] = useState(null);
+  // Vom Server: { locked, reason: 'password' | 'preview' | null }
+  const [access, setAccess] = useState({ locked: false, reason: null });
   const [content, setContent] = useState(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -119,7 +121,7 @@ export function useWeddingData(slugOrDomain) {
 
     try {
       // Fetch project
-      const { data: projectData, error: projectError } = await getProjectBySlugOrDomain(slugOrDomain);
+      const { data: projectData, error: projectError, access: projectAccess } = await getProjectBySlugOrDomain(slugOrDomain);
       
       if (projectError || !projectData) {
         setError('Project not found');
@@ -128,6 +130,15 @@ export function useWeddingData(slugOrDomain) {
       }
 
       setProject(projectData);
+      const nextAccess = projectAccess || { locked: false, reason: null };
+      setAccess(nextAccess);
+
+      // Gesperrt: Inhalte gar nicht erst anfragen — der Server liefert sie
+      // ohnehin nicht. Defaults reichen für Passwortseite/Coming Soon.
+      if (nextAccess.locked) {
+        setContent(defaultContent);
+        return;
+      }
 
       // Fetch content
       const { data: contentData, error: contentError } = await getProjectContent(projectData.id);
@@ -188,6 +199,7 @@ export function useWeddingData(slugOrDomain) {
 
   return {
     project,
+    access,
     content,
     isLoading,
     error,

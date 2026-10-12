@@ -85,6 +85,16 @@ function getToken() {
   return readStored(GUEST_KEY);
 }
 
+/**
+ * Alle gespeicherten, nicht abgelaufenen Tokens — für öffentliche Abrufe.
+ * Der Server sucht sich das Token zum aufgerufenen Projekt heraus. Nötig,
+ * weil ein Admin-Token von Projekt A sonst das Gäste-Token von B verdeckt.
+ */
+function allValidTokens() {
+  return [readStored(ADMIN_KEY), readStored(GUEST_KEY)]
+    .filter(t => t && !isExpired(decodeToken(t)));
+}
+
 export function setToken(token) {
   const payload = decodeToken(token);
   const isAdmin = payload && payload.email === `admin@${payload.slug}`;
@@ -144,11 +154,13 @@ export async function authFetch(url, options = {}) {
 
 async function dbCall(action, params = {}) {
   const token = getToken();
+  const accessTokens = allValidTokens();
   const response = await fetch('/api/db', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...(accessTokens.length ? { 'X-Access-Tokens': accessTokens.join(',') } : {}),
     },
     body: JSON.stringify({ action, params }),
   });
@@ -378,6 +390,7 @@ export async function submitContactRequest(requestData) {
 // PASSWORD PROTECTION
 // ============================================
 
+/** @deprecated Passwortpflicht kommt jetzt als project.access vom Server */
 export async function checkPasswordRequired(slug) {
   return dbCall('checkPasswordRequired', { slug });
 }
