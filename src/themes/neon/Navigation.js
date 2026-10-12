@@ -219,7 +219,9 @@ function Navigation() {
   // Fixed items always visible in nav bar (if active)
   const fixedNavItems = [
     { id: 'countdown', label: 'Countdown', target: 'countdown' },
-    { id: 'lovestory', label: 'Story', target: 'story' },
+    // Ziel-ID muss zur Sektion passen (LoveStory rendert id="lovestory") –
+    // mit 'story' tat der Klick auf "Story" nichts.
+    { id: 'lovestory', label: 'Story', target: 'lovestory' },
   ];
 
   // Items for burger menu (excluding fixed nav items: countdown, lovestory, rsvp)

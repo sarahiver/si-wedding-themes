@@ -39,6 +39,7 @@ const Section = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 90px 0 70px;
   position: relative;
   overflow: hidden;
   background: #0a0a0f;
@@ -155,7 +156,10 @@ const Eyebrow = styled.div`
 
 const Names = styled.h1`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(4rem, 15vw, 12rem);
+  /* zusätzlich an die Fensterhöhe gekoppelt: Auf Laptops (1280×720,
+     1366×768) lag der Name sonst unter der Navigation und "Wir heiraten"
+     war verdeckt */
+  font-size: min(clamp(4rem, 15vw, 12rem), max(2.5rem, 17vh));
   font-weight: 700;
   line-height: 0.9;
   color: #fff;

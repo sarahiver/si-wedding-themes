@@ -138,7 +138,9 @@ const TextPanel = styled.div`
 
 const SectionHeader = styled.div`
   position: absolute;
-  top: clamp(2rem, 4vh, 3rem);
+  /* unterhalb der fixierten Navigation (~87px) – sonst lag "Our Journey /
+     Love Story" auf dem Desktop immer unter der Leiste */
+  top: max(clamp(2rem, 4vh, 3rem), 100px);
   left: clamp(2rem, 6vw, 5rem);
   @media (max-width: 768px) { position: relative; top: auto; left: auto; margin-bottom: 1.5rem; }
 `;

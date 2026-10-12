@@ -16,8 +16,10 @@ const Grid = styled.div`max-width:var(--content-w);margin:0 auto;display:grid;gr
   @media(max-width:768px){grid-template-columns:1fr;}`;
 
 /* Links: Geschenk-Bilder stapeln sich */
+/* Einspaltig (≤768px): Höhe an die Breite koppeln – auf dem Tablet waren die
+   Bilder breiter als die feste Höhe und lagen über der Geschenkliste */
 const ImgStack = styled.div`position:relative;min-height:480px;
-  @media(max-width:768px){min-height:350px;}`;
+  @media(max-width:768px){min-height:0;width:100%;max-width:440px;margin:0 auto;aspect-ratio:10/9;}`;
 
 /* Stagger positions for editorial overlap */
 const stackPositions = [

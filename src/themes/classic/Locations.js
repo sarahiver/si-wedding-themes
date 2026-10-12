@@ -14,8 +14,11 @@ const HeroImg = styled.div`
   height:55vh;min-height:350px;overflow:hidden;
   img{width:100%;height:100%;object-fit:cover;filter:grayscale(25%) brightness(0.55);}
 `;
+/* Unten zusätzlich 6rem Luft: Die Location-Karten ragen mit margin-top:-6rem
+   ins Bild – vorher lagen sie über der Überschrift. */
 const HeroOverlay = styled.div`
   position:absolute;bottom:0;left:0;right:0;padding:clamp(2rem,5vw,4rem);
+  padding-bottom:calc(6rem + clamp(1.25rem,2.5vw,2rem));
   background:linear-gradient(transparent,rgba(0,0,0,0.5));
 `;
 const HeroEye = styled.p`font-size:0.5rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;`;

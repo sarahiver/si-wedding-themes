@@ -12,7 +12,12 @@ const Content = styled.div`text-align: center; max-width: 600px; width: 100%;`;
 
 const Names = styled.h2`
   font-family: var(--font-display);
-  font-size: clamp(3rem, 10vw, 6rem);
+  /* an den längsten Namen angepasst – sonst brachen lange Namen in der
+     600px-Spalte mitten im Wort um ("CHARLOTT / E") */
+  font-size: min(
+    clamp(3rem, 10vw, 6rem),
+    calc(min(600px, 100vw - 3rem) / (var(--name-chars, 6) * 0.75))
+  );
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -151,7 +156,7 @@ function Footer() {
   return (
     <SectionWrapper id="footer">
       <Content ref={sectionRef}>
-        <Names $visible={visible}>{name1} & {name2}</Names>
+        <Names $visible={visible} style={{ '--name-chars': Math.max(6, String(name1 || '').length, String(name2 || '').length) }}>{name1} & {name2}</Names>
         {formattedDate && <DateText $visible={visible}>{formattedDate}</DateText>}
         <Divider $visible={visible} />
         <Quote $visible={visible}>"Danke, dass ihr Teil unserer Geschichte seid"</Quote>

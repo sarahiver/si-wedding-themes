@@ -21,7 +21,9 @@ const Item = styled.div`
   overflow:hidden;border:3px solid white;box-shadow:0 4px 15px rgba(0,0,0,0.06);
   cursor:pointer;transition:all 0.4s;
   &:hover{box-shadow:0 8px 25px rgba(0,0,0,0.1);transform:translateY(-2px);}
-  img{width:100%;aspect-ratio:${p=>p.$ratio||'4/3'};object-fit:cover;
+  /* height:100% füllt die Kachel auch, wenn die Zeile höher ist (neben dem
+     großen 16:9-Bild blieb sonst unten ein weißer Streifen) */
+  img{display:block;width:100%;height:100%;aspect-ratio:${p=>p.$ratio||'4/3'};object-fit:cover;
     filter:grayscale(100%);transition:filter 0.5s, transform 0.5s;}
   &:hover img{filter:grayscale(0%);transform:scale(1.03);}
 `;
@@ -50,6 +52,8 @@ const DIMGS=[
 function Gallery(){
   const{content}=useWedding();const g=content?.gallery||{};const[ref,v]=useInView();
   const[modal,setModal]=useState(null);
+  // Desktop: Esc schließt die Großansicht
+  useEffect(()=>{if(!modal)return;const k=e=>{if(e.key==='Escape')setModal(null);};window.addEventListener('keydown',k);return()=>window.removeEventListener('keydown',k);},[modal]);
   const images=g.images?.length?g.images:DIMGS.map((url,i)=>({url,id:i}));
   return(
     <S id="gallery" data-theme-light ref={ref}>

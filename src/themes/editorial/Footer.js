@@ -77,7 +77,13 @@ const NamesSection = styled.div`
 
 const Names = styled.h2`
   font-family: var(--font-headline);
-  font-size: clamp(4rem, 18vw, 14rem);
+  /* Schriftgröße passt sich dem längsten Namen an: Jeder Buchstabe ist ein
+     eigenes <span>, lange Namen brachen sonst mitten im Wort um
+     ("MAXIMILIA / N"). Breite = Container (max 1000px) abzgl. Seitenrand. */
+  font-size: min(
+    clamp(4rem, 18vw, 14rem),
+    calc(min(1000px, 100vw - 2 * clamp(1.5rem, 5vw, 4rem)) / (var(--name-chars, 6) * 0.62))
+  );
   font-weight: 700;
   color: var(--editorial-white);
   text-transform: uppercase;
@@ -382,7 +388,7 @@ function Footer() {
       
       <Container>
         <NamesSection>
-          <Names $visible={visible}>
+          <Names $visible={visible} style={{ '--name-chars': Math.max(6, (name1 || '').length, (name2 || '').length) }}>
             <span className="line">{renderName(name1, 0.2)}</span>
             <Ampersand $visible={visible}>&</Ampersand>
             <span className="line">{renderName(name2, 0.5)}</span>

@@ -55,6 +55,7 @@ const Section = styled.section`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  padding-top: 80px;
   overflow: hidden;
   background: var(--editorial-black);
 `;
@@ -120,7 +121,9 @@ const HeadlineContainer = styled.div`
 
 const Headline = styled.h1`
   font-family: var(--font-headline);
-  font-size: clamp(3rem, 12vw, 10rem);
+  /* auch an die Fensterhöhe gekoppelt: Bei niedrigen Fenstern (Handy quer)
+     lag der Name sonst unter der Navigation */
+  font-size: min(clamp(3rem, 12vw, 10rem), max(2.5rem, 20vh));
   font-weight: 700;
   line-height: 0.9;
   color: var(--editorial-white);

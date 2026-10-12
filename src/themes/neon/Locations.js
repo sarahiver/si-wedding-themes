@@ -20,6 +20,8 @@ const Section = styled.section`
   overflow: hidden;
   position: relative;
   background: #0a0a0f;
+  /* Sprung über die Navigation: Überschrift nicht unter der fixierten Leiste */
+  scroll-margin-top: 24px;
 `;
 
 const LocationBlock = styled.div`

@@ -44,6 +44,9 @@ const LeftPanel = styled.div`
   flex-direction: column;
   justify-content: center;
   padding: clamp(2rem, 5vw, 5rem);
+  /* Platz für die schwebende Navigationsleiste: Bei niedrigen Fenstern
+     (Laptop 1280×720 / 1366×768) lagen Eyebrow und Vorname darunter */
+  padding-top: max(7.5rem, clamp(2rem, 5vw, 5rem));
   position: relative;
   z-index: 2;
   

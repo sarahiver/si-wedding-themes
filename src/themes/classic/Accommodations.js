@@ -12,7 +12,10 @@ const HIMGS=['https://res.cloudinary.com/si-weddings/image/upload/v1770720374/si
 const HeroImg = styled.div`position:relative;width:100vw;margin-left:50%;transform:translateX(-50%);
   height:55vh;min-height:380px;overflow:hidden;
   img{width:100%;height:100%;object-fit:cover;filter:grayscale(15%) brightness(0.5);}`;
+/* Unten zusätzlich 5rem Luft: Die Hotelkarten ragen mit margin-top:-5rem ins
+   Bild – vorher lagen sie über der Überschrift ("Where to Stay" verdeckt). */
 const HeroOv = styled.div`position:absolute;bottom:0;left:0;right:0;padding:clamp(2rem,5vw,4rem);
+  padding-bottom:calc(5rem + clamp(1.25rem,2.5vw,2rem));
   background:linear-gradient(transparent,rgba(0,0,0,0.45));`;
 const HEye = styled.p`font-family:var(--font-s);font-size:clamp(1.4rem,2.5vw,1.8rem);color:rgba(255,255,255,0.5);margin-bottom:0.3rem;`;
 const HTitle = styled.h2`font-family:var(--font-d);font-size:clamp(2.5rem,5vw,3.5rem);font-weight:300;color:white;`;

@@ -12,8 +12,10 @@ const Grid = styled.div`max-width:var(--content-w,1200px);margin:0 auto;
   @media(max-width:768px){grid-template-columns:1fr;gap:2.5rem;}`;
 
 /* 2 verschachtelte Bilder, kleiner */
+/* Einspaltig (≤768px): Höhe an die Breite koppeln – auf dem Tablet lagen die
+   Bilder sonst über Überschrift und Formular */
 const ImgStack = styled.div`position:relative;height:420px;
-  @media(max-width:768px){height:320px;}`;
+  @media(max-width:768px){height:auto;width:100%;max-width:400px;margin:0 auto;aspect-ratio:5/4;}`;
 const Img1 = styled.div`position:absolute;top:0;left:0;width:60%;overflow:hidden;
   border:6px solid white;box-shadow:0 15px 40px rgba(0,0,0,0.08);z-index:1;
   img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(30%) brightness(0.6);}`;

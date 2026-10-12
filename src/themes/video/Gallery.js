@@ -3,6 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
 import SectionWrapper from './SectionWrapper';
+import { createPortal } from 'react-dom';
 
 const fadeUp = keyframes`from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); }`;
 
@@ -38,6 +39,22 @@ function Gallery() {
   const closeLightbox = () => setLightbox({ ...lightbox, open: false });
   const navigate = (dir) => setLightbox(prev => ({ ...prev, index: (prev.index + dir + images.length) % images.length }));
 
+  // Desktop-Tastatur in der Großansicht: Esc schließt, ←/→ blättern.
+  // Capture-Phase + stopImmediatePropagation, damit die Pfeiltasten nicht
+  // gleichzeitig die Sektion wechseln (HorizontalScroll hört auch auf keydown).
+  useEffect(() => {
+    if (!lightbox.open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') { setLightbox(prev => ({ ...prev, open: false })); }
+      else if (e.key === 'ArrowRight') { setLightbox(prev => ({ ...prev, index: (prev.index + 1) % images.length })); }
+      else if (e.key === 'ArrowLeft') { setLightbox(prev => ({ ...prev, index: (prev.index - 1 + images.length) % images.length })); }
+      else return;
+      e.preventDefault(); e.stopImmediatePropagation();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [lightbox.open, images.length]);
+
   return (
     <SectionWrapper id="gallery">
       <Content ref={sectionRef}>
@@ -51,12 +68,14 @@ function Gallery() {
           ))}
         </Grid>
       </Content>
-      <Lightbox $open={lightbox.open} onClick={closeLightbox}>
+      {/* Per Portal an <body>: innerhalb der scrollenden Sektion war das
+          fixierte Overlay versetzt, das Bild lief unten unter die Navigation */}
+      {createPortal(<Lightbox $open={lightbox.open} onClick={closeLightbox}>
         {images[lightbox.index]?.url && <LightboxImage src={optimizedUrl.card(images[lightbox.index].url)} alt="" onClick={e => e.stopPropagation()} />}
         <LightboxClose onClick={closeLightbox}>x</LightboxClose>
         <LightboxNav className="prev" onClick={e => { e.stopPropagation(); navigate(-1); }}>&#8249;</LightboxNav>
         <LightboxNav className="next" onClick={e => { e.stopPropagation(); navigate(1); }}>&#8250;</LightboxNav>
-      </Lightbox>
+      </Lightbox>, document.body)}
     </SectionWrapper>
   );
 }
