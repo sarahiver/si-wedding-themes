@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 
-export default function Loader({ coupleNames }) {
-  const [visible, setVisible] = useState(true)
+export default function Loader({ coupleNames, duration = 3000 }) {
+  const [visible, setVisible] = useState(duration > 0)
   useEffect(() => {
-    const id = setTimeout(() => setVisible(false), 3000)
+    const id = setTimeout(() => setVisible(false), duration)
     return () => clearTimeout(id)
-  }, [])
+  }, [duration])
 
   // Extract initials from couple names (e.g. "Lena & Jonas" → "L&J.")
   // Avoid showing "S&I." as it's our brand logo — show nothing instead

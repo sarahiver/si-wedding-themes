@@ -11,6 +11,7 @@ import GalleryImages   from './GalleryImages'
 import HtmlContent     from './HtmlContent'
 import ParallaxModal   from './ParallaxModal'
 import Loader from './Loader'
+import NativeParallax from './NativeParallax'
 import { PAGES } from './scrollConfig'
 
 // ── Stabile Canvas-Konfiguration als Modulkonstanten ──
@@ -148,7 +149,121 @@ function ParallaxCountdown({ cdDate, countdownRef }) {
   )
 }
 
+// ── Darstellungsmodus ─────────────────────────────────────────────────────
+// 'native': ohne 3D-Szene, natives Scrollen (immer flüssig, auch im iOS-
+//           Stromsparmodus, wo Safari JavaScript-Animationen auf 30 fps drosselt)
+// '3d':     WebGL-Version (Desktop/Tablet)
+// Handys bekommen immer 'native'. Alle anderen starten in 3D; misst die Seite
+// während des Ladebildschirms unter 40 fps, wird auf 'native' umgeschaltet.
+// Zum Testen erzwingen: ?modern=native oder ?modern=3d
+function forcedMode() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('modern')
+    if (q === 'native' || q === '3d') return q
+  } catch (e) {}
+  return null
+}
+function isPhone() {
+  try {
+    const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+    const short = Math.min(window.screen?.width || 9999, window.screen?.height || 9999)
+    return (coarse && short < 600) || window.innerWidth < 600
+  } catch (e) { return false }
+}
+function initialMode() {
+  if (typeof window === 'undefined') return '3d'
+  const f = forcedMode()
+  if (f) return f
+  try { if (sessionStorage.getItem('si_modern_mode') === 'native') return 'native' } catch (e) {}
+  return isPhone() ? 'native' : '3d'
+}
+
 export default function ParallaxWeddingApp() {
+  const [mode, setMode] = useState(initialMode)
+  const [switched, setSwitched] = useState(false)
+
+  // FPS-Messung (nur 3D, nicht erzwungen): 1,0–2,6 s nach Start, Median der
+  // Frame-Abstände – robust gegen einzelne Hänger beim Textur-Upload
+  useEffect(() => {
+    if (mode !== '3d' || forcedMode()) return
+    let raf, last = 0, start = 0
+    const gaps = []
+    const begin = setTimeout(() => {
+      const loop = (t) => {
+        if (last) gaps.push(t - last)
+        last = t
+        if (!start) start = t
+        if (t - start < 1600) raf = requestAnimationFrame(loop)
+        else {
+          const sorted = gaps.slice().sort((a, b) => a - b)
+          const median = sorted[Math.floor(sorted.length / 2)] || 16
+          if (median > 25) {
+            try { sessionStorage.setItem('si_modern_mode', 'native') } catch (e) {}
+            setSwitched(true)
+            setMode('native')
+          }
+        }
+      }
+      raf = requestAnimationFrame(loop)
+    }, 1000)
+    return () => { clearTimeout(begin); cancelAnimationFrame(raf) }
+  }, [mode])
+
+  return mode === 'native' ? <NativeWeddingApp loaderMs={switched ? 600 : 3000} /> : <Parallax3DApp />
+}
+
+// ── Native Version (ohne WebGL) ──
+function NativeWeddingApp({ loaderMs }) {
+  const { project, content } = useWedding()
+  const [activeModal, setActiveModal] = useState(null)
+  const countdownRef = useRef(null)
+
+  const cdDateRaw = content?.countdown?.target_date || project?.wedding_date || '2026-09-20'
+  const cdDate = useMemo(() => {
+    const parsed = parseCountdownDate(cdDateRaw)
+    if (parsed && parsed < new Date() && project?.wedding_date) {
+      const wd = parseCountdownDate(project.wedding_date)
+      if (wd && wd > new Date()) return project.wedding_date
+    }
+    return cdDateRaw
+  }, [cdDateRaw, project?.wedding_date])
+
+  const openModal = useCallback((id, origin, label) => {
+    setActiveModal({
+      id,
+      origin: origin || { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+      label: label || 'Entdecken',
+    })
+  }, [])
+  const closeModal = useCallback(() => setActiveModal(null), [])
+
+  const cn = project?.couple_names || 'Lena & Jonas'
+  const [n1, n2] = cn.includes('&') ? cn.split('&').map(s => s.trim()) : [cn, '']
+  const wDate = project?.wedding_date
+    ? new Date(project.wedding_date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '16. August 2025'
+
+  return (
+    <>
+      <GlobalStyles />
+      <NativeParallax
+        project={project}
+        content={content}
+        activeModal={activeModal}
+        openModal={openModal}
+        n1={n1}
+        n2={n2}
+        wDate={wDate}
+        countdown={<ParallaxCountdown cdDate={cdDate} countdownRef={countdownRef} />}
+      />
+      <Loader coupleNames={cn} duration={loaderMs} />
+      <ParallaxModal activeModal={activeModal} onClose={closeModal} project={project} content={content} />
+    </>
+  )
+}
+
+// ── 3D-Version (WebGL) ──
+function Parallax3DApp() {
   const { project, content } = useWedding()
   const [activeModal, setActiveModal] = useState(null)
   const scrollOffsetRef = useRef(0)

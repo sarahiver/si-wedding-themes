@@ -29,7 +29,7 @@ function ensureBounceKeyframes() {
 }
 
 // ── Scattered title definitions — base layout before filtering ──
-const ALL_TITLES = [
+export const ALL_TITLES = [
   // Short words + low mLeft → can be bigger
   // Long words + high mLeft → must be smaller to fit in viewport
   // Formula: (100vw - mLeft) / ~charCount ≈ max safe char width
