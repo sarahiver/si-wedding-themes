@@ -58,8 +58,16 @@ function ensureKeyframes() {
 
 // Parallax offset
 function px(scrollTop, speed) {
-  return scrollTop * (speed - 0.5) * 0.6
+  // Auf dem Handy kein Versatz: Der Wert wächst mit der Scrollposition, und
+  // Bild und Text bewegen sich gegenläufig — bei späteren Kapiteln schob sich
+  // das Bild über Titel und Text. Zoom und Graustufen-Effekt bleiben.
+  if (typeof window !== 'undefined' && window.innerWidth < 768) return 0
+  // Desktop: Versatz begrenzen. Ungebremst wuchs er mit der Scrolltiefe auf
+  // mehrere hundert Pixel — ab dem 2./3. Kapitel lagen Bilder über den Texten.
+  const v = scrollTop * (speed - 0.5) * 0.6
+  return Math.max(-PX_MAX, Math.min(PX_MAX, v))
 }
+const PX_MAX = 20
 
 // ── MAIN MODAL ──
 export default function ParallaxModal({ activeModal, onClose, project, content }) {
@@ -196,7 +204,9 @@ export default function ParallaxModal({ activeModal, onClose, project, content }
           <div style={{
             ...st.contentInner,
             maxWidth: isFullWidth ? 'none' : '600px',
-            padding: isFullWidth ? '0' : '0 2rem',
+            // Die Inhalte haben selbst 2rem Seitenabstand — auf dem Handy
+            // ergab das doppelt 64px pro Seite und eine schmale Textspalte
+            padding: isFullWidth ? '0' : (isMobile ? '0 0.5rem' : '0 2rem'),
           }}>
             {renderContent()}
           </div>

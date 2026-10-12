@@ -1,5 +1,5 @@
 // Contemporary Navigation - Brutalist Floating Card
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
@@ -31,6 +31,7 @@ const NavInner = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding: 1rem 1.5rem;
   
   @media (max-width: 768px) {
@@ -46,8 +47,18 @@ const Logo = styled.a`
   letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
+  /* Lange Namen: umbrechen statt den Menü-Button aus dem Bild zu schieben */
+  flex-wrap: wrap;
+  column-gap: 0.5rem;
+  row-gap: 0;
+  line-height: 1.15;
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  @media (max-width: 400px) {
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+  }
   
   .ampersand {
     color: var(--coral);
@@ -85,6 +96,7 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0;
   
   @media (max-width: 900px) {
     gap: 0.5rem;
@@ -287,6 +299,16 @@ function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mobileOpen]);
 
+  // Menü direkt unter der (ggf. zweizeiligen) Leiste öffnen
+  const navRef = useRef(null);
+  const [menuPos, setMenuPos] = useState(null);
+  useEffect(() => {
+    if (!mobileOpen || !navRef.current) return;
+    const bottom = navRef.current.getBoundingClientRect().bottom;
+    const top = Math.round(bottom + 12);
+    setMenuPos({ top, maxHeight: Math.max(160, window.innerHeight - top - 16) });
+  }, [mobileOpen]);
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
@@ -305,7 +327,7 @@ function Navigation() {
 
   return (
     <>
-      <Nav>
+      <Nav ref={navRef}>
         <NavInner>
           <Logo href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             {name1} <span className="ampersand">&</span> {name2}
@@ -320,7 +342,7 @@ function Navigation() {
 
           <RightSection>
             {isComponentActive('rsvp') && <CTAButton href="#rsvp" onClick={(e) => handleLinkClick(e, '#rsvp')}>RSVP</CTAButton>}
-            <MobileButton onClick={() => setMobileOpen(!mobileOpen)}>
+            <MobileButton onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? 'Menü schließen' : 'Menü öffnen'} aria-expanded={mobileOpen}>
               <Hamburger $open={mobileOpen}>
                 <span /><span /><span />
               </Hamburger>
@@ -329,7 +351,7 @@ function Navigation() {
         </NavInner>
       </Nav>
       
-      <MobileMenu $open={mobileOpen}>
+      <MobileMenu $open={mobileOpen} style={menuPos || undefined}>
         {burgerMenuItems.map((link, i) => (
           <MobileLink key={i} href={link.href} onClick={(e) => handleLinkClick(e, link.href)}>
             {link.label}

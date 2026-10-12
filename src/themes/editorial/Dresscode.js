@@ -210,6 +210,13 @@ const ListBlock = styled.div`
     animation: ${fadeInUp} 0.8s ease forwards;
     animation-delay: ${p.$type === 'do' ? '0.7s' : '0.8s'};
   `}
+
+  /* Mobil ist Grid ein Wisch-Karussell: jede Karte bekommt eigene Breite,
+     statt beide Karten in eine Bildschirmbreite zu quetschen */
+  @media (max-width: 768px) {
+    flex: 0 0 min(85vw, 420px);
+    scroll-snap-align: center;
+  }
 `;
 
 const ListHeader = styled.div`

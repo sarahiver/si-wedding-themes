@@ -73,20 +73,10 @@ const Grid = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: clamp(2rem, 5vw, 4rem);
 
+  /* Karte über den Infos. (Vorher auf Mobile ein Wisch-Karussell, in dem die
+     Karte keine Breite hatte und unsichtbar war.) */
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
-  }
-
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 0.75rem;
-    margin: 0 calc(-1 * var(--section-padding-x, 24px));
-    padding: 0 var(--section-padding-x, 24px);
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
   }
 `;
 

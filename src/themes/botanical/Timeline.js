@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { timelineIcon } from '../../lib/timelineIcon';
 
 // ============================================
 // ANIMATIONS
@@ -210,7 +211,7 @@ function Timeline() {
               <TimeBox>
                 <Time>{item.time}</Time>
               </TimeBox>
-              {item.icon && <Icon>{item.icon}</Icon>}
+              {timelineIcon(item.icon) && <Icon>{timelineIcon(item.icon)}</Icon>}
               <Content>
                 <ItemTitle>{item.title}</ItemTitle>
                 {item.description && (

@@ -186,8 +186,14 @@ const CountdownGrid = styled.div`
   max-width: 800px;
   margin: 0 auto;
 
-  @media (min-width: 600px) {
-    grid-template-columns: repeat(${props => props.$columns}, 1fr);
+  /* Alle Einheiten in einer Reihe erst ab 900px – bei Tablet-Breite liefen
+     die Zahlen sonst aus ihren Kacheln (4. Kachel abgeschnitten) */
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(${props => props.$columns}, minmax(0, 1fr));
+  }
+  @media (max-width: 899px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 `;
 
@@ -199,6 +205,11 @@ const UnitCard = styled.div`
   text-align: center;
   position: relative;
   transition: all 0.3s ease;
+  min-width: 0;
+
+  @media (max-width: 480px) {
+    padding: 24px 8px;
+  }
 
   &::before {
     content: '';
@@ -225,9 +236,10 @@ const UnitCard = styled.div`
 
 const UnitNumber = styled.div`
   font-family: 'Space Grotesk', monospace;
-  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-size: clamp(1.6rem, 7vw, 4rem);
   font-weight: 700;
   color: var(--neon-cyan, #00ffff);
+  white-space: nowrap;
   line-height: 1;
   animation: ${numberGlow} 3s ease-in-out infinite;
 
@@ -320,6 +332,12 @@ function Countdown() {
   const countdown = content?.countdown || {};
 
   const targetDate = getCountdownTarget(countdown, weddingDate);
+  // getCountdownTarget liefert ein Date-Objekt — das darf nicht direkt ins
+  // JSX (React-Fehler #31 → ganze Seite stürzt ab). Daher als Text:
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const targetLabel = targetDate instanceof Date && !isNaN(targetDate)
+    ? `${targetDate.getFullYear()}-${pad2(targetDate.getMonth() + 1)}-${pad2(targetDate.getDate())}T${pad2(targetDate.getHours())}:${pad2(targetDate.getMinutes())}`
+    : '—';
   const showSeconds = countdown.show_seconds !== false;
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -393,7 +411,7 @@ function Countdown() {
           <TerminalBody>
             <Header>
               <CommandLine $visible={visible}>
-                ./calculate_time_remaining --target="{targetDate}"
+                ./calculate_time_remaining --target="{targetLabel}"
               </CommandLine>
               <Title>{countdown.title || 'Countdown'}</Title>
               <Subtitle>Zeit bis zum großen Tag</Subtitle>
@@ -415,7 +433,7 @@ function Countdown() {
 
             <StatusBar>
               <StatusText>
-                target: <span>{new Date(targetDate).toLocaleDateString('de-DE')}</span>
+                target: <span>{targetDate ? new Date(targetDate).toLocaleDateString('de-DE') : '—'}</span>
               </StatusText>
               <StatusText>
                 status: <span>counting</span>

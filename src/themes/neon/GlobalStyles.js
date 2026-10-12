@@ -52,6 +52,8 @@ const GlobalStyles = createGlobalStyle`
     color: #ffffff;
     background: var(--black);
     overflow-x: hidden;
+    /* Überlange Wörter (Namen, Komposita) umbrechen statt aus dem Bild laufen */
+    overflow-wrap: break-word;
   }
 
   /* Animated Grid Background */

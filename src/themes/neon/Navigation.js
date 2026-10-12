@@ -41,7 +41,7 @@ const Container = styled.div`
 
 const Logo = styled.a`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 4.2vw, 1.5rem);
   font-weight: 700;
   color: #00ffff;
   text-shadow: 0 0 10px rgba(0,255,255,0.5);

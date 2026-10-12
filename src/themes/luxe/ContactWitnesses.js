@@ -24,7 +24,9 @@ const Grid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, m
     &::-webkit-scrollbar { display: none; }
   }
 `;
-const Card = styled.div`text-align: center; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;`;
+const Card = styled.div`text-align: center; opacity: 0; animation: ${p => p.$visible ? css`${fadeUp} 0.8s var(--ease-out-expo) forwards` : 'none'}; animation-delay: ${p => 0.2 + p.$index * 0.15}s;
+  /* Mobil: Karussell-Karte mit eigener Breite statt gequetschter Spalten */
+  @media (max-width: 768px) { flex: 0 0 min(80vw, 340px); scroll-snap-align: center; }`;
 // FIX: Only use url() when image exists and is not empty string
 const Avatar = styled.div`width: 100px; height: 100px; margin: 0 auto 1.5rem; background: ${p => p.$image && p.$image.length > 0 ? `url(${p.$image}) center/cover` : 'var(--luxe-charcoal)'}; border-radius: 50%;`;
 const PersonName = styled.h3`font-family: var(--font-display); font-size: 1.25rem; font-style: italic; color: var(--luxe-cream); margin-bottom: 0.25rem;`;

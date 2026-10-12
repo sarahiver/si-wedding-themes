@@ -104,6 +104,16 @@ const CountdownGrid = styled.div`
   display: flex;
   justify-content: center;
   gap: clamp(1rem, 3vw, 2rem);
+
+  /* Schmale Phones: 4 Kacheln nebeneinander sind zu eng (Zahlen/Labels
+     laufen aus den Kacheln) → 2 × 2 */
+  @media (max-width: 560px) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    /* ohne Sekunden (3 Kacheln): letzte über volle Breite */
+    & > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  }
 `;
 
 const CountdownUnit = styled.div`

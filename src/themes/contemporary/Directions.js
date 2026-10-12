@@ -60,6 +60,12 @@ const Card = styled.div`
   border: 3px solid var(--black);
   box-shadow: var(--shadow-lg);
   padding: 2rem;
+
+  /* Mobil: Karussell-Karte mit eigener Breite statt gequetschter Spalten */
+  @media (max-width: 768px) {
+    flex: 0 0 min(85vw, 360px);
+    scroll-snap-align: center;
+  }
 `;
 
 const CardIcon = styled.div`

@@ -214,8 +214,13 @@ export default function ParallaxWeddingApp() {
           const vw = window.innerWidth
           const vh = window.innerHeight
 
-          // Position: center of hero zone → top-right corner
-          const x = vw / 2 + ((vw - 80) - vw / 2) * e
+          // Position: center of hero zone → top-right corner.
+          // Ziel ist die rechte Kante MINUS halbe Logobreite (das Element ist
+          // per translate(-50%) zentriert). Vorher fest vw - 80: Bei längeren
+          // Namen lief das Logo rechts aus dem Bild.
+          const edge = vw < 768 ? 16 : 28
+          const endX = Math.max(vw / 2, vw - edge - el.offsetWidth / 2)
+          const x = vw / 2 + (endX - vw / 2) * e
           const y = vh * 0.22 + (22 - vh * 0.22) * e
           el.style.left = `${x}px`
           el.style.top = `${y}px`

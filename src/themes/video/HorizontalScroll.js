@@ -125,16 +125,27 @@ const Navigation = styled.nav`
 const NavList = styled.ul`
   display: flex;
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
   list-style: none;
   flex-wrap: nowrap;
-  overflow: hidden;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0.5rem;
+  /* Viele Sektionen: horizontal scrollbar statt links/rechts abgeschnitten */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 `;
 
 const NavItem = styled.li`
   white-space: nowrap;
   flex-shrink: 0;
+  /* zentriert, solange alles passt – sonst linksbündig scrollbar */
+  &:first-child { margin-left: auto; }
+  &:last-child { margin-right: auto; }
 `;
 
 const NavButton = styled.button`
@@ -322,6 +333,18 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
     });
   }, []);
 
+  // Aktiven Menüpunkt in der (ggf. scrollbaren) Navigationsleiste sichtbar halten
+  const navListRef = useRef(null);
+  useEffect(() => {
+    const list = navListRef.current;
+    if (!list || list.scrollWidth <= list.clientWidth) return;
+    const item = list.children[activeIndex];
+    if (!item) return;
+    const lr = list.getBoundingClientRect(), ir = item.getBoundingClientRect();
+    const left = list.scrollLeft + (ir.left - lr.left) - lr.width / 2 + ir.width / 2;
+    list.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+  }, [activeIndex]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -489,7 +512,7 @@ function HorizontalScroll({ sections, background, backgroundMobile, children }) 
       )}
 
       <Navigation>
-        <NavList>
+        <NavList ref={navListRef}>
           {sections.map((section, index) => (
             <NavItem key={section.id}>
               <NavButton

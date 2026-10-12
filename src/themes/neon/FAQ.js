@@ -171,6 +171,10 @@ const QuestionNumber = styled.span`
 
 const QuestionText = styled.span`
   flex: 1;
+  /* lange deutsche Wörter (z. B. "Kinderbetreuungsmöglichkeiten") umbrechen */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.1rem;
   color: ${props => props.isOpen ? 'var(--neon-cyan)' : 'white'};

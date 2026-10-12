@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { timelineIcon } from '../../lib/timelineIcon';
 
 const float = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -297,7 +298,7 @@ function Timeline() {
             >
               <CardHeader>
                 <TimeBox $index={index}>{item.time}</TimeBox>
-                <IconBox $index={index}>{item.icon || '📍'}</IconBox>
+                <IconBox $index={index}>{timelineIcon(item.icon, '📍')}</IconBox>
               </CardHeader>
               <CardTitle>{item.title}</CardTitle>
               {item.location && <CardLocation>{item.location}</CardLocation>}

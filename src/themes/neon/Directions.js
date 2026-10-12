@@ -88,6 +88,13 @@ const Card = styled.div`
   transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.6s ease ${p => p.$delay}s;
 
+  /* Mobil: Karussell-Karte mit eigener Breite statt gequetschter Spalten */
+  @media (max-width: 768px) {
+    flex: 0 0 min(85vw, 360px);
+    scroll-snap-align: center;
+    padding: 28px;
+  }
+
   &::before {
     content: '';
     position: absolute;

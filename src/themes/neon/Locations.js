@@ -27,21 +27,11 @@ const LocationBlock = styled.div`
   display: grid;
   grid-template-columns: ${p => p.$reverse ? '1fr 1fr' : '1fr 1fr'};
   
+  /* Mobil/Tablet: Bild über Text (vorher ein Wisch-Karussell aus Bild- und
+     Textseite, in dem beide Hälften zusammengequetscht wurden) */
   @media (max-width: 968px) {
     grid-template-columns: 1fr;
     min-height: auto;
-  }
-
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 0.75rem;
-    margin: 0 calc(-1 * var(--section-padding-x, 24px));
-    padding: 0 var(--section-padding-x, 24px);
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
   }
 `;
 
@@ -143,10 +133,11 @@ const TypeBadge = styled.div`
 
 const LocationName = styled.h3`
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(1.9rem, 7vw, 4rem);
   font-weight: 700;
   color: #fff;
   line-height: 1.1;
+  hyphens: auto;
   margin-bottom: 30px;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});

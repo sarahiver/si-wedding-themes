@@ -62,20 +62,28 @@ const Overlay = styled.div`
   background: var(--c-bg);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 0.25rem;
   opacity: ${p => p.$open ? 1 : 0};
   pointer-events: ${p => p.$open ? 'auto' : 'none'};
   transition: opacity 0.35s var(--ease);
-  padding: 2rem;
+  /* Viele Menüpunkte / Querformat: scrollen statt oben und unten abschneiden */
+  padding: 5rem 2rem 2.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  & > :first-child { margin-top: auto; }
+  & > :last-child { margin-bottom: auto; }
+  text-align: center;
 `;
 
 const OverlayLogo = styled.div`
   font-family: var(--font-s);
   font-size: clamp(2rem, 6vw, 3rem);
   color: var(--c-accent);
-  margin-bottom: 2.5rem;
+  margin-bottom: clamp(1rem, 4vh, 2.5rem);
+  flex-shrink: 0;
   opacity: ${p => p.$open ? 1 : 0};
   transform: translateY(${p => p.$open ? 0 : '16px'});
   transition: opacity 0.4s 0.1s var(--ease), transform 0.4s 0.1s var(--ease);
@@ -94,6 +102,7 @@ const NavItem = styled.a`
     color 0.2s;
   padding: 0.6rem 0;
   position: relative;
+  flex-shrink: 0;
 
   &::after {
     content: '';
@@ -113,6 +122,7 @@ const NavItem = styled.a`
 const OverlayDivider = styled.div`
   width: 40px;
   height: 1px;
+  flex-shrink: 0;
   background: var(--c-border-warm);
   margin: 1rem auto;
 `;

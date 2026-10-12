@@ -349,11 +349,9 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
   // Hero always shows, others check isComponentActive
   if (!alwaysShow && !isComponentActive(componentId)) return null
 
-  return (
-    <Suspense fallback={null}>
-      <Component />
-    </Suspense>
-  )
+  // Kein eigenes Suspense pro Sektion: alle Sektionen hängen an EINER Grenze
+  // in StandardWeddingPage (siehe dort).
+  return <Component />
 }
 
 // ============================================
@@ -455,9 +453,13 @@ function StandardWeddingPage() {
       )}
 
       <PageWrapper $background={background}>
-        <Suspense fallback={null}>
+        {/* EINE Suspense-Grenze für Navigation, alle Sektionen und Footer.
+            Vorher hatte jede Sektion ihre eigene Grenze – dabei blieben je nach
+            Ladereihenfolge einzelne Grenzen dauerhaft im Fallback hängen
+            (Chunk geladen, React hat aber nie neu gerendert) → Seite
+            unvollständig. Mit einer Grenze erscheint die Seite komplett. */}
+        <Suspense fallback={<div style={{ minHeight: '100vh', background }} />}>
           <components.Navigation />
-        </Suspense>
 
         <main
           style={
@@ -477,7 +479,6 @@ function StandardWeddingPage() {
           ))}
         </main>
 
-        <Suspense fallback={null}>
           <components.Footer />
         </Suspense>
       </PageWrapper>

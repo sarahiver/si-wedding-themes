@@ -259,11 +259,20 @@ const s = {
     fontSize: 'clamp(2rem, 5vw, 3.5rem)',
     fontWeight: 800,
     color: '#000',
+    // Zweizeilig auf dem Handy: zentriert und mit Abstand zum Rand
+    // (vorher linksbündig, direkt an der Bildschirmkante)
+    textAlign: 'center',
+    lineHeight: 1.1,
+    padding: '0 1.5rem',
+    margin: 0,
+    overflowWrap: 'break-word',
   },
   footerSub: {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '0.7rem',
     fontWeight: 700,
+    textAlign: 'center',
+    padding: '0 1.5rem',
     letterSpacing: '0.2em',
     textTransform: 'uppercase',
     color: 'rgba(0,0,0,0.35)',

@@ -19,9 +19,12 @@ const Logo = styled.a`
   transition:color 0.4s;
 `;
 const Links = styled.div`
-  display:flex;gap:2.5rem;
+  display:flex;gap:clamp(1.25rem,2vw,2.5rem);
   @media(max-width:900px){display:none;}
+  /* Zu viele Punkte für die Breite → unsichtbar (nur zum Messen), Burger übernimmt */
+  ${p=>p.$collapsed?'position:absolute;visibility:hidden;pointer-events:none !important;left:0;top:0;':''}
   a {
+    white-space:nowrap;
     font-family:var(--font-b);font-size:0.55rem;font-weight:300;
     letter-spacing:0.15em;text-transform:uppercase;
     color:${p=>p.$dark?'rgba(0,0,0,0.35)':'rgba(255,255,255,0.5)'};
@@ -30,27 +33,39 @@ const Links = styled.div`
   }
 `;
 const Burger = styled.button`
-  display:none;background:none;border:none;cursor:pointer;padding:0.5rem;
-  @media(max-width:900px){display:flex;flex-direction:column;gap:5px;}
+  display:${p=>p.$force?'flex':'none'};flex-direction:column;gap:5px;
+  background:none;border:none;cursor:pointer;padding:0.5rem;
+  opacity:${p=>p.$hidden?0:1};transition:opacity 0.3s;
+  @media(max-width:900px){display:flex;}
   span{display:block;width:22px;height:1px;background:${p=>p.$dark?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)'};transition:all 0.3s;}
 `;
 const MobileMenu = styled.div`
   position:fixed;inset:0;z-index:99;background:rgba(255,255,255,0.97);
   backdrop-filter:blur(20px);display:flex;flex-direction:column;
-  justify-content:center;align-items:center;gap:2rem;
+  justify-content:flex-start;align-items:center;gap:clamp(0.9rem,3vh,2rem);
+  /* Viele Menüpunkte / Querformat: scrollen statt abschneiden */
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:4.5rem 1.5rem 2.5rem;
+  & > a:first-of-type{margin-top:auto;}
+  & > a:last-of-type{margin-bottom:auto;}
   opacity:${p=>p.$open?1:0};pointer-events:${p=>p.$open?'auto':'none'};transition:opacity 0.4s;
-  a{font-family:var(--font-d);font-size:1.8rem;font-weight:300;color:var(--c-text);
+  a{font-family:var(--font-d);font-size:clamp(1.3rem,4.2vh,1.8rem);font-weight:300;color:var(--c-text);text-align:center;
     opacity:0.6;transition:opacity 0.3s;&:hover{opacity:1;}}
 `;
 const CloseBtn = styled.button`
-  position:absolute;top:2rem;right:2rem;background:none;border:none;
-  font-size:1.5rem;color:var(--c-text);cursor:pointer;opacity:0.4;
+  position:fixed;top:1.4rem;right:calc(clamp(2rem,5vw,4rem) - 0.5rem);z-index:101;background:none;border:none;
+  font-size:1.5rem;line-height:1;padding:0.5rem;color:var(--c-text);cursor:pointer;
+  opacity:${p=>p.$open?0.4:0};pointer-events:${p=>p.$open?'auto':'none'};transition:opacity 0.4s;
 `;
 
 function Navigation() {
   const { project, isComponentActive } = useWedding();
   const [dark, setDark] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const navRef = useRef(null);
+  const logoRef = useRef(null);
+  const linksRef = useRef(null);
   const cn = project?.couple_names || 'Anna & Max';
 
   useEffect(() => {
@@ -84,6 +99,22 @@ function Navigation() {
     .filter(id => labelMap[id] && isComponentActive(id))
     .map(id => ({ id, label: labelMap[id], href: `#${id}` }));
 
+  // Passen alle Links neben das Logo? Sonst Burger-Menü (auch auf Desktop)
+  const navKey = navItems.map(i => i.id).join(',');
+  useEffect(() => {
+    const measure = () => {
+      const nav = navRef.current, links = linksRef.current, logo = logoRef.current;
+      if (!nav || !links || !logo) return;
+      const cs = getComputedStyle(nav);
+      const avail = nav.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - logo.offsetWidth - 32;
+      setCollapsed(links.scrollWidth > avail);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    if (document.fonts?.ready) document.fonts.ready.then(measure).catch(() => {});
+    return () => window.removeEventListener('resize', measure);
+  }, [navKey]);
+
   const scrollTo = (e, href) => {
     e.preventDefault();
     setMobileOpen(false);
@@ -92,21 +123,21 @@ function Navigation() {
 
   return (
     <>
-      <Nav>
-        <Logo $dark={dark} href="#" onClick={e => scrollTo(e, '#top')} aria-label={cn}>
+      <Nav ref={navRef}>
+        <Logo ref={logoRef} $dark={dark || mobileOpen} href="#" onClick={e => scrollTo(e, '#top')} aria-label={cn}>
           {monogramUrl(project) ? <Monogram project={project} size="clamp(3.4rem, 5vw, 4.5rem)" /> : cn}
         </Logo>
-        <Links $dark={dark}>
+        <Links ref={linksRef} $dark={dark} $collapsed={collapsed} aria-hidden={collapsed || undefined}>
           {navItems.map(item => (
-            <a key={item.id} href={item.href} onClick={e => scrollTo(e, item.href)}>{item.label}</a>
+            <a key={item.id} href={item.href} tabIndex={collapsed ? -1 : undefined} onClick={e => scrollTo(e, item.href)}>{item.label}</a>
           ))}
         </Links>
-        <Burger $dark={dark} onClick={() => setMobileOpen(true)}>
+        <Burger $dark={dark} $force={collapsed} $hidden={mobileOpen} onClick={() => setMobileOpen(true)} aria-label="Menü öffnen">
           <span /><span /><span />
         </Burger>
       </Nav>
+      <CloseBtn $open={mobileOpen} onClick={() => setMobileOpen(false)} aria-label="Menü schließen">×</CloseBtn>
       <MobileMenu $open={mobileOpen}>
-        <CloseBtn onClick={() => setMobileOpen(false)}>×</CloseBtn>
         {navItems.map(item => (
           <a key={item.id} href={item.href} onClick={e => scrollTo(e, item.href)}>{item.label}</a>
         ))}

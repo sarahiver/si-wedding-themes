@@ -137,16 +137,11 @@ const TipsList = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 
-  @media (max-width: 768px) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 0.75rem;
-    margin: 0 calc(-1 * var(--section-padding-x, 24px));
-    padding: 0 var(--section-padding-x, 24px);
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
+  /* Mobil: "Empfohlen" und "Bitte vermeiden" untereinander statt zwei
+     gequetschter Spalten (vorher wurde jedes Wort einzeln umbrochen) */
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 `;
 
@@ -163,11 +158,6 @@ const TipItem = styled.div`
     flex-shrink: 0;
   }
 
-  @media (max-width: 768px) {
-    flex: 0 0 85vw;
-    max-width: 85vw;
-    scroll-snap-align: center;
-  }
 `;
 
 function Dresscode() {

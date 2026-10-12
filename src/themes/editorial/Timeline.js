@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import { timelineIcon } from '../../lib/timelineIcon';
 
 // ============================================
 // ANIMATIONS
@@ -411,7 +412,7 @@ function Timeline() {
                     $visible={isVisible}
                     $delay={delay}
                   >
-                    {event.icon}
+                    {timelineIcon(event.icon)}
                   </MarkerDot>
                 </Marker>
                 
