@@ -81,7 +81,7 @@ export function Impressum() {
 
         <H2>Angaben gemäß § 5 TMG</H2>
         <P>
-          Iver Gentz<br />
+          Iver Bohnes<br />
           S&I. wedding<br />
           Große Freiheit 82<br />
           22767 Hamburg
@@ -94,7 +94,7 @@ export function Impressum() {
 
         <H2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</H2>
         <P>
-          Iver Gentz<br />
+          Iver Bohnes<br />
           Große Freiheit 82<br />
           22767 Hamburg
         </P>
@@ -136,7 +136,7 @@ export function Datenschutz() {
 
         <H2>1. Verantwortlicher</H2>
         <P>
-          Iver Gentz<br />
+          Iver Bohnes<br />
           S&I. wedding<br />
           Große Freiheit 82, 22767 Hamburg<br />
           E-Mail: wedding@sarahiver.de
