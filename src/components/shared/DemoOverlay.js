@@ -5,9 +5,26 @@
 // Minimierbar (nicht schließbar) — die Kennzeichnung soll bestehen bleiben.
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getDemoConsent, setDemoConsent, loadDemoAnalytics, removeDemoAnalytics, initDemoConsentMode } from '../../lib/demoAnalytics';
+import { getDemoConsent, setDemoConsent, loadDemoAnalytics, removeDemoAnalytics, initDemoConsentMode, trackDemoEvent } from '../../lib/demoAnalytics';
 
 const CONTACT_URL = 'https://www.sarahiver.com/#contact';
+
+// Design-ID, wie sie das Anfrageformular auf sarahiver.com kennt
+// (THEME_OPTIONS dort). Das Theme "parallax" heißt im Marketing "Modern".
+const MARKETING_THEME_ID = { parallax: 'modern' };
+export const designIdFor = (theme) => {
+  const t = String(theme || '').toLowerCase();
+  return MARKETING_THEME_ID[t] || t;
+};
+
+// Rückweg zum Formular MIT gewähltem Design. Vorher ging der CTA auf
+// "/#contact" ohne Design: Die Demo läuft im neuen Tab, dort fehlt die
+// Session von sarahiver.com — das Formular wusste also nicht, welches
+// Design das Paar gerade angesehen hatte.
+export const contactUrlFor = (theme) => {
+  const id = designIdFor(theme);
+  return id ? `${CONTACT_URL}?theme=${encodeURIComponent(id)}` : CONTACT_URL;
+};
 
 const Bar = styled.div`
   position: fixed;
@@ -172,8 +189,7 @@ const DemoOverlay = ({ theme, slug }) => {
   const [minimized, setMinimized] = useState(false);
   const [consent, setConsent] = useState(() => getDemoConsent());
 
-  // Consent Mode v2: GA sofort im Denied-Modus starten (cookielose Pings),
-  // bestehende Einwilligung wird darin automatisch angewendet
+  // GA nur mit gespeicherter Einwilligung starten (sonst passiert nichts)
   useEffect(() => {
     initDemoConsentMode();
   }, []);
@@ -196,14 +212,15 @@ const DemoOverlay = ({ theme, slug }) => {
     removeDemoAnalytics();
   };
 
+  // "demo" = derselbe Parametername wie bei demo_click auf sarahiver.com,
+  // damit CTA-Klicks je Design auswertbar sind
   const handleCTAClick = () => {
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'demo_overlay_cta', {
-        event_category: 'engagement',
-        event_label: theme || slug || 'unknown',
-        demo_slug: slug,
-      });
-    }
+    trackDemoEvent('demo_overlay_cta', {
+      event_category: 'engagement',
+      event_label: theme || slug || 'unknown',
+      demo_slug: slug,
+      demo: designIdFor(theme) || 'unknown',
+    });
   };
 
   if (consent === null) {
@@ -224,7 +241,7 @@ const DemoOverlay = ({ theme, slug }) => {
       <Bar $minimized={minimized} role="complementary" aria-label="Demo-Hinweis">
         <Badge>Demo</Badge>
         <Text>So könnte eure Hochzeitswebsite aussehen — voll funktionsfähig, live klickbar.</Text>
-        <CTA href={CONTACT_URL} onClick={handleCTAClick}>
+        <CTA href={contactUrlFor(theme)} onClick={handleCTAClick}>
           Unverbindlich anfragen
         </CTA>
         <MinimizeBtn

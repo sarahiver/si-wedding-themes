@@ -1,7 +1,16 @@
 // src/lib/demoAnalytics.js
 // GA4 NUR für Demo-Seiten (isDemo in App.js) — Kundenseiten werden NICHT getrackt.
-// Gleiche Property wie sarahiver.com (Cross-Domain-Funnel), Laden erst nach
-// Einwilligung über das DemoOverlay. Muster übernommen aus si-marketing.
+// Gleiche Property wie sarahiver.com (Cross-Domain-Funnel).
+//
+// Seit Nov 2026: GA wird erst NACH Einwilligung geladen (Consent Mode "basic").
+// Vorher lud es sofort im Modus analytics_storage: 'denied' und schickte
+// cookielose Pings. Zwei Folgen:
+//   1. GA4-Anfragen ohne Einwilligung — widerspricht der Datenschutzvorgabe.
+//   2. Der page_view ging beim Laden (ohne Einwilligung) raus und wurde nach
+//      "Einverstanden" NICHT nachgeholt. Erstbesucher einer Demo tauchten in
+//      GA4 deshalb nie als Demo-Besuch auf — nur ihre späteren Events.
+// Jetzt sendet der config-Aufruf beim Start den page_view, und der Start
+// passiert erst mit Einwilligung (gespeichert oder per Klick).
 const GA_MEASUREMENT_ID = 'G-G9DKBTJRJJ';
 
 export const CONSENT_KEY = 'si_demo_cookie_consent';
@@ -22,60 +31,63 @@ export const setDemoConsent = (value) => {
   }
 };
 
-// Consent Mode v2: GA lädt auf Demo-Seiten SOFORT (Aufruf im DemoOverlay-Mount),
-// aber mit analytics_storage: 'denied' als Default. Ohne Einwilligung sendet GA
-// nur cookielose, anonyme Pings — DSGVO-konform, aber im Funnel zählbar.
-// url_passthrough hält den Cross-Domain-Linker (_gl) von sarahiver.com am Leben.
+// Startet GA genau einmal — nur mit gespeicherter Einwilligung.
 export const initDemoConsentMode = () => {
   if (typeof window === 'undefined') return;
-  if (window.gtag) return; // bereits initialisiert
-
-  const script = document.createElement('script');
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  script.async = true;
-  document.head.appendChild(script);
+  if (getDemoConsent() !== 'accepted') return; // ohne Einwilligung: nichts laden
+  if (window.__siDemoGaInit) return; // bereits gestartet
+  window.__siDemoGaInit = true;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function () {
-    window.dataLayer.push(arguments);
-  };
+  if (typeof window.gtag !== 'function') {
+    window.gtag = function () {
+      window.dataLayer.push(arguments);
+    };
+  }
+  if (!document.querySelector(`script[src*="gtag/js?id=${GA_MEASUREMENT_ID}"]`)) {
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+    script.async = true;
+    document.head.appendChild(script);
+  }
 
-  // MUSS vor js/config stehen: Default = alles verweigert
+  // Reihenfolge wichtig: consent → js → config
   window.gtag('consent', 'default', {
-    analytics_storage: 'denied',
+    analytics_storage: 'granted',
     ad_storage: 'denied',
     ad_user_data: 'denied',
     ad_personalization: 'denied',
   });
-  window.gtag('set', 'url_passthrough', true);
   window.gtag('set', 'ads_data_redaction', true);
+  window['ga-disable-' + GA_MEASUREMENT_ID] = false;
 
   window.gtag('js', new Date());
+  // config sendet den page_view (page_location enthält ?src=… von sarahiver.com)
   window.gtag('config', GA_MEASUREMENT_ID, {
     anonymize_ip: true,
     cookie_flags: 'SameSite=None;Secure',
     send_page_view: true,
   });
-
-  // Bestehende Einwilligung aus früherem Besuch direkt anwenden
-  if (getDemoConsent() === 'accepted') {
-    window.gtag('consent', 'update', { analytics_storage: 'granted' });
-  }
 };
 
-// Bei "Einverstanden": auf volles Tracking hochstufen
+// Bei "Einverstanden": Einwilligung ist schon gespeichert (DemoOverlay) → starten.
+// War GA bereits aktiv (Widerruf und erneute Zustimmung), nur wieder freigeben.
 export const loadDemoAnalytics = () => {
   if (typeof window === 'undefined') return;
-  if (!window.gtag) initDemoConsentMode();
+  if (!window.__siDemoGaInit) {
+    initDemoConsentMode();
+    return;
+  }
+  window['ga-disable-' + GA_MEASUREMENT_ID] = false;
   window.gtag('consent', 'update', { analytics_storage: 'granted' });
 };
 
-// Bei "Nur nötige": Consent auf denied (cookielose Pings laufen weiter —
-// genau das erlaubt Consent Mode v2), vorhandene GA-Cookies aufräumen.
-// Kein ga-disable mehr: das würde auch die erlaubten anonymen Pings stoppen.
+// Bei "Nur nötige": GA stummschalten (keine weiteren Anfragen) und
+// vorhandene GA-Cookies aufräumen. Wurde GA nie geladen, gibt es nichts zu tun.
 export const removeDemoAnalytics = () => {
   if (typeof window === 'undefined') return;
-  if (window.gtag) {
+  window['ga-disable-' + GA_MEASUREMENT_ID] = true;
+  if (window.__siDemoGaInit && window.gtag) {
     window.gtag('consent', 'update', { analytics_storage: 'denied' });
   }
   document.cookie.split(';').forEach((cookie) => {
@@ -84,4 +96,13 @@ export const removeDemoAnalytics = () => {
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
   });
+};
+
+// Events von der Demo-Seite: nur mit Einwilligung (vorher feuerte z. B. der
+// CTA-Klick auch ohne Einwilligung als cookieloser Ping).
+export const trackDemoEvent = (name, params = {}) => {
+  if (typeof window === 'undefined') return;
+  if (!window.__siDemoGaInit || typeof window.gtag !== 'function') return;
+  if (window['ga-disable-' + GA_MEASUREMENT_ID]) return;
+  window.gtag('event', name, params);
 };
