@@ -424,6 +424,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   width: 100%;
+  box-sizing: border-box;
   max-width: 420px;
   padding: 3rem 2.5rem;
   text-align: center;
@@ -459,7 +460,11 @@ const Form = styled.form`
 `;
 
 const Input = styled.input`
+  display: block;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* sonst ragt das Feld um das Padding über den Rahmen */
+  min-width: 0;
   padding: 1rem 1.25rem;
   font-size: 1rem;
   outline: none;
@@ -471,7 +476,9 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
+  display: block;
   width: 100%;
+  box-sizing: border-box;
   padding: 1rem 1.5rem;
   font-size: 0.9rem;
   cursor: pointer;

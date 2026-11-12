@@ -156,7 +156,7 @@ function PreviewBanner({ status }) {
 
 // Theme Router - handles status-based rendering AND password protection
 function ThemeRouter() {
-  const { project, isLoading, error, status, theme, projectId, slug, coupleNames, content } = useWedding();
+  const { project, isLoading, error, status, theme, projectId, slug, coupleNames, content, refetch } = useWedding();
   const [hasPreviewAccess, setHasPreviewAccess] = useState(false);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [passwordChecked, setPasswordChecked] = useState(false);
@@ -170,6 +170,15 @@ function ThemeRouter() {
     }
   }, [projectId]);
   
+  // Nach erfolgreichem Passwort/Admin-Zugang: Inhalte neu laden. Beim ersten
+  // Laden war die Seite gesperrt, der Server hat keine Inhalte geliefert —
+  // ohne Neuladen zeigte die Seite bis zum Aktualisieren die Standardtexte
+  // (falsche Daten). Während des Ladens erscheint der Ladebildschirm.
+  const unlock = (grant) => {
+    grant(true);
+    if (typeof refetch === 'function') refetch();
+  };
+
   // Check ob Passwortschutz aktiv ist
   useEffect(() => {
     async function checkPassword() {
@@ -308,9 +317,7 @@ function ThemeRouter() {
     if (!isPublic && !hasPreviewAccess) {
       return (
         <ComingSoon 
-          onAdminAccess={() => {
-            setHasPreviewAccess(true);
-          }} 
+          onAdminAccess={() => unlock(setHasPreviewAccess)} 
         />
       );
     }
@@ -324,7 +331,7 @@ function ThemeRouter() {
           slug={slug}
           theme={themeName}
           coupleNames={coupleNames}
-          onSuccess={() => setHasPasswordAccess(true)}
+          onSuccess={() => unlock(setHasPasswordAccess)}
         />
       );
     }
@@ -350,7 +357,7 @@ function ThemeRouter() {
             </>
           );
         }
-        return <ComingSoon onAdminAccess={() => setHasPreviewAccess(true)} />;
+        return <ComingSoon onAdminAccess={() => unlock(setHasPreviewAccess)} />;
       case 'live':
       default:
         return <WeddingPage />;
