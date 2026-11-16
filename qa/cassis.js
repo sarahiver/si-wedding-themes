@@ -47,7 +47,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   await seedCassis();
 
   // ---------- 1. Aufbau und Darstellung ----------
-  for (const [n, vp] of Object.entries({ '320': { width: 320, height: 640 }, '375': { width: 375, height: 667 }, '390': { width: 390, height: 844 }, '768': { width: 768, height: 1024 }, '1024': { width: 1024, height: 768 }, '1440': { width: 1440, height: 900 }, '1920': { width: 1920, height: 1080 } })) {
+  for (const [n, vp] of Object.entries({ '320': { width: 320, height: 640 }, '375': { width: 375, height: 667 }, '390': { width: 390, height: 844 }, '430': { width: 430, height: 932 }, '768': { width: 768, height: 1024 }, '1024': { width: 1024, height: 768 }, '1440': { width: 1440, height: 900 }, '1920': { width: 1920, height: 1080 } })) {
     const { ctx, page, errors } = await open(browser, { vp });
     const info = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - window.innerWidth,
@@ -131,6 +131,40 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     const focus = await page.evaluate(() => { const e = document.activeElement; const c = getComputedStyle(e); return c.outlineStyle + ' ' + c.outlineWidth; });
     ok('Tastatur: sichtbarer Fokusrahmen', /solid/.test(focus) && !/ 0px/.test(focus), focus);
     await ctx.close(); }
+  for (const vp of [{ width: 1440, height: 900 }, { width: 1920, height: 1080 }, { width: 390, height: 844 }]) {
+    // Kopfzeile und großer Schriftzug dürfen sich bei keiner Scrollposition überdecken
+    const { ctx, page } = await open(browser, { vp });
+    const probe = () => page.evaluate(() => { const b = document.querySelector('header[data-solid]').getBoundingClientRect(); const n = document.querySelector('h1').getBoundingClientRect(); const vis = b.bottom > 0 && b.top < window.innerHeight;
+      return { y: Math.round(window.scrollY), pinned: document.querySelector('header[data-solid]').getAttribute('data-pinned'), top: Math.round(b.top), overlap: vis && n.bottom > b.top + 1 && n.top < b.bottom - 1, docH: document.documentElement.scrollHeight }; });
+    { const hh = await page.evaluate(() => document.documentElement.scrollHeight); for (let y = 0; y <= hh; y += 500) { await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(70); } await page.waitForTimeout(600); } // einmal alles laden
+    const heroH = await page.evaluate(() => document.getElementById('top').offsetHeight); const seen = [];
+    for (const y of [0, 20, 60, 150, Math.round(heroH * 0.4), Math.round(heroH * 0.7), heroH - 120, heroH - 60, heroH + 40, heroH + 600]) { await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(380); seen.push(await probe()); }
+    ok(`Breite ${vp.width}: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug`, seen.every((s) => !s.overlap), JSON.stringify(seen.filter((s) => s.overlap)));
+    ok(`Breite ${vp.width}: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert`, seen[0].top === 0 && seen[0].pinned === 'false' && seen[4].pinned === 'false' && seen[4].top < 0, JSON.stringify(seen.slice(0, 5).map((s) => [s.y, s.pinned, s.top])));
+    ok(`Breite ${vp.width}: nach dem Foto fixiert am oberen Rand`, seen[8].pinned === 'true' && seen[8].top === 0 && seen[9].top === 0, JSON.stringify(seen.slice(8).map((s) => [s.y, s.pinned, s.top])));
+    ok(`Breite ${vp.width}: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)`, new Set(seen.map((s) => s.docH)).size === 1, [...new Set(seen.map((s) => s.docH))].join());
+    await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(400);
+    ok(`Breite ${vp.width}: zurück am Seitenanfang wieder durchsichtig`, (await probe()).pinned === 'false' && await page.locator('header[data-solid]').getAttribute('data-solid') === 'false');
+    await ctx.close();
+  }
+  { // Direkter Aufruf mit Sprungziel
+    const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 }, path: '/lena-tom#rsvp' }); await page.waitForTimeout(900);
+    const r = await page.evaluate(() => ({ top: Math.round(document.getElementById('rsvp').getBoundingClientRect().top), pinned: document.querySelector('header[data-solid]').getAttribute('data-pinned') }));
+    ok('Direkter Aufruf mit #rsvp landet am Bereich, Kopfzeile fixiert', r.top >= 40 && r.top <= 70 && r.pinned === 'true', JSON.stringify(r));
+    await ctx.close(); }
+  { // Schriften: lokal, drei Rollen, keine Aufrufe bei Google
+    ipN += 1; const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'tr-TR', extraHTTPHeaders: { 'x-forwarded-for': `10.1.0.${ipN}` } }); const page = await ctx.newPage(); await routeAssets(page);
+    const outside = []; page.on('request', (q) => { const u = new URL(q.url()); if (!/^(localhost|assets\.test)$/.test(u.hostname)) outside.push(u.hostname); });
+    await page.goto(BASE + '/lena-tom', { waitUntil: 'networkidle' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(1500);
+    const f = await page.evaluate(async () => { await document.fonts.ready; const fam = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e).fontFamily.split(',')[0].replace(/["']/g, '') : ''; };
+      return { h2: fam('#timeline h2'), month: fam('#countdown h2'), body: fam('#directions address'), nav: fam('header[data-solid] nav a'), button: fam('#rsvp button'), input: fam('#rsvp input'), time: fam('#timeline time'),
+        loaded: [...document.fonts].filter((x) => x.status === 'loaded').map((x) => x.family.replace(/["']/g, '') + ' ' + x.weight).sort().join('|'), serifOk: document.fonts.check('400 40px "Cassis Serif"', 'ığşİÇöüéèàç'), latoOk: document.fonts.check('400 16px "Cassis Sans"', 'ığşİÇöüéèàç') }; });
+    ok('Schriften: das Theme lädt keine Schriftdatei von fremden Servern', !outside.includes('fonts.gstatic.com'), [...new Set(outside)].join());
+    ok('Feststellung: die gemeinsame Startseite aller Themes ruft weiterhin fonts.googleapis.com auf (nicht Teil des Themes)', outside.every((h) => h === 'fonts.googleapis.com'), [...new Set(outside)].join());
+    ok('Schriftrollen: Überschriften in der Serifenschrift (Cormorant Garamond, lokal)', f.h2 === 'Cassis Serif' && f.month === 'Cassis Serif', JSON.stringify(f));
+    ok('Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Lato (lokal)', [f.body, f.nav, f.button, f.input, f.time].every((x) => x === 'Cassis Sans'), JSON.stringify(f));
+    ok('Schriften geladen, türkische und französische Zeichen vorhanden', /Cassis Serif/.test(f.loaded) && /Cassis Sans/.test(f.loaded) && f.serifOk && f.latoOk, f.loaded);
+    await ctx.close(); }
   { const { ctx, page } = await open(browser, { vp: { width: 390, height: 844 } });
     const burger = page.locator('header button[aria-controls]').last(); const menu = page.locator('header[data-solid] nav').first();
     ok('Navigation (Handy): Menü zunächst geschlossen', await burger.getAttribute('aria-expanded') === 'false' && !(await menu.locator('a').first().isVisible()));
@@ -200,7 +234,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   { const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 } });
     const m = await page.evaluate(() => { const px = (sel) => { const e = document.querySelector(sel); return e ? parseFloat(getComputedStyle(e).fontSize) : 0; }; const w = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().width) : 0; };
       return { title: px('#timeline h2'), item: px('#timeline li'), body: px('#directions address'), day: px('#countdown [data-wedding-day]'), count: px('#countdown strong'), sheet: w('#countdown [role="img"]'), form: w('#rsvp form'), input: document.querySelector('#rsvp input').getBoundingClientRect().height, photo: w('[data-cassis-photo] img'), photoH: Math.round(document.querySelector('[data-cassis-photo] img').getBoundingClientRect().height), mark: w('h1 img') }; });
-    ok('Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)', m.title >= 48 && m.item >= 28 && m.body >= 19, JSON.stringify(m));
+    ok('Desktop 1440: große Schrift (Überschrift ≥ 60, Ablauf ≥ 28, Fließtext ≥ 19 px)', m.title >= 60 && m.item >= 28 && m.body >= 19, JSON.stringify(m));
     ok('Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt', m.sheet >= 600 && m.count >= 180 && m.day >= 26, JSON.stringify(m));
     ok('Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch', m.form >= 600 && m.input >= 60, JSON.stringify(m));
     ok('Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm', m.photo >= 1420 && m.photoH >= 900, JSON.stringify(m));

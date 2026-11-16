@@ -5,11 +5,11 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
-import { C, Section, Inner, Aside, Button, DESK } from './shared';
+import { C, SERIF, Section, Inner, Aside, Button, DESK } from './shared';
 
 const Sheet = styled.div`min-width: 0; max-width: 30rem; ${DESK} { max-width: 46rem; }`;
 const Head = styled.div`display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;`;
-const Month = styled.h2`margin: 0; font-weight: 300; font-size: clamp(1.875rem, 6.5vw, 2.5rem); line-height: 1.15; letter-spacing: 0.01em; text-transform: capitalize; ${DESK} { font-size: clamp(2.5rem, 3.7vw, 4.5rem); }`;
+const Month = styled.h2`margin: 0; font-family: ${SERIF}; font-weight: 500; font-size: clamp(2.25rem, 8.6vw, 3rem); line-height: 1.1; text-transform: capitalize; font-variant-numeric: lining-nums; ${DESK} { font-weight: 400; font-size: clamp(3rem, 4.5vw, 5.5rem); }`;
 const Rule = styled.svg`display: block; width: 100%; height: 12px; margin: 0.35rem 0 1.5rem; overflow: visible; ${DESK} { margin: 0.75rem 0 2.25rem; }`;
 const Rings = styled.svg`flex: none; width: 4.5rem; height: 2.75rem; margin-bottom: -0.95rem; ${DESK} { width: clamp(5.5rem, 7vw, 8rem); height: clamp(3.4rem, 4.3vw, 4.9rem); margin-bottom: -1.5rem; }`;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center;`;
@@ -23,8 +23,8 @@ const Day = styled.div`
 `;
 const Count = styled.p`
   margin: 0; font-size: 1.0625rem; line-height: 1.5; color: ${C.inkSoft};
-  strong { display: block; font-weight: 300; font-size: clamp(4.5rem, 20vw, 7rem); letter-spacing: -0.01em; line-height: 0.95; color: ${C.ink}; margin-bottom: 0.5rem; font-variant-numeric: tabular-nums; }
-  ${DESK} { font-size: clamp(1.25rem, 1.5vw, 1.75rem); strong { font-size: clamp(8rem, 15vw, 18rem); line-height: 0.85; margin-bottom: 0.12em; margin-left: -0.04em; } }
+  strong { display: block; font-family: ${SERIF}; font-weight: 400; font-size: clamp(5.5rem, 26vw, 8.5rem); letter-spacing: -0.01em; line-height: 0.9; color: ${C.ink}; margin-bottom: 0.5rem; font-variant-numeric: lining-nums; }
+  ${DESK} { font-size: clamp(1.25rem, 1.5vw, 1.75rem); strong { font-size: clamp(10rem, 18vw, 22rem); line-height: 0.8; margin-bottom: 0.1em; margin-left: -0.03em; } }
 `;
 const Actions = styled.div`margin-top: 2rem; ${DESK} { margin-top: 3rem; }`;
 

@@ -1,6 +1,10 @@
 // src/themes/cassis/Navigation.js
 // Kopfzeile: Schriftzug links, Menü in der Mitte, Sprachwahl rechts.
-// Über dem Startfoto durchsichtig, beim Scrollen dezent hinterlegt und fixiert.
+// Solange das Startfoto zu sehen ist, gehört sie zum Foto: durchsichtig, am oberen
+// Rand, und sie scrollt mit dem Foto weg – sie kann den großen Schriftzug also nie
+// überlagern. Erst wenn das Foto fast durchgescrollt ist, gleitet eine dezent
+// hinterlegte, fixierte Fassung von oben herein. Beide Fassungen sind gleich hoch
+// und liegen außerhalb des Textflusses: Der Wechsel verschiebt nichts.
 // Auf dem Handy: Schriftzug, Sprachwahl (Auswahlfeld des Geräts) und ein Menü zum Aufklappen.
 import React, { useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -18,7 +22,7 @@ const WIDE = '@media (min-width: 1024px)';
 const NARROW = '@media (max-width: 1023px)';
 
 const Bar = styled.header`
-  position: fixed; z-index: 50; top: 0; left: 0; right: 0; box-sizing: border-box; height: ${HEADER};
+  position: ${(p) => (p.$pinned ? 'fixed' : 'absolute')}; z-index: 50; top: 0; left: 0; right: 0; box-sizing: border-box; height: ${HEADER};
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0 clamp(1rem, 4vw, 3.5rem); font-family: ${FONT};
   color: ${(p) => (p.$solid ? C.ink : C.white)};
@@ -26,8 +30,10 @@ const Bar = styled.header`
   box-shadow: ${(p) => (p.$solid ? `0 1px 0 ${C.line}` : '0 1px 0 rgba(51,53,63,0)')};
   backdrop-filter: ${(p) => (p.$solid ? 'saturate(1.1) blur(10px)' : 'none')};
   transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-  @media (prefers-reduced-motion: reduce) { transition: none; }
-  @media print { position: absolute; }
+  @keyframes cassisHeaderIn { from { transform: translateY(-100%); } to { transform: none; } }
+  animation: ${(p) => (p.$pinned ? 'cassisHeaderIn 0.25s ease both' : 'none')};
+  @media (prefers-reduced-motion: reduce) { transition: none; animation: none; }
+  @media print { position: absolute; animation: none; }
 `;
 const Mark = styled.a`
   display: block; flex: none; color: inherit; text-decoration: none; line-height: 1;
@@ -104,20 +110,43 @@ function Navigation() {
   const { project, coupleNames } = useWedding();
   const { enabled, lang, languages, setLang, t } = useLanguage();
   const hero = useLocalizedContent('hero');
-  const [scrolled, setScrolled] = useState(false);
+  const [pinned, setPinned] = useState(false);
   const [open, setOpen] = useState(false);
   const [present, setPresent] = useState([]);
   const menuId = useId();
   const burgerRef = useRef(null);
   const menuRef = useRef(null);
 
-  // Über dem Foto durchsichtig, danach hinterlegt
+  // Fixiert wird erst, wenn das Startfoto fast durchgescrollt ist. Die Schwelle wird
+  // an der Höhe des Fotos gemessen und bei Größenänderung neu bestimmt.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
+    let limit = 0;
+    const measure = () => {
+      const hero = document.getElementById('top');
+      const h = hero ? hero.offsetHeight : window.innerHeight;
+      limit = Math.max(80, h - 72); // Unterkante des Fotos erreicht die Kopfzeile
+      onScroll();
+    };
+    const onScroll = () => setPinned(window.scrollY > limit);
+    measure();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', measure);
+    const late = window.setTimeout(measure, 600); // das Foto kann nach der Kopfzeile erscheinen
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', measure); window.clearTimeout(late); };
   }, []);
+
+  // Direkter Aufruf mit Sprungziel (…/#rsvp): Die Bereiche entstehen erst nach dem Laden,
+  // der Browser findet das Ziel deshalb nicht selbst. Einmal nachholen, sobald es da ist.
+  const jumped = useRef(false);
+  useEffect(() => {
+    if (jumped.current || typeof window === 'undefined') return;
+    const id = decodeURIComponent((window.location.hash || '').slice(1));
+    if (!id) { jumped.current = true; return; }
+    if (!ITEMS.some((i) => i.id === id) || !present.includes(id)) return;
+    jumped.current = true;
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }, [present]);
 
   // Nur Bereiche anbieten, die auf der Seite wirklich stehen (aktiv und mit Inhalt)
   useEffect(() => {
@@ -159,7 +188,7 @@ function Navigation() {
 
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
   const label = names.length ? names.join(' ') : (coupleNames || '');
-  const solid = scrolled || open;
+  const solid = pinned || open;
   const items = ITEMS.filter((i) => present.includes(i.id));
   const multi = enabled && languages.length > 1;
 
@@ -172,7 +201,7 @@ function Navigation() {
   };
 
   return (
-    <Bar $solid={solid} data-solid={solid ? 'true' : 'false'}>
+    <Bar $solid={solid} $pinned={pinned} data-solid={solid ? 'true' : 'false'} data-pinned={pinned ? 'true' : 'false'}>
       <Mark href="#top" aria-label={label} $solid={solid} onClick={() => setOpen(false)}>
         {hero.name_image ? <img src={hero.name_image} alt="" /> : <span aria-hidden="true">{label}</span>}
       </Mark>

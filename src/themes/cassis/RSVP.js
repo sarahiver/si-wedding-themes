@@ -6,16 +6,19 @@ import { useRSVP } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { formatWeddingDate } from './helpers';
 import STRINGS from './strings';
-import { C, FONT, Section, Inner, Aside, Body, Title, Lead, Button, DESK } from './shared';
+import { C, FONT, SERIF, Section, Inner, Aside, Body, Title, Lead, Button, DESK } from './shared';
 
-const Form = styled.form`display: grid; gap: 1.5rem; ${DESK} { gap: 2rem; }`;
-const Field = styled.label`display: grid; gap: 0.45rem; font-size: 1rem; color: ${C.ink}; ${DESK} { gap: 0.6rem; font-size: clamp(1rem, 1.05vw, 1.1875rem); }`;
+// Fehlerfarbe: dunkles Rot, auf Blaugrau und auf hellem Grund gut lesbar
+const ERR = '#6E1620';
+const Form = styled.form`display: grid; gap: 1.75rem; ${DESK} { gap: 2.25rem; }`;
+const Field = styled.label`display: grid; gap: 0.5rem; font-size: 1.0625rem; line-height: 1.35; color: ${C.ink}; ${DESK} { gap: 0.65rem; font-size: clamp(1.0625rem, 1.15vw, 1.25rem); }`;
 const inputCss = `
   box-sizing: border-box; width: 100%; min-height: 3.25rem; padding: 0.6rem 0.9rem; border: 1px solid transparent; border-radius: 0;
   background: ${C.pearl}; color: ${C.ink}; font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem;
   transition: background-color 0.2s ease;
   &:hover { background: ${C.white}; }
   &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; background: ${C.white}; }
+  &[aria-invalid='true'] { border-color: ${ERR}; box-shadow: inset 0 0 0 1px ${ERR}; }
   ${DESK} { min-height: 4rem; padding: 0.8rem 1.1rem; font-size: clamp(1.0625rem, 1.15vw, 1.3125rem); }
 `;
 const Input = styled.input`${inputCss}`;
@@ -35,7 +38,7 @@ const Stepper = styled.div`
   output { text-align: center; font-size: 1.375rem; font-weight: 300; font-variant-numeric: tabular-nums; }
   ${DESK} { grid-template-columns: 4rem 1fr 4rem; max-width: 17rem; button { height: 4rem; } output { font-size: 1.625rem; } }
 `;
-const Hint = styled.p`margin: 0; font-size: 0.9375rem; color: ${C.ink};`;
+const Hint = styled.p`margin: 0; font-size: 0.9375rem; line-height: 1.5; color: ${C.ink}; ${DESK} { font-size: clamp(0.9375rem, 1vw, 1.0625rem); }`;
 const Guest = styled.fieldset`
   margin: 0; padding: 1.25rem 0 0; border: 0; border-top: 1px solid ${C.line}; display: grid; gap: 0.9rem; min-width: 0;
   legend { float: left; width: 100%; padding: 0; margin-bottom: 0.25rem; font-size: 1.0625rem; font-weight: 300; }
@@ -46,8 +49,8 @@ const Check = styled.label`
   display: flex; align-items: center; gap: 0.6rem; min-height: 3.25rem; font-size: 1.0625rem; color: ${C.ink}; cursor: pointer;
   input { width: 1.25rem; height: 1.25rem; accent-color: ${C.deep}; }
 `;
-const Err = styled.p`margin: 0; padding: 0.85rem 1rem; background: ${C.pearl}; color: #7A1B26; font-size: 1rem; border-left: 3px solid #7A1B26;`;
-const Done = styled.p`margin: 0; font-weight: 300; font-size: clamp(1.375rem, 5vw, 1.75rem); line-height: 1.35; ${DESK} { font-size: clamp(1.75rem, 2.3vw, 2.75rem); }`;
+const Err = styled.p`margin: 0; padding: 0.9rem 1.1rem; background: ${C.pearl}; color: ${ERR}; font-size: 1.0625rem; line-height: 1.45; border-left: 3px solid ${ERR}; ${DESK} { font-size: clamp(1.0625rem, 1.15vw, 1.25rem); }`;
+const Done = styled.p`margin: 0; font-family: ${SERIF}; font-weight: 500; font-size: clamp(1.625rem, 6vw, 2rem); line-height: 1.25; ${DESK} { font-weight: 400; font-size: clamp(2rem, 2.8vw, 3.25rem); }`;
 
 function RSVP() {
   const { project } = useWedding();

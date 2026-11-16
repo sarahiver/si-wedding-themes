@@ -19,11 +19,16 @@ export const C = {
   white: '#FFFFFF',
   line: 'rgba(51,53,63,0.2)',
 };
-// Fließtext: Lato – eine humanistische Grotesk in der Art der Druckschrift
-// der Einladung (Humanist 521). Die Schreibschrift der Namen kommt als
-// Original-Grafik; SCRIPT ist nur der Ersatz, solange keine Grafik hochgeladen ist.
-export const FONT = "'Lato', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
-export const SCRIPT = "'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive";
+// Drei Schriftrollen – mehr nicht:
+// 1. Schreibschrift: ausschließlich die Original-Grafik der Namen (Startbild, Kopfzeile, Fußzeile).
+//    SCRIPT ist nur der Ersatz aus Systemschriften, solange keine Grafik hochgeladen ist.
+// 2. SERIF (Cormorant Garamond): Abschnittsüberschriften und wenige große Akzente.
+// 3. FONT (Lato): Fließtext, Uhrzeiten, Formulare, Navigation, Knöpfe, Hinweise.
+// Eigene Familiennamen: So greift sicher die Datei aus dem Projekt und nicht eine
+// gleichnamige Schrift, die die gemeinsame Startseite aller Themes von Google lädt.
+export const FONT = "'Cassis Sans', 'Lato', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
+export const SERIF = "'Cassis Serif', 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif";
+export const SCRIPT = "'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
 
 const tones = {
   shell: css`background:${C.shell};color:${C.ink};`,
@@ -81,9 +86,10 @@ export function Inner({ children, ...rest }) {
 export const Aside = styled.div`min-width: 0;`;
 export const Body = styled.div`min-width: 0; max-width: 36rem; ${DESK} { max-width: 52rem; }`;
 export const Title = styled.h2`
-  margin: 0; font-family: ${FONT}; font-weight: 300; font-size: clamp(1.875rem, 6.5vw, 2.5rem); line-height: 1.12; letter-spacing: 0.01em;
+  margin: 0; font-family: ${SERIF}; font-weight: 500; font-size: clamp(2.25rem, 8.6vw, 3rem); line-height: 1.08; letter-spacing: 0;
   overflow-wrap: anywhere; hyphens: auto;
-  ${DESK} { font-size: clamp(2.5rem, 3.7vw, 4.5rem); }
+  /* Auf großen Flächen trägt der leichtere Schnitt; klein bleibt der kräftigere lesbar */
+  ${DESK} { font-weight: 400; font-size: clamp(3rem, 4.5vw, 5.5rem); line-height: 1.04; }
 `;
 export const Lead = styled.p`margin: 1rem 0 0; white-space: pre-line; overflow-wrap: anywhere; color: ${(p) => (p.$onMist ? C.ink : C.inkSoft)}; ${DESK} { margin-top: 1.5rem; max-width: 28em; }`;
 export const Text = styled.p`margin: 0 0 1.25rem; white-space: pre-line; overflow-wrap: anywhere;`;
