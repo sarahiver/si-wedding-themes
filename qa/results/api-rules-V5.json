@@ -81,7 +81,7 @@
   "group": "Eingaben",
   "name": "fehlende E-Mail wird abgelehnt",
   "pass": true,
-  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+  "info": "400 {\"message\":\"E-Mail-Adresse fehlt\",\"code\":\"email_required\",\"field\":\"email\",\"status\":400} gespeichert:0"
  },
  {
   "group": "Eingaben",
@@ -99,7 +99,7 @@
   "group": "Eingaben",
   "name": "Name und E-Mail werden bereinigt, „yes\" als Zusage verstanden",
   "pass": true,
-  "info": "{\"id\":\"5af7be51-ce83-4dcc-9385-bb4a076931da\",\"created_at\":\"2026-11-16T11:15:27.487Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Anna\",\"email\":\"gross@example.test\",\"persons\":1,\"attendi"
+  "info": "{\"id\":\"a17f528d-817e-4018-b8dd-594f063c4abe\",\"created_at\":\"2026-11-16T12:38:04.098Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Anna\",\"email\":\"gross@example.test\",\"persons\":1,\"attendi"
  },
  {
   "group": "Eingaben",
@@ -411,7 +411,7 @@
   "group": "Änderung",
   "name": "Paar ändert die Antwort; Kinderalter und Sprache bleiben erhalten",
   "pass": true,
-  "info": "{\"id\":\"7cc9100d-0536-4407-b395-ec4c6b199ff4\",\"created_at\":\"2026-11-16T11:15:27.627Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Familie Neu\",\"email\":\"familie@example.test\",\"persons\":4"
+  "info": "{\"id\":\"6a825593-76b4-48bc-9f35-44062814957e\",\"created_at\":\"2026-11-16T12:38:04.223Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Familie Neu\",\"email\":\"familie@example.test\",\"persons\":4"
  },
  {
   "group": "Änderung",
@@ -436,5 +436,191 @@
   "name": "Änderungen lösen keine weitere Bestätigungsmail aus",
   "pass": true,
   "info": ""
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (nur Leerzeichen)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse fehlt\",\"code\":\"email_required\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (ohne Endung)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (zwei @)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (Leerzeichen)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (doppelter Punkt)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (Punkt vor @)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (ohne Namen)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse wird nicht gespeichert (Endung zu kurz)",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "E-Mail",
+  "name": "gültige internationale Adresse wird angenommen und bereinigt (ayşe.yılmaz@örnek.com.tr)",
+  "pass": true,
+  "info": "200 {\"data\":{\"id\":\"350a2f51-d16d-4a29-9b2e-2ea2c34a6b78\",\"created_at\":\"2026-11-16T12:38:04.292Z\",\"project_id\":\"00000000-0000"
+ },
+ {
+  "group": "E-Mail",
+  "name": "gültige internationale Adresse wird angenommen und bereinigt (jörg+hochzeit@straße.example)",
+  "pass": true,
+  "info": "200 {\"data\":{\"id\":\"49be66e8-acf6-45e5-ac24-be8bbbc2b684\",\"created_at\":\"2026-11-16T12:38:04.295Z\",\"project_id\":\"00000000-0000"
+ },
+ {
+  "group": "E-Mail",
+  "name": "gültige internationale Adresse wird angenommen und bereinigt (o'neil@ex-ample.co.uk)",
+  "pass": true,
+  "info": "200 {\"data\":{\"id\":\"f5ddb88e-7f3d-4aa2-94c0-e03c3e37c369\",\"created_at\":\"2026-11-16T12:38:04.297Z\",\"project_id\":\"00000000-0000"
+ },
+ {
+  "group": "E-Mail",
+  "name": "Doppelantwortschutz greift auch nach der Bereinigung",
+  "pass": true,
+  "info": "409"
+ },
+ {
+  "group": "E-Mail",
+  "name": "ungültige Adresse löst keine Bestätigungsmail aus",
+  "pass": true,
+  "info": "400"
+ },
+ {
+  "group": "E-Mail",
+  "name": "gültige Adresse löst genau eine Bestätigungsmail an diese Adresse aus",
+  "pass": true,
+  "info": "{\"data\":{\"id\":\"27c42993-67d6-4200-a966-5a2845882be4\",\"created_at\":\"2026-11-16T12:38:04.304Z\",\"projec"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Allergie-Angaben ohne Einwilligung werden nicht gespeichert",
+  "pass": true,
+  "info": "400 {\"message\":\"Einwilligung für Allergie-Angaben fehlt\",\"code\":\"consent_required\",\"field\":\"health_consent\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Einwilligung muss ausdrücklich wahr sein (Text „true\" genügt nicht)",
+  "pass": true,
+  "info": "400 {\"message\":\"Einwilligung für Allergie-Angaben fehlt\",\"code\":\"consent_required\",\"field\":\"health_consent\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Ernährung",
+  "name": "mit Einwilligung gespeichert: drei Personen mit eigenen Angaben",
+  "pass": true,
+  "info": "[{\"name\":\"Dana Diät\",\"dietary\":\"Vegan\",\"allergies\":\"\",\"diet\":\"vegan\",\"health_consent_at\":\"2026-11-16T12:38:04.315Z\"},{\"name\":\"Eli\",\"dietary\":\"Sonstiges: kein Fisch\",\"allergies\":\"Nüsse, Laktose\",\"diet\""
+ },
+ {
+  "group": "Ernährung",
+  "name": "Kinderalter bleibt bei der richtigen Person",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Ernährung",
+  "name": "Zeitpunkt der Einwilligung wird im Server festgehalten",
+  "pass": true,
+  "info": "2026-11-16T12:38:04.315Z"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Felder der Antwort zeigen die Angaben der anmeldenden Person (Dashboard-Tabelle)",
+  "pass": true,
+  "info": "Vegan|"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Bestätigungsmail enthält keine Ernährungs- oder Allergieangaben",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Ernährung",
+  "name": "reine Auswahl (vegetarisch/vegan) braucht keine Einwilligung",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Ernährung",
+  "name": "unbekannte Ernährungsweise wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Ernährungsweise ist ungültig\",\"code\":\"diet_invalid\",\"field\":\"guests[0].diet\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Ernährung",
+  "name": "acht Personen mit je eigenen Angaben",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Ernährung",
+  "name": "neun Personen bleiben abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Höchstens 8 Personen pro Anmeldung\",\"code\":\"persons_max\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Absage speichert keine Ernährungs- und Allergieangaben",
+  "pass": true,
+  "info": "[{\"name\":\"Nein\",\"dietary\":\"\",\"allergies\":\"\"}]"
+ },
+ {
+  "group": "Ernährung",
+  "name": "ältere Form (ein Text für die ganze Anmeldung) wird weiter angenommen",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Bearbeiten im Dashboard lässt Angaben je Person und Einwilligung unverändert",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Ernährung",
+  "name": "fremdes Paar kann die Angaben nicht lesen",
+  "pass": true,
+  "info": "403"
+ },
+ {
+  "group": "Ernährung",
+  "name": "ohne Anmeldung sind die Angaben nicht lesbar",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "group": "Ernährung",
+  "name": "Altprojekt ohne Regeln bleibt unverändert (keine neue Prüfung)",
+  "pass": true,
+  "info": "200"
  }
 ]

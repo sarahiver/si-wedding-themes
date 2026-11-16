@@ -34,8 +34,11 @@ async function fillRsvp(page, { name, email, attending = true, persons = 1, gues
   if (attending) {
     for (let i = 1; i < persons; i++) { const plus = f.locator('[role="group"] button').last(); if (await plus.isDisabled()) break; await plus.click(); }
     for (let i = 0; i < guests.length; i++) {
-      const g = guests[i]; const fs_ = f.locator('fieldset').nth(i); await fs_.waitFor({ timeout: 5000 });
+      const g = guests[i]; const fs_ = f.locator(`fieldset[data-person="${i + 2}"]`); await fs_.waitFor({ timeout: 5000 });
       if (g.name) await fs_.locator('input:not([type="checkbox"]):not([type="number"])').first().fill(g.name);
+      if (g.diet) await fs_.locator('select[data-field="diet"]').selectOption(g.diet);
+      if (g.note) await fs_.locator('input[data-field="diet_note"]').fill(g.note);
+      if (g.allergies) await fs_.locator('input[data-field="allergies"]').fill(g.allergies);
       if (g.child) { await fs_.locator('input[type="checkbox"]').check(); if (g.age !== undefined) await fs_.locator('input[type="number"]').fill(String(g.age)); }
     }
   }
@@ -304,7 +307,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     const f = page.locator('#rsvp'); const count = await f.locator('output').innerText(); const plusOff = await f.locator('[role="group"] button').last().isDisabled();
     ok('Mehr als 8 Personen lassen sich nicht einstellen', count === '8' && plusOff, count);
     ok('Hinweis nennt die Obergrenze', /8/.test(await f.innerText()) && /höchstens|bis zu|maximal/i.test(await f.innerText()));
-    ok('Bei 8 Personen: sieben weitere Namensfelder', await f.locator('fieldset').count() === 7);
+    ok('Bei 8 Personen: acht Blöcke, sieben davon mit Namensfeld', await f.locator('fieldset').count() === 8 && await f.locator('fieldset input[type="checkbox"]').count() === 7);
     await send(page);
     const r = (await rsvps()).find((x) => x.email === 'gross@example.test');
     ok('Anmeldung mit 8 Personen wird angenommen', r && r.persons === 8, JSON.stringify(r));
@@ -355,6 +358,89 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Zweiter Versuch nach Netzfehler: genau ein Eintrag', (await rsvps()).filter((x) => x.email === 'netz@example.test').length === 1);
     await ctx.close(); }
 
+  // ---------- 4b. E-Mail-Prüfung im Formular ----------
+  { const { ctx, page } = await open(browser); const f = page.locator('#rsvp');
+    await f.locator('input[name="name"]').fill('Ohne Mail');
+    await f.locator('button[aria-pressed]').first().click(); await page.waitForTimeout(200);
+    ok('Auswahl „Ja" ist ohne E-Mail möglich und klar markiert', await f.locator('button[aria-pressed="true"]').count() === 1 && /Ja/.test(await f.locator('button[aria-pressed="true"]').innerText()) && await f.locator('button[type="submit"]').isVisible());
+    await send(page);
+    let st = await page.evaluate(() => { const e = document.querySelector('#rsvp input[name="email"]'); return { invalid: e.getAttribute('aria-invalid'), focused: document.activeElement === e, described: !!document.getElementById(e.getAttribute('aria-describedby') || 'x'), msg: (document.querySelector('#rsvp [role="alert"]') || {}).textContent || '' }; });
+    ok('Absenden ohne E-Mail: Meldung, Feld markiert und im Fokus, nichts gespeichert', st.invalid === 'true' && st.focused && st.described && /E-Mail/.test(st.msg) && !(await rsvps()).some((x) => x.name === 'Ohne Mail'), JSON.stringify(st));
+    for (const bad of ['anna@example', 'anna@@example.test', 'anna@example..test', 'an na@example.test']) {
+      await f.locator('input[name="email"]').fill(bad); await send(page);
+      st = await page.evaluate(() => { const e = document.querySelector('#rsvp input[name="email"]'); return { invalid: e.getAttribute('aria-invalid'), focused: document.activeElement === e, msg: (document.querySelector('#rsvp [role="alert"]') || {}).textContent || '' }; });
+      ok(`Ungültige E-Mail „${bad}": Meldung, Fokus im Feld, nichts gespeichert`, st.invalid === 'true' && st.focused && /gültige/.test(st.msg) && !(await rsvps()).some((x) => x.name === 'Ohne Mail'), JSON.stringify(st));
+    }
+    await f.locator('input[name="email"]').fill('k'); ok('Beim Weitertippen verschwindet die Meldung', await f.locator('[role="alert"]').count() === 0 && await f.locator('input[name="email"]').getAttribute('aria-invalid') === null);
+    await f.locator('input[name="email"]').fill('   Ohne.Mail@Example.TEST  '); await send(page);
+    const r = (await rsvps()).find((x) => x.name === 'Ohne Mail');
+    ok('Gültige E-Mail mit Leerzeichen: gespeichert, bereinigt', r && r.email === 'ohne.mail@example.test', JSON.stringify(r && r.email));
+    await ctx.close(); }
+  { // Der Server lehnt ab, auch wenn die Prüfung im Browser umgangen wird
+    const { ctx, page } = await open(browser); const f = page.locator('#rsvp');
+    await page.route('**/api/db', (rt) => { const b = rt.request().postData() || ''; if (b.includes('"submitRSVP"')) { const j = JSON.parse(b); j.params.rsvpData.email = 'kaputt@'; return rt.continue({ postData: JSON.stringify(j) }); } return rt.continue(); });
+    await fillRsvp(page, { name: 'Server Prüft', email: 'gut@example.test' }); await send(page);
+    const st = await page.evaluate(() => ({ focused: document.activeElement === document.querySelector('#rsvp input[name="email"]'), msg: (document.querySelector('#rsvp [role="alert"]') || {}).textContent || '' }));
+    ok('Vom Server abgelehnte E-Mail: dieselbe Meldung im Formular, Fokus im Feld, nichts gespeichert', /gültige/.test(st.msg) && st.focused && !(await rsvps()).some((x) => x.name === 'Server Prüft'), JSON.stringify(st));
+    await ctx.close(); }
+  for (const [locale, emptyRe, badRe] of [['en-GB', /enter your email/i, /valid email/i], ['fr-FR', /adresse e-mail/i, /valide/i], ['tr-TR', /e-posta/i, /geçerli/i]]) {
+    const { ctx, page } = await open(browser, { locale }); const f = page.locator('#rsvp');
+    await f.locator('input[name="name"]').fill('Sprache'); await f.locator('button[aria-pressed]').first().click(); await send(page);
+    const a = await f.locator('[role="alert"]').innerText(); await f.locator('input[name="email"]').fill('x@y'); await send(page); const b = await f.locator('[role="alert"]').innerText();
+    ok(`Fehlermeldungen zur E-Mail in der Sprache des Gasts (${locale})`, emptyRe.test(a) && badRe.test(b), a + ' | ' + b);
+    await ctx.close(); }
+
+  // ---------- 4c. Ernährung und Allergien je Person ----------
+  { const { ctx, page } = await open(browser); const f = page.locator('#rsvp');
+    await fillRsvp(page, { name: 'Dana Diät', email: 'dana@example.test', persons: 3, guests: [{ name: 'Eli', diet: 'other', note: 'kein Fisch' }, { name: 'Fee', child: true, age: 4, diet: 'vegetarian' }] });
+    const p1 = f.locator('fieldset[data-person="1"]');
+    ok('Hauptperson hat einen eigenen Block mit ihrem Namen, ohne Namens- und Kinderfeld', (await p1.locator('legend').innerText()) === 'Dana Diät' && await p1.locator('input[type="checkbox"]').count() === 0 && await p1.locator('select[data-field="diet"]').count() === 1 && await p1.locator('input[data-field="allergies"]').count() === 1);
+    const opts = await p1.locator('select[data-field="diet"] option').allTextContents();
+    ok('Auswahl Ernährung: vier Möglichkeiten', opts.join('|') === 'Keine Besonderheiten|Vegetarisch|Vegan|Sonstiges', opts.join('|'));
+    ok('Hinweisfeld erscheint nur bei „Sonstiges"', await f.locator('fieldset[data-person="2"] input[data-field="diet_note"]').count() === 1 && await p1.locator('input[data-field="diet_note"]').count() === 0 && await f.locator('fieldset[data-person="3"] input[data-field="diet_note"]').count() === 0);
+    ok('Freier Hinweis zur Ernährung verlangt die Einwilligung', await f.locator('input[type="checkbox"][id$="consent"]').count() === 1);
+    await p1.locator('select[data-field="diet"]').selectOption('vegan');
+    await f.locator('fieldset[data-person="2"] input[data-field="allergies"]').fill('Nüsse, Laktose');
+    ok('Hinweis zur Freiwilligkeit steht am Formular', /freiwillig/i.test(await f.innerText()));
+    await send(page);
+    let st = await page.evaluate(() => { const e = document.querySelector('#rsvp input[id$="consent"]'); return { invalid: e.getAttribute('aria-invalid'), focused: document.activeElement === e, msg: (document.querySelector('#rsvp [role="alert"]') || {}).textContent || '' }; });
+    ok('Ohne Einwilligung: Meldung, Fokus auf dem Kästchen, nichts gespeichert', st.invalid === 'true' && st.focused && /Einwilligung/.test(st.msg) && !(await rsvps()).some((x) => x.email === 'dana@example.test'), JSON.stringify(st));
+    // Personenzahl ändern: Angaben bleiben bei ihrer Person
+    const minus = f.locator('[role="group"] button').nth(-2); const plus = f.locator('[role="group"] button').last();
+    await minus.click(); await page.waitForTimeout(150);
+    ok('Eine Person weniger: Blöcke 1 und 2 behalten ihre Angaben', await f.locator('fieldset').count() === 2 && await p1.locator('select').inputValue() === 'vegan' && await f.locator('fieldset[data-person="2"] input[data-field="allergies"]').inputValue() === 'Nüsse, Laktose');
+    await plus.click(); await page.waitForTimeout(150);
+    const p3 = f.locator('fieldset[data-person="3"]');
+    ok('Wieder eine Person mehr: der neue Block ist leer (keine falsche Zuordnung)', await p3.locator('select').inputValue() === 'none' && await p3.locator('input[type="checkbox"]').isChecked() === false && (await p3.locator('input').first().inputValue()) === '');
+    await p3.locator('input').first().fill('Fee'); await p3.locator('input[type="checkbox"]').check(); await p3.locator('input[type="number"]').fill('4'); await p3.locator('select').selectOption('vegetarian');
+    // Wechsel Absage → Zusage
+    await f.locator('button[aria-pressed]').nth(1).click(); await page.waitForTimeout(150);
+    ok('Absage: keine Ernährungs-, Allergie- und Einwilligungsfelder', await f.locator('fieldset').count() === 0 && await f.locator('select').count() === 0 && await f.locator('input[id$="consent"]').count() === 0);
+    await f.locator('button[aria-pressed]').first().click(); await page.waitForTimeout(200);
+    ok('Zurück zur Zusage: Personenzahl und alle Angaben sind wieder da', (await f.locator('output').innerText()) === '3' && await p1.locator('select').inputValue() === 'vegan' && await f.locator('fieldset[data-person="2"] input[data-field="diet_note"]').inputValue() === 'kein Fisch' && await p3.locator('input[type="number"]').inputValue() === '4');
+    await f.locator('input[id$="consent"]').check(); await send(page);
+    const r = (await rsvps()).find((x) => x.email === 'dana@example.test'); const g = r ? (typeof r.guests === 'string' ? JSON.parse(r.guests) : r.guests) : [];
+    ok('Mit Einwilligung gespeichert: drei Personen, jede mit ihren Angaben', r && g.length === 3 && g[0].name === 'Dana Diät' && g[0].diet === 'vegan' && g[1].name === 'Eli' && g[1].diet === 'other' && g[1].diet_note === 'kein Fisch' && g[1].allergies === 'Nüsse, Laktose' && g[2].name === 'Fee' && g[2].diet === 'vegetarian' && g[2].age === 4, JSON.stringify(g));
+    ok('Einwilligung mit Zeitpunkt gespeichert', g[0] && /^\d{4}-/.test(g[0].health_consent_at || ''), g[0] && g[0].health_consent_at);
+    await ctx.close(); }
+  { const { ctx, page } = await open(browser, { vp: { width: 390, height: 844 } }); const f = page.locator('#rsvp');
+    await fillRsvp(page, { name: 'Acht Leute', email: 'acht-ui@example.test', persons: 8 });
+    for (let i = 2; i <= 8; i++) { const b = f.locator(`fieldset[data-person="${i}"]`); await b.locator('input').first().fill(`Gast ${i}`); await b.locator('select').selectOption(['none', 'vegetarian', 'vegan'][i % 3]); }
+    const ov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    ok('Handy, acht Personen: kein seitliches Scrollen, jedes Feld beschriftet', ov <= 0 && await page.evaluate(() => [...document.querySelectorAll('#rsvp input, #rsvp select, #rsvp textarea')].every((e) => (e.labels && e.labels.length) || e.getAttribute('aria-label'))), ov);
+    await send(page);
+    const r = (await rsvps()).find((x) => x.email === 'acht-ui@example.test'); const g = r ? (typeof r.guests === 'string' ? JSON.parse(r.guests) : r.guests) : [];
+    ok('Acht Personen ohne Allergie-Angaben: gespeichert ohne Einwilligung', r && g.length === 8 && g[1].diet === 'vegan' && g[2].diet === undefined && g[3].diet === 'vegetarian' && g[4].diet === 'vegan' && g[7].name === 'Gast 8' && !g[0].health_consent_at, JSON.stringify(g.map((x) => x.diet)));
+    await ctx.close(); }
+  for (const [locale, labels] of [['en-GB', 'No special requirements|Vegetarian|Vegan|Other'], ['fr-FR', 'Aucune particularité|Végétarien|Végétalien (vegan)|Autre'], ['tr-TR', 'Özel bir durum yok|Vejetaryen|Vegan|Diğer']]) {
+    const { ctx, page } = await open(browser, { locale }); const f = page.locator('#rsvp');
+    await fillRsvp(page, { name: 'Lang', email: `lang-${locale}@example.test` });
+    const opts = (await f.locator('fieldset[data-person="1"] select option').allTextContents()).join('|');
+    await f.locator('fieldset[data-person="1"] input[data-field="allergies"]').fill('x'); await page.waitForTimeout(150);
+    const t = await f.innerText(); const de = /Ernährung|Allergien und|Einwilligung|freiwillig|Keine Besonderheiten/.test(t);
+    ok(`Neue RSVP-Texte vollständig in der Sprache des Gasts (${locale})`, opts === labels && !de && (locale === 'en-GB' || !/No special requirements|I agree|optional\./i.test(t)), opts);
+    await ctx.close(); }
+
   // ---------- 5. Passwortseite und Entwurf ----------
   { const { ctx, page } = await open(browser, { path: '/cassis-locked', wait: false });
     const pw = page.locator('input[type="password"]').first(); await pw.waitFor({ timeout: 20000 });
@@ -395,7 +481,11 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter', /Kinder/.test(ex) && /5 Jahre/.test(ex) && /0 Jahre/.test(ex) && /Türkisch 1/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 200));
     const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('[data-testid="rsvp-extras"] button').click()]);
     const csv = fs.readFileSync(await dl.path(), 'utf8');
-    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";"ja";"5";"Türkisch"/.test(csv), csv.split('\n').slice(0, 4).join(' / '));
+    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";"ja";"5";"";"";"";"Türkisch"/.test(csv), csv.split('\n').slice(0, 4).join(' / '));
+    ok('Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person', /"Ernährung";"Hinweis zur Ernährung";"Allergien und Unverträglichkeiten"/.test(csv) && /"Eli";"nein";"";"Sonstiges";"kein Fisch";"Nüsse, Laktose";"Deutsch"/.test(csv) && /"Fee";"ja";"4";"Vegetarisch"/.test(csv), (csv.split('\n').find((l) => /Eli/.test(l)) || '').slice(0, 160));
+    ok('Dashboard Cassis: Übersicht zählt Ernährungsweisen und Allergie-Angaben', /Vegan/.test(ex) && /Vegetarisch/.test(ex) && /mit Allergie-Angabe/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 260));
+    const tbl = await page.locator('main').innerText();
+    ok('Dashboard Cassis: bestehende Tabelle zeigt die Angaben je Person in eigenen Zeilen', /Dana Diät/.test(tbl) && /Sonstiges: kein Fisch/.test(tbl) && /Nüsse, Laktose/.test(tbl));
     ok('Dashboard Cassis: keine Fehler', errors.length === 0, errors[0]);
     await ctx.close(); }
   { ipN += 1; const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: 'de-DE', extraHTTPHeaders: { 'x-forwarded-for': `10.1.0.${ipN}` } }); const page = await ctx.newPage();

@@ -16,15 +16,29 @@ export function parseGuests(r) {
 
 /** Kennzahlen aus den Antworten. Zählt nur Zusagen. */
 export function summarizeExtras(rsvpData) {
-  const children = []; const byLang = {}; let persons = 0;
+  const children = []; const byLang = {}; const diets = {}; let persons = 0; let withAllergies = 0;
   (rsvpData || []).forEach((r) => {
     if (r.language) byLang[r.language] = (byLang[r.language] || 0) + 1;
     if (!r.attending) return;
     persons += r.persons || 1;
-    parseGuests(r).forEach((g) => { if (g && g.is_child) children.push({ family: r.name, name: g.name || '', age: Number.isInteger(g.age) ? g.age : null }); });
+    parseGuests(r).forEach((g) => {
+      if (!g) return;
+      if (g.is_child) children.push({ family: r.name, name: g.name || '', age: Number.isInteger(g.age) ? g.age : null });
+      const d = dietLabel(g); if (d) diets[d] = (diets[d] || 0) + 1;
+      if (g.allergies) withAllergies += 1;
+    });
   });
   children.sort((a, b) => (a.age ?? 99) - (b.age ?? 99));
-  return { children, byLang, persons };
+  return { children, byLang, persons, diets, withAllergies };
+}
+
+/** Ernährungsweise einer Person als Text; ältere Einträge haben nur freien Text. */
+export function dietLabel(g) {
+  if (!g) return '';
+  const names = { vegetarian: 'Vegetarisch', vegan: 'Vegan', other: 'Sonstiges' };
+  if (g.diet === 'none') return '';
+  if (names[g.diet]) return names[g.diet];
+  return typeof g.dietary === 'string' ? g.dietary.trim() : '';
 }
 
 // CSV-Feld sicher einfassen: Anführungszeichen verdoppeln, Formelzeichen entschärfen
@@ -35,13 +49,15 @@ export function csvCell(v) {
 }
 
 export function buildExtrasCsv(rsvpData) {
-  const rows = [['Anmeldung', 'E-Mail', 'Status', 'Personen gesamt', 'Person', 'Kind', 'Alter', 'Sprache']];
+  const rows = [['Anmeldung', 'E-Mail', 'Status', 'Personen gesamt', 'Person', 'Kind', 'Alter', 'Ernährung', 'Hinweis zur Ernährung', 'Allergien und Unverträglichkeiten', 'Sprache']];
   (rsvpData || []).forEach((r) => {
     const guests = parseGuests(r);
-    const list = guests.length ? guests : [{ name: r.name }];
+    // Ältere Antworten ohne Angaben je Person: die Angaben der Antwort gelten für die erste Zeile
+    const list = guests.length ? guests : [{ name: r.name, dietary: r.dietary, allergies: r.allergies }];
     list.forEach((g, i) => rows.push([
       r.name, r.email, r.attending ? 'Zusage' : 'Absage', i === 0 ? (r.persons || 1) : '',
-      g.name || (i === 0 ? r.name : ''), g.is_child ? 'ja' : 'nein', Number.isInteger(g.age) ? g.age : '', LANG[r.language] || r.language || '',
+      g.name || (i === 0 ? r.name : ''), g.is_child ? 'ja' : 'nein', Number.isInteger(g.age) ? g.age : '',
+      r.attending ? dietLabel(g) : '', r.attending ? (g.diet_note || '') : '', r.attending ? (g.allergies || '') : '', LANG[r.language] || r.language || '',
     ]));
   });
   return '﻿' + rows.map((row) => row.map(csvCell).join(';')).join('\n');
@@ -59,7 +75,7 @@ function RsvpExtrasPanel({ components: C }) {
     const blob = new Blob([buildExtrasCsv(rsvpData)], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `RSVP_Kinder_Sprachen_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+    a.href = url; a.download = `RSVP_Gaeste_je_Person_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -88,6 +104,12 @@ function RsvpExtrasPanel({ components: C }) {
             )}
           </>
         )}
+        {hasRules && (Object.keys(sum.diets).length > 0 || sum.withAllergies > 0) && (
+          <p style={{ margin: '0 0 1rem' }} data-testid="rsvp-diets">
+            Ernährung: {Object.keys(sum.diets).length === 0 ? 'keine Besonderheiten' : Object.entries(sum.diets).sort((a, b) => b[1] - a[1]).map(([d, n]) => `${d} ${n}`).join(' · ')}
+            {sum.withAllergies > 0 ? ` · ${sum.withAllergies} ${sum.withAllergies === 1 ? 'Person' : 'Personen'} mit Allergie-Angabe` : ''}
+          </p>
+        )}
         {hasLanguages && (
           <p style={{ margin: '0 0 1rem' }}>
             Sprache der Antworten:{' '}
@@ -95,7 +117,7 @@ function RsvpExtrasPanel({ components: C }) {
               : Object.entries(sum.byLang).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${LANG[l] || l} ${n}`).join(' · ')}
           </p>
         )}
-        <C.Button onClick={download}>Kinder und Sprachen exportieren (CSV)</C.Button>
+        <C.Button onClick={download}>Gäste je Person exportieren (CSV)</C.Button>
       </C.PanelContent>
     </C.Panel>
     </div>

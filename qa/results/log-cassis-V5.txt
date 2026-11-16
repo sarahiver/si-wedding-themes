@@ -17,6 +17,12 @@ ok   Breite 390: Startfoto geladen
 ok   Breite 390: keine Fehler in der Browser-Konsole
 ok   Tippflächen mindestens 40 px hoch
 ok   Breite 390: Kopfzeile ohne Überlappung und ohne Überstand
+ok   Breite 430: kein seitliches Scrollen
+ok   Breite 430: Bereiche in der richtigen Reihenfolge
+ok   Breite 430: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 430: Startfoto geladen
+ok   Breite 430: keine Fehler in der Browser-Konsole
+ok   Breite 430: Kopfzeile ohne Überlappung und ohne Überstand
 ok   Breite 768: kein seitliches Scrollen
 ok   Breite 768: Bereiche in der richtigen Reihenfolge
 ok   Breite 768: Schriftzug-Grafik geladen und vollständig im Bild
@@ -69,6 +75,27 @@ ok   Menü folgt der Sprache (Türkisch)
 ok   Menü folgt der Sprache (Englisch)
 ok   Tastatur: Schriftzug, sechs Menüpunkte, vier Sprachen der Reihe nach
 ok   Tastatur: sichtbarer Fokusrahmen
+ok   Breite 1440: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug
+ok   Breite 1440: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert
+ok   Breite 1440: nach dem Foto fixiert am oberen Rand
+ok   Breite 1440: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)
+ok   Breite 1440: zurück am Seitenanfang wieder durchsichtig
+ok   Breite 1920: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug
+ok   Breite 1920: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert
+ok   Breite 1920: nach dem Foto fixiert am oberen Rand
+ok   Breite 1920: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)
+ok   Breite 1920: zurück am Seitenanfang wieder durchsichtig
+ok   Breite 390: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug
+ok   Breite 390: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert
+ok   Breite 390: nach dem Foto fixiert am oberen Rand
+ok   Breite 390: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)
+ok   Breite 390: zurück am Seitenanfang wieder durchsichtig
+ok   Direkter Aufruf mit #rsvp landet am Bereich, Kopfzeile fixiert
+ok   Schriften: das Theme lädt keine Schriftdatei von fremden Servern
+ok   Feststellung: die gemeinsame Startseite aller Themes ruft weiterhin fonts.googleapis.com auf (nicht Teil des Themes)
+ok   Schriftrollen: Überschriften in der Serifenschrift (Cormorant Garamond, lokal)
+ok   Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Lato (lokal)
+ok   Schriften geladen, türkische und französische Zeichen vorhanden
 ok   Navigation (Handy): Menü zunächst geschlossen
 ok   Navigation (Handy): Knopf benannt und mit dem Menü verknüpft
 ok   Navigation (Handy): Tippflächen mindestens 44 × 44 px
@@ -76,9 +103,14 @@ ok   Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus
 ok   Offenes Menü: Seite dahinter scrollt nicht
 ok   Escape schließt das Menü, Fokus zurück am Knopf, Seite scrollt wieder
 ok   Auswahl eines Punkts schließt das Menü und führt zum Bereich
-ok   Sprachliste (Handy): öffnet, Zustand gemeldet
-ok   Menü und Sprachliste sind nie gleichzeitig offen
-ok   Sprachwahl (Handy): wechselt die Sprache und schließt die Liste
+ok   Sprachwahl (Handy): Auswahlfeld des Geräts mit vier ausgeschriebenen Sprachen, benannt
+ok   Sprachwahl (Handy): das Auswahlfeld liegt obenauf und nimmt das Tippen an
+ok   Sprachwahl (Handy): tr wechselt Anzeige, Seitensprache und Texte
+ok   Sprachwahl (Handy): fr wechselt Anzeige, Seitensprache und Texte
+ok   Sprachwahl (Handy): en wechselt Anzeige, Seitensprache und Texte
+ok   Sprachwahl (Handy): de wechselt Anzeige, Seitensprache und Texte
+ok   Sprachwechsel bei offenem Menü schließt das Menü und übersetzt es
+ok   Sprachwahl (Handy): bleibt nach dem Neuladen
 ok   Menü zeigt nur Bereiche, die auf der Seite stehen
 ok   Einblenden: Bereiche unterhalb des Bildschirms warten, nichts oberhalb ist versteckt
 ok   Startbild: nach der Eingangsbewegung vollständig sichtbar
@@ -89,7 +121,7 @@ ok   FAQ öffnet und zeigt die Antwort
 ok   FAQ schließt wieder
 ok   Reduzierte Bewegung: keine Eingangsbewegung, nichts versteckt
 ok   Ohne IntersectionObserver: alle Inhalte sichtbar
-ok   Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)
+ok   Desktop 1440: große Schrift (Überschrift ≥ 60, Ablauf ≥ 28, Fließtext ≥ 19 px)
 ok   Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt
 ok   Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch
 ok   Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm
@@ -120,7 +152,7 @@ ok   Danke-Text erscheint in der Sprache des Gasts
 ok   Genau eine Bestätigungsmail, auf Türkisch, nur im Testpostfach
 ok   Mehr als 8 Personen lassen sich nicht einstellen
 ok   Hinweis nennt die Obergrenze
-ok   Bei 8 Personen: sieben weitere Namensfelder
+ok   Bei 8 Personen: acht Blöcke, sieben davon mit Namensfeld
 ok   Anmeldung mit 8 Personen wird angenommen
 ok   Kind ohne Alter: verständliche Meldung, nichts gespeichert
 ok   Alter 0 (Baby) wird angenommen und gespeichert
@@ -134,6 +166,35 @@ ok   Absage: eine Bestätigung auf Französisch
 ok   Mailfehler: Antwort bleibt gespeichert und der Gast sieht die Bestätigung
 ok   Netzfehler: Meldung und Eingaben bleiben erhalten
 ok   Zweiter Versuch nach Netzfehler: genau ein Eintrag
+ok   Auswahl „Ja" ist ohne E-Mail möglich und klar markiert
+ok   Absenden ohne E-Mail: Meldung, Feld markiert und im Fokus, nichts gespeichert
+ok   Ungültige E-Mail „anna@example": Meldung, Fokus im Feld, nichts gespeichert
+ok   Ungültige E-Mail „anna@@example.test": Meldung, Fokus im Feld, nichts gespeichert
+ok   Ungültige E-Mail „anna@example..test": Meldung, Fokus im Feld, nichts gespeichert
+ok   Ungültige E-Mail „an na@example.test": Meldung, Fokus im Feld, nichts gespeichert
+ok   Beim Weitertippen verschwindet die Meldung
+ok   Gültige E-Mail mit Leerzeichen: gespeichert, bereinigt
+ok   Vom Server abgelehnte E-Mail: dieselbe Meldung im Formular, Fokus im Feld, nichts gespeichert
+ok   Fehlermeldungen zur E-Mail in der Sprache des Gasts (en-GB)
+ok   Fehlermeldungen zur E-Mail in der Sprache des Gasts (fr-FR)
+ok   Fehlermeldungen zur E-Mail in der Sprache des Gasts (tr-TR)
+ok   Hauptperson hat einen eigenen Block mit ihrem Namen, ohne Namens- und Kinderfeld
+ok   Auswahl Ernährung: vier Möglichkeiten
+ok   Hinweisfeld erscheint nur bei „Sonstiges"
+ok   Freier Hinweis zur Ernährung verlangt die Einwilligung
+ok   Hinweis zur Freiwilligkeit steht am Formular
+ok   Ohne Einwilligung: Meldung, Fokus auf dem Kästchen, nichts gespeichert
+ok   Eine Person weniger: Blöcke 1 und 2 behalten ihre Angaben
+ok   Wieder eine Person mehr: der neue Block ist leer (keine falsche Zuordnung)
+ok   Absage: keine Ernährungs-, Allergie- und Einwilligungsfelder
+ok   Zurück zur Zusage: Personenzahl und alle Angaben sind wieder da
+ok   Mit Einwilligung gespeichert: drei Personen, jede mit ihren Angaben
+ok   Einwilligung mit Zeitpunkt gespeichert
+ok   Handy, acht Personen: kein seitliches Scrollen, jedes Feld beschriftet
+ok   Acht Personen ohne Allergie-Angaben: gespeichert ohne Einwilligung
+ok   Neue RSVP-Texte vollständig in der Sprache des Gasts (en-GB)
+ok   Neue RSVP-Texte vollständig in der Sprache des Gasts (fr-FR)
+ok   Neue RSVP-Texte vollständig in der Sprache des Gasts (tr-TR)
 ok   Cassis mit Gäste-Passwort: Passwortseite erscheint, Feld passt aufs Handy
 ok   Nach dem Passwort erscheint die Cassis-Seite
 ok   Endzeit aus dem Dashboard steuert die Kalenderdatei (04:00 Uhr)
@@ -146,8 +207,11 @@ ok   Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik
 ok   Dashboard Cassis: Countdown-Editor bietet die Endzeit
 ok   Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter
 ok   Dashboard Cassis: Export enthält Kind, Alter und Sprache
+ok   Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person
+ok   Dashboard Cassis: Übersicht zählt Ernährungsweisen und Allergie-Angaben
+ok   Dashboard Cassis: bestehende Tabelle zeigt die Angaben je Person in eigenen Zeilen
 ok   Dashboard Cassis: keine Fehler
 ok   Altprojekt (Classic): kein Menüpunkt Kinderbetreuung, keine Zusatzübersicht
 ok   Altprojekt (Classic): Hero-Editor ohne Schriftzug-Feld
 
-151/151 bestanden
+215/215 bestanden

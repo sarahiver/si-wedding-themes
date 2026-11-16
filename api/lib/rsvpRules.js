@@ -11,7 +11,31 @@
 //     "rsvp": { "max_persons": 8, "child_ages": true, "confirmation_mail": true } }
 
 const SUPPORTED_LANGUAGES = ['en', 'tr', 'de', 'fr'];
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Ernährungsweise je Person. Der Schlüssel wird gespeichert, der deutsche Text
+// dient der Anzeige im Dashboard (dort ist alles deutsch).
+const DIETS = { none: '', vegetarian: 'Vegetarisch', vegan: 'Vegan', other: 'Sonstiges' };
+
+/**
+ * Plausible E-Mail-Adresse. Bewusst nicht streng: internationale Zeichen sind erlaubt,
+ * geprüft wird nur die Form (genau ein @, kein Leerraum, Domain mit Punkt und Endung
+ * aus mindestens zwei Zeichen, keine leeren Teile). Ob das Postfach existiert, lässt
+ * sich so nicht feststellen.
+ * Dieselbe Funktion steht für den Browser in src/lib/email.js – ein Test hält beide gleich.
+ */
+function isPlausibleEmail(value) {
+  if (typeof value !== 'string') return false;
+  const v = value.trim();
+  if (!v || v.length > 254 || /\s/.test(v)) return false;
+  const at = v.indexOf('@');
+  if (at < 1 || at !== v.lastIndexOf('@')) return false;
+  const local = v.slice(0, at); const domain = v.slice(at + 1);
+  if (local.length > 64 || local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;
+  const labels = domain.split('.');
+  if (labels.length < 2) return false;
+  if (labels.some((l) => !l || l.length > 63 || l.startsWith('-') || l.endsWith('-') || /[^\p{L}\p{N}-]/u.test(l))) return false;
+  const tld = labels[labels.length - 1];
+  return tld.length >= 2 && !/^\d+$/.test(tld);
+}
 const MAX_TEXT = 2000;
 const MAX_NAME = 120;
 
@@ -64,7 +88,7 @@ function resolveLanguage(value, rules) {
  * Prüft und bereinigt eine RSVP-Antwort für ein Projekt mit Regeln.
  * @returns {{ok:true, clean:object} | {ok:false, code:string, field:string, message:string}}
  */
-function validateRsvp(input, rules) {
+function validateRsvp(input, rules, opts = {}) {
   const d = input && typeof input === 'object' ? input : {};
 
   const name = text(d.name, MAX_NAME + 1);
@@ -72,7 +96,8 @@ function validateRsvp(input, rules) {
   if (name.length > MAX_NAME) return fail('name_too_long', 'name', 'Name ist zu lang');
 
   const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : '';
-  if (!email || email.length > 254 || !EMAIL_RE.test(email)) return fail('email_invalid', 'email', 'E-Mail-Adresse ist ungültig');
+  if (!email) return fail('email_required', 'email', 'E-Mail-Adresse fehlt');
+  if (!isPlausibleEmail(email)) return fail('email_invalid', 'email', 'E-Mail-Adresse ist ungültig');
 
   const attending = toBool(d.attending);
   if (attending === null) return fail('attending_invalid', 'attending', 'Zu- oder Absage fehlt');
@@ -83,6 +108,8 @@ function validateRsvp(input, rules) {
   if (persons > rules.maxPersons) return fail('persons_max', 'persons', `Höchstens ${rules.maxPersons} Personen pro Anmeldung`);
 
   let guests = [];
+  let usesDiet = false;   // Formular mit Ernährungsauswahl je Person
+  let health = false;     // Angaben, die Gesundheitsdaten sein können (Allergien, freie Hinweise)
   if (d.guests !== undefined && d.guests !== null) {
     if (!Array.isArray(d.guests)) return fail('guests_invalid', 'guests', 'Gästeliste ist ungültig');
     if (d.guests.length > persons) return fail('guests_count', 'guests', 'Mehr Gäste als angemeldete Personen');
@@ -91,6 +118,18 @@ function validateRsvp(input, rules) {
       if (!g || typeof g !== 'object' || Array.isArray(g)) return fail('guests_invalid', `guests[${i}]`, 'Gast ist ungültig');
       const isChild = g.is_child === true;
       const out = { name: text(g.name, MAX_NAME), dietary: text(g.dietary, 300), allergies: text(g.allergies, 300) };
+      // Ernährungsweise als Auswahl: Schlüssel prüfen, Anzeigetext daraus bilden.
+      // Ohne Auswahl bleibt ein frei eingegebener Text (ältere Formulare) unverändert.
+      if (g.diet !== undefined && g.diet !== null && g.diet !== '') {
+        if (typeof g.diet !== 'string' || !Object.prototype.hasOwnProperty.call(DIETS, g.diet)) return fail('diet_invalid', `guests[${i}].diet`, 'Ernährungsweise ist ungültig');
+        out.diet = g.diet;
+        const note = g.diet === 'other' ? text(g.diet_note, 200) : '';
+        if (note) out.diet_note = note;
+        out.dietary = g.diet === 'other' && note ? `${DIETS.other}: ${note}` : DIETS[g.diet];
+        usesDiet = true;
+        if (note) health = true;
+      }
+      if (out.allergies) health = true;
       if (isChild) {
         out.is_child = true;
         if (rules.childAges) {
@@ -103,12 +142,30 @@ function validateRsvp(input, rules) {
     }
   }
 
+  // Bei einer Absage werden keine Ernährungs- und Allergieangaben gespeichert
+  if (!attending) {
+    guests = guests.map(({ diet, diet_note, dietary, allergies, ...rest }) => ({ ...rest, dietary: '', allergies: '' }));
+    usesDiet = false; health = false;
+  }
+
+  // Allergien und freie Hinweise können Gesundheitsdaten sein: nur mit ausdrücklicher
+  // Einwilligung speichern. Der Zeitpunkt wird hier im Server festgehalten.
+  if (health && opts.requireHealthConsent !== false) {
+    if (d.health_consent !== true) return fail('consent_required', 'health_consent', 'Einwilligung für Allergie-Angaben fehlt');
+    guests[0] = { ...guests[0], health_consent_at: new Date(opts.now || Date.now()).toISOString() };
+  }
+
+  // Die Felder der Antwort selbst zeigen die Angaben der anmeldenden Person –
+  // so stimmen Tabelle, Filter und Export des Dashboards ohne Umbau.
+  const main = guests[0] || {};
+  const perGuest = usesDiet || guests.some((g) => g.allergies);
+
   return {
     ok: true,
     clean: {
       name, email, persons, attending,
-      dietary: text(d.dietary, MAX_TEXT),
-      allergies: text(d.allergies, MAX_TEXT),
+      dietary: perGuest ? (main.dietary || '') : text(d.dietary, MAX_TEXT),
+      allergies: perGuest ? (main.allergies || '') : text(d.allergies, MAX_TEXT),
       message: text(d.message, MAX_TEXT),
       custom_answer: text(d.custom_answer, MAX_TEXT),
       guests,
@@ -122,4 +179,4 @@ function childAgesOf(guests) {
   return (Array.isArray(guests) ? guests : []).filter((g) => g && g.is_child).map((g) => (Number.isInteger(g.age) ? g.age : null));
 }
 
-module.exports = { SUPPORTED_LANGUAGES, readFeatures, getLanguages, getRsvpRules, validateRsvp, resolveLanguage, childAgesOf };
+module.exports = { SUPPORTED_LANGUAGES, DIETS, isPlausibleEmail, readFeatures, getLanguages, getRsvpRules, validateRsvp, resolveLanguage, childAgesOf };

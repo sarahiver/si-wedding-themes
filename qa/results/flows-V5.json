@@ -42,7 +42,7 @@
  {
   "name": "Passwortfeld passt in die Handybreite",
   "pass": true,
-  "info": "{\"x\":57,\"y\":540.2758178710938,\"width\":276,\"height\":52}"
+  "info": "{\"x\":57,\"y\":543.65966796875,\"width\":276,\"height\":52}"
  },
  {
   "name": "Falsches Gäste-Passwort öffnet nichts",
@@ -52,7 +52,7 @@
  {
   "name": "Richtiges Gäste-Passwort zeigt die Seite ohne Neuladen",
   "pass": true,
-  "info": "3178"
+  "info": "3177"
  },
  {
   "name": "Nach dem Passwort werden die Inhalte geladen",
@@ -67,7 +67,7 @@
  {
   "name": "Dashboard botanical: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"37b27146-3a47-460a-8f5c-2cac40cb5b35\",\"created_at\":\"2026-11-16T11:13:10.184Z\",\"project_id\":\"00000000-0000-4000-8000-000000000001\",\"component\":\"countdown\""
+  "info": "{\"id\":\"c004448d-4a2d-4ef3-8aab-fc10c2d99123\",\"created_at\":\"2026-11-16T12:34:26.970Z\",\"project_id\":\"00000000-0000-4000-8000-000000000001\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard botanical: Wert bleibt nach Neuladen erhalten",
@@ -87,7 +87,7 @@
  {
   "name": "Dashboard editorial: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"0a9a7f5e-d65c-44e7-b52e-84330d7ca419\",\"created_at\":\"2026-11-16T11:13:14.199Z\",\"project_id\":\"00000000-0000-4000-8000-000000000002\",\"component\":\"countdown\""
+  "info": "{\"id\":\"2e394869-4d86-4d80-96b4-9acec636d871\",\"created_at\":\"2026-11-16T12:34:30.863Z\",\"project_id\":\"00000000-0000-4000-8000-000000000002\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard editorial: Wert bleibt nach Neuladen erhalten",
@@ -107,7 +107,7 @@
  {
   "name": "Dashboard contemporary: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"1b346c90-4308-45b4-a2c6-0c1647c9f790\",\"created_at\":\"2026-11-16T11:13:17.205Z\",\"project_id\":\"00000000-0000-4000-8000-000000000003\",\"component\":\"countdown\""
+  "info": "{\"id\":\"fa66651d-94c3-453c-8fcf-072e9ea324d0\",\"created_at\":\"2026-11-16T12:34:33.944Z\",\"project_id\":\"00000000-0000-4000-8000-000000000003\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard contemporary: Wert bleibt nach Neuladen erhalten",
@@ -127,7 +127,7 @@
  {
   "name": "Dashboard luxe: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"18901a02-ada1-4daa-870e-e0aed29faa42\",\"created_at\":\"2026-11-16T11:13:20.343Z\",\"project_id\":\"00000000-0000-4000-8000-000000000004\",\"component\":\"countdown\""
+  "info": "{\"id\":\"c53d62a6-b3f8-47bc-b6e4-319245b69f65\",\"created_at\":\"2026-11-16T12:34:36.936Z\",\"project_id\":\"00000000-0000-4000-8000-000000000004\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard luxe: Wert bleibt nach Neuladen erhalten",
@@ -147,7 +147,7 @@
  {
   "name": "Dashboard neon: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"9baf6590-ec07-4e5f-8fda-5907b3b9c726\",\"created_at\":\"2026-11-16T11:13:23.408Z\",\"project_id\":\"00000000-0000-4000-8000-000000000005\",\"component\":\"countdown\""
+  "info": "{\"id\":\"4327b6fa-97cc-4777-873d-2e853348f93e\",\"created_at\":\"2026-11-16T12:34:39.935Z\",\"project_id\":\"00000000-0000-4000-8000-000000000005\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard neon: Wert bleibt nach Neuladen erhalten",
@@ -167,7 +167,7 @@
  {
   "name": "Dashboard video: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"ee750331-155e-4478-9925-e8c43d8ec9e6\",\"created_at\":\"2026-11-16T11:13:27.499Z\",\"project_id\":\"00000000-0000-4000-8000-000000000006\",\"component\":\"countdown\""
+  "info": "{\"id\":\"cb967a41-f8b2-407c-ba7d-59de62039d3b\",\"created_at\":\"2026-11-16T12:34:43.882Z\",\"project_id\":\"00000000-0000-4000-8000-000000000006\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard video: Wert bleibt nach Neuladen erhalten",
@@ -187,7 +187,7 @@
  {
   "name": "Dashboard classic: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"8daacab8-fbfc-47ed-910a-cda9c3cd77f6\",\"created_at\":\"2026-11-16T11:13:30.775Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"component\":\"countdown\""
+  "info": "{\"id\":\"70a37acb-a282-4020-adb3-ae32f82f2dad\",\"created_at\":\"2026-11-16T12:34:47.018Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard classic: Wert bleibt nach Neuladen erhalten",
@@ -207,7 +207,7 @@
  {
   "name": "Dashboard parallax: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"411d9596-2279-4911-8214-c189fbc44bbe\",\"created_at\":\"2026-11-16T11:13:34.655Z\",\"project_id\":\"00000000-0000-4000-8000-000000000008\",\"component\":\"timeline\","
+  "info": "{\"id\":\"a30b1b80-7488-4c31-918a-2038e09d3838\",\"created_at\":\"2026-11-16T12:34:50.774Z\",\"project_id\":\"00000000-0000-4000-8000-000000000008\",\"component\":\"timeline\","
  },
  {
   "name": "Dashboard parallax: Wert bleibt nach Neuladen erhalten",
@@ -227,7 +227,7 @@
  {
   "name": "Dashboard summer: Speichern legt Inhalt im richtigen Projekt ab",
   "pass": true,
-  "info": "{\"id\":\"50fa679f-66cf-40a4-8d7a-a8ed8de5cb07\",\"created_at\":\"2026-11-16T11:13:37.791Z\",\"project_id\":\"00000000-0000-4000-8000-000000000009\",\"component\":\"countdown\""
+  "info": "{\"id\":\"554f238a-2ace-44ac-b4fc-e2c3b66aa6eb\",\"created_at\":\"2026-11-16T12:34:53.814Z\",\"project_id\":\"00000000-0000-4000-8000-000000000009\",\"component\":\"countdown\""
  },
  {
   "name": "Dashboard summer: Wert bleibt nach Neuladen erhalten",

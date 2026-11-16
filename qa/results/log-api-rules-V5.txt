@@ -71,5 +71,36 @@ ok   [Änderung] Änderung über die Personengrenze wird abgelehnt
 ok   [Änderung] Änderung auf eine bereits vergebene E-Mail wird abgelehnt
 ok   [Änderung] erneutes Speichern derselben Antwort bleibt möglich
 ok   [Änderung] Änderungen lösen keine weitere Bestätigungsmail aus
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (nur Leerzeichen)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (ohne Endung)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (zwei @)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (Leerzeichen)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (doppelter Punkt)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (Punkt vor @)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (ohne Namen)
+ok   [E-Mail] ungültige Adresse wird nicht gespeichert (Endung zu kurz)
+ok   [E-Mail] gültige internationale Adresse wird angenommen und bereinigt (ayşe.yılmaz@örnek.com.tr)
+ok   [E-Mail] gültige internationale Adresse wird angenommen und bereinigt (jörg+hochzeit@straße.example)
+ok   [E-Mail] gültige internationale Adresse wird angenommen und bereinigt (o'neil@ex-ample.co.uk)
+ok   [E-Mail] Doppelantwortschutz greift auch nach der Bereinigung
+ok   [E-Mail] ungültige Adresse löst keine Bestätigungsmail aus
+ok   [E-Mail] gültige Adresse löst genau eine Bestätigungsmail an diese Adresse aus
+ok   [Ernährung] Allergie-Angaben ohne Einwilligung werden nicht gespeichert
+ok   [Ernährung] Einwilligung muss ausdrücklich wahr sein (Text „true" genügt nicht)
+ok   [Ernährung] mit Einwilligung gespeichert: drei Personen mit eigenen Angaben
+ok   [Ernährung] Kinderalter bleibt bei der richtigen Person
+ok   [Ernährung] Zeitpunkt der Einwilligung wird im Server festgehalten
+ok   [Ernährung] Felder der Antwort zeigen die Angaben der anmeldenden Person (Dashboard-Tabelle)
+ok   [Ernährung] Bestätigungsmail enthält keine Ernährungs- oder Allergieangaben
+ok   [Ernährung] reine Auswahl (vegetarisch/vegan) braucht keine Einwilligung
+ok   [Ernährung] unbekannte Ernährungsweise wird abgelehnt
+ok   [Ernährung] acht Personen mit je eigenen Angaben
+ok   [Ernährung] neun Personen bleiben abgelehnt
+ok   [Ernährung] Absage speichert keine Ernährungs- und Allergieangaben
+ok   [Ernährung] ältere Form (ein Text für die ganze Anmeldung) wird weiter angenommen
+ok   [Ernährung] Bearbeiten im Dashboard lässt Angaben je Person und Einwilligung unverändert
+ok   [Ernährung] fremdes Paar kann die Angaben nicht lesen
+ok   [Ernährung] ohne Anmeldung sind die Angaben nicht lesbar
+ok   [Ernährung] Altprojekt ohne Regeln bleibt unverändert (keine neue Prüfung)
 
-73 von 73 bestanden
+104 von 104 bestanden

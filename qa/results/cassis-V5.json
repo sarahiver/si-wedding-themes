@@ -95,6 +95,36 @@
   "info": "{\"count\":3,\"overlap\":0,\"right\":382,\"vw\":390}"
  },
  {
+  "name": "Breite 430: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 430: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "timeline,countdown,rsvp,directions,faq,witnesses"
+ },
+ {
+  "name": "Breite 430: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[34,396]"
+ },
+ {
+  "name": "Breite 430: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 430: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 430: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":3,\"overlap\":0,\"right\":420.8125,\"vw\":430}"
+ },
+ {
   "name": "Breite 768: kein seitliches Scrollen",
   "pass": true,
   "info": "0"
@@ -227,12 +257,12 @@
  {
   "name": "Zweites Foto steht als eigener Abschnitt zwischen Ablauf und Countdown",
   "pass": true,
-  "info": "{\"timeline\":844,\"photo\":1436,\"countdown\":2021,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
+  "info": "{\"timeline\":844,\"photo\":1441,\"countdown\":2026,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
  },
  {
   "name": "Beide Fotos je genau einmal, Schloss-Illustration genau einmal",
   "pass": true,
-  "info": "{\"timeline\":844,\"photo\":1436,\"countdown\":2021,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
+  "info": "{\"timeline\":844,\"photo\":1441,\"countdown\":2026,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
  },
  {
   "name": "Schriftzug oben links in der Kopfzeile",
@@ -353,6 +383,111 @@
   "name": "Tastatur: sichtbarer Fokusrahmen",
   "pass": true,
   "info": "solid 2px"
+ },
+ {
+  "name": "Breite 1440: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug",
+  "pass": true,
+  "info": "[]"
+ },
+ {
+  "name": "Breite 1440: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert",
+  "pass": true,
+  "info": "[[0,\"false\",0],[20,\"false\",-20],[60,\"false\",-60],[150,\"false\",-150],[360,\"false\",-360]]"
+ },
+ {
+  "name": "Breite 1440: nach dem Foto fixiert am oberen Rand",
+  "pass": true,
+  "info": "[[940,\"true\",0],[1500,\"true\",0]]"
+ },
+ {
+  "name": "Breite 1440: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)",
+  "pass": true,
+  "info": "6611"
+ },
+ {
+  "name": "Breite 1440: zurück am Seitenanfang wieder durchsichtig",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1920: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug",
+  "pass": true,
+  "info": "[]"
+ },
+ {
+  "name": "Breite 1920: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert",
+  "pass": true,
+  "info": "[[0,\"false\",0],[20,\"false\",-20],[60,\"false\",-60],[150,\"false\",-150],[432,\"false\",-432]]"
+ },
+ {
+  "name": "Breite 1920: nach dem Foto fixiert am oberen Rand",
+  "pass": true,
+  "info": "[[1120,\"true\",0],[1680,\"true\",0]]"
+ },
+ {
+  "name": "Breite 1920: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)",
+  "pass": true,
+  "info": "8308"
+ },
+ {
+  "name": "Breite 1920: zurück am Seitenanfang wieder durchsichtig",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 390: Kopfzeile liegt bei keiner Scrollposition über dem großen Schriftzug",
+  "pass": true,
+  "info": "[]"
+ },
+ {
+  "name": "Breite 390: am Seitenanfang ganz oben und durchsichtig, über dem Foto nicht fixiert",
+  "pass": true,
+  "info": "[[0,\"false\",0],[20,\"false\",-20],[60,\"false\",-60],[150,\"false\",-150],[338,\"false\",-338]]"
+ },
+ {
+  "name": "Breite 390: nach dem Foto fixiert am oberen Rand",
+  "pass": true,
+  "info": "[[884,\"true\",0],[1444,\"true\",0]]"
+ },
+ {
+  "name": "Breite 390: Wechsel der Kopfzeile verschiebt nichts (Seitenhöhe gleich)",
+  "pass": true,
+  "info": "5328"
+ },
+ {
+  "name": "Breite 390: zurück am Seitenanfang wieder durchsichtig",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Direkter Aufruf mit #rsvp landet am Bereich, Kopfzeile fixiert",
+  "pass": true,
+  "info": "{\"top\":62,\"pinned\":\"true\"}"
+ },
+ {
+  "name": "Schriften: das Theme lädt keine Schriftdatei von fremden Servern",
+  "pass": true,
+  "info": "fonts.googleapis.com"
+ },
+ {
+  "name": "Feststellung: die gemeinsame Startseite aller Themes ruft weiterhin fonts.googleapis.com auf (nicht Teil des Themes)",
+  "pass": true,
+  "info": "fonts.googleapis.com"
+ },
+ {
+  "name": "Schriftrollen: Überschriften in der Serifenschrift (Cormorant Garamond, lokal)",
+  "pass": true,
+  "info": "{\"h2\":\"Cassis Serif\",\"month\":\"Cassis Serif\",\"body\":\"Cassis Sans\",\"nav\":\"Cassis Sans\",\"button\":\"Cassis Sans\",\"input\":\"Cassis Sans\",\"time\":\"Cassis Sans\",\"loaded\":\"Cassis Sans 300|Cassis Sans 300|Cassis "
+ },
+ {
+  "name": "Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Lato (lokal)",
+  "pass": true,
+  "info": "{\"h2\":\"Cassis Serif\",\"month\":\"Cassis Serif\",\"body\":\"Cassis Sans\",\"nav\":\"Cassis Sans\",\"button\":\"Cassis Sans\",\"input\":\"Cassis Sans\",\"time\":\"Cassis Sans\",\"loaded\":\"Cassis Sans 300|Cassis Sans 300|Cassis "
+ },
+ {
+  "name": "Schriften geladen, türkische und französische Zeichen vorhanden",
+  "pass": true,
+  "info": "Cassis Sans 300|Cassis Sans 300|Cassis Sans 400|Cassis Sans 400|Cassis Serif 400|Cassis Serif 400"
  },
  {
   "name": "Navigation (Handy): Menü zunächst geschlossen",
@@ -480,24 +615,24 @@
   "info": "{\"io\":\"undefined\",\"armed\":0,\"hidden\":0}"
  },
  {
-  "name": "Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)",
+  "name": "Desktop 1440: große Schrift (Überschrift ≥ 60, Ablauf ≥ 28, Fließtext ≥ 19 px)",
   "pass": true,
-  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+  "info": "{\"title\":64.8,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":259.2,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
  },
  {
   "name": "Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt",
   "pass": true,
-  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+  "info": "{\"title\":64.8,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":259.2,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
  },
  {
   "name": "Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch",
   "pass": true,
-  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+  "info": "{\"title\":64.8,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":259.2,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
  },
  {
   "name": "Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm",
   "pass": true,
-  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+  "info": "{\"title\":64.8,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":259.2,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
  },
  {
   "name": "Desktop 1440: Schriftzug im Startbild ≥ 560 px breit",
@@ -602,7 +737,7 @@
  {
   "name": "Zusage mit 3 Personen und Kind wird gespeichert",
   "pass": true,
-  "info": "{\"id\":\"9b5e491b-167f-4f46-97f4-0f5e2e9b4a68\",\"created_at\":\"2026-11-16T11:53:33.822Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
+  "info": "{\"id\":\"e944110f-c195-41be-99c2-b54df73e204f\",\"created_at\":\"2026-11-16T12:36:44.169Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
  },
  {
   "name": "Alter des Kindes steht bei der richtigen Person",
@@ -635,14 +770,14 @@
   "info": ""
  },
  {
-  "name": "Bei 8 Personen: sieben weitere Namensfelder",
+  "name": "Bei 8 Personen: acht Blöcke, sieben davon mit Namensfeld",
   "pass": true,
   "info": ""
  },
  {
   "name": "Anmeldung mit 8 Personen wird angenommen",
   "pass": true,
-  "info": "{\"id\":\"d6b15ebc-a9b7-40fe-8822-651feb610bc2\",\"created_at\":\"2026-11-16T11:53:36.878Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
+  "info": "{\"id\":\"436fb69b-0cae-4ead-8f12-e278fa8ff7ce\",\"created_at\":\"2026-11-16T12:36:47.465Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
  },
  {
   "name": "Kind ohne Alter: verständliche Meldung, nichts gespeichert",
@@ -682,7 +817,7 @@
  {
   "name": "Absage gespeichert, Doppelklick erzeugt nur einen Eintrag",
   "pass": true,
-  "info": "[{\"id\":\"ac7773ab-e8c2-446c-9675-0216760648ca\",\"created_at\":\"2026-11-16T11:53:51.124Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
+  "info": "[{\"id\":\"1a99bb84-0486-4169-812d-6c5ad2378f28\",\"created_at\":\"2026-11-16T12:37:02.602Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
  },
  {
   "name": "Absage: eine Bestätigung auf Französisch",
@@ -703,6 +838,151 @@
   "name": "Zweiter Versuch nach Netzfehler: genau ein Eintrag",
   "pass": true,
   "info": ""
+ },
+ {
+  "name": "Auswahl „Ja\" ist ohne E-Mail möglich und klar markiert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Absenden ohne E-Mail: Meldung, Feld markiert und im Fokus, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"described\":true,\"msg\":\"Bitte gebt eure E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Ungültige E-Mail „anna@example\": Meldung, Fokus im Feld, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"msg\":\"Bitte gebt eine gültige E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Ungültige E-Mail „anna@@example.test\": Meldung, Fokus im Feld, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"msg\":\"Bitte gebt eine gültige E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Ungültige E-Mail „anna@example..test\": Meldung, Fokus im Feld, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"msg\":\"Bitte gebt eine gültige E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Ungültige E-Mail „an na@example.test\": Meldung, Fokus im Feld, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"msg\":\"Bitte gebt eine gültige E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Beim Weitertippen verschwindet die Meldung",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Gültige E-Mail mit Leerzeichen: gespeichert, bereinigt",
+  "pass": true,
+  "info": "\"ohne.mail@example.test\""
+ },
+ {
+  "name": "Vom Server abgelehnte E-Mail: dieselbe Meldung im Formular, Fokus im Feld, nichts gespeichert",
+  "pass": true,
+  "info": "{\"focused\":true,\"msg\":\"Bitte gebt eine gültige E-Mail-Adresse ein.\"}"
+ },
+ {
+  "name": "Fehlermeldungen zur E-Mail in der Sprache des Gasts (en-GB)",
+  "pass": true,
+  "info": "Please enter your email address. | Please enter a valid email address."
+ },
+ {
+  "name": "Fehlermeldungen zur E-Mail in der Sprache des Gasts (fr-FR)",
+  "pass": true,
+  "info": "Veuillez indiquer votre adresse e-mail. | Veuillez indiquer une adresse e-mail valide."
+ },
+ {
+  "name": "Fehlermeldungen zur E-Mail in der Sprache des Gasts (tr-TR)",
+  "pass": true,
+  "info": "Lütfen e-posta adresinizi girin. | Lütfen geçerli bir e-posta adresi girin."
+ },
+ {
+  "name": "Hauptperson hat einen eigenen Block mit ihrem Namen, ohne Namens- und Kinderfeld",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Auswahl Ernährung: vier Möglichkeiten",
+  "pass": true,
+  "info": "Keine Besonderheiten|Vegetarisch|Vegan|Sonstiges"
+ },
+ {
+  "name": "Hinweisfeld erscheint nur bei „Sonstiges\"",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Freier Hinweis zur Ernährung verlangt die Einwilligung",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Hinweis zur Freiwilligkeit steht am Formular",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Ohne Einwilligung: Meldung, Fokus auf dem Kästchen, nichts gespeichert",
+  "pass": true,
+  "info": "{\"invalid\":\"true\",\"focused\":true,\"msg\":\"Bitte bestätigt die Einwilligung zu den Allergie-Angaben oder entfernt diese Angaben.\"}"
+ },
+ {
+  "name": "Eine Person weniger: Blöcke 1 und 2 behalten ihre Angaben",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Wieder eine Person mehr: der neue Block ist leer (keine falsche Zuordnung)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Absage: keine Ernährungs-, Allergie- und Einwilligungsfelder",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Zurück zur Zusage: Personenzahl und alle Angaben sind wieder da",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Mit Einwilligung gespeichert: drei Personen, jede mit ihren Angaben",
+  "pass": true,
+  "info": "[{\"name\":\"Dana Diät\",\"dietary\":\"Vegan\",\"allergies\":\"\",\"diet\":\"vegan\",\"health_consent_at\":\"2026-11-16T12:37:43.484Z\"},{\"name\":\"Eli\",\"dietary\":\"Sonstiges: kein Fisch\",\"allergies\":\"Nüsse, Laktose\",\"diet\""
+ },
+ {
+  "name": "Einwilligung mit Zeitpunkt gespeichert",
+  "pass": true,
+  "info": "2026-11-16T12:37:43.484Z"
+ },
+ {
+  "name": "Handy, acht Personen: kein seitliches Scrollen, jedes Feld beschriftet",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Acht Personen ohne Allergie-Angaben: gespeichert ohne Einwilligung",
+  "pass": true,
+  "info": "[null,\"vegan\",null,\"vegetarian\",\"vegan\",null,\"vegetarian\",\"vegan\"]"
+ },
+ {
+  "name": "Neue RSVP-Texte vollständig in der Sprache des Gasts (en-GB)",
+  "pass": true,
+  "info": "No special requirements|Vegetarian|Vegan|Other"
+ },
+ {
+  "name": "Neue RSVP-Texte vollständig in der Sprache des Gasts (fr-FR)",
+  "pass": true,
+  "info": "Aucune particularité|Végétarien|Végétalien (vegan)|Autre"
+ },
+ {
+  "name": "Neue RSVP-Texte vollständig in der Sprache des Gasts (tr-TR)",
+  "pass": true,
+  "info": "Özel bir durum yok|Vejetaryen|Vegan|Diğer"
  },
  {
   "name": "Cassis mit Gäste-Passwort: Passwortseite erscheint, Feld passt aufs Handy",
@@ -727,17 +1007,17 @@
  {
   "name": "Dashboard Cassis: Anmeldung, Menü ohne Kinderbetreuung",
   "pass": true,
-  "info": "Dashboard|RSVP6|Gästeliste|Hero|Ablauf|Countdown|RSVP Text|Anfahrt|FAQ|Trauzeug:innen|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
+  "info": "Dashboard|RSVP|Gästeliste|Hero|Ablauf|Countdown|RSVP Text|Anfahrt|FAQ|Trauzeug:innen|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
  },
  {
   "name": "Dashboard Cassis: keine Einträge für abgewählte Bereiche (Galerie, Gästebuch, Musik)",
   "pass": true,
-  "info": "Dashboard|RSVP6|Gästeliste|Hero|Ablauf|Countdown|RSVP Text|Anfahrt|FAQ|Trauzeug:innen|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
+  "info": "Dashboard|RSVP|Gästeliste|Hero|Ablauf|Countdown|RSVP Text|Anfahrt|FAQ|Trauzeug:innen|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
  },
  {
   "name": "Dashboard Cassis: Anfahrt speichern landet im richtigen Projekt",
   "pass": true,
-  "info": "{\"id\":\"db239963-c6f5-447c-88bd-d97bbcd0ed59\",\"created_at\":\"2026-11-16T11:52:39.397Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
+  "info": "{\"id\":\"8497b70e-d3a3-45bc-957a-0ccc59b51895\",\"created_at\":\"2026-11-16T12:35:14.313Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
  },
  {
   "name": "Gespeicherte Kinderbetreuungs-Daten bleiben erhalten (nichts gelöscht)",
@@ -757,12 +1037,27 @@
  {
   "name": "Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter",
   "pass": true,
-  "info": "Kinder und Sprachen 2 Kinder bei den Zusagen · höchstens 8 Personen pro Anmeldung ALTER KIND ANMELDUNG 0 Jahre Kind Ohne Alter 5 Jahre Elif Ayşe Yılmaz Sprache der Antworten: Deutsch 4 · Französisch 1"
+  "info": "Kinder und Sprachen 3 Kinder bei den Zusagen · höchstens 8 Personen pro Anmeldung ALTER KIND ANMELDUNG 0 Jahre Kind Ohne Alter 4 Jahre Fee Dana Diät 5 Jahre Elif Ayşe Yılmaz Ernährung: Vegan 4 · Veget"
  },
  {
   "name": "Dashboard Cassis: Export enthält Kind, Alter und Sprache",
   "pass": true,
-  "info": "﻿\"Anmeldung\";\"E-Mail\";\"Status\";\"Personen gesamt\";\"Person\";\"Kind\";\"Alter\";\"Sprache\" / \"Netz Weg\";\"netz@example.test\";\"Zusage\";\"1\";\"Netz Weg\";\"nein\";\"\";\"Deutsch\" / \"Mail Kaputt\";\"mailkaputt@example.test"
+  "info": "﻿\"Anmeldung\";\"E-Mail\";\"Status\";\"Personen gesamt\";\"Person\";\"Kind\";\"Alter\";\"Ernährung\";\"Hinweis zur Ernährung\";\"Allergien und Unverträglichkeiten\";\"Sprache\" / \"Acht Leute\";\"acht-ui@example.test\";\"Zusage"
+ },
+ {
+  "name": "Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person",
+  "pass": true,
+  "info": "\"Dana Diät\";\"dana@example.test\";\"Zusage\";\"\";\"Eli\";\"nein\";\"\";\"Sonstiges\";\"kein Fisch\";\"Nüsse, Laktose\";\"Deutsch\""
+ },
+ {
+  "name": "Dashboard Cassis: Übersicht zählt Ernährungsweisen und Allergie-Angaben",
+  "pass": true,
+  "info": "Kinder und Sprachen 3 Kinder bei den Zusagen · höchstens 8 Personen pro Anmeldung ALTER KIND ANMELDUNG 0 Jahre Kind Ohne Alter 4 Jahre Fee Dana Diät 5 Jahre Elif Ayşe Yılmaz Ernährung: Vegan 4 · Veget"
+ },
+ {
+  "name": "Dashboard Cassis: bestehende Tabelle zeigt die Angaben je Person in eigenen Zeilen",
+  "pass": true,
+  "info": ""
  },
  {
   "name": "Dashboard Cassis: keine Fehler",

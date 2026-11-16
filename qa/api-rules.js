@@ -9,6 +9,7 @@ const outbox = async () => (await (await fetch(BASE + '/__test/outbox')).json())
 const post = (p, b) => fetch(BASE + p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b ? JSON.stringify(b) : undefined });
 const results = []; const t = (group, name, pass, info = '') => { results.push({ group, name, pass: !!pass, info: String(info).slice(0, 200) }); console.log(`${pass ? 'ok  ' : 'FAIL'} [${group}] ${name}${pass ? '' : ' :: ' + String(info).slice(0, 180)}`); };
 let n = 0; const rsvp = (o = {}) => ({ name: 'Regel Gast', email: `regel-${++n}@example.test`, persons: 1, attending: true, dietary: '', allergies: '', message: '', guests: [], custom_answer: '', language: 'de', ...o });
+const g0 = (row) => { const g = typeof row.guests === 'string' ? JSON.parse(row.guests) : row.guests; return g && g[0] && g[0].health_consent_at; };
 const rows = async (project) => ((await dump()).rsvp_responses || []).filter(x => x.project_id === project);
 const send = (data, project = C) => call('submitRSVP', { projectId: project, rsvpData: data });
 const rejects = async (group, name, data, code) => { const before = (await rows(C)).length; const r = await send(data); const after = (await rows(C)).length;
@@ -35,7 +36,7 @@ const rejects = async (group, name, data, code) => { const before = (await rows(
   // ---------- Pflichtangaben ----------
   await rejects('Eingaben', 'leerer Name wird abgelehnt', rsvp({ name: '   ' }), 'name_required');
   await rejects('Eingaben', 'ungültige E-Mail wird abgelehnt', rsvp({ email: 'kein-at-zeichen' }), 'email_invalid');
-  await rejects('Eingaben', 'fehlende E-Mail wird abgelehnt', rsvp({ email: '' }), 'email_invalid');
+  await rejects('Eingaben', 'fehlende E-Mail wird abgelehnt', rsvp({ email: '' }), 'email_required');
   await rejects('Eingaben', 'fehlende Zu-/Absage wird abgelehnt', rsvp({ attending: undefined }), 'attending_invalid');
   await rejects('Eingaben', 'Gästeliste als Text wird abgelehnt', rsvp({ guests: 'x' }), 'guests_invalid');
   r = await send(rsvp({ email: '  GROSS@Example.TEST ', name: '  Anna  ', attending: 'yes' }));
@@ -147,6 +148,56 @@ const rejects = async (group, name, data, code) => { const before = (await rows(
   r = await call('updateRSVPResponse', { projectId: C, id: mine.id, updates: { name: 'Familie Neu', email: 'familie@example.test', persons: 4, attending: true, dietary: 'vegan' } }, tokC);
   t('Änderung', 'erneutes Speichern derselben Antwort bleibt möglich', r.status === 200, r.status);
   t('Änderung', 'Änderungen lösen keine weitere Bestätigungsmail aus', (await outbox()).outbox.filter(m => m.body.to[0].email === 'familie@example.test').length === 1);
+
+  // ---- E-Mail-Prüfung im Server (unabhängig vom Browser) ----
+  for (const [bad, why] of [['   ', 'nur Leerzeichen'], ['anna@example', 'ohne Endung'], ['anna@@example.test', 'zwei @'], ['an na@example.test', 'Leerzeichen'], ['anna@example..test', 'doppelter Punkt'], ['anna.@example.test', 'Punkt vor @'], ['@example.test', 'ohne Namen'], ['anna@example.t', 'Endung zu kurz']]) {
+    await rejects('E-Mail', `ungültige Adresse wird nicht gespeichert (${why})`, rsvp({ email: bad }), bad.trim() ? 'email_invalid' : 'email_required');
+  }
+  for (const good of ['ayşe.yılmaz@örnek.com.tr', 'jörg+hochzeit@straße.example', "o'neil@ex-ample.co.uk"]) {
+    r = await send(rsvp({ email: `  ${good.replace(/[a-hj-z]/g, (ch) => ch.toUpperCase())}  ` })); // nur einfache Buchstaben groß, damit die Schreibweise eindeutig zurückführbar ist
+    t('E-Mail', `gültige internationale Adresse wird angenommen und bereinigt (${good})`, r.status === 200 && r.body.data.email === good.toLowerCase(), r.status + ' ' + JSON.stringify(r.body).slice(0, 120));
+  }
+  r = await send(rsvp({ email: ' Ayşe.Yılmaz@Örnek.com.TR' }));
+  t('E-Mail', 'Doppelantwortschutz greift auch nach der Bereinigung', r.status === 409, r.status);
+  let mailsBefore2 = (await outbox()).outbox.length;
+  r = await send(rsvp({ email: 'kaputt@' }));
+  t('E-Mail', 'ungültige Adresse löst keine Bestätigungsmail aus', r.status === 400 && (await outbox()).outbox.length === mailsBefore2, r.status);
+  r = await send(rsvp({ email: 'bestaetigung@example.test' }));
+  t('E-Mail', 'gültige Adresse löst genau eine Bestätigungsmail an diese Adresse aus', r.status === 200 && r.body.mail === 'sent' && (await outbox()).outbox.filter((m) => m.body.to[0].email === 'bestaetigung@example.test').length === 1, JSON.stringify(r.body).slice(0, 100));
+
+  // ---- Ernährung und Allergien je Person ----
+  const fam = rsvp({ name: 'Dana Diät', email: 'diaet@example.test', persons: 3, guests: [{ name: 'Dana Diät', diet: 'vegan' }, { name: 'Eli', diet: 'other', diet_note: 'kein Fisch', allergies: 'Nüsse, Laktose' }, { name: 'Fee', is_child: true, age: 4, diet: 'vegetarian' }] });
+  await rejects('Ernährung', 'Allergie-Angaben ohne Einwilligung werden nicht gespeichert', fam, 'consent_required');
+  await rejects('Ernährung', 'Einwilligung muss ausdrücklich wahr sein (Text „true" genügt nicht)', { ...fam, health_consent: 'true' }, 'consent_required');
+  r = await send({ ...fam, health_consent: true });
+  let row = (await rows(C)).find((x) => x.email === 'diaet@example.test'); let g = row ? (typeof row.guests === 'string' ? JSON.parse(row.guests) : row.guests) : [];
+  t('Ernährung', 'mit Einwilligung gespeichert: drei Personen mit eigenen Angaben', r.status === 200 && g.length === 3 && g[0].diet === 'vegan' && g[1].diet === 'other' && g[1].diet_note === 'kein Fisch' && g[1].allergies === 'Nüsse, Laktose' && g[2].diet === 'vegetarian', JSON.stringify(g));
+  t('Ernährung', 'Kinderalter bleibt bei der richtigen Person', g[2] && g[2].is_child === true && g[2].age === 4 && !g[0].is_child && !g[1].is_child);
+  t('Ernährung', 'Zeitpunkt der Einwilligung wird im Server festgehalten', g[0] && /^\d{4}-\d\d-\d\dT/.test(g[0].health_consent_at || '') && Math.abs(Date.now() - Date.parse(g[0].health_consent_at)) < 60000, g[0] && g[0].health_consent_at);
+  t('Ernährung', 'Felder der Antwort zeigen die Angaben der anmeldenden Person (Dashboard-Tabelle)', row.dietary === 'Vegan' && row.allergies === '' && g[1].dietary === 'Sonstiges: kein Fisch', row.dietary + '|' + row.allergies);
+  const mailD = (await outbox()).outbox.find((m) => m.body.to[0].email === 'diaet@example.test');
+  t('Ernährung', 'Bestätigungsmail enthält keine Ernährungs- oder Allergieangaben', mailD && !/Nüsse|Laktose|Vegan|kein Fisch|Vegetarisch/i.test(mailD.body.htmlContent));
+  r = await send(rsvp({ email: 'nurwahl@example.test', persons: 2, guests: [{ name: 'A', diet: 'vegetarian' }, { name: 'B', diet: 'none' }] }));
+  t('Ernährung', 'reine Auswahl (vegetarisch/vegan) braucht keine Einwilligung', r.status === 200 && r.body.data.guests[0].dietary === 'Vegetarisch' && !r.body.data.guests[0].health_consent_at, r.status);
+  await rejects('Ernährung', 'unbekannte Ernährungsweise wird abgelehnt', rsvp({ email: 'x1@example.test', guests: [{ name: 'A', diet: 'fleisch' }] }), 'diet_invalid');
+  const eight = Array.from({ length: 8 }, (_, i) => ({ name: `Person ${i + 1}`, diet: ['none', 'vegetarian', 'vegan', 'other'][i % 4], allergies: i === 6 ? 'Gluten' : '' }));
+  r = await send(rsvp({ email: 'acht-diaet@example.test', persons: 8, health_consent: true, guests: eight }));
+  g = r.body.data ? r.body.data.guests : [];
+  t('Ernährung', 'acht Personen mit je eigenen Angaben', r.status === 200 && g.length === 8 && g[6].allergies === 'Gluten' && g.filter((x) => x.diet === 'vegan').length === 2, r.status);
+  await rejects('Ernährung', 'neun Personen bleiben abgelehnt', rsvp({ email: 'neun-diaet@example.test', persons: 9, guests: [...eight, { name: 'P9' }] }), 'persons_max');
+  r = await send(rsvp({ email: 'absage-diaet@example.test', attending: false, guests: [{ name: 'Nein', diet: 'vegan', allergies: 'Nüsse' }] }));
+  row = (await rows(C)).find((x) => x.email === 'absage-diaet@example.test');
+  t('Ernährung', 'Absage speichert keine Ernährungs- und Allergieangaben', r.status === 200 && row.dietary === '' && row.allergies === '' && !/vegan|Nüsse/i.test(JSON.stringify(row.guests)), JSON.stringify(row.guests));
+  r = await send(rsvp({ email: 'altform@example.test', persons: 2, dietary: 'vegetarisch', allergies: 'Laktose', guests: [{ name: 'A' }, { name: 'B' }] }));
+  t('Ernährung', 'ältere Form (ein Text für die ganze Anmeldung) wird weiter angenommen', r.status === 200 && r.body.data.dietary === 'vegetarisch' && r.body.data.allergies === 'Laktose', r.status);
+  const famRow = (await rows(C)).find((x) => x.email === 'diaet@example.test');
+  r = await call('updateRSVPResponse', { projectId: C, id: famRow.id, updates: { name: 'Dana Diät', email: 'diaet@example.test', persons: 3, attending: true, dietary: 'Vegan', allergies: '', message: 'geändert' } }, tokC);
+  const famAfter = (await rows(C)).find((x) => x.id === famRow.id); const gA = typeof famAfter.guests === 'string' ? JSON.parse(famAfter.guests) : famAfter.guests;
+  t('Ernährung', 'Bearbeiten im Dashboard lässt Angaben je Person und Einwilligung unverändert', r.status === 200 && famAfter.message === 'geändert' && gA[1].allergies === 'Nüsse, Laktose' && gA[0].health_consent_at === g0(famRow), r.status);
+  r = await call('getRSVPResponses', { projectId: C }, tokB); t('Ernährung', 'fremdes Paar kann die Angaben nicht lesen', r.status === 401 || r.status === 403, r.status);
+  r = await call('getRSVPResponses', { projectId: C }); t('Ernährung', 'ohne Anmeldung sind die Angaben nicht lesbar', r.status === 401, r.status);
+  r = await send(rsvp({ email: 'legacy-diaet@example.test', guests: [{ name: 'A', diet: 'fleisch', allergies: 'Nüsse' }] }), A);
+  t('Ernährung', 'Altprojekt ohne Regeln bleibt unverändert (keine neue Prüfung)', r.status === 200, r.status);
 
   fs.writeFileSync(`results/api-rules-${label}.json`, JSON.stringify(results, null, 1));
   console.log(`\n${results.filter(x => x.pass).length} von ${results.length} bestanden`);
