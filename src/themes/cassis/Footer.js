@@ -4,24 +4,30 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SCRIPT } from './shared';
+import { C, FONT, SERIF, SCRIPT, DESK, G } from './shared';
 import { formatWeddingDate } from './helpers';
 
 const Wrap = styled.footer`
-  background: ${C.deep}; color: ${C.white}; font-family: ${FONT}; font-weight: 400; text-align: center;
-  padding: clamp(4rem, 12vw, 6.5rem) 1.5rem 2.5rem;
-  .mark { margin: 0; }
-  .mark img { display: block; margin: 0 auto; width: min(52vw, 11rem); height: auto; }
-  @media (min-width: 900px) { .mark img { width: clamp(13rem, 17vw, 20rem); } .line { font-size: clamp(1.125rem, 1.3vw, 1.5rem); } }
-  .mark span { font-family: ${SCRIPT}; font-size: clamp(2.5rem, 12vw, 3.5rem); line-height: 1; }
-  .line { margin: 1.5rem 0 0; font-weight: 300; font-size: 1.0625rem; letter-spacing: 0.04em; }
-  .links { margin-top: clamp(2.5rem, 8vw, 4rem); display: flex; flex-wrap: wrap; justify-content: center; gap: 0 0.5rem; }
+  position: relative; z-index: 1; overflow: hidden; background: ${C.deep}; color: ${C.white}; font-family: ${FONT}; font-weight: 400;
+  padding: clamp(4rem, 8vw, 8rem) ${G} 2.5rem;
+  .mark { margin: 0 0 2.5rem; }
+  .mark img { display: block; width: 100%; max-width: 44rem; height: auto; }
+  .mark span { font-family: ${SCRIPT}; font-size: clamp(2.5rem, 12vw, 6rem); line-height: 1; }
+  .line { margin: 0 0 0.5rem; font-family: ${SERIF}; font-size: clamp(1.5rem, 2.2vw, 2.25rem); line-height: 1.2; font-variant-numeric: lining-nums; }
+  .line + .links { margin-top: 1.5rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-left: -0.25rem; }
   a, button {
-    color: ${C.white}; font-family: ${FONT}; font-size: 0.9375rem; background: none; border: none; cursor: pointer;
-    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.25em; min-height: 2.75rem; padding: 0 0.75rem; display: inline-flex; align-items: center; opacity: 0.85; transition: opacity 0.2s ease;
+    color: ${C.white}; font-family: ${FONT}; font-size: 1rem; background: none; border: none; cursor: pointer;
+    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.3em; min-height: 2.75rem; padding: 0 0.25rem; display: inline-flex; align-items: center; opacity: 0.85; transition: opacity 0.2s ease;
   }
   a:hover, button:hover { opacity: 1; }
   a:focus-visible, button:focus-visible { outline: 2px solid ${C.white}; outline-offset: 2px; opacity: 1; }
+  ${DESK} {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end;
+    .mark { grid-column: 1 / 8; margin: 0 0 -1.5vw; }
+    .meta { grid-column: 9 / 13; text-align: right; }
+    .links { justify-content: flex-end; margin: 0 -0.25rem 0 0; }
+  }
 `;
 
 function Footer() {
@@ -41,12 +47,14 @@ function Footer() {
   return (
     <Wrap>
       <p className="mark">{hero.name_image ? <img src={hero.name_image} alt={label} loading="lazy" /> : <span>{label}</span>}</p>
+      <div className="meta">
       {date && <p className="line">{date}</p>}
       {tag && <p className="line">{tag}</p>}
       <div className="links">
         <button type="button" onClick={toTop}>{t(STRINGS, 'backToTop')}</button>
         <a href="/impressum" target="_blank" rel="noopener noreferrer">{t(STRINGS, 'imprint')}</a>
         <a href="/datenschutz" target="_blank" rel="noopener noreferrer">{t(STRINGS, 'privacy')}</a>
+      </div>
       </div>
     </Wrap>
   );
