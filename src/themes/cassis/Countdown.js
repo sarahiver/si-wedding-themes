@@ -5,26 +5,28 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
-import { C, Section, Inner, Aside, Button } from './shared';
+import { C, Section, Inner, Aside, Button, DESK } from './shared';
 
-const Sheet = styled.div`min-width: 0; max-width: 30rem;`;
+const Sheet = styled.div`min-width: 0; max-width: 30rem; ${DESK} { max-width: 46rem; }`;
 const Head = styled.div`display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;`;
-const Month = styled.h2`margin: 0; font-weight: 300; font-size: clamp(1.875rem, 6.5vw, 2.5rem); line-height: 1.15; letter-spacing: 0.01em; text-transform: capitalize;`;
-const Rule = styled.svg`display: block; width: 100%; height: 12px; margin: 0.35rem 0 1.5rem; overflow: visible;`;
-const Rings = styled.svg`flex: none; width: 4.5rem; height: 2.75rem; margin-bottom: -0.95rem;`;
+const Month = styled.h2`margin: 0; font-weight: 300; font-size: clamp(1.875rem, 6.5vw, 2.5rem); line-height: 1.15; letter-spacing: 0.01em; text-transform: capitalize; ${DESK} { font-size: clamp(2.5rem, 3.7vw, 4.5rem); }`;
+const Rule = styled.svg`display: block; width: 100%; height: 12px; margin: 0.35rem 0 1.5rem; overflow: visible; ${DESK} { margin: 0.75rem 0 2.25rem; }`;
+const Rings = styled.svg`flex: none; width: 4.5rem; height: 2.75rem; margin-bottom: -0.95rem; ${DESK} { width: clamp(5.5rem, 7vw, 8rem); height: clamp(3.4rem, 4.3vw, 4.9rem); margin-bottom: -1.5rem; }`;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center;`;
-const Weekday = styled.div`font-size: 0.875rem; color: ${C.inkSoft}; padding-bottom: 0.6rem; text-transform: capitalize;`;
+const Weekday = styled.div`font-size: 0.875rem; color: ${C.inkSoft}; padding-bottom: 0.6rem; text-transform: capitalize; ${DESK} { font-size: clamp(1rem, 1.1vw, 1.25rem); padding-bottom: 1rem; }`;
 const Day = styled.div`
   position: relative; height: clamp(2.6rem, 11vw, 3.25rem); display: flex; align-items: center; justify-content: center;
   font-weight: 300; font-size: clamp(1.125rem, 4.8vw, 1.375rem); font-variant-numeric: tabular-nums;
+  ${DESK} { height: clamp(3.75rem, 5.4vw, 6.5rem); font-size: clamp(1.5rem, 2vw, 2.375rem); svg { max-width: 8rem; } }
   svg { position: absolute; left: 50%; top: 50%; width: 150%; max-width: 4.75rem; height: 92%; transform: translate(-50%, -50%) rotate(-6deg); }
   span { position: relative; }
 `;
 const Count = styled.p`
   margin: 0; font-size: 1.0625rem; line-height: 1.5; color: ${C.inkSoft};
   strong { display: block; font-weight: 300; font-size: clamp(4.5rem, 20vw, 7rem); letter-spacing: -0.01em; line-height: 0.95; color: ${C.ink}; margin-bottom: 0.5rem; font-variant-numeric: tabular-nums; }
+  ${DESK} { font-size: clamp(1.25rem, 1.5vw, 1.75rem); strong { font-size: clamp(8rem, 15vw, 18rem); line-height: 0.85; margin-bottom: 0.12em; margin-left: -0.04em; } }
 `;
-const Actions = styled.div`margin-top: 2rem;`;
+const Actions = styled.div`margin-top: 2rem; ${DESK} { margin-top: 3rem; }`;
 
 function weekdayNames(lang) {
   const f = new Intl.DateTimeFormat(LOCALES[lang] || LOCALES.en, { weekday: 'short', timeZone: 'UTC' });

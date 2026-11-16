@@ -3,22 +3,44 @@ ok   Breite 320: Bereiche in der richtigen Reihenfolge
 ok   Breite 320: Schriftzug-Grafik geladen und vollständig im Bild
 ok   Breite 320: Startfoto geladen
 ok   Breite 320: keine Fehler in der Browser-Konsole
+ok   Breite 320: Kopfzeile ohne Überlappung und ohne Überstand
+ok   Breite 375: kein seitliches Scrollen
+ok   Breite 375: Bereiche in der richtigen Reihenfolge
+ok   Breite 375: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 375: Startfoto geladen
+ok   Breite 375: keine Fehler in der Browser-Konsole
+ok   Breite 375: Kopfzeile ohne Überlappung und ohne Überstand
 ok   Breite 390: kein seitliches Scrollen
 ok   Breite 390: Bereiche in der richtigen Reihenfolge
 ok   Breite 390: Schriftzug-Grafik geladen und vollständig im Bild
 ok   Breite 390: Startfoto geladen
 ok   Breite 390: keine Fehler in der Browser-Konsole
 ok   Tippflächen mindestens 40 px hoch
+ok   Breite 390: Kopfzeile ohne Überlappung und ohne Überstand
 ok   Breite 768: kein seitliches Scrollen
 ok   Breite 768: Bereiche in der richtigen Reihenfolge
 ok   Breite 768: Schriftzug-Grafik geladen und vollständig im Bild
 ok   Breite 768: Startfoto geladen
 ok   Breite 768: keine Fehler in der Browser-Konsole
+ok   Breite 768: Kopfzeile ohne Überlappung und ohne Überstand
+ok   Breite 1024: kein seitliches Scrollen
+ok   Breite 1024: Bereiche in der richtigen Reihenfolge
+ok   Breite 1024: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 1024: Startfoto geladen
+ok   Breite 1024: keine Fehler in der Browser-Konsole
+ok   Breite 1024: Kopfzeile ohne Überlappung und ohne Überstand
 ok   Breite 1440: kein seitliches Scrollen
 ok   Breite 1440: Bereiche in der richtigen Reihenfolge
 ok   Breite 1440: Schriftzug-Grafik geladen und vollständig im Bild
 ok   Breite 1440: Startfoto geladen
 ok   Breite 1440: keine Fehler in der Browser-Konsole
+ok   Breite 1440: Kopfzeile ohne Überlappung und ohne Überstand
+ok   Breite 1920: kein seitliches Scrollen
+ok   Breite 1920: Bereiche in der richtigen Reihenfolge
+ok   Breite 1920: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 1920: Startfoto geladen
+ok   Breite 1920: keine Fehler in der Browser-Konsole
+ok   Breite 1920: Kopfzeile ohne Überlappung und ohne Überstand
 ok   Keine Galerie, keine fremden Bereiche
 ok   Kinderbetreuung erscheint nicht mehr, auch wenn sie im Projekt noch gespeichert ist
 ok   Zweites Foto steht als eigener Abschnitt zwischen Ablauf und Countdown
@@ -31,6 +53,47 @@ ok   Zugänglichkeit: jedes Feld beschriftet, jeder Knopf benannt
 ok   Zugänglichkeit: eine Hauptüberschrift mit den Namen, Bilder mit Alternativtext
 ok   Route öffnet Google Maps mit der Adresse in neuem Tab
 ok   „Nach oben" führt an den Seitenanfang
+ok   Navigation (Desktop): sechs Menüpunkte in der Reihenfolge der Seite
+ok   Navigation (Desktop): kein Aufklappmenü, Sprachen direkt sichtbar
+ok   Kopfzeile über dem Foto durchsichtig
+ok   Menüpunkt führt zum Bereich „timeline", direkt unter die Kopfzeile
+ok   Menüpunkt führt zum Bereich „countdown", direkt unter die Kopfzeile
+ok   Menüpunkt führt zum Bereich „rsvp", direkt unter die Kopfzeile
+ok   Menüpunkt führt zum Bereich „directions", direkt unter die Kopfzeile
+ok   Menüpunkt führt zum Bereich „faq", direkt unter die Kopfzeile
+ok   Menüpunkt führt zum Bereich „witnesses", direkt unter die Kopfzeile
+ok   Kopfzeile nach dem Scrollen hinterlegt und weiter oben fixiert
+ok   Hinterlegte Kopfzeile: dunkle Schrift auf hellem Grund
+ok   Menü folgt der Sprache (Französisch)
+ok   Menü folgt der Sprache (Türkisch)
+ok   Menü folgt der Sprache (Englisch)
+ok   Tastatur: Schriftzug, sechs Menüpunkte, vier Sprachen der Reihe nach
+ok   Tastatur: sichtbarer Fokusrahmen
+ok   Navigation (Handy): Menü zunächst geschlossen
+ok   Navigation (Handy): Knopf benannt und mit dem Menü verknüpft
+ok   Navigation (Handy): Tippflächen mindestens 44 × 44 px
+ok   Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus
+ok   Offenes Menü: Seite dahinter scrollt nicht
+ok   Escape schließt das Menü, Fokus zurück am Knopf, Seite scrollt wieder
+ok   Auswahl eines Punkts schließt das Menü und führt zum Bereich
+ok   Sprachliste (Handy): öffnet, Zustand gemeldet
+ok   Menü und Sprachliste sind nie gleichzeitig offen
+ok   Sprachwahl (Handy): wechselt die Sprache und schließt die Liste
+ok   Menü zeigt nur Bereiche, die auf der Seite stehen
+ok   Einblenden: Bereiche unterhalb des Bildschirms warten, nichts oberhalb ist versteckt
+ok   Startbild: nach der Eingangsbewegung vollständig sichtbar
+ok   Einblenden: nach einmaligem Durchscrollen ist alles sichtbar und bleibt es
+ok   Kein erneutes Ausblenden beim Zurückscrollen
+ok   Linie des Ablaufs steht nach dem Aufbau vollständig
+ok   FAQ öffnet und zeigt die Antwort
+ok   FAQ schließt wieder
+ok   Reduzierte Bewegung: keine Eingangsbewegung, nichts versteckt
+ok   Ohne IntersectionObserver: alle Inhalte sichtbar
+ok   Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)
+ok   Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt
+ok   Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch
+ok   Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm
+ok   Desktop 1440: Schriftzug im Startbild ≥ 560 px breit
 ok   Gerätesprache tr-TR → tr
 ok   Gerätesprache fr-FR → fr
 ok   Gerätesprache de-AT → de
@@ -87,4 +150,4 @@ ok   Dashboard Cassis: keine Fehler
 ok   Altprojekt (Classic): kein Menüpunkt Kinderbetreuung, keine Zusatzübersicht
 ok   Altprojekt (Classic): Hero-Editor ohne Schriftzug-Feld
 
-88/88 bestanden
+151/151 bestanden

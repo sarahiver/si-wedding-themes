@@ -12,12 +12,13 @@ const Wrap = styled.footer`
   padding: clamp(4rem, 12vw, 6.5rem) 1.5rem 2.5rem;
   .mark { margin: 0; }
   .mark img { display: block; margin: 0 auto; width: min(52vw, 11rem); height: auto; }
+  @media (min-width: 900px) { .mark img { width: clamp(13rem, 17vw, 20rem); } .line { font-size: clamp(1.125rem, 1.3vw, 1.5rem); } }
   .mark span { font-family: ${SCRIPT}; font-size: clamp(2.5rem, 12vw, 3.5rem); line-height: 1; }
   .line { margin: 1.5rem 0 0; font-weight: 300; font-size: 1.0625rem; letter-spacing: 0.04em; }
   .links { margin-top: clamp(2.5rem, 8vw, 4rem); display: flex; flex-wrap: wrap; justify-content: center; gap: 0 0.5rem; }
   a, button {
     color: ${C.white}; font-family: ${FONT}; font-size: 0.9375rem; background: none; border: none; cursor: pointer;
-    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.25em; min-height: 2.75rem; padding: 0 0.75rem; display: inline-flex; align-items: center; opacity: 0.85;
+    text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.25em; min-height: 2.75rem; padding: 0 0.75rem; display: inline-flex; align-items: center; opacity: 0.85; transition: opacity 0.2s ease;
   }
   a:hover, button:hover { opacity: 1; }
   a:focus-visible, button:focus-visible { outline: 2px solid ${C.white}; outline-offset: 2px; opacity: 1; }

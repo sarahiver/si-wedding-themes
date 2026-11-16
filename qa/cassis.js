@@ -20,6 +20,11 @@ async function open(browser, { vp = { width: 390, height: 844 }, locale = 'de-DE
   return { ctx, page, errors };
 }
 const text = (page) => page.evaluate(() => document.body.innerText);
+async function setLang(page, code) {
+  const toggle = page.locator('header button[aria-haspopup]');
+  if (await toggle.isVisible()) await toggle.click();
+  await page.locator(`nav button[lang="${code}"]`).click(); await page.waitForTimeout(350);
+}
 async function fillRsvp(page, { name, email, attending = true, persons = 1, guests = [] }) {
   const f = page.locator('#rsvp');
   if (name !== undefined) await f.locator('input[name="name"]').fill(name);
@@ -41,7 +46,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   await seedCassis();
 
   // ---------- 1. Aufbau und Darstellung ----------
-  for (const [n, vp] of Object.entries({ '320': { width: 320, height: 640 }, '390': { width: 390, height: 844 }, '768': { width: 768, height: 1024 }, '1440': { width: 1440, height: 900 } })) {
+  for (const [n, vp] of Object.entries({ '320': { width: 320, height: 640 }, '375': { width: 375, height: 667 }, '390': { width: 390, height: 844 }, '768': { width: 768, height: 1024 }, '1024': { width: 1024, height: 768 }, '1440': { width: 1440, height: 900 }, '1920': { width: 1920, height: 1080 } })) {
     const { ctx, page, errors } = await open(browser, { vp });
     const info = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - window.innerWidth,
@@ -57,6 +62,13 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok(`Breite ${n}: Startfoto geladen`, info.hero > 0);
     ok(`Breite ${n}: keine Fehler in der Browser-Konsole`, errors.length === 0, errors[0]);
     if (n === '390') ok('Tippflächen mindestens 40 px hoch', info.small.length === 0, info.small.join(' | '));
+    const head = await page.evaluate(() => {
+      const vis = (e) => { const c = getComputedStyle(e); const b = e.getBoundingClientRect(); return c.visibility !== 'hidden' && c.display !== 'none' && b.width > 0 && b.top < 80; };
+      const els = [...document.querySelectorAll('body > div header a, body > div header button, header[data-solid] a, header[data-solid] button')].filter(vis).map((e) => e.getBoundingClientRect());
+      let overlap = 0; for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) { const a = els[i], b = els[j]; if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) overlap++; }
+      return { count: els.length, overlap, right: Math.max(...els.map((b) => b.right)), vw: window.innerWidth };
+    });
+    ok(`Breite ${n}: Kopfzeile ohne Überlappung und ohne Überstand`, head.count >= 3 && head.overlap === 0 && head.right <= head.vw, JSON.stringify(head));
     await ctx.close();
   }
   { const { ctx, page } = await open(browser);
@@ -91,6 +103,101 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('„Nach oben" führt an den Seitenanfang', await page.evaluate(() => window.scrollY) < 5);
     await ctx.close(); }
 
+  // ---------- 1b. Navigation ----------
+  { const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 } });
+    const links = await page.locator('header[data-solid] nav a').evaluateAll((a) => a.map((x) => [x.textContent, x.getAttribute('href')]));
+    ok('Navigation (Desktop): sechs Menüpunkte in der Reihenfolge der Seite', links.map((l) => l[1]).join() === '#timeline,#countdown,#rsvp,#directions,#faq,#witnesses' && links[0][0] === 'Ablauf' && links[5][0] === 'Trauzeug:innen', JSON.stringify(links));
+    ok('Navigation (Desktop): kein Aufklappmenü, Sprachen direkt sichtbar', !(await page.locator('header button[aria-controls][aria-label="Menü"]').isVisible()) && await page.locator('nav button[lang="fr"]').isVisible());
+    ok('Kopfzeile über dem Foto durchsichtig', await page.locator('header[data-solid]').getAttribute('data-solid') === 'false');
+    for (const id of ['timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses']) {
+      await page.locator(`header[data-solid] nav a[href="#${id}"]`).click(); await page.waitForTimeout(500);
+      const top = await page.evaluate((i) => Math.round(document.getElementById(i).getBoundingClientRect().top), id);
+      ok(`Menüpunkt führt zum Bereich „${id}", direkt unter die Kopfzeile`, top >= 40 && top <= 70, top);
+    }
+    ok('Kopfzeile nach dem Scrollen hinterlegt und weiter oben fixiert', await page.locator('header[data-solid]').getAttribute('data-solid') === 'true' && (await page.locator('header[data-solid]').boundingBox()).y === 0);
+    const contrast = await page.locator('header[data-solid] nav a').first().evaluate((a) => getComputedStyle(a).color);
+    ok('Hinterlegte Kopfzeile: dunkle Schrift auf hellem Grund', contrast === 'rgb(51, 53, 63)', contrast);
+    await setLang(page, 'fr'); const fr = await page.locator('header[data-solid] nav a').allTextContents();
+    ok('Menü folgt der Sprache (Französisch)', fr.join() === 'Programme,Compte à rebours,RSVP,Accès,FAQ,Témoins', fr.join());
+    await setLang(page, 'tr'); const tr = await page.locator('header[data-solid] nav a').allTextContents();
+    ok('Menü folgt der Sprache (Türkisch)', tr.join() === 'Program,Geri sayım,LCV,Ulaşım,SSS,Şahitler', tr.join());
+    await setLang(page, 'en'); const en = await page.locator('header[data-solid] nav a').allTextContents();
+    ok('Menü folgt der Sprache (Englisch)', en.join() === 'Schedule,Countdown,RSVP,Getting there,FAQ,Witnesses', en.join());
+    // Tastatur: vom Seitenanfang aus erreicht Tab Schriftzug, Menü und Sprachen in dieser Reihenfolge
+    await page.evaluate(() => { window.scrollTo(0, 0); document.activeElement && document.activeElement.blur(); }); await page.waitForTimeout(300);
+    await page.locator('header[data-solid] a[href="#top"]').focus(); const order = ['#top']; for (let i = 0; i < 10; i++) { await page.keyboard.press('Tab'); order.push(await page.evaluate(() => { const e = document.activeElement; return e.getAttribute('href') || e.getAttribute('lang') || e.tagName; })); }
+    ok('Tastatur: Schriftzug, sechs Menüpunkte, vier Sprachen der Reihe nach', order.join() === '#top,#timeline,#countdown,#rsvp,#directions,#faq,#witnesses,en,tr,de,fr', order.join());
+    const focus = await page.evaluate(() => { const e = document.activeElement; const c = getComputedStyle(e); return c.outlineStyle + ' ' + c.outlineWidth; });
+    ok('Tastatur: sichtbarer Fokusrahmen', /solid/.test(focus) && !/ 0px/.test(focus), focus);
+    await ctx.close(); }
+  { const { ctx, page } = await open(browser, { vp: { width: 390, height: 844 } });
+    const burger = page.locator('header button[aria-controls]').last(); const menu = page.locator('header[data-solid] nav').first();
+    ok('Navigation (Handy): Menü zunächst geschlossen', await burger.getAttribute('aria-expanded') === 'false' && !(await menu.locator('a').first().isVisible()));
+    ok('Navigation (Handy): Knopf benannt und mit dem Menü verknüpft', await burger.getAttribute('aria-label') === 'Menü' && await burger.getAttribute('aria-controls') === await menu.getAttribute('id'));
+    const bb = await burger.boundingBox(); const lb = await page.locator('header button[aria-haspopup]').boundingBox();
+    ok('Navigation (Handy): Tippflächen mindestens 44 × 44 px', bb.width >= 44 && bb.height >= 44 && lb.width >= 44 && lb.height >= 44, JSON.stringify([bb, lb]));
+    await burger.click(); await page.waitForTimeout(400);
+    ok('Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus', await burger.getAttribute('aria-expanded') === 'true' && await menu.locator('a').nth(5).isVisible() && await page.evaluate(() => document.activeElement.getAttribute('href')) === '#timeline');
+    ok('Offenes Menü: Seite dahinter scrollt nicht', await page.evaluate(() => document.documentElement.style.overflow) === 'hidden');
+    await page.keyboard.press('Escape'); await page.waitForTimeout(400);
+    ok('Escape schließt das Menü, Fokus zurück am Knopf, Seite scrollt wieder', await burger.getAttribute('aria-expanded') === 'false' && !(await menu.locator('a').first().isVisible()) && await page.evaluate(() => document.activeElement.getAttribute('aria-controls') !== null && document.documentElement.style.overflow !== 'hidden'));
+    await burger.click(); await page.waitForTimeout(300); await menu.locator('a[href="#rsvp"]').click(); await page.waitForTimeout(600);
+    const top = await page.evaluate(() => Math.round(document.getElementById('rsvp').getBoundingClientRect().top));
+    ok('Auswahl eines Punkts schließt das Menü und führt zum Bereich', await burger.getAttribute('aria-expanded') === 'false' && top >= 40 && top <= 70, top);
+    const lt = page.locator('header button[aria-haspopup]'); await lt.click(); await page.waitForTimeout(300);
+    ok('Sprachliste (Handy): öffnet, Zustand gemeldet', await lt.getAttribute('aria-expanded') === 'true' && await page.locator('nav button[lang="tr"]').isVisible());
+    await burger.click(); await page.waitForTimeout(300);
+    ok('Menü und Sprachliste sind nie gleichzeitig offen', await lt.getAttribute('aria-expanded') === 'false' && await burger.getAttribute('aria-expanded') === 'true');
+    await page.keyboard.press('Escape'); await lt.click(); await page.locator('nav button[lang="tr"]').click(); await page.waitForTimeout(400);
+    ok('Sprachwahl (Handy): wechselt die Sprache und schließt die Liste', (await lt.innerText()).trim() === 'TR' && await lt.getAttribute('aria-expanded') === 'false' && (await page.evaluate(() => document.documentElement.lang)) === 'tr');
+    await ctx.close(); }
+  { // Nur vorhandene Bereiche im Menü: Projekt ohne Inhalte für Ablauf, Anfahrt, FAQ, Trauzeug:innen
+    const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 }, path: '/base-cassis' });
+    const links = await page.locator('header[data-solid] nav a').evaluateAll((a) => a.map((x) => x.getAttribute('href')));
+    ok('Menü zeigt nur Bereiche, die auf der Seite stehen', links.join() === '#countdown,#rsvp', links.join());
+    await ctx.close(); }
+
+  // ---------- 1c. Bewegung ----------
+  { ipN += 1; const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', extraHTTPHeaders: { 'x-forwarded-for': `10.1.0.${ipN}` } }); const page = await ctx.newPage(); await routeFonts(page); await routeAssets(page);
+    await page.goto(BASE + '/lena-tom', { waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(2600);
+    const st = () => page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].map((e) => e.getAttribute('data-reveal')));
+    const before = await st();
+    ok('Einblenden: Bereiche unterhalb des Bildschirms warten, nichts oberhalb ist versteckt', before.length >= 5 && before.filter((x) => x === 'armed').length >= 4, before.join());
+    const heroOpacity = await page.evaluate(() => [getComputedStyle(document.querySelector('h1')).opacity, getComputedStyle(document.querySelector('header#top img.bg')).opacity].join());
+    ok('Startbild: nach der Eingangsbewegung vollständig sichtbar', heroOpacity === '1,1', heroOpacity);
+    const h = await page.evaluate(() => document.documentElement.scrollHeight); for (let y = 0; y <= h; y += 500) { await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(90); } await page.waitForTimeout(1400);
+    const after = await st(); const hidden = await page.evaluate(() => [...document.querySelectorAll('section *, figure img')].filter((e) => e.getBoundingClientRect().height > 0 && getComputedStyle(e).opacity === '0' && !e.closest('details:not([open])')).length);
+    ok('Einblenden: nach einmaligem Durchscrollen ist alles sichtbar und bleibt es', after.every((x) => x === 'in') && hidden === 0, after.join() + ' / versteckt: ' + hidden);
+    await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(500); await page.evaluate(() => document.getElementById('faq').scrollIntoView()); await page.waitForTimeout(500);
+    ok('Kein erneutes Ausblenden beim Zurückscrollen', (await st()).every((x) => x === 'in'));
+    const line = await page.evaluate(() => { const li = document.querySelector('#timeline li'); return getComputedStyle(li, '::before').transform; });
+    ok('Linie des Ablaufs steht nach dem Aufbau vollständig', line === 'none' || line === 'matrix(1, 0, 0, 1, 0, 0)', line);
+    const f = page.locator('#faq details').first(); await f.locator('summary').click(); await page.waitForTimeout(600);
+    ok('FAQ öffnet und zeigt die Antwort', await f.evaluate((d) => d.open) && await f.locator('p').isVisible());
+    await f.locator('summary').click(); await page.waitForTimeout(600); ok('FAQ schließt wieder', !(await f.evaluate((d) => d.open)));
+    await ctx.close(); }
+  { // Bewegung reduziert: nichts wird versteckt, keine Eingangsbewegung
+    const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 } });
+    const r = await page.evaluate(() => ({ armed: document.querySelectorAll('[data-reveal]').length, anim: getComputedStyle(document.querySelector('h1')).animationName, hidden: [...document.querySelectorAll('section *')].filter((e) => getComputedStyle(e).opacity === '0' && !e.closest('details:not([open])')).length }));
+    ok('Reduzierte Bewegung: keine Eingangsbewegung, nichts versteckt', r.armed === 0 && r.anim === 'none' && r.hidden === 0, JSON.stringify(r));
+    await ctx.close(); }
+  { // Ohne Beobachter im Browser: Inhalte bleiben sichtbar
+    ipN += 1; const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', extraHTTPHeaders: { 'x-forwarded-for': `10.1.0.${ipN}` } }); const page = await ctx.newPage(); await routeFonts(page); await routeAssets(page);
+    await page.addInitScript(() => { delete window.IntersectionObserver; });
+    await page.goto(BASE + '/lena-tom', { waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(2200);
+    const r = await page.evaluate(() => ({ io: typeof IntersectionObserver, armed: document.querySelectorAll('[data-reveal]').length, hidden: [...document.querySelectorAll('section *')].filter((e) => getComputedStyle(e).opacity === '0' && !e.closest('details:not([open])')).length }));
+    ok('Ohne IntersectionObserver: alle Inhalte sichtbar', r.io === 'undefined' && r.armed === 0 && r.hidden === 0, JSON.stringify(r));
+    await ctx.close(); }
+  { const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 } });
+    const m = await page.evaluate(() => { const px = (sel) => { const e = document.querySelector(sel); return e ? parseFloat(getComputedStyle(e).fontSize) : 0; }; const w = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().width) : 0; };
+      return { title: px('#timeline h2'), item: px('#timeline li'), body: px('#directions address'), day: px('#countdown [data-wedding-day]'), count: px('#countdown strong'), sheet: w('#countdown [role="img"]'), form: w('#rsvp form'), input: document.querySelector('#rsvp input').getBoundingClientRect().height, photo: w('[data-cassis-photo] img'), photoH: Math.round(document.querySelector('[data-cassis-photo] img').getBoundingClientRect().height), mark: w('h1 img') }; });
+    ok('Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)', m.title >= 48 && m.item >= 28 && m.body >= 19, JSON.stringify(m));
+    ok('Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt', m.sheet >= 600 && m.count >= 180 && m.day >= 26, JSON.stringify(m));
+    ok('Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch', m.form >= 600 && m.input >= 60, JSON.stringify(m));
+    ok('Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm', m.photo >= 1420 && m.photoH >= 900, JSON.stringify(m));
+    ok('Desktop 1440: Schriftzug im Startbild ≥ 560 px breit', m.mark >= 560, m.mark);
+    await ctx.close(); }
+
   // ---------- 2. Sprachen ----------
   for (const [locale, want, phrase] of [['tr-TR', 'tr', 'Takvime ekle'], ['fr-FR', 'fr', 'Ajouter au calendrier'], ['de-AT', 'de', 'Im Kalender speichern'], ['en-GB', 'en', 'Save to calendar'], ['es-ES', 'en', 'Save to calendar']]) {
     const { ctx, page } = await open(browser, { locale });
@@ -102,16 +209,16 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   { const { ctx, page } = await open(browser, { locale: 'en-US' });
     ok('Sprachleiste zeigt ENG, TR, DE, FR', (await page.locator('nav button').allTextContents()).join(',') === 'ENG,TR,DE,FR');
     ok('Hauptsprache: Titel des Ablaufs aus dem Inhalt', (await text(page)).includes('Timeline'));
-    await page.locator('nav button[lang="de"]').click(); await page.waitForTimeout(300);
+    await setLang(page, 'de');
     let t = await text(page);
     ok('Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt', t.includes('Im Kalender speichern') && t.includes('Ablauf') && !t.includes('Timeline') && (await page.evaluate(() => document.documentElement.lang)) === 'de');
     ok('Nicht übersetzter Inhalt fällt auf Englisch zurück', t.includes('Getting there') && t.includes('Witnesses'));
     await page.reload({ waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(500);
     ok('Gewählte Sprache bleibt nach dem Neuladen', (await page.evaluate(() => document.documentElement.lang)) === 'de');
-    await page.locator('nav button[lang="tr"]').click(); await page.waitForTimeout(300); t = await text(page);
+    await setLang(page, 'tr'); t = await text(page);
     ok('Türkisch: feste Texte türkisch, fehlende Übersetzung englisch', t.includes('Takvime ekle') && t.includes('Timeline') && !t.includes('Im Kalender speichern'));
     ok('Türkisch: Datum in türkischer Schreibweise', /15 Mayıs 2027/.test(t), t.slice(0, 200));
-    await page.locator('nav button[lang="fr"]').click(); await page.waitForTimeout(300); t = await text(page);
+    await setLang(page, 'fr'); t = await text(page);
     ok('Französisch: übersetzter Titel und Datum', t.includes('Programme') && /15 mai 2027/.test(t));
     await ctx.close(); }
 
