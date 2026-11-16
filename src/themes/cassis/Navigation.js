@@ -223,6 +223,15 @@ function Navigation() {
   const items = present.map((id) => ITEMS.find((i) => i.id === id)).filter(Boolean);
   const multi = enabled && languages.length > 1;
 
+  // Das Startbild bleibt am oberen Rand stehen – für den Browser ist das Sprungziel „#top" deshalb
+  // immer schon im Bild, ein gewöhnlicher Sprung täte nichts. Darum hier ausdrücklich an den Seitenanfang.
+  const toTop = (e) => {
+    e.preventDefault(); setOpen(false);
+    const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+    if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  };
+
   const toggleMenu = () => {
     setOpen((v) => {
       // nach dem Öffnen den ersten Menüpunkt ansteuern (Tastatur, Screenreader)
@@ -233,7 +242,7 @@ function Navigation() {
 
   return (
     <Bar $solid={solid} $pinned={pinned} data-solid={solid ? 'true' : 'false'} data-pinned={pinned ? 'true' : 'false'}>
-      <Mark href="#top" aria-label={label} $solid={solid} onClick={() => setOpen(false)}>
+      <Mark href="#top" aria-label={label} $solid={solid} onClick={toTop}>
         {hero.name_image ? <img src={hero.name_image} alt="" /> : <span aria-hidden="true">{label}</span>}
       </Mark>
 
