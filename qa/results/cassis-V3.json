@@ -367,7 +367,7 @@
  {
   "name": "Navigation (Handy): Tippflächen mindestens 44 × 44 px",
   "pass": true,
-  "info": "[{\"x\":338,\"y\":10,\"width\":44,\"height\":44},{\"x\":280.390625,\"y\":10,\"width\":53.609375,\"height\":44}]"
+  "info": "[{\"x\":338,\"y\":10,\"width\":44,\"height\":44},{\"x\":274,\"y\":10,\"width\":60,\"height\":44}]"
  },
  {
   "name": "Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus",
@@ -390,17 +390,42 @@
   "info": "62"
  },
  {
-  "name": "Sprachliste (Handy): öffnet, Zustand gemeldet",
+  "name": "Sprachwahl (Handy): Auswahlfeld des Geräts mit vier ausgeschriebenen Sprachen, benannt",
+  "pass": true,
+  "info": "en:English,tr:Türkçe,de:Deutsch,fr:Français"
+ },
+ {
+  "name": "Sprachwahl (Handy): das Auswahlfeld liegt obenauf und nimmt das Tippen an",
   "pass": true,
   "info": ""
  },
  {
-  "name": "Menü und Sprachliste sind nie gleichzeitig offen",
+  "name": "Sprachwahl (Handy): tr wechselt Anzeige, Seitensprache und Texte",
+  "pass": true,
+  "info": "TR\nEnglish\nTürkçe\nDeutsch\nFrançais"
+ },
+ {
+  "name": "Sprachwahl (Handy): fr wechselt Anzeige, Seitensprache und Texte",
+  "pass": true,
+  "info": "FR\nEnglish\nTürkçe\nDeutsch\nFrançais"
+ },
+ {
+  "name": "Sprachwahl (Handy): en wechselt Anzeige, Seitensprache und Texte",
+  "pass": true,
+  "info": "ENG\nEnglish\nTürkçe\nDeutsch\nFrançais"
+ },
+ {
+  "name": "Sprachwahl (Handy): de wechselt Anzeige, Seitensprache und Texte",
+  "pass": true,
+  "info": "DE\nEnglish\nTürkçe\nDeutsch\nFrançais"
+ },
+ {
+  "name": "Sprachwechsel bei offenem Menü schließt das Menü und übersetzt es",
   "pass": true,
   "info": ""
  },
  {
-  "name": "Sprachwahl (Handy): wechselt die Sprache und schließt die Liste",
+  "name": "Sprachwahl (Handy): bleibt nach dem Neuladen",
   "pass": true,
   "info": ""
  },
@@ -537,7 +562,7 @@
  {
   "name": "Türkisch: Datum in türkischer Schreibweise",
   "pass": true,
-  "info": "TR\n\n15 Mayıs 2027\nChâteau de Cassis\n\nTimeline\n15:00\nGrande entrée\n15:15\nCérémonie\n16:00\nVin d'honneur\n18:00\nDîner\n20:30\nPièce montée\n21:00\nOuverture du bal\n21:15\nSoirée dansante\n\n180\ngün kaldı\n\nTakvim"
+  "info": "TR\nEnglish\nTürkçe\nDeutsch\nFrançais\n\n15 Mayıs 2027\nChâteau de Cassis\n\nTimeline\n15:00\nGrande entrée\n15:15\nCérémonie\n16:00\nVin d'honneur\n18:00\nDîner\n20:30\nPièce montée\n21:00\nOuverture du bal\n21:15\nSoirée"
  },
  {
   "name": "Französisch: übersetzter Titel und Datum",
@@ -577,7 +602,7 @@
  {
   "name": "Zusage mit 3 Personen und Kind wird gespeichert",
   "pass": true,
-  "info": "{\"id\":\"c23f196f-06f4-4c9b-902c-b1c6ec6d8529\",\"created_at\":\"2026-11-16T11:14:51.174Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
+  "info": "{\"id\":\"9b5e491b-167f-4f46-97f4-0f5e2e9b4a68\",\"created_at\":\"2026-11-16T11:53:33.822Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
  },
  {
   "name": "Alter des Kindes steht bei der richtigen Person",
@@ -617,7 +642,7 @@
  {
   "name": "Anmeldung mit 8 Personen wird angenommen",
   "pass": true,
-  "info": "{\"id\":\"808642b5-ce61-4ebc-a367-bd02a2fba3f6\",\"created_at\":\"2026-11-16T11:14:54.156Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
+  "info": "{\"id\":\"d6b15ebc-a9b7-40fe-8822-651feb610bc2\",\"created_at\":\"2026-11-16T11:53:36.878Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
  },
  {
   "name": "Kind ohne Alter: verständliche Meldung, nichts gespeichert",
@@ -657,7 +682,7 @@
  {
   "name": "Absage gespeichert, Doppelklick erzeugt nur einen Eintrag",
   "pass": true,
-  "info": "[{\"id\":\"362e2b32-1ef1-4170-a907-ff5c998d787a\",\"created_at\":\"2026-11-16T11:15:08.147Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
+  "info": "[{\"id\":\"ac7773ab-e8c2-446c-9675-0216760648ca\",\"created_at\":\"2026-11-16T11:53:51.124Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
  },
  {
   "name": "Absage: eine Bestätigung auf Französisch",
@@ -712,7 +737,7 @@
  {
   "name": "Dashboard Cassis: Anfahrt speichern landet im richtigen Projekt",
   "pass": true,
-  "info": "{\"id\":\"636ad3f6-d1d4-4f45-88e2-ac2f490181ba\",\"created_at\":\"2026-11-16T11:13:58.463Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
+  "info": "{\"id\":\"db239963-c6f5-447c-88bd-d97bbcd0ed59\",\"created_at\":\"2026-11-16T11:52:39.397Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
  },
  {
   "name": "Gespeicherte Kinderbetreuungs-Daten bleiben erhalten (nichts gelöscht)",

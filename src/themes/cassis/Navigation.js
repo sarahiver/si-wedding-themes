@@ -1,7 +1,7 @@
 // src/themes/cassis/Navigation.js
 // Kopfzeile: Schriftzug links, Menü in der Mitte, Sprachwahl rechts.
 // Über dem Startfoto durchsichtig, beim Scrollen dezent hinterlegt und fixiert.
-// Auf dem Handy: Schriftzug, Sprachwahl und ein Menü zum Aufklappen.
+// Auf dem Handy: Schriftzug, Sprachwahl (Auswahlfeld des Geräts) und ein Menü zum Aufklappen.
 import React, { useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
@@ -63,32 +63,31 @@ const Menu = styled.nav`
   }
 `;
 const Right = styled.div`display: flex; align-items: center; gap: 0.25rem; flex: none; margin-right: -0.5rem;`;
-const LangWrap = styled.div`position: relative;`;
+const LangWrap = styled.div`position: relative; display: flex; align-items: center;`;
 const iconButton = `
   display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; height: 2.75rem; padding: 0 0.5rem; border: none; background: transparent; color: inherit; cursor: pointer;
   font-family: ${FONT}; font-size: 0.9375rem; letter-spacing: 0.08em;
   &:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 `;
-const LangToggle = styled.button`
-  ${iconButton} gap: 0.35rem; text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')};
-  svg { width: 0.6rem; height: 0.6rem; transition: transform 0.2s ease; transform: ${(p) => (p.$open ? 'rotate(180deg)' : 'none')}; }
+// Handy: die Sprachwahl ist ein gewöhnliches Auswahlfeld des Geräts. Es liegt unsichtbar
+// über der Anzeige „DE ⌄" – so öffnet sich die vertraute Auswahl von iOS und Android,
+// ganz ohne eigene Aufklappliste.
+const LangPick = styled.label`
+  ${iconButton} position: relative; gap: 0.35rem; text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')};
+  svg { width: 0.6rem; height: 0.6rem; }
+  select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; color: ${C.ink}; background: ${C.shell}; }
+  &:focus-within { outline: 2px solid currentColor; outline-offset: -2px; }
   ${WIDE} { display: none; }
 `;
 const Langs = styled.nav`
+  display: none;
   ${WIDE} { display: flex; gap: 0.1rem; }
-  ${NARROW} {
-    position: absolute; top: calc(100% + 0.6rem); right: 0; display: grid; min-width: 4.5rem; background: ${C.shell}; color: ${C.ink}; box-shadow: 0 0 0 1px ${C.line}, 0 12px 24px rgba(51,53,63,0.14);
-    visibility: ${(p) => (p.$open ? 'visible' : 'hidden')}; opacity: ${(p) => (p.$open ? 1 : 0)}; transform: ${(p) => (p.$open ? 'none' : 'translateY(-6px)')};
-    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-    @media (prefers-reduced-motion: reduce) { transition: none; transform: none; }
-  }
 `;
 const Lang = styled.button`
   ${iconButton} position: relative; opacity: ${(p) => (p.$on ? 1 : 0.74)}; transition: opacity 0.2s ease;
   &::after { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; bottom: 0.55rem; height: 1px; background: currentColor; opacity: ${(p) => (p.$on ? 1 : 0)}; }
   &:hover { opacity: 1; }
-  ${WIDE} { text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')}; }
-  ${NARROW} { width: 100%; height: 3rem; opacity: 1; font-weight: ${(p) => (p.$on ? 400 : 300)}; }
+  text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')};
 `;
 const Burger = styled.button`
   ${iconButton}
@@ -107,10 +106,8 @@ function Navigation() {
   const hero = useLocalizedContent('hero');
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
   const [present, setPresent] = useState([]);
   const menuId = useId();
-  const langId = useId();
   const burgerRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -139,38 +136,26 @@ function Navigation() {
 
   // Escape schließt; bei offenem Menü scrollt die Seite dahinter nicht mit
   useEffect(() => {
-    if (!open && !langOpen) return undefined;
+    if (!open) return undefined;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
-      if (open && burgerRef.current) burgerRef.current.focus();
-      setOpen(false); setLangOpen(false);
+      if (burgerRef.current) burgerRef.current.focus();
+      setOpen(false);
     };
     document.addEventListener('keydown', onKey);
-    let restore = null;
-    if (open) {
-      const root = document.documentElement; const prev = root.style.overflow;
-      root.style.overflow = 'hidden';
-      restore = () => { root.style.overflow = prev; };
-    }
-    return () => { document.removeEventListener('keydown', onKey); if (restore) restore(); };
-  }, [open, langOpen]);
+    const root = document.documentElement; const prev = root.style.overflow;
+    root.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); root.style.overflow = prev; };
+  }, [open]);
 
   // Wird das Fenster breit, gibt es kein Aufklappmenü mehr
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
     const mq = window.matchMedia('(min-width: 1024px)');
-    const onChange = () => { if (mq.matches) { setOpen(false); setLangOpen(false); } };
+    const onChange = () => { if (mq.matches) setOpen(false); };
     if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
     return () => { if (mq.removeEventListener) mq.removeEventListener('change', onChange); else mq.removeListener(onChange); };
   }, []);
-
-  // Tippen außerhalb schließt die Sprachliste
-  useEffect(() => {
-    if (!langOpen) return undefined;
-    const onDown = (e) => { if (!e.target.closest || !e.target.closest('[data-cassis-lang]')) setLangOpen(false); };
-    document.addEventListener('pointerdown', onDown);
-    return () => document.removeEventListener('pointerdown', onDown);
-  }, [langOpen]);
 
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
   const label = names.length ? names.join(' ') : (coupleNames || '');
@@ -179,14 +164,12 @@ function Navigation() {
   const multi = enabled && languages.length > 1;
 
   const toggleMenu = () => {
-    setLangOpen(false);
     setOpen((v) => {
       // nach dem Öffnen den ersten Menüpunkt ansteuern (Tastatur, Screenreader)
       if (!v) window.requestAnimationFrame(() => { const first = menuRef.current && menuRef.current.querySelector('a'); if (first) first.focus({ preventScroll: true }); });
       return !v;
     });
   };
-  const choose = (l) => { setLang(l); setLangOpen(false); };
 
   return (
     <Bar $solid={solid} data-solid={solid ? 'true' : 'false'}>
@@ -202,15 +185,17 @@ function Navigation() {
 
       <Right>
         {multi && (
-          <LangWrap data-cassis-lang>
-            <LangToggle type="button" $solid={solid} $open={langOpen} aria-haspopup="true" aria-expanded={langOpen} aria-controls={langId}
-              aria-label={`${t(STRINGS, 'language')}: ${LANGUAGE_NAMES[lang] || ''}`} onClick={() => { setOpen(false); setLangOpen((v) => !v); }}>
-              {LANGUAGE_LABELS[lang]}
+          <LangWrap>
+            <LangPick $solid={solid}>
+              <span aria-hidden="true">{LANGUAGE_LABELS[lang]}</span>
               <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><path d="M1 3 L5 7 L9 3" /></svg>
-            </LangToggle>
-            <Langs id={langId} aria-label={t(STRINGS, 'language')} $open={langOpen}>
+              <select aria-label={t(STRINGS, 'language')} value={lang || ''} onChange={(e) => { setOpen(false); setLang(e.target.value); }}>
+                {languages.map((l) => <option key={l} value={l} lang={l}>{LANGUAGE_NAMES[l]}</option>)}
+              </select>
+            </LangPick>
+            <Langs aria-label={t(STRINGS, 'language')}>
               {languages.map((l) => (
-                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} aria-pressed={l === lang} aria-label={LANGUAGE_NAMES[l]} onClick={() => choose(l)}>
+                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} aria-pressed={l === lang} aria-label={LANGUAGE_NAMES[l]} onClick={() => setLang(l)}>
                   {LANGUAGE_LABELS[l]}
                 </Lang>
               ))}
