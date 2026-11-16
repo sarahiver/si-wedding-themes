@@ -13,7 +13,7 @@ const label = process.argv[2] || 'nav';
   await shot('d-rsvp', { width: 1440, height: 900 }, async (p) => { await p.locator('header nav a[href="#rsvp"]').click(); await p.waitForTimeout(900); await p.locator('#rsvp button[aria-pressed]').first().click(); });
   await shot('m-top', { width: 390, height: 844 });
   await shot('m-menu', { width: 390, height: 844 }, (p) => p.locator('header button[aria-controls]').last().click());
-  await shot('m-lang', { width: 390, height: 844 }, (p) => p.locator('header button[aria-haspopup]').click());
+  await shot('m-fr', { width: 390, height: 844 }, (p) => p.locator('header[data-solid] select').selectOption('fr'));
   await shot('m-rsvp', { width: 390, height: 844 }, async (p) => { await p.evaluate(() => document.querySelector('#rsvp').scrollIntoView()); await p.waitForTimeout(600); await p.locator('#rsvp button[aria-pressed]').first().click(); });
   await shot('t-768', { width: 768, height: 1024 });
   await browser.close();

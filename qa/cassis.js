@@ -21,9 +21,10 @@ async function open(browser, { vp = { width: 390, height: 844 }, locale = 'de-DE
 }
 const text = (page) => page.evaluate(() => document.body.innerText);
 async function setLang(page, code) {
-  const toggle = page.locator('header button[aria-haspopup]');
-  if (await toggle.isVisible()) await toggle.click();
-  await page.locator(`nav button[lang="${code}"]`).click(); await page.waitForTimeout(350);
+  // Handy: Auswahlfeld des Geräts; Desktop: Knöpfe
+  const pick = page.locator('header[data-solid] select');
+  if (await pick.isVisible()) await pick.selectOption(code); else await page.locator(`nav button[lang="${code}"]`).click();
+  await page.waitForTimeout(350);
 }
 async function fillRsvp(page, { name, email, attending = true, persons = 1, guests = [] }) {
   const f = page.locator('#rsvp');
@@ -64,7 +65,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     if (n === '390') ok('Tippflächen mindestens 40 px hoch', info.small.length === 0, info.small.join(' | '));
     const head = await page.evaluate(() => {
       const vis = (e) => { const c = getComputedStyle(e); const b = e.getBoundingClientRect(); return c.visibility !== 'hidden' && c.display !== 'none' && b.width > 0 && b.top < 80; };
-      const els = [...document.querySelectorAll('body > div header a, body > div header button, header[data-solid] a, header[data-solid] button')].filter(vis).map((e) => e.getBoundingClientRect());
+      const els = [...document.querySelectorAll('header[data-solid] a, header[data-solid] button, header[data-solid] label')].filter(vis).map((e) => e.getBoundingClientRect());
       let overlap = 0; for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) { const a = els[i], b = els[j]; if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) overlap++; }
       return { count: els.length, overlap, right: Math.max(...els.map((b) => b.right)), vw: window.innerWidth };
     });
@@ -134,7 +135,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     const burger = page.locator('header button[aria-controls]').last(); const menu = page.locator('header[data-solid] nav').first();
     ok('Navigation (Handy): Menü zunächst geschlossen', await burger.getAttribute('aria-expanded') === 'false' && !(await menu.locator('a').first().isVisible()));
     ok('Navigation (Handy): Knopf benannt und mit dem Menü verknüpft', await burger.getAttribute('aria-label') === 'Menü' && await burger.getAttribute('aria-controls') === await menu.getAttribute('id'));
-    const bb = await burger.boundingBox(); const lb = await page.locator('header button[aria-haspopup]').boundingBox();
+    const bb = await burger.boundingBox(); const lb = await page.locator('header[data-solid] select').boundingBox();
     ok('Navigation (Handy): Tippflächen mindestens 44 × 44 px', bb.width >= 44 && bb.height >= 44 && lb.width >= 44 && lb.height >= 44, JSON.stringify([bb, lb]));
     await burger.click(); await page.waitForTimeout(400);
     ok('Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus', await burger.getAttribute('aria-expanded') === 'true' && await menu.locator('a').nth(5).isVisible() && await page.evaluate(() => document.activeElement.getAttribute('href')) === '#timeline');
@@ -144,12 +145,20 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     await burger.click(); await page.waitForTimeout(300); await menu.locator('a[href="#rsvp"]').click(); await page.waitForTimeout(600);
     const top = await page.evaluate(() => Math.round(document.getElementById('rsvp').getBoundingClientRect().top));
     ok('Auswahl eines Punkts schließt das Menü und führt zum Bereich', await burger.getAttribute('aria-expanded') === 'false' && top >= 40 && top <= 70, top);
-    const lt = page.locator('header button[aria-haspopup]'); await lt.click(); await page.waitForTimeout(300);
-    ok('Sprachliste (Handy): öffnet, Zustand gemeldet', await lt.getAttribute('aria-expanded') === 'true' && await page.locator('nav button[lang="tr"]').isVisible());
-    await burger.click(); await page.waitForTimeout(300);
-    ok('Menü und Sprachliste sind nie gleichzeitig offen', await lt.getAttribute('aria-expanded') === 'false' && await burger.getAttribute('aria-expanded') === 'true');
-    await page.keyboard.press('Escape'); await lt.click(); await page.locator('nav button[lang="tr"]').click(); await page.waitForTimeout(400);
-    ok('Sprachwahl (Handy): wechselt die Sprache und schließt die Liste', (await lt.innerText()).trim() === 'TR' && await lt.getAttribute('aria-expanded') === 'false' && (await page.evaluate(() => document.documentElement.lang)) === 'tr');
+    const pick = page.locator('header[data-solid] select');
+    const opts = await pick.locator('option').evaluateAll((o) => o.map((x) => x.value + ':' + x.textContent));
+    ok('Sprachwahl (Handy): Auswahlfeld des Geräts mit vier ausgeschriebenen Sprachen, benannt', opts.join() === 'en:English,tr:Türkçe,de:Deutsch,fr:Français' && await pick.getAttribute('aria-label') === 'Sprache' && await pick.inputValue() === 'de', opts.join());
+    const hit = await page.evaluate(() => { const s = document.querySelector('header[data-solid] select'); const r = s.getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e === s; });
+    ok('Sprachwahl (Handy): das Auswahlfeld liegt obenauf und nimmt das Tippen an', hit);
+    for (const [code, labelText, phrase] of [['tr', 'TR', 'Takvime ekle'], ['fr', 'FR', 'Ajouter au calendrier'], ['en', 'ENG', 'Save to calendar'], ['de', 'DE', 'Im Kalender speichern']]) {
+      await pick.selectOption(code); await page.waitForTimeout(350);
+      const shown = (await page.locator('header[data-solid] label').innerText()).trim(); const t = await text(page);
+      ok(`Sprachwahl (Handy): ${code} wechselt Anzeige, Seitensprache und Texte`, shown.startsWith(labelText) && (await page.evaluate(() => document.documentElement.lang)) === code && t.includes(phrase), shown);
+    }
+    await burger.click(); await page.waitForTimeout(300); await pick.selectOption('fr'); await page.waitForTimeout(400);
+    ok('Sprachwechsel bei offenem Menü schließt das Menü und übersetzt es', await burger.getAttribute('aria-expanded') === 'false' && (await menu.locator('a').first().textContent()) === 'Programme');
+    await page.reload({ waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(500);
+    ok('Sprachwahl (Handy): bleibt nach dem Neuladen', (await page.evaluate(() => document.documentElement.lang)) === 'fr' && await page.locator('header[data-solid] select').inputValue() === 'fr');
     await ctx.close(); }
   { // Nur vorhandene Bereiche im Menü: Projekt ohne Inhalte für Ablauf, Anfahrt, FAQ, Trauzeug:innen
     const { ctx, page } = await open(browser, { vp: { width: 1440, height: 900 }, path: '/base-cassis' });
