@@ -219,7 +219,7 @@ function DirectionsEditor({ components: C }) {
 
         {project?.theme === 'cassis' && (<>
           <C.SectionLabel>Illustration</C.SectionLabel>
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Illustration zum Ort" helpText="Erscheint beim Datum und Ort unter dem Startbild." />
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Illustration zum Ort" helpText="Erscheint klein neben der Überschrift der Anfahrt." />
         </>)}
 
         <C.Divider />

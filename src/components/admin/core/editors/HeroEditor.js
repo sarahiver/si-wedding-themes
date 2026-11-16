@@ -253,7 +253,7 @@ function HeroEditor({ components: C }) {
               onUpload={(url) => update('name_image', url)}
               folder={`${baseFolder}/hero`}
               label="Schriftzug der Namen"
-              helpText="Weiße Grafik mit durchsichtigem Hintergrund (PNG). Ohne Grafik erscheinen die Namen in Zierschrift."
+              helpText="Weiße Grafik mit durchsichtigem Hintergrund (SVG oder PNG). Erscheint groß auf dem Startfoto, klein oben links und in der Fußzeile. Ohne Grafik erscheinen die Namen in einer Ersatzschrift."
             />
           </>
         )}

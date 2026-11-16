@@ -52,7 +52,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
       small: [...document.querySelectorAll('#rsvp button, nav button, a[href]')].filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.height < 40; }).map((e) => e.textContent.trim().slice(0, 20) + ':' + Math.round(e.getBoundingClientRect().height)),
     }));
     ok(`Breite ${n}: kein seitliches Scrollen`, info.overflow <= 0, info.overflow);
-    ok(`Breite ${n}: Bereiche in der richtigen Reihenfolge`, info.ids.join(',') === 'countdown,timeline,directions,childcare,rsvp,witnesses,faq', info.ids.join(','));
+    ok(`Breite ${n}: Bereiche in der richtigen Reihenfolge`, info.ids.join(',') === 'timeline,countdown,rsvp,directions,faq,witnesses', info.ids.join(','));
     ok(`Breite ${n}: Schriftzug-Grafik geladen und vollständig im Bild`, info.lettering > 0 && info.letteringBox[0] >= 0 && info.letteringBox[1] <= vp.width, JSON.stringify(info.letteringBox));
     ok(`Breite ${n}: Startfoto geladen`, info.hero > 0);
     ok(`Breite ${n}: keine Fehler in der Browser-Konsole`, errors.length === 0, errors[0]);
@@ -62,6 +62,20 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   { const { ctx, page } = await open(browser);
     const t = await text(page);
     ok('Keine Galerie, keine fremden Bereiche', !/Galerie|Gallery|Gästebuch|Guestbook|Musik/i.test(t));
+    ok('Kinderbetreuung erscheint nicht mehr, auch wenn sie im Projekt noch gespeichert ist', !/Childcare|Kinderbetreuung|Alter Inhalt/.test(t) && await page.locator('#childcare').count() === 0);
+    const lay = await page.evaluate(() => {
+      const y = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().top + window.scrollY) : null; };
+      const srcs = [...document.querySelectorAll('img')].map((i) => i.getAttribute('src'));
+      const count = (name) => srcs.filter((x) => x && x.includes(name)).length;
+      const mark = document.querySelector('a[href="#top"] img'); const mb = mark ? mark.getBoundingClientRect() : null;
+      return { timeline: y('#timeline'), photo: y('[data-cassis-photo]'), countdown: y('#countdown'), heroPhoto: count('hero.jpg'), secondPhoto: count('ablauf.jpg'), castle: count('schloss.svg'),
+        mark: mb ? [Math.round(mb.left), Math.round(mb.top), Math.round(mb.height)] : null, vw: window.innerWidth };
+    });
+    ok('Zweites Foto steht als eigener Abschnitt zwischen Ablauf und Countdown', lay.timeline < lay.photo && lay.photo < lay.countdown, JSON.stringify(lay));
+    ok('Beide Fotos je genau einmal, Schloss-Illustration genau einmal', lay.heroPhoto === 1 && lay.secondPhoto === 1 && lay.castle === 1, JSON.stringify(lay));
+    ok('Schriftzug oben links in der Kopfzeile', lay.mark && lay.mark[0] < lay.vw / 3 && lay.mark[1] < 60 && lay.mark[2] >= 44, JSON.stringify(lay.mark));
+    const hero = await page.evaluate(() => { const h = document.querySelector('header#top').getBoundingClientRect(); const n = document.querySelector('h1').getBoundingClientRect(); const f = document.querySelector('header#top time'); return { h: Math.round(h.height), vh: window.innerHeight, namesInside: n.top > 0 && n.bottom < h.bottom, date: f ? f.textContent : '' }; });
+    ok('Startfoto füllt den Bildschirm; Namen und Datum stehen darauf', hero.h >= hero.vh - 2 && hero.namesInside && /15\. Mai 2027/.test(hero.date), JSON.stringify(hero));
     ok('Ablauf: alle sieben Programmpunkte', ['Grande entrée', 'Cérémonie', "Vin d'honneur", 'Dîner', 'Pièce montée', 'Ouverture du bal', 'Soirée dansante'].every((x) => t.includes(x)));
     ok('Datum und Ort im Kopf', /15\. Mai 2027/.test(t) && /Château de Cassis/.test(t) && /13260 Cassis/.test(t));
     const a11y = await page.evaluate(() => ({
@@ -78,7 +92,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     await ctx.close(); }
 
   // ---------- 2. Sprachen ----------
-  for (const [locale, want, phrase] of [['tr-TR', 'tr', 'Evleniyoruz'], ['fr-FR', 'fr', 'Nous nous marions'], ['de-AT', 'de', 'Wir heiraten'], ['en-GB', 'en', 'We are getting married'], ['es-ES', 'en', 'We are getting married']]) {
+  for (const [locale, want, phrase] of [['tr-TR', 'tr', 'Takvime ekle'], ['fr-FR', 'fr', 'Ajouter au calendrier'], ['de-AT', 'de', 'Im Kalender speichern'], ['en-GB', 'en', 'Save to calendar'], ['es-ES', 'en', 'Save to calendar']]) {
     const { ctx, page } = await open(browser, { locale });
     const lang = await page.evaluate(() => document.documentElement.lang); const t = await text(page);
     const pressed = await page.locator('nav button[aria-pressed="true"]').getAttribute('lang');
@@ -90,12 +104,12 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Hauptsprache: Titel des Ablaufs aus dem Inhalt', (await text(page)).includes('Timeline'));
     await page.locator('nav button[lang="de"]').click(); await page.waitForTimeout(300);
     let t = await text(page);
-    ok('Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt', t.includes('Wir heiraten') && t.includes('Ablauf') && !t.includes('Timeline') && (await page.evaluate(() => document.documentElement.lang)) === 'de');
-    ok('Nicht übersetzter Inhalt fällt auf Englisch zurück', t.includes('Getting there') && t.includes('Childcare'));
+    ok('Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt', t.includes('Im Kalender speichern') && t.includes('Ablauf') && !t.includes('Timeline') && (await page.evaluate(() => document.documentElement.lang)) === 'de');
+    ok('Nicht übersetzter Inhalt fällt auf Englisch zurück', t.includes('Getting there') && t.includes('Witnesses'));
     await page.reload({ waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(500);
     ok('Gewählte Sprache bleibt nach dem Neuladen', (await page.evaluate(() => document.documentElement.lang)) === 'de');
     await page.locator('nav button[lang="tr"]').click(); await page.waitForTimeout(300); t = await text(page);
-    ok('Türkisch: feste Texte türkisch, fehlende Übersetzung englisch', t.includes('Evleniyoruz') && t.includes('Timeline') && !t.includes('Wir heiraten'));
+    ok('Türkisch: feste Texte türkisch, fehlende Übersetzung englisch', t.includes('Takvime ekle') && t.includes('Timeline') && !t.includes('Im Kalender speichern'));
     ok('Türkisch: Datum in türkischer Schreibweise', /15 Mayıs 2027/.test(t), t.slice(0, 200));
     await page.locator('nav button[lang="fr"]').click(); await page.waitForTimeout(300); t = await text(page);
     ok('Französisch: übersetzter Titel und Datum', t.includes('Programme') && /15 mai 2027/.test(t));
@@ -213,14 +227,15 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     const pw = page.locator('input[type="password"]').first(); await pw.waitFor({ timeout: 25000 }); await pw.fill('admin-test'); await page.keyboard.press('Enter');
     await page.locator('aside button').filter({ hasText: /RSVP/ }).first().waitFor({ timeout: 20000 });
     const nav = (await page.locator('aside button').allTextContents()).map((t) => t.replace(/[^\p{L}\p{N}:& -]/gu, '').trim()).filter(Boolean);
-    ok('Dashboard Cassis: Anmeldung, Menü enthält Kinderbetreuung', nav.some((n) => /Kinderbetreuung/.test(n)), nav.join('|'));
+    ok('Dashboard Cassis: Anmeldung, Menü ohne Kinderbetreuung', nav.some((n) => /Ablauf/.test(n)) && !nav.some((n) => /Kinderbetreuung/.test(n)), nav.join('|'));
     ok('Dashboard Cassis: keine Einträge für abgewählte Bereiche (Galerie, Gästebuch, Musik)', !nav.some((n) => /Galerie|Gästebuch|Musik|Geschenke|Love/.test(n)), nav.join('|'));
-    await page.locator('aside button').filter({ hasText: /Kinderbetreuung/ }).first().click();
-    const area = page.locator('main textarea').first(); await area.waitFor({ timeout: 8000 }); await area.fill('Betreuung von 15 bis 22 Uhr im Gartenhaus.');
+    await page.locator('aside button').filter({ hasText: /Anfahrt/ }).first().click();
+    const area = page.locator('main textarea').first(); await area.waitFor({ timeout: 8000 }); await area.fill('Shuttle ab Cassis Hafen um 14:15 Uhr.');
     await Promise.all([page.waitForResponse((x) => x.url().endsWith('/api/db') && (x.request().postData() || '').includes('updateProjectContent')), page.locator('main button').filter({ hasText: /Speichern/ }).first().click()]);
     await page.waitForTimeout(600);
-    const row = ((await db()).project_content || []).find((x) => x.project_id === PID && x.component === 'childcare');
-    ok('Dashboard Cassis: Kinderbetreuung speichern landet im richtigen Projekt', row && row.content.description === 'Betreuung von 15 bis 22 Uhr im Gartenhaus.', JSON.stringify(row));
+    const d0 = await db(); const row = (d0.project_content || []).find((x) => x.project_id === PID && x.component === 'directions'); const kept = (d0.project_content || []).find((x) => x.project_id === PID && x.component === 'childcare');
+    ok('Dashboard Cassis: Anfahrt speichern landet im richtigen Projekt', row && /Shuttle ab Cassis/.test(JSON.stringify(row.content)), JSON.stringify(row).slice(0, 160));
+    ok('Gespeicherte Kinderbetreuungs-Daten bleiben erhalten (nichts gelöscht)', kept && /Alter Inhalt/.test(kept.content.description));
     await page.locator('aside button').filter({ hasText: /Hero/ }).first().click(); await page.waitForTimeout(800);
     ok('Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik', /Schriftzug/i.test(await page.locator('main').innerText()));
     await page.locator('aside button').filter({ hasText: /Countdown/ }).first().click(); await page.waitForTimeout(800);

@@ -75,12 +75,7 @@
   "info": ""
  },
  {
-  "name": "Komponentenliste des Cassis-Projekts zeigt Kinderbetreuung",
-  "pass": true,
-  "info": ""
- },
- {
-  "name": "Komponentenliste anderer Projekte bleibt ohne Kinderbetreuung",
+  "name": "Komponentenliste enthält keine Kinderbetreuung mehr",
   "pass": true,
   "info": ""
  },

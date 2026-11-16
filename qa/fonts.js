@@ -7,6 +7,10 @@ for (const w of [300, 400, 500]) for (const sub of ['latin', 'latin-ext']) {
   const name = `jost-${sub}-${w}-normal.woff2`; FILES[name] = F('jost', name);
   css += `@font-face{font-family:'Jost';font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/qa/${name}) format('woff2');unicode-range:${sub === 'latin' ? 'U+0000-00FF,U+2013-2014,U+2018-201E,U+2026' : 'U+0100-02AF,U+1E00-1EFF'};}\n`;
 }
+for (const w of [300, 400]) for (const sub of ['latin', 'latin-ext']) {
+  const name = `lato-${sub}-${w}-normal.woff2`; FILES[name] = F('lato', name);
+  css += `@font-face{font-family:'Lato';font-weight:${w};font-style:normal;src:url(https://fonts.gstatic.com/qa/${name}) format('woff2');unicode-range:${sub === 'latin' ? 'U+0000-00FF,U+2013-2014,U+2018-201E,U+2026' : 'U+0100-02AF,U+1E00-1EFF'};}\n`;
+}
 for (const sub of ['latin', 'latin-ext']) {
   const name = `pinyon-script-${sub}-400-normal.woff2`; FILES[name] = F('pinyon-script', name);
   css += `@font-face{font-family:'Pinyon Script';font-weight:400;font-style:normal;src:url(https://fonts.gstatic.com/qa/${name}) format('woff2');unicode-range:${sub === 'latin' ? 'U+0000-00FF,U+2013-2014,U+2018-201E,U+2026' : 'U+0100-02AF,U+1E00-1EFF'};}\n`;

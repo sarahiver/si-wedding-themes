@@ -20,6 +20,11 @@ ok   Breite 1440: Schriftzug-Grafik geladen und vollständig im Bild
 ok   Breite 1440: Startfoto geladen
 ok   Breite 1440: keine Fehler in der Browser-Konsole
 ok   Keine Galerie, keine fremden Bereiche
+ok   Kinderbetreuung erscheint nicht mehr, auch wenn sie im Projekt noch gespeichert ist
+ok   Zweites Foto steht als eigener Abschnitt zwischen Ablauf und Countdown
+ok   Beide Fotos je genau einmal, Schloss-Illustration genau einmal
+ok   Schriftzug oben links in der Kopfzeile
+ok   Startfoto füllt den Bildschirm; Namen und Datum stehen darauf
 ok   Ablauf: alle sieben Programmpunkte
 ok   Datum und Ort im Kopf
 ok   Zugänglichkeit: jedes Feld beschriftet, jeder Knopf benannt
@@ -70,9 +75,10 @@ ok   Cassis mit Gäste-Passwort: Passwortseite erscheint, Feld passt aufs Handy
 ok   Nach dem Passwort erscheint die Cassis-Seite
 ok   Endzeit aus dem Dashboard steuert die Kalenderdatei (04:00 Uhr)
 ok   Cassis im Entwurf: Coming Soon, keine Inhalte, kein Formular
-ok   Dashboard Cassis: Anmeldung, Menü enthält Kinderbetreuung
+ok   Dashboard Cassis: Anmeldung, Menü ohne Kinderbetreuung
 ok   Dashboard Cassis: keine Einträge für abgewählte Bereiche (Galerie, Gästebuch, Musik)
-ok   Dashboard Cassis: Kinderbetreuung speichern landet im richtigen Projekt
+ok   Dashboard Cassis: Anfahrt speichern landet im richtigen Projekt
+ok   Gespeicherte Kinderbetreuungs-Daten bleiben erhalten (nichts gelöscht)
 ok   Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik
 ok   Dashboard Cassis: Countdown-Editor bietet die Endzeit
 ok   Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter
@@ -81,4 +87,4 @@ ok   Dashboard Cassis: keine Fehler
 ok   Altprojekt (Classic): kein Menüpunkt Kinderbetreuung, keine Zusatzübersicht
 ok   Altprojekt (Classic): Hero-Editor ohne Schriftzug-Feld
 
-82/82 bestanden
+88/88 bestanden

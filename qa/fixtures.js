@@ -15,8 +15,8 @@ function seedAll(fake) {
   rows.push(project(60, 'tenant-b', 'classic', { couple_names: 'Zoe & Finn', partner1_name: 'Zoe', partner2_name: 'Finn', admin_email: 'anderes-paar@example.test', _admin_pw: 'admin-b' }));
   // Neues Theme mit eingeschalteten Zusatzfunktionen
   rows.push(project(70, 'base-cassis', 'cassis', { couple_names: 'Lena & Tom', partner1_name: 'Lena', partner2_name: 'Tom', wedding_date: '2027-05-15', location: 'Château Test',
-    component_order: ['hero', 'countdown', 'timeline', 'directions', 'childcare', 'rsvp', 'witnesses', 'faq'],
-    active_components: ['hero', 'countdown', 'timeline', 'directions', 'childcare', 'rsvp', 'witnesses', 'faq'],
+    component_order: ['hero', 'timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses'],
+    active_components: ['hero', 'timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses'],
     features: { i18n: { languages: ['en', 'tr', 'de', 'fr'], default: 'en' }, rsvp: { max_persons: 8, child_ages: true, confirmation_mail: true } } }));
   // Altprojekt-Gegenprobe: Spalte features vorhanden, aber leer
   rows.push(project(71, 'legacy-empty-features', 'classic', { features: {} }));
