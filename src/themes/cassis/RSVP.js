@@ -119,6 +119,9 @@ export function RsvpCard() {
   const { formData, updateField, adjustPersons, submit, submitting, submitted, error, errorCode } = rsvp;
   // „Noch nichts gewählt" ist hier ein eigener Zustand: beide Knöpfe sind anfangs gleichwertig
   const [chosen, setChosen] = useState(false);
+  // Absenden ohne Wahl: eigene Meldung, bis Ja oder Nein gewählt ist
+  const [needChoice, setNeedChoice] = useState(false);
+  const yesRef = useRef(null);
   const formRef = useRef(null);
   // Zählt fehlgeschlagene Absendeversuche: danach springt der Fokus zum ersten fehlerhaften Feld
   const [failed, setFailed] = useState(0);
@@ -149,7 +152,7 @@ export function RsvpCard() {
     updateField('guests', next);
   };
   const choose = (attending) => {
-    setChosen(true);
+    setChosen(true); setNeedChoice(false);
     if (!attending && formData.attending && (formData.guests || []).length) stash.current = { persons: formData.persons, guests: formData.guests };
     updateField('attending', attending);
     if (!attending) updateField('persons', 1);
@@ -176,7 +179,7 @@ export function RsvpCard() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!chosen) return;
+    if (!chosen) { setNeedChoice(true); if (yesRef.current) yesRef.current.focus(); return; }
     const result = await submit();
     if (!result || !result.success) setFailed((n) => n + 1);
   };
@@ -204,11 +207,12 @@ export function RsvpCard() {
           </Field>
 
           <Choice role="group" aria-label={c.title || tt('rsvpTitle')} data-chosen={chosen ? 'true' : 'false'}>
-            <button type="button" aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</button>
+            <button type="button" ref={yesRef} aria-describedby={needChoice ? `${uid}-choice` : undefined} aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</button>
             <button type="button" aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}>{tt('no')}</button>
           </Choice>
 
-          {chosen && formData.attending && (
+          {/* Die ganze Karte steht von Anfang an da; erst eine Absage blendet die Angaben zu den Personen aus */}
+          {(!chosen || formData.attending) && (
             <>
               <Persons>
                 <Field as="div" id={`${uid}-persons`}>{tt('persons')}</Field>
@@ -287,14 +291,15 @@ export function RsvpCard() {
             </>
           )}
 
-          {chosen && (
+          {(
             <Field htmlFor={`${uid}-msg`}>{tt('message')}
               <Area id={`${uid}-msg`} value={formData.message} onChange={(e) => updateField('message', e.target.value)} maxLength={2000} />
             </Field>
           )}
 
           <div aria-live="assertive">{error && <Err role="alert" id={`${uid}-err`}>{error}</Err>}</div>
-          {chosen && <Send><Button as="button" type="submit" $solid disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button></Send>}
+          <div aria-live="assertive">{needChoice && !chosen && <Err role="alert" id={`${uid}-choice`}>{tt('errAttending')}</Err>}</div>
+          <Send><Button as="button" type="submit" $solid disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button></Send>
         </Form>
       </Card>
   );
