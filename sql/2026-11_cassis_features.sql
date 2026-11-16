@@ -1,6 +1,7 @@
 -- =====================================================================
 -- S&I. – Migration „Zusatzfunktionen je Projekt" (Cassis-Theme, RSVP-Regeln)
--- Stand: 16.11.2026 · Status: GEPRÜFT IM ISOLIERTEN TEST, NICHT PRODUKTIV AUSGEFÜHRT
+-- Stand: 16.11.2026 · Im isolierten Test geprüft. B1–B4 und B5 wurden am 16.11.2026 vom Inhaber
+-- im Supabase-Dashboard ausgeführt (B5 nachträglich ergänzt: Einschränkung check_theme).
 --
 -- Ausführen NUR nach ausdrücklicher Freigabe. Reihenfolge beim Livegang:
 --   1. Abschnitt A (Vorabprüfung, nur lesen) ausführen und Ergebnis ansehen
@@ -9,7 +10,7 @@
 --   4. erst danach den neuen Code ausliefern
 --
 -- Eigenschaften:
---   * rein additiv: drei neue Spalten, ein neuer Index
+--   * rein additiv: drei neue Spalten, ein neuer Index, ein zusätzlich erlaubtes Theme
 --   * keine bestehende Spalte, Zeile, Richtlinie (RLS) oder Funktion wird geändert
 --   * mehrfach ausführbar (if not exists)
 --   * bestehende Projekte behalten ihr Verhalten: features = {} bedeutet „alles wie bisher"
@@ -43,6 +44,12 @@ where schemaname = 'public' and tablename in ('projects', 'rsvp_responses', 'pro
 order by tablename, policyname;
 
 
+-- A4: Welche Themes erlaubt die Datenbank heute? Erwartet: elf Werte ohne 'cassis'.
+select conname, pg_get_constraintdef(oid) as definition
+from pg_constraint
+where conrelid = 'public.projects'::regclass and contype = 'c';
+
+
 -- ---------------------------------------------------------------------
 -- B. MIGRATION
 -- ---------------------------------------------------------------------
@@ -70,6 +77,17 @@ alter table public.rsvp_responses
 create unique index if not exists rsvp_responses_project_dedupe_key
   on public.rsvp_responses (project_id, dedupe_key)
   where dedupe_key is not null;
+
+-- B5: Theme „cassis" in der Liste der erlaubten Themes ergänzen.
+--     Die bisherigen elf Werte bleiben unverändert erlaubt. Vorher mit A4 prüfen,
+--     dass die Liste noch dem hier angenommenen Stand entspricht.
+alter table public.projects drop constraint if exists check_theme;
+alter table public.projects add constraint check_theme
+  check (theme = any (array[
+    'classic'::text, 'botanical'::text, 'contemporary'::text, 'editorial'::text,
+    'luxe'::text, 'modern'::text, 'neon'::text, 'video'::text,
+    'parallax'::text, 'summer'::text, 'cinematic'::text, 'cassis'::text
+  ]));
 
 comment on column public.projects.features is 'Zusatzfunktionen je Projekt (Sprachen, RSVP-Regeln). {} = Standardverhalten.';
 comment on column public.rsvp_responses.language is 'Sprache der Antwort (en/tr/de/fr), leer bei älteren Antworten.';
