@@ -59,6 +59,23 @@ function CountdownEditor({ components: C }) {
           </span>
         </C.FormGroup>
         
+        {/* Ende des Termins: nur für den Kalender-Knopf im Cassis-Theme */}
+        {project?.theme === 'cassis' && (
+          <>
+            <C.FormGroup>
+              <C.Label>Ende – Datum (optional)</C.Label>
+              <C.Input type="date" value={content.end_date || ''} onChange={(e) => update('end_date', e.target.value)} />
+            </C.FormGroup>
+            <C.FormGroup>
+              <C.Label>Ende – Uhrzeit</C.Label>
+              <C.Input type="time" value={content.end_time || ''} onChange={(e) => update('end_time', e.target.value)} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted, rgba(255,255,255,0.4))', marginTop: '0.25rem', display: 'block' }}>
+                Für „Im Kalender speichern". Ohne Angabe endet der Eintrag um 02:00 Uhr am Folgetag. Alle Zeiten gelten in der Zeitzone Europe/Paris.
+              </span>
+            </C.FormGroup>
+          </>
+        )}
+
         {!hidden('show_seconds') && (
         <C.FormGroup>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>

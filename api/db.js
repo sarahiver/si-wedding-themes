@@ -4,6 +4,8 @@
 // Token-auth required. Action whitelist — no generic query access.
 
 const { handleCors, requireProjectAdmin, applyRateLimit, getClientIP, createToken, verifyToken } = require('./lib/auth');
+const { readFeatures, getRsvpRules, validateRsvp } = require('./lib/rsvpRules');
+const { sendConfirmation } = require('./lib/rsvpMail');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -93,6 +95,9 @@ const PUBLIC_PROJECT_FIELDS = [
   'wedding_date', 'location', 'hashtag', 'component_order', 'active_components',
   'component_config', 'custom_styles', 'custom_domain', 'favicon_emoji',
   'has_std', 'has_archive', 'package', 'addons', 'password_protected',
+  // Opt-in-Funktionen je Projekt (Sprachen, RSVP-Regeln). Fehlt die Spalte
+  // oder ist sie leer, verhält sich das Projekt wie bisher.
+  'features',
 ];
 
 // Gesperrte Seite (Passwort / Coming Soon): nur, was Gate und Coming Soon zeigen
@@ -165,6 +170,23 @@ async function loadGate({ projectId, slug }) {
   gateCache.set(key, { gate, ts: Date.now() });
   return gate;
 }
+
+// Projektzeile für RSVP-Regeln und Bestätigungsmail (kurz gecacht).
+// select=*: Fehlt die Spalte `features` noch, bleibt das Projekt ein Altprojekt.
+const rulesCache = new Map();
+async function loadProjectForRsvp(projectId) {
+  const hit = rulesCache.get(projectId);
+  if (hit && Date.now() - hit.ts < GATE_TTL) return hit.value;
+  const result = await supabaseRest('GET', 'projects', `id=eq.${enc(projectId)}&select=*`);
+  if (result.error) return { error: result.error };
+  const row = result.data?.[0] || null;
+  const value = { project: row, rules: row ? getRsvpRules(readFeatures(row)) : null };
+  rulesCache.set(projectId, { value, ts: Date.now() });
+  return value;
+}
+
+const isUniqueViolation = (error) => !!error && (error.code === '23505' || /23505|duplicate key/i.test(String(error.message || '')));
+const duplicateError = () => ({ message: 'Für diese E-Mail-Adresse liegt bereits eine Antwort vor', code: 'duplicate', status: 409 });
 
 function evaluateAccess(gate, tokens) {
   const level = accessLevel(tokens, gate.slug);
@@ -323,19 +345,70 @@ const actions = {
   // --- RSVP ---
 
   async submitRSVP({ projectId, rsvpData }) {
+    const loaded = await loadProjectForRsvp(projectId);
+    if (loaded.error) return { data: null, error: loaded.error };
+    const { project, rules } = loaded;
+
+    // ── Altprojekt (keine Regeln hinterlegt): unverändertes Verhalten ──
+    if (!rules) {
+      const result = await supabaseRest('POST', 'rsvp_responses', 'select=*', {
+        project_id: projectId,
+        name: rsvpData.name,
+        email: rsvpData.email,
+        persons: rsvpData.persons || 1,
+        attending: rsvpData.attending,
+        dietary: rsvpData.dietary || '',
+        allergies: rsvpData.allergies || '',
+        message: rsvpData.message || '',
+        guests: rsvpData.guests || null,
+        custom_answer: rsvpData.custom_answer || '',
+      });
+      return { data: result.data?.[0] || null, error: result.error };
+    }
+
+    // ── Projekt mit Regeln: vollständige Prüfung im Server ──
+    const check = validateRsvp(rsvpData, rules);
+    if (!check.ok) {
+      return { data: null, error: { message: check.message, code: check.code, field: check.field, status: 400 } };
+    }
+    const c = check.clean;
+
+    // Doppelte Antwort: erst freundlich prüfen …
+    const existing = await supabaseRest('GET', 'rsvp_responses',
+      `project_id=eq.${enc(projectId)}&email=eq.${enc(c.email)}&select=id&limit=1`);
+    if (existing.error) return { data: null, error: existing.error };
+    if (existing.data && existing.data.length > 0) return { data: null, error: duplicateError() };
+
+    // … und zusätzlich über den eindeutigen Schlüssel absichern. Zwei
+    // gleichzeitige Anfragen kommen beide an der Prüfung vorbei; die Datenbank
+    // lässt dann nur eine zu (Unique-Index auf project_id + dedupe_key).
     const result = await supabaseRest('POST', 'rsvp_responses', 'select=*', {
       project_id: projectId,
-      name: rsvpData.name,
-      email: rsvpData.email,
-      persons: rsvpData.persons || 1,
-      attending: rsvpData.attending,
-      dietary: rsvpData.dietary || '',
-      allergies: rsvpData.allergies || '',
-      message: rsvpData.message || '',
-      guests: rsvpData.guests || null,
-      custom_answer: rsvpData.custom_answer || '',
+      name: c.name,
+      email: c.email,
+      persons: c.persons,
+      attending: c.attending,
+      dietary: c.dietary,
+      allergies: c.allergies,
+      message: c.message,
+      guests: c.guests,
+      custom_answer: c.custom_answer,
+      language: c.language,
+      dedupe_key: c.email,
     });
-    return { data: result.data?.[0] || null, error: result.error };
+    if (result.error) {
+      if (isUniqueViolation(result.error)) return { data: null, error: duplicateError() };
+      return { data: null, error: result.error };
+    }
+    const saved = result.data?.[0] || null;
+
+    // Bestätigung an den Gast: nur nach erfolgreichem Speichern, höchstens
+    // einmal je gespeicherter Antwort. Ein Mailfehler ändert nichts am Erfolg.
+    let mail = 'skipped';
+    if (saved && rules.confirmationMail) {
+      mail = await sendConfirmation({ rsvp: { ...c }, project, language: c.language || rules.defaultLanguage || 'en' });
+    }
+    return { data: saved, error: null, mail };
   },
 
   async checkDuplicateRSVP({ projectId, email }) {
@@ -351,8 +424,9 @@ const actions = {
   },
 
   async updateRSVPResponse({ id, updates }, ctx) {
-    const result = await supabaseRest('PATCH', 'rsvp_responses',
-      `id=eq.${enc(id)}&project_id=eq.${enc(ctx.projectId)}&select=*`, {
+    const loaded = await loadProjectForRsvp(ctx.projectId);
+    if (loaded.error) return { data: null, error: loaded.error };
+    const body = {
       name: updates.name,
       email: updates.email,
       persons: updates.persons,
@@ -361,7 +435,26 @@ const actions = {
       allergies: updates.allergies,
       message: updates.message,
       custom_answer: updates.custom_answer,
-    });
+    };
+
+    // Projekt mit Regeln: dieselbe Prüfung wie beim Absenden. Gästeliste,
+    // Kinderalter und Sprache der Antwort bleiben dabei unangetastet.
+    if (loaded.rules) {
+      const check = validateRsvp({ ...updates, guests: undefined }, loaded.rules);
+      if (!check.ok) {
+        return { data: null, error: { message: check.message, code: check.code, field: check.field, status: 400 } };
+      }
+      const c = check.clean;
+      Object.assign(body, {
+        name: c.name, email: c.email, persons: c.persons, attending: c.attending,
+        dietary: c.dietary, allergies: c.allergies, message: c.message, custom_answer: c.custom_answer,
+        dedupe_key: c.email,
+      });
+    }
+
+    const result = await supabaseRest('PATCH', 'rsvp_responses',
+      `id=eq.${enc(id)}&project_id=eq.${enc(ctx.projectId)}&select=*`, body);
+    if (result.error && isUniqueViolation(result.error)) return { data: null, error: duplicateError() };
     return { data: result.data?.[0] || null, error: result.error };
   },
 
@@ -716,7 +809,9 @@ export default async function handler(req, res) {
     if (err && typeof err === 'object' && typeof err.status === 'number') {
       const httpStatus = (err.status >= 500 || err.status === 401 || err.status === 403)
         ? 502
-        : (err.status === 400 ? 400 : 422);
+        // 409 nur für die eigene Doppel-Meldung der RSVP-Regeln; Datenbankfehler
+        // behalten ihre bisherige Zuordnung.
+        : (err.status === 400 ? 400 : (err.code === 'duplicate' ? 409 : 422));
       res.setHeader('X-DB-Status', String(err.status));
       if (err.code) res.setHeader('X-DB-Code', String(err.code));
       return res.status(httpStatus).json(result);

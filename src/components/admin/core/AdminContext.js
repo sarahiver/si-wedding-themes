@@ -101,6 +101,7 @@ export function AdminProvider({ children }) {
         musicwishes: content.musicwishes || { title: '', description: '', spotify_playlist: '' },
         photoupload: content.photoupload || { title: '', description: '', max_files: 10, moderation: true },
         faq: content.faq || { title: '', questions: [] },
+        childcare: content.childcare || { title: '', description: '' },
         weddingabc: content.weddingabc || { title: '', entries: [] },
         footer: content.footer || { hashtag: '', impressum_url: '', datenschutz_url: '' },
         savethedate: content.savethedate || { hero_image: '', tagline: '', message: '', countdown_active: true },
@@ -426,6 +427,9 @@ export function AdminProvider({ children }) {
     musicwishes: { id: 'edit-musicwishes', label: 'Musikwünsche', icon: '🎶' },
     photoupload: { id: 'edit-photoupload', label: 'Foto-Upload', icon: '📸' },
     faq: { id: 'edit-faq', label: 'FAQ', icon: '❓' },
+    // Nur für Themes, die diesen Bereich mitbringen. Ohne die Einschränkung
+    // erschiene der Eintrag bei allen Projekten mit „alle Bereiche aktiv".
+    childcare: { id: 'edit-childcare', label: 'Kinderbetreuung', icon: '🧸', themes: ['cassis'] },
     weddingabc: { id: 'edit-abc', label: 'ABC', icon: '🔤' },
     witnesses: { id: 'edit-witnesses', label: 'Trauzeug:innen', icon: '👫' },
     footer: { id: 'edit-footer', label: 'Footer', icon: '📝', always: true },
@@ -435,6 +439,7 @@ export function AdminProvider({ children }) {
   const componentOrder = project?.component_order || [];
   const contentEditors = useMemo(() => {
     const editors = [];
+    const themeAllows = (editor) => !editor.themes || editor.themes.includes(project?.theme);
 
     // First add hero (always first)
     editors.push(editorMapping.hero);
@@ -442,14 +447,14 @@ export function AdminProvider({ children }) {
     // Add editors in component_order (if active)
     componentOrder.forEach(component => {
       const editor = editorMapping[component];
-      if (editor && !editor.always && checkActive(component)) {
+      if (editor && !editor.always && themeAllows(editor) && checkActive(component)) {
         editors.push(editor);
       }
     });
 
     // Add any active editors not in component_order (fallback)
     Object.entries(editorMapping).forEach(([component, editor]) => {
-      if (!editor.always && !componentOrder.includes(component) && checkActive(component)) {
+      if (!editor.always && !componentOrder.includes(component) && themeAllows(editor) && checkActive(component)) {
         if (!editors.find(e => e.id === editor.id)) {
           editors.push(editor);
         }
@@ -460,7 +465,7 @@ export function AdminProvider({ children }) {
     editors.push(editorMapping.footer);
 
     return editors;
-  }, [componentOrder, checkActive]);
+  }, [componentOrder, checkActive, project?.theme]);
 
   const navItems = [
     { section: 'Übersicht', items: [

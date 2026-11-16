@@ -1,0 +1,67 @@
+[
+ {
+  "name": "API: ohne Anmeldung kein Zugriff",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "name": "Anmeldung: falsches Passwort bleibt auf der Login-Seite",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Anmeldung: richtiges Passwort öffnet das Dashboard",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "API: nicht freigegebene Tabelle wird abgelehnt",
+  "pass": true,
+  "info": "403"
+ },
+ {
+  "name": "Projektliste zeigt alle Testprojekte (14, zehn je Seite)",
+  "pass": true,
+  "info": "10"
+ },
+ {
+  "name": "Neues Projekt: alle neun Themes wählbar",
+  "pass": true,
+  "info": "gefunden: Botanical,Editorial,Contemporary,Luxe,Neon,Video,Classic,Parallax,Summer"
+ },
+ {
+  "name": "Projektdetail lädt das richtige Projekt",
+  "pass": true,
+  "info": "S&I.\nDASHBOARD\nPROJEKTE\nNEU\nKOOPERATIONEN\nPARTNER\nCONTENT\nANALYTICS\nANFRAGEN\nSETTINGS\nLOGOUT\n← PROJEKTE\nMIA & NOAH\nLIVE\n"
+ },
+ {
+  "name": "Projektdetail zeigt die RSVP-Übersicht des eigenen Projekts (neu, gewollt)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Projektdetail zeigt keine Antworten anderer Projekte",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Speichern sendet eine Projektänderung",
+  "pass": true,
+  "info": "select:projects,select:email_logs,select:rsvp_responses,update:projects"
+ },
+ {
+  "name": "Speichern ohne Eingabe lässt Theme, Adresse und Status unverändert",
+  "pass": true,
+  "info": "component_order"
+ },
+ {
+  "name": "Speichern verändert kein anderes Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Keine Laufzeitfehler im SuperAdmin",
+  "pass": true,
+  "info": ""
+ }
+]

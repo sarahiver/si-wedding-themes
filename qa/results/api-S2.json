@@ -1,0 +1,233 @@
+[
+ {
+  "group": "Anmeldung",
+  "name": "Admin-Anmeldung liefert Token",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Anmeldung",
+  "name": "falsches Admin-Passwort liefert kein Token",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar A liest eigene Antworten",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar A kann Antworten von Projekt B nicht lesen",
+  "pass": true,
+  "kind": "test",
+  "info": "403 {\"error\":\"Forbidden\"}"
+ },
+ {
+  "group": "Mandanten",
+  "name": "ohne Token keine Antworten",
+  "pass": true,
+  "kind": "test",
+  "info": "401"
+ },
+ {
+  "group": "Mandanten",
+  "name": "gefälschtes Token wird abgelehnt",
+  "pass": true,
+  "kind": "test",
+  "info": "401"
+ },
+ {
+  "group": "Mandanten",
+  "name": "Gäste-Token darf keine Antworten lesen",
+  "pass": true,
+  "kind": "test",
+  "info": "403"
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar A kann Antwort von Projekt B nicht ändern",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar A kann Antwort von Projekt B nicht löschen",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar A kann Inhalte von Projekt B nicht überschreiben",
+  "pass": true,
+  "kind": "test",
+  "info": "403"
+ },
+ {
+  "group": "Mandanten",
+  "name": "Inhalt von A landet nur bei A",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Datenschutz",
+  "name": "öffentliche Projektdaten enthalten keine Kontakt- oder Passwortfelder",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Rechte",
+  "name": "Paar darf nur Ort/Hashtag ändern, nicht Theme oder Status",
+  "pass": true,
+  "kind": "test",
+  "info": "classic"
+ },
+ {
+  "group": "Rechte",
+  "name": "Paar kann sich nicht selbst live schalten",
+  "pass": true,
+  "kind": "test",
+  "info": "400"
+ },
+ {
+  "group": "Rechte",
+  "name": "Paar kann „Daten fertig\" melden",
+  "pass": true,
+  "kind": "test",
+  "info": "200"
+ },
+ {
+  "group": "RSVP",
+  "name": "eine Person wird gespeichert",
+  "pass": true,
+  "kind": "test",
+  "info": "200"
+ },
+ {
+  "group": "RSVP",
+  "name": "Doppel-Prüfung erkennt vorhandene E-Mail",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "RSVP",
+  "name": "Doppel-Prüfung ist je Projekt getrennt",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "RSVP",
+  "name": "eingeschleuste Felder (fremdes Projekt, id) werden verworfen",
+  "pass": true,
+  "kind": "test",
+  "info": "[\"id\",\"created_at\",\"project_id\",\"name\",\"email\",\"persons\",\"attending\",\"dietary\",\"allergies\",\"message\",\"guests\",\"custom_answer\"]"
+ },
+ {
+  "group": "RSVP",
+  "name": "unbekanntes Projekt wird abgelehnt",
+  "pass": true,
+  "kind": "test",
+  "info": "423"
+ },
+ {
+  "group": "RSVP",
+  "name": "Datenbankfehler wird als Fehler gemeldet, nicht als Erfolg",
+  "pass": true,
+  "kind": "test",
+  "info": "502"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server lehnt unzulässige Personenzahl 9 ab",
+  "pass": false,
+  "kind": "luecke",
+  "info": "gespeichert als 9"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server lehnt unzulässige Personenzahl 999 ab",
+  "pass": false,
+  "kind": "luecke",
+  "info": "gespeichert als 999"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server lehnt unzulässige Personenzahl 0 ab",
+  "pass": false,
+  "kind": "luecke",
+  "info": "gespeichert als 1"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server lehnt unzulässige Personenzahl -3 ab",
+  "pass": false,
+  "kind": "luecke",
+  "info": "gespeichert als -3"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server verhindert zweite Antwort mit derselben E-Mail",
+  "pass": false,
+  "kind": "luecke",
+  "info": "im Nachbau ohne Unique-Regel angenommen; echte Datenbank nicht prüfbar"
+ },
+ {
+  "group": "RSVP",
+  "name": "Server prüft Name und E-Mail-Format",
+  "pass": false,
+  "kind": "luecke",
+  "info": "ungeprüft gespeichert"
+ },
+ {
+  "group": "RSVP",
+  "name": "Paar ändert eigene Antwort, Projekt bleibt gleich",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "RSVP",
+  "name": "Änderung lässt die Gästeliste (guests) unangetastet",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Schutz",
+  "name": "Rate-Limit greift bei öffentlichen Aufrufen",
+  "pass": true,
+  "kind": "test",
+  "info": "ab Aufruf 61"
+ },
+ {
+  "group": "Mail",
+  "name": "Benachrichtigung geht an die hinterlegte Adresse des Paares",
+  "pass": true,
+  "kind": "test",
+  "info": "200 [{\"email\":\"paar@example.test\",\"name\":\"Mia & Noah\"}]"
+ },
+ {
+  "group": "Mail",
+  "name": "Empfänger lässt sich nicht über die Anfrage vorgeben",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ },
+ {
+  "group": "Mail",
+  "name": "kein Aufruf an echte Server (alles abgefangen)",
+  "pass": true,
+  "kind": "test",
+  "info": ""
+ }
+]

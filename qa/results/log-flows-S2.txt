@@ -1,0 +1,50 @@
+ok   Entwurf zeigt Coming Soon statt Inhalt
+ok   Entwurf: Browser fragt keine Inhalte ab
+ok   API: Inhalte eines Entwurfs bleiben gesperrt
+ok   API: RSVP an Entwurf wird abgelehnt (423)
+ok   API: falsches Vorschau-Passwort abgelehnt
+ok   API: richtiges Vorschau-Passwort liefert Zugang
+ok   API: Vorschau-Zugang öffnet den Entwurf
+ok   Passwortseite erscheint
+ok   Passwortfeld passt in die Handybreite
+ok   Falsches Gäste-Passwort öffnet nichts
+ok   Richtiges Gäste-Passwort zeigt die Seite ohne Neuladen
+ok   Nach dem Passwort werden die Inhalte geladen
+ok   Dashboard botanical: Anmeldung und Menü (30 Einträge)
+ok   Dashboard botanical: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard botanical: Wert bleibt nach Neuladen erhalten
+ok   Dashboard botanical: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard editorial: Anmeldung und Menü (30 Einträge)
+ok   Dashboard editorial: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard editorial: Wert bleibt nach Neuladen erhalten
+ok   Dashboard editorial: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard contemporary: Anmeldung und Menü (30 Einträge)
+ok   Dashboard contemporary: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard contemporary: Wert bleibt nach Neuladen erhalten
+ok   Dashboard contemporary: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard luxe: Anmeldung und Menü (30 Einträge)
+ok   Dashboard luxe: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard luxe: Wert bleibt nach Neuladen erhalten
+ok   Dashboard luxe: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard neon: Anmeldung und Menü (30 Einträge)
+ok   Dashboard neon: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard neon: Wert bleibt nach Neuladen erhalten
+ok   Dashboard neon: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard video: Anmeldung und Menü (30 Einträge)
+ok   Dashboard video: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard video: Wert bleibt nach Neuladen erhalten
+ok   Dashboard video: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard classic: Anmeldung und Menü (30 Einträge)
+ok   Dashboard classic: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard classic: Wert bleibt nach Neuladen erhalten
+ok   Dashboard classic: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard parallax: Anmeldung und Menü (30 Einträge)
+ok   Dashboard parallax: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard parallax: Wert bleibt nach Neuladen erhalten
+ok   Dashboard parallax: fremde RSVP-Antwort ist nicht sichtbar
+ok   Dashboard summer: Anmeldung und Menü (30 Einträge)
+ok   Dashboard summer: Speichern legt Inhalt im richtigen Projekt ab
+ok   Dashboard summer: Wert bleibt nach Neuladen erhalten
+ok   Dashboard summer: fremde RSVP-Antwort ist nicht sichtbar
+
+48 von 48 bestanden

@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { useAdmin } from '../AdminContext';
 import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../../lib/supabase';
+import RsvpExtrasPanel from './RsvpExtrasPanel';
 
 // Hilfsfunktion: Guests-JSON parsen
 function parseGuests(r) {
@@ -207,6 +208,9 @@ function RSVPSection({ components: C }) {
 
   return (
     <>
+      {/* Nur bei Projekten mit RSVP-Regeln oder Sprachen sichtbar */}
+      <RsvpExtrasPanel components={C} />
+
       {/* Stats */}
       <C.StatsGrid style={{ marginBottom: '1.5rem' }}>
         <C.StatCard $index={0}><C.StatNumber $index={0}>{stats.total}</C.StatNumber><C.StatLabel $index={0}>Anmeldungen</C.StatLabel></C.StatCard>

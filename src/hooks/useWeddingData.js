@@ -100,6 +100,16 @@ const defaultContent = {
   },
 };
 
+// Vorgaben ohne Texte: gleiche Felder, aber leere Zeichenketten
+const neutralDefaults = Object.fromEntries(Object.entries(defaultContent).map(([component, fields]) => [
+  component,
+  Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, typeof v === 'string' ? '' : v])),
+]));
+const isMultilingual = (project) => {
+  const langs = project && project.features && project.features.i18n && project.features.i18n.languages;
+  return Array.isArray(langs) && langs.length > 0;
+};
+
 export function useWeddingData(slugOrDomain) {
   const [project, setProject] = useState(null);
   // Vom Server: { locked, reason: 'password' | 'preview' | null }
@@ -148,11 +158,14 @@ export function useWeddingData(slugOrDomain) {
       }
 
       // Merge with defaults
-      const mergedContent = { ...defaultContent };
+      // Mehrsprachige Projekte (Opt-in) bekommen keine deutschen Vorgabetexte:
+      // dort liefert das Theme den Text in der Sprache des Gasts.
+      const defaults = isMultilingual(projectData) ? neutralDefaults : defaultContent;
+      const mergedContent = { ...defaults };
       if (contentData) {
         Object.keys(contentData).forEach(component => {
           mergedContent[component] = {
-            ...defaultContent[component],
+            ...defaults[component],
             ...contentData[component],
           };
         });

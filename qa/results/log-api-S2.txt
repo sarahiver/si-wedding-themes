@@ -1,0 +1,35 @@
+ok   [Anmeldung] Admin-Anmeldung liefert Token
+ok   [Anmeldung] falsches Admin-Passwort liefert kein Token
+ok   [Mandanten] Paar A liest eigene Antworten
+ok   [Mandanten] Paar A kann Antworten von Projekt B nicht lesen
+ok   [Mandanten] ohne Token keine Antworten
+ok   [Mandanten] gefälschtes Token wird abgelehnt
+ok   [Mandanten] Gäste-Token darf keine Antworten lesen
+ok   [Mandanten] Paar A kann Antwort von Projekt B nicht ändern
+ok   [Mandanten] Paar A kann Antwort von Projekt B nicht löschen
+ok   [Mandanten] Paar A kann Inhalte von Projekt B nicht überschreiben
+ok   [Mandanten] Inhalt von A landet nur bei A
+ok   [Datenschutz] öffentliche Projektdaten enthalten keine Kontakt- oder Passwortfelder
+ok   [Rechte] Paar darf nur Ort/Hashtag ändern, nicht Theme oder Status
+ok   [Rechte] Paar kann sich nicht selbst live schalten
+ok   [Rechte] Paar kann „Daten fertig" melden
+ok   [RSVP] eine Person wird gespeichert
+ok   [RSVP] Doppel-Prüfung erkennt vorhandene E-Mail
+ok   [RSVP] Doppel-Prüfung ist je Projekt getrennt
+ok   [RSVP] eingeschleuste Felder (fremdes Projekt, id) werden verworfen
+ok   [RSVP] unbekanntes Projekt wird abgelehnt
+ok   [RSVP] Datenbankfehler wird als Fehler gemeldet, nicht als Erfolg
+LÜCKE [RSVP] Server lehnt unzulässige Personenzahl 9 ab :: gespeichert als 9
+LÜCKE [RSVP] Server lehnt unzulässige Personenzahl 999 ab :: gespeichert als 999
+LÜCKE [RSVP] Server lehnt unzulässige Personenzahl 0 ab :: gespeichert als 1
+LÜCKE [RSVP] Server lehnt unzulässige Personenzahl -3 ab :: gespeichert als -3
+LÜCKE [RSVP] Server verhindert zweite Antwort mit derselben E-Mail :: im Nachbau ohne Unique-Regel angenommen; echte Datenbank nicht prüfbar
+LÜCKE [RSVP] Server prüft Name und E-Mail-Format :: ungeprüft gespeichert
+ok   [RSVP] Paar ändert eigene Antwort, Projekt bleibt gleich
+ok   [RSVP] Änderung lässt die Gästeliste (guests) unangetastet
+ok   [Schutz] Rate-Limit greift bei öffentlichen Aufrufen
+ok   [Mail] Benachrichtigung geht an die hinterlegte Adresse des Paares
+ok   [Mail] Empfänger lässt sich nicht über die Anfrage vorgeben
+ok   [Mail] kein Aufruf an echte Server (alles abgefangen)
+
+27 von 27 Tests bestanden, 6 bekannte Lücken dokumentiert

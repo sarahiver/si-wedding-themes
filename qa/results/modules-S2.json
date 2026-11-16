@@ -1,0 +1,206 @@
+[
+ {
+  "group": "Gästebuch",
+  "name": "Eintrag wird gespeichert, zunächst nicht freigegeben",
+  "pass": true,
+  "info": "{\"data\":{\"id\":\"998f3a00-9c9b-4b48-84bc-4119841083c7\",\"created_at\":\"2026-11-16T09:28:48.367Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"name"
+ },
+ {
+  "group": "Gästebuch",
+  "name": "nicht freigegebener Eintrag ist für Gäste unsichtbar",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "group": "Gästebuch",
+  "name": "fremdes Paar kann den Eintrag nicht freigeben",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Freigabe ohne Anmeldung wird abgelehnt",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Paar gibt den Eintrag frei",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "freigegebener Eintrag erscheint für Gäste",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Eintrag erscheint nicht in einem anderen Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "fremdes Paar kann den Eintrag nicht löschen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Paar löscht den Eintrag",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Eintrag in ein Entwurfsprojekt wird abgelehnt (423)",
+  "pass": true,
+  "info": "423"
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Wunsch wird gespeichert (Titel und Interpret)",
+  "pass": true,
+  "info": "{\"data\":{\"id\":\"23224536-25cf-426a-b0e2-a93b3924389d\",\"created_at\":\"2026-11-16T09:28:48.391Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"name"
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Wunsch erscheint in der Liste des Projekts",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Wunsch erscheint nicht in einem anderen Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "fremdes Paar kann den Wunsch nicht löschen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Löschen ohne Anmeldung wird abgelehnt",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Paar löscht den Wunsch",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Wunsch an ein Entwurfsprojekt wird abgelehnt (423)",
+  "pass": true,
+  "info": "423"
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "Foto-Eintrag wird gespeichert, zunächst nicht freigegeben",
+  "pass": true,
+  "info": "{\"data\":{\"id\":\"93a928a7-2917-4a4d-839a-b260a7f240bd\",\"created_at\":\"2026-11-16T09:28:48.413Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"uplo"
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "nicht freigegebenes Foto ist für Gäste unsichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "fremdes Paar kann das Foto nicht freigeben",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "Paar gibt das Foto frei",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "freigegebenes Foto erscheint für Gäste",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "Foto erscheint nicht in einem anderen Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "fremdes Paar kann das Foto nicht löschen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Foto-Upload",
+  "name": "Paar löscht das Foto",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Geschenke",
+  "name": "Reservierung wird gespeichert",
+  "pass": true,
+  "info": "{\"data\":{\"id\":\"7e52149c-015a-41af-9014-4630a07be98e\",\"created_at\":\"2026-11-16T09:28:48.426Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"item"
+ },
+ {
+  "group": "Geschenke",
+  "name": "Reservierung erscheint im Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Geschenke",
+  "name": "Reservierung erscheint nicht in einem anderen Projekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Geschenke",
+  "name": "fremdes Paar kann die Reservierung nicht aufheben",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Geschenke",
+  "name": "Aufheben ohne Anmeldung wird abgelehnt",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "group": "Geschenke",
+  "name": "Paar hebt die Reservierung auf",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Geschenke",
+  "name": "Reservierung in einem Entwurfsprojekt wird abgelehnt (423)",
+  "pass": true,
+  "info": "423"
+ },
+ {
+  "group": "Gästebuch",
+  "name": "Formular auf der Seite (Classic, Handybreite) speichert den Eintrag im richtigen Projekt",
+  "pass": true,
+  "info": "[{\"id\":\"b1c7dee6-a51e-4577-b3f1-f5d0864bed63\",\"created_at\":\"2026-11-16T09:28:50.060Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"name\":\"Browser Gast\",\"message\":\"Viel Glück euch beiden!\",\"ima"
+ },
+ {
+  "group": "Musikwünsche",
+  "name": "Formular auf der Seite (Classic, Handybreite) speichert den Eintrag im richtigen Projekt",
+  "pass": true,
+  "info": "[{\"id\":\"01a4d8a5-c647-4d10-9e3e-914fe52d3c06\",\"created_at\":\"2026-11-16T09:28:53.762Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"name\":\"Mr. Brightside\",\"artist\":\"Mr. Brightside\",\"song_title\""
+ }
+]

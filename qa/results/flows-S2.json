@@ -1,0 +1,242 @@
+[
+ {
+  "name": "Entwurf zeigt Coming Soon statt Inhalt",
+  "pass": true,
+  "info": "S&I.\nHier entsteht eine wunderschöne Hochzeitswebsite.\n\nIndividuelle Designs, RSVP, Gästeliste & mehr – handgemacht für "
+ },
+ {
+  "name": "Entwurf: Browser fragt keine Inhalte ab",
+  "pass": true,
+  "info": "getProjectBySlugOrDomain,checkPasswordRequired"
+ },
+ {
+  "name": "API: Inhalte eines Entwurfs bleiben gesperrt",
+  "pass": true,
+  "info": "{\"data\":{},\"locked\":true,\"reason\":\"preview\",\"error\":null}"
+ },
+ {
+  "name": "API: RSVP an Entwurf wird abgelehnt (423)",
+  "pass": true,
+  "info": "423"
+ },
+ {
+  "name": "API: falsches Vorschau-Passwort abgelehnt",
+  "pass": true,
+  "info": "{\"success\":false,\"error\":\"Falsches Passwort\"}"
+ },
+ {
+  "name": "API: richtiges Vorschau-Passwort liefert Zugang",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "API: Vorschau-Zugang öffnet den Entwurf",
+  "pass": true,
+  "info": "{\"locked\":false,\"reason\":null}"
+ },
+ {
+  "name": "Passwortseite erscheint",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Passwortfeld passt in die Handybreite",
+  "pass": true,
+  "info": "{\"x\":57,\"y\":543.6611938476562,\"width\":276,\"height\":52}"
+ },
+ {
+  "name": "Falsches Gäste-Passwort öffnet nichts",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Richtiges Gäste-Passwort zeigt die Seite ohne Neuladen",
+  "pass": true,
+  "info": "3178"
+ },
+ {
+  "name": "Nach dem Passwort werden die Inhalte geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard botanical: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard botanical: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"ec9a729c-490b-43e3-8230-e96212e1f2a4\",\"created_at\":\"2026-11-16T09:27:07.056Z\",\"project_id\":\"00000000-0000-4000-8000-000000000001\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard botanical: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline botanical"
+ },
+ {
+  "name": "Dashboard botanical: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard editorial: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard editorial: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"15670220-3204-4d43-a4bf-2e7cca8f6e03\",\"created_at\":\"2026-11-16T09:27:11.071Z\",\"project_id\":\"00000000-0000-4000-8000-000000000002\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard editorial: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline editorial"
+ },
+ {
+  "name": "Dashboard editorial: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard contemporary: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard contemporary: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"efd1d889-3c6c-4eb6-8ef1-dcc0726efc2c\",\"created_at\":\"2026-11-16T09:27:14.102Z\",\"project_id\":\"00000000-0000-4000-8000-000000000003\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard contemporary: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline contemporary"
+ },
+ {
+  "name": "Dashboard contemporary: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard luxe: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard luxe: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"0c056fc8-a721-453e-b1f2-145b184cdb97\",\"created_at\":\"2026-11-16T09:27:17.037Z\",\"project_id\":\"00000000-0000-4000-8000-000000000004\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard luxe: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline luxe"
+ },
+ {
+  "name": "Dashboard luxe: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard neon: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard neon: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"7cfc000f-9d93-4169-ac84-6592494a27bb\",\"created_at\":\"2026-11-16T09:27:20.232Z\",\"project_id\":\"00000000-0000-4000-8000-000000000005\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard neon: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline neon"
+ },
+ {
+  "name": "Dashboard neon: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard video: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard video: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"370fe36e-2074-4ae3-b98c-1f7e36ba5c38\",\"created_at\":\"2026-11-16T09:27:24.224Z\",\"project_id\":\"00000000-0000-4000-8000-000000000006\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard video: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline video"
+ },
+ {
+  "name": "Dashboard video: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard classic: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard classic: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"e28b121a-d69a-421e-8b08-40718deede01\",\"created_at\":\"2026-11-16T09:27:27.285Z\",\"project_id\":\"00000000-0000-4000-8000-000000000007\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard classic: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline classic"
+ },
+ {
+  "name": "Dashboard classic: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard parallax: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard parallax: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"81c0582a-9647-46a2-bf6e-2b8efde8174b\",\"created_at\":\"2026-11-16T09:27:31.123Z\",\"project_id\":\"00000000-0000-4000-8000-000000000008\",\"component\":\"timeline\","
+ },
+ {
+  "name": "Dashboard parallax: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline parallax"
+ },
+ {
+  "name": "Dashboard parallax: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard summer: Anmeldung und Menü (30 Einträge)",
+  "pass": true,
+  "info": "Dashboard|RSVP|Gästebuch|Musik|Fotos|Geschenke|Gästeliste|Hero|Countdown|Love Story|Ablauf|Locations|Anfahrt|Hotels|Dresscode|RSVP Text|Geschenke|Galerie|Gästeb"
+ },
+ {
+  "name": "Dashboard summer: Speichern legt Inhalt im richtigen Projekt ab",
+  "pass": true,
+  "info": "{\"id\":\"4e758ec1-da29-47da-ac34-ac68e6a14d1d\",\"created_at\":\"2026-11-16T09:27:34.080Z\",\"project_id\":\"00000000-0000-4000-8000-000000000009\",\"component\":\"countdown\""
+ },
+ {
+  "name": "Dashboard summer: Wert bleibt nach Neuladen erhalten",
+  "pass": true,
+  "info": "Baseline summer"
+ },
+ {
+  "name": "Dashboard summer: fremde RSVP-Antwort ist nicht sichtbar",
+  "pass": true,
+  "info": ""
+ }
+]

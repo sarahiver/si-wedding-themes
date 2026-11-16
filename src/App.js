@@ -33,6 +33,7 @@ const globalStylesMap = {
   editorial: lazy(() => import('./themes/editorial/GlobalStyles')),
   classic: lazy(() => import('./themes/classic/GlobalStyles')),
   summer: lazy(() => import('./themes/summer/GlobalStyles')),
+  cassis: lazy(() => import('./themes/cassis/GlobalStyles')),
   parallax: lazy(() => import('./themes/parallax/GlobalStyles')),
 };
 
@@ -70,6 +71,11 @@ const themePages = {
   },
   classic: {
     AdminDashboard: lazy(() => import('./themes/classic/AdminDashboard')),
+    ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
+    SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
+  },
+  cassis: {
+    AdminDashboard: lazy(() => import('./themes/cassis/AdminDashboard')),
     ArchivePage: lazy(() => import('./themes/classic/ArchivePage')),
     SaveTheDate: lazy(() => import('./themes/classic/SaveTheDate')),
   },

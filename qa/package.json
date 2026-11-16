@@ -1,0 +1,11 @@
+{
+  "name": "si-qa",
+  "private": true,
+  "description": "Isolierte Prüfumgebung: echter API-Code, nachgebaute Datenbank, kein Netz nach außen",
+  "dependencies": {
+    "@fontsource/jost": "^5.0.0",
+    "@fontsource/pinyon-script": "^5.0.0",
+    "esbuild": "^0.21.5",
+    "playwright": "^1.48.0"
+  }
+}

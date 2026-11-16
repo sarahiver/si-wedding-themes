@@ -1,0 +1,16 @@
+ok   API: ohne Anmeldung kein Zugriff
+ok   Anmeldung: falsches Passwort bleibt auf der Login-Seite
+ok   Anmeldung: richtiges Passwort öffnet das Dashboard
+ok   API: nicht freigegebene Tabelle wird abgelehnt
+ok   Projektliste zeigt alle Testprojekte (14, zehn je Seite)
+ok   Neues Projekt: alle neun Themes wählbar
+ok   Projektdetail lädt das richtige Projekt
+ok   Projektdetail zeigt die RSVP-Übersicht des eigenen Projekts (neu, gewollt)
+ok   Projektdetail zeigt keine Antworten anderer Projekte
+ok   Speichern sendet eine Projektänderung
+ok   Speichern ohne Eingabe lässt Theme, Adresse und Status unverändert
+ok   Speichern verändert kein anderes Projekt
+ok   Keine Laufzeitfehler im SuperAdmin
+
+13 von 13 bestanden
+gesperrte Netzaufrufe des Servers: 0 

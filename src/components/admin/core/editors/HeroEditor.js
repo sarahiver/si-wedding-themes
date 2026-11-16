@@ -244,6 +244,20 @@ function HeroEditor({ components: C }) {
           </C.FormGroup>
         )}
         
+        {theme === 'cassis' && (
+          <>
+            <C.SectionLabel>Schriftzug als Grafik</C.SectionLabel>
+            <ImageUploader
+              components={C}
+              image={content.name_image}
+              onUpload={(url) => update('name_image', url)}
+              folder={`${baseFolder}/hero`}
+              label="Schriftzug der Namen"
+              helpText="Weiße Grafik mit durchsichtigem Hintergrund (PNG). Ohne Grafik erscheinen die Namen in Zierschrift."
+            />
+          </>
+        )}
+
         <C.Divider />
         <C.Button onClick={() => saveContent('hero')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : 'Speichern'}

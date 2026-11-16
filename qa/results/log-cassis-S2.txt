@@ -1,0 +1,84 @@
+ok   Breite 320: kein seitliches Scrollen
+ok   Breite 320: Bereiche in der richtigen Reihenfolge
+ok   Breite 320: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 320: Startfoto geladen
+ok   Breite 320: keine Fehler in der Browser-Konsole
+ok   Breite 390: kein seitliches Scrollen
+ok   Breite 390: Bereiche in der richtigen Reihenfolge
+ok   Breite 390: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 390: Startfoto geladen
+ok   Breite 390: keine Fehler in der Browser-Konsole
+ok   Tippflächen mindestens 40 px hoch
+ok   Breite 768: kein seitliches Scrollen
+ok   Breite 768: Bereiche in der richtigen Reihenfolge
+ok   Breite 768: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 768: Startfoto geladen
+ok   Breite 768: keine Fehler in der Browser-Konsole
+ok   Breite 1440: kein seitliches Scrollen
+ok   Breite 1440: Bereiche in der richtigen Reihenfolge
+ok   Breite 1440: Schriftzug-Grafik geladen und vollständig im Bild
+ok   Breite 1440: Startfoto geladen
+ok   Breite 1440: keine Fehler in der Browser-Konsole
+ok   Keine Galerie, keine fremden Bereiche
+ok   Ablauf: alle sieben Programmpunkte
+ok   Datum und Ort im Kopf
+ok   Zugänglichkeit: jedes Feld beschriftet, jeder Knopf benannt
+ok   Zugänglichkeit: eine Hauptüberschrift mit den Namen, Bilder mit Alternativtext
+ok   Route öffnet Google Maps mit der Adresse in neuem Tab
+ok   „Nach oben" führt an den Seitenanfang
+ok   Gerätesprache tr-TR → tr
+ok   Gerätesprache fr-FR → fr
+ok   Gerätesprache de-AT → de
+ok   Gerätesprache en-GB → en
+ok   Gerätesprache es-ES → en
+ok   Sprachleiste zeigt ENG, TR, DE, FR
+ok   Hauptsprache: Titel des Ablaufs aus dem Inhalt
+ok   Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt
+ok   Nicht übersetzter Inhalt fällt auf Englisch zurück
+ok   Gewählte Sprache bleibt nach dem Neuladen
+ok   Türkisch: feste Texte türkisch, fehlende Übersetzung englisch
+ok   Türkisch: Datum in türkischer Schreibweise
+ok   Französisch: übersetzter Titel und Datum
+ok   Countdown: Kalenderblatt Mai 2027, 180 Tage (Gerät in New York, Ziel in Paris)
+ok   Countdown: genau der 15. ist markiert
+ok   Kalenderdatei: 15.05.2027 15:00–02:00 Uhr Pariser Zeit
+ok   Kalenderdatei: Titel, Ort und Dateiname
+ok   Countdown am Hochzeitstag vor Beginn: 0 Tage, keine negativen Werte
+ok   Countdown nach der Hochzeit: Abschlusstext statt Zahlen, nichts Negatives
+ok   Zusage mit 3 Personen und Kind wird gespeichert
+ok   Alter des Kindes steht bei der richtigen Person
+ok   Sprache der Antwort gespeichert (tr)
+ok   Danke-Text erscheint in der Sprache des Gasts
+ok   Genau eine Bestätigungsmail, auf Türkisch, nur im Testpostfach
+ok   Mehr als 8 Personen lassen sich nicht einstellen
+ok   Hinweis nennt die Obergrenze
+ok   Bei 8 Personen: sieben weitere Namensfelder
+ok   Anmeldung mit 8 Personen wird angenommen
+ok   Kind ohne Alter: verständliche Meldung, nichts gespeichert
+ok   Alter 0 (Baby) wird angenommen und gespeichert
+ok   Zweite Antwort mit derselben E-Mail (andere Schreibweise): Hinweis, kein zweiter Eintrag
+ok   Abgelehnte Doppelantwort löst keine zweite Mail aus
+ok   Ungültige E-Mail: Meldung, nichts gespeichert
+ok   Fehlender Name: Meldung, nichts gespeichert
+ok   Absage: keine Personen- und Kinderfelder
+ok   Absage gespeichert, Doppelklick erzeugt nur einen Eintrag
+ok   Absage: eine Bestätigung auf Französisch
+ok   Mailfehler: Antwort bleibt gespeichert und der Gast sieht die Bestätigung
+ok   Netzfehler: Meldung und Eingaben bleiben erhalten
+ok   Zweiter Versuch nach Netzfehler: genau ein Eintrag
+ok   Cassis mit Gäste-Passwort: Passwortseite erscheint, Feld passt aufs Handy
+ok   Nach dem Passwort erscheint die Cassis-Seite
+ok   Endzeit aus dem Dashboard steuert die Kalenderdatei (04:00 Uhr)
+ok   Cassis im Entwurf: Coming Soon, keine Inhalte, kein Formular
+ok   Dashboard Cassis: Anmeldung, Menü enthält Kinderbetreuung
+ok   Dashboard Cassis: keine Einträge für abgewählte Bereiche (Galerie, Gästebuch, Musik)
+ok   Dashboard Cassis: Kinderbetreuung speichern landet im richtigen Projekt
+ok   Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik
+ok   Dashboard Cassis: Countdown-Editor bietet die Endzeit
+ok   Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter
+ok   Dashboard Cassis: Export enthält Kind, Alter und Sprache
+ok   Dashboard Cassis: keine Fehler
+ok   Altprojekt (Classic): kein Menüpunkt Kinderbetreuung, keine Zusatzübersicht
+ok   Altprojekt (Classic): Hero-Editor ohne Schriftzug-Feld
+
+82/82 bestanden

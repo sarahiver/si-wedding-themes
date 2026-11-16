@@ -19,6 +19,7 @@ import NeonGlobalStyles from "../themes/neon/GlobalStyles"
 import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
 import SummerGlobalStyles from "../themes/summer/GlobalStyles"
+import CassisGlobalStyles from "../themes/cassis/GlobalStyles"
 
 
 // Special Components
@@ -202,6 +203,18 @@ const themeComponents = {
     ContactWitnesses: lazy(() => import("../themes/classic/ContactWitnesses")),
     Footer: lazy(() => import("../themes/classic/Footer")),
   },
+  cassis: {
+    Navigation: lazy(() => import("../themes/cassis/Navigation")),
+    Hero: lazy(() => import("../themes/cassis/Hero")),
+    Countdown: lazy(() => import("../themes/cassis/Countdown")),
+    Timeline: lazy(() => import("../themes/cassis/Timeline")),
+    Directions: lazy(() => import("../themes/cassis/Directions")),
+    Childcare: lazy(() => import("../themes/cassis/Childcare")),
+    RSVP: lazy(() => import("../themes/cassis/RSVP")),
+    ContactWitnesses: lazy(() => import("../themes/cassis/ContactWitnesses")),
+    FAQ: lazy(() => import("../themes/cassis/FAQ")),
+    Footer: lazy(() => import("../themes/cassis/Footer")),
+  },
   summer: {
     Navigation: lazy(() => import("../themes/summer/Navigation")),
     Hero: lazy(() => import("../themes/summer/Hero")),
@@ -271,6 +284,13 @@ const themeConfig = {
     background: "#FAF6F0",
     hasSpecialBackground: false,
   },
+  cassis: {
+    GlobalStyles: CassisGlobalStyles,
+    background: "#8A91A3",
+    hasSpecialBackground: false,
+    // Eigene Standardreihenfolge, falls im Projekt keine hinterlegt ist
+    defaultOrder: ["hero", "countdown", "timeline", "directions", "childcare", "rsvp", "witnesses", "faq"],
+  },
 }
 
 // ============================================
@@ -329,6 +349,8 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
     witnesses: { Component: components.ContactWitnesses },
     faq: { Component: components.FAQ },
     weddingabc: { Component: components.WeddingABC },
+    // Nur Themes, die diesen Bereich mitbringen, rendern ihn (sonst null)
+    childcare: { Component: components.Childcare },
   }
 
   const config = componentMap[componentId]
@@ -437,7 +459,7 @@ function StandardWeddingPage() {
   const config = themeConfig[themeName] || themeConfig.botanical
   const components = themeComponents[themeName] || themeComponents.botanical
   const { GlobalStyles, background, hasSpecialBackground } = config
-  const componentOrder = project?.component_order || DEFAULT_ORDER
+  const componentOrder = project?.component_order || config.defaultOrder || DEFAULT_ORDER
   const componentConfig = project?.component_config || {}
 
   if (!project || isLoading) {

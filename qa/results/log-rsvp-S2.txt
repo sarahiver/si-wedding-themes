@@ -1,0 +1,10 @@
+botanical     ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getMusicWishes,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+editorial     ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getMusicWishes,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+contemporary  ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+luxe          ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+neon          ok | gespeichert=true projekt=true personen=1 zusage=true dank=false | getGiftReservations,getGuestbookEntries,getMusicWishes,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+video         ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+classic       ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | getGuestbookEntries,getMusicWishes,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+parallax      ok | gespeichert=true projekt=true personen=1 zusage=true dank=true | checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+summer        ok | gespeichert=true projekt=true personen=1 zusage=yes dank=true | getGuestbookEntries,getMusicWishes,getGiftReservations,checkDuplicateRSVP,submitRSVP,/api/notify:rsvp
+Mails an Paar: 9 | gesperrte Netzaufrufe des Servers: 0

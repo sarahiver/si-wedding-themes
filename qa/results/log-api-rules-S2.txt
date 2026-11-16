@@ -1,0 +1,75 @@
+ok   [Projekt] Funktionen des Projekts werden ausgeliefert (Sprachen, RSVP-Regeln)
+ok   [Projekt] Altprojekt ohne Spalte features bleibt unverändert lesbar
+ok   [Grenze] eine Person wird angenommen
+ok   [Grenze] acht Personen werden angenommen
+ok   [Grenze] neun Personen werden abgelehnt
+ok   [Grenze] null Personen werden abgelehnt
+ok   [Grenze] negative Personenzahl wird abgelehnt
+ok   [Grenze] Kommazahl wird abgelehnt
+ok   [Grenze] Text statt Zahl wird abgelehnt
+ok   [Grenze] riesige Zahl wird abgelehnt
+ok   [Grenze] mehr Gästezeilen als Personen werden abgelehnt
+ok   [Eingaben] leerer Name wird abgelehnt
+ok   [Eingaben] ungültige E-Mail wird abgelehnt
+ok   [Eingaben] fehlende E-Mail wird abgelehnt
+ok   [Eingaben] fehlende Zu-/Absage wird abgelehnt
+ok   [Eingaben] Gästeliste als Text wird abgelehnt
+ok   [Eingaben] Name und E-Mail werden bereinigt, „yes" als Zusage verstanden
+ok   [Eingaben] eingeschleuste Felder werden verworfen
+ok   [Eingaben] Sonderzeichen bleiben unverändert erhalten
+ok   [Kinder] mehrere Kinder mit unterschiedlichem Alter werden je Kind gespeichert
+ok   [Kinder] Alter 0 wird angenommen
+ok   [Kinder] Alter 17 wird angenommen
+ok   [Kinder] Alter 18 wird abgelehnt
+ok   [Kinder] negatives Alter wird abgelehnt
+ok   [Kinder] Kind ohne Altersangabe wird abgelehnt
+ok   [Kinder] Alter als Text wird abgelehnt
+ok   [Kinder] Altersangabe bei Erwachsenen wird nicht gespeichert
+ok   [Sprache] Sprache en wird gespeichert
+ok   [Sprache] Sprache tr wird gespeichert
+ok   [Sprache] Sprache de wird gespeichert
+ok   [Sprache] Sprache fr wird gespeichert
+ok   [Sprache] regionale Variante fr-FR wird zu fr
+ok   [Sprache] ungültige Sprache fällt auf Englisch zurück
+ok   [Sprache] fehlende Sprache fällt auf Englisch zurück
+ok   [Sprache] manipulierter Sprachwert fällt auf Englisch zurück
+ok   [Idempotenz] erste Antwort wird gespeichert und bestätigt
+ok   [Idempotenz] wiederholte Anfrage wird als Doppel abgelehnt (409)
+ok   [Idempotenz] andere Schreibweise derselben E-Mail gilt als Doppel
+ok   [Idempotenz] nach Wiederholungen genau eine gespeicherte Antwort
+ok   [Idempotenz] nach Wiederholungen genau eine Bestätigungsmail
+ok   [Idempotenz] zwölf gleichzeitige Anfragen: genau eine wird gespeichert
+ok   [Idempotenz] zwölf gleichzeitige Anfragen: genau eine Bestätigungsmail
+ok   [Idempotenz] dieselbe E-Mail in einem anderen Projekt ist erlaubt
+ok   [Fehler] Datenbankfehler: Fehler gemeldet, nichts gespeichert, keine Mail
+ok   [Fehler] erneuter Versuch nach dem Fehler gelingt genau einmal
+ok   [Fehler] Brevo-Fehler: Antwort bleibt gespeichert und gilt als Erfolg
+ok   [Fehler] Netzwerkfehler beim Mailversand: Antwort bleibt gespeichert
+ok   [Fehler] nach Mailfehler löst eine Wiederholung keine zweite Antwort aus
+ok   [Mail] Bestätigung auf en: Sprache, Empfänger und Sonderzeichen stimmen
+ok   [Mail] Bestätigung auf tr: Sprache, Empfänger und Sonderzeichen stimmen
+ok   [Mail] Bestätigung auf de: Sprache, Empfänger und Sonderzeichen stimmen
+ok   [Mail] Bestätigung auf fr: Sprache, Empfänger und Sonderzeichen stimmen
+ok   [Mail] vier unterschiedliche Betreffzeilen
+ok   [Mail] unbekannte Sprache: Bestätigung auf Englisch
+ok   [Mail] Absage erhält eine eigene Bestätigung ohne Personenzahl
+ok   [Mail] Altprojekte verschicken keine Bestätigung an Gäste
+ok   [Mail] kein Aufruf an echte Server
+ok   [Altprojekt] Projekt ohne Regeln nimmt Antworten wie bisher an
+ok   [Altprojekt] Altprojekt bekommt keine neuen Spalten geschrieben
+ok   [Altprojekt] leere features-Spalte gilt als Altprojekt
+ok   [Mandanten] eigenes Paar sieht Kinderalter und Sprache
+ok   [Mandanten] fremdes Paar kann Kinderalter und Sprache nicht lesen
+ok   [Mandanten] ohne Anmeldung keine Antworten
+ok   [Mandanten] fremdes Paar erhält auch mit bekannter Kennung nichts
+ok   [Mandanten] fremdes Paar kann die Antwort nicht ändern
+ok   [Mandanten] fremdes Paar kann die Antwort nicht löschen
+ok   [Mandanten] fremdes Paar kann keine (Sprach-)Inhalte überschreiben
+ok   [Mandanten] Paar kann die eigenen RSVP-Regeln nicht selbst ändern
+ok   [Änderung] Paar ändert die Antwort; Kinderalter und Sprache bleiben erhalten
+ok   [Änderung] Änderung über die Personengrenze wird abgelehnt
+ok   [Änderung] Änderung auf eine bereits vergebene E-Mail wird abgelehnt
+ok   [Änderung] erneutes Speichern derselben Antwort bleibt möglich
+ok   [Änderung] Änderungen lösen keine weitere Bestätigungsmail aus
+
+73 von 73 bestanden
