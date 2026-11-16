@@ -7,9 +7,10 @@ const proj = async (n) => (await dump()).projects.find((p) => p.id === pid(n));
 (async () => {
   await fetch(BASE + '/__test/reset', { method: 'POST' });
   await fetch(BASE + '/__test/seed', { method: 'POST', body: JSON.stringify({ table: 'rsvp_responses', rows: [
-    { project_id: pid(70), name: 'Familie Kaya', email: 'kaya@example.test', persons: 4, attending: true, language: 'tr', guests: [{ name: 'A' }, { name: 'B' }, { name: 'C', is_child: true, age: 7 }, { name: 'D', is_child: true, age: 0 }] },
+    { project_id: pid(70), name: 'Familie Kaya', email: 'kaya@example.test', persons: 4, attending: true, language: 'tr', guests: [{ name: 'Ayla', diet: 'vegan', dietary: 'Vegan' }, { name: 'Baran', diet: 'other', diet_note: 'kein Fisch', dietary: 'Sonstiges: kein Fisch', allergies: 'Nüsse' }, { name: 'Cem', is_child: true, age: 7, diet: 'vegetarian', dietary: 'Vegetarisch' }, { name: 'Defne', is_child: true, age: 0 }] },
     { project_id: pid(70), name: 'Jean Dupont', email: 'jean@example.test', persons: 1, attending: false, language: 'fr', guests: null },
-    { project_id: pid(70), name: 'Mia Sommer', email: 'mia@example.test', persons: 2, attending: true, language: 'de', guests: '[{"name":"Mia"},{"name":"Tim"}]' }] }) });
+    { project_id: pid(70), name: 'Mia Sommer', email: 'mia@example.test', persons: 2, attending: true, language: 'de', guests: '[{"name":"Mia"},{"name":"Tim"}]' },
+    { project_id: pid(70), name: 'Alte Antwort', email: 'alt@example.test', persons: 1, attending: true, language: 'de', dietary: 'pescetarisch', allergies: 'Gluten', guests: null }] }) });
   const browser = await chromium.launch(); const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE' }); const page = await ctx.newPage();
   await page.route((u) => !u.href.startsWith(BASE), (rt) => rt.abort());
   const errors = []; const writes = [];
@@ -27,8 +28,12 @@ const proj = async (n) => (await dump()).projects.find((p) => p.id === pid(n));
     const p = page.locator('[data-testid="features-panel"]');
     ok('Zusatzfunktionen: gespeicherte Einstellung wird angezeigt (4 Sprachen, 8 Personen)', await p.locator('input[type="checkbox"]:checked').count() === 7 && await p.locator('input[type="number"]').inputValue() === '8');
     const o = await page.locator('[data-testid="rsvp-overview"]').innerText();
-    ok('RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder', /3\s*ANTWORTEN/i.test(o) && /2\s*ZUSAGEN/i.test(o) && /1\s*ABSAGEN/i.test(o) && /6\s*PERSONEN/i.test(o) && /2\s*KINDER/i.test(o), o.replace(/\s+/g, ' ').slice(0, 200));
-    ok('RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen', /Alter der Kinder: 0, 7/.test(o) && /Türkisch 1/.test(o) && /Französisch 1/.test(o) && /Deutsch 1/.test(o), o.replace(/\s+/g, ' ').slice(0, 300));
+    ok('RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder', /4\s*ANTWORTEN/i.test(o) && /3\s*ZUSAGEN/i.test(o) && /1\s*ABSAGEN/i.test(o) && /7\s*PERSONEN/i.test(o) && /2\s*KINDER/i.test(o), o.replace(/\s+/g, ' ').slice(0, 200));
+    ok('RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen', /Alter der Kinder: 0, 7/.test(o) && /Türkisch 1/.test(o) && /Französisch 1/.test(o) && /Deutsch 2/.test(o), o.replace(/\s+/g, ' ').slice(0, 300));
+    const dietLine = await page.locator('[data-testid="rsvp-diets"]').innerText(); const cells = await page.locator('[data-testid="rsvp-person-diet"]').allInnerTexts();
+    ok('RSVP-Übersicht: Ernährungsweisen gezählt, Allergie-Angaben gezählt', /Vegan 1/.test(dietLine) && /Vegetarisch 1/.test(dietLine) && /Sonstiges: kein Fisch 1/.test(dietLine) && /pescetarisch 1/.test(dietLine) && /2 Personen mit Allergie-Angabe/.test(dietLine), dietLine);
+    ok('RSVP-Übersicht: Ernährung und Allergien je Person sichtbar', cells.some((c) => /Ayla: Vegan/.test(c) && /Baran: Sonstiges: kein Fisch · Allergien: Nüsse/.test(c) && /Cem: Vegetarisch/.test(c) && !/Defne/.test(c)), cells.join(' || '));
+    ok('RSVP-Übersicht: ältere Antwort ohne Angaben je Person bleibt lesbar', cells.some((c) => /Alte Antwort: pescetarisch · Allergien: Gluten/.test(c)) && cells.some((c) => c.trim() === '–'), cells.join(' || '));
     ok('RSVP-Übersicht ist rein lesend (keine Eingabefelder, keine Knöpfe)', await page.locator('[data-testid="rsvp-overview"]').locator('input, button, select, textarea').count() === 0);
     // Ändern: Türkisch abwählen, Obergrenze 6
     await p.locator('label', { hasText: 'Türkisch' }).locator('input').uncheck(); await p.locator('input[type="number"]').fill('6');
@@ -42,7 +47,7 @@ const proj = async (n) => (await dump()).projects.find((p) => p.id === pid(n));
     const c = await proj(70);
     ok('„Cassis-Vorgaben übernehmen" setzt Sprachen, Regeln und Bereiche', c.features.i18n.languages.length === 4 && c.features.rsvp.max_persons === 8 && c.component_order.join() === 'hero,timeline,countdown,rsvp,directions,faq,witnesses' && c.active_components.join() === c.component_order.join(), JSON.stringify(c.features));
     const rs = (await dump()).rsvp_responses.filter((x) => x.project_id === pid(70));
-    ok('RSVP-Antworten bleiben unverändert', rs.length === 3 && rs.every((x) => x.name && x.email));
+    ok('RSVP-Antworten bleiben unverändert', rs.length === 4 && rs.every((x) => x.name && x.email));
   });
   await step('Altprojekt ohne Spalte', async () => {
     await openSection(7); // base-classic: Zeile ohne features (Zustand vor der Migration)

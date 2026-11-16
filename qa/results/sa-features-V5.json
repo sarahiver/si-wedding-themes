@@ -7,12 +7,27 @@
  {
   "name": "RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder",
   "pass": true,
-  "info": "RSVP-ÜBERSICHT (NUR LESEN) 3 ANTWORTEN 2 ZUSAGEN 1 ABSAGEN 6 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Sprache der Antworten: Türkisch 1 · Französisch 1 · Deutsch 1 NAME STATUS PERSONEN KINDER (ALTER) "
+  "info": "RSVP-ÜBERSICHT (NUR LESEN) 4 ANTWORTEN 3 ZUSAGEN 1 ABSAGEN 7 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Ernährung: Vegan 1 · Sonstiges: kein Fisch 1 · Vegetarisch 1 · pescetarisch 1 · 2 Personen mit All"
  },
  {
   "name": "RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen",
   "pass": true,
-  "info": "RSVP-ÜBERSICHT (NUR LESEN) 3 ANTWORTEN 2 ZUSAGEN 1 ABSAGEN 6 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Sprache der Antworten: Türkisch 1 · Französisch 1 · Deutsch 1 NAME STATUS PERSONEN KINDER (ALTER) SPRACHE Familie Kaya"
+  "info": "RSVP-ÜBERSICHT (NUR LESEN) 4 ANTWORTEN 3 ZUSAGEN 1 ABSAGEN 7 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Ernährung: Vegan 1 · Sonstiges: kein Fisch 1 · Vegetarisch 1 · pescetarisch 1 · 2 Personen mit Allergie-Angabe Sprache"
+ },
+ {
+  "name": "RSVP-Übersicht: Ernährungsweisen gezählt, Allergie-Angaben gezählt",
+  "pass": true,
+  "info": "Ernährung: Vegan 1 · Sonstiges: kein Fisch 1 · Vegetarisch 1 · pescetarisch 1 · 2 Personen mit Allergie-Angabe"
+ },
+ {
+  "name": "RSVP-Übersicht: Ernährung und Allergien je Person sichtbar",
+  "pass": true,
+  "info": "Ayla: Vegan\nBaran: Sonstiges: kein Fisch · Allergien: Nüsse\nCem: Vegetarisch || – || – || Alte Antwort: pescetarisch · Allergien: Gluten"
+ },
+ {
+  "name": "RSVP-Übersicht: ältere Antwort ohne Angaben je Person bleibt lesbar",
+  "pass": true,
+  "info": "Ayla: Vegan\nBaran: Sonstiges: kein Fisch · Allergien: Nüsse\nCem: Vegetarisch || – || – || Alte Antwort: pescetarisch · Allergien: Gluten"
  },
  {
   "name": "RSVP-Übersicht ist rein lesend (keine Eingabefelder, keine Knöpfe)",

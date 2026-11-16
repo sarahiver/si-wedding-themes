@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { submitRSVP, checkDuplicateRSVP } from '../../lib/supabase';
+import { isPlausibleEmail } from '../../lib/email';
 
 // Standardmeldungen (unverändert). Themes mit Sprachen übergeben eigene Texte.
 const DEFAULT_MESSAGES = {
@@ -15,6 +16,15 @@ const DEFAULT_MESSAGES = {
   childAge: 'Bitte gib das Alter jedes Kindes an (0–17)',
   duplicate: 'Du hast bereits eine Rückmeldung gegeben.',
   generic: 'Fehler beim Senden. Bitte versuche es erneut.',
+  consent: 'Bitte stimme der Verarbeitung der Allergie-Angaben zu.',
+};
+
+// Antworten des Servers auf Projekte mit RSVP-Regeln → Meldung im Formular.
+// Altprojekte erhalten diese Codes nie.
+const SERVER_CODES = {
+  name_required: 'name', name_too_long: 'name', email_required: 'email', email_invalid: 'emailInvalid',
+  persons_min: 'persons', persons_max: 'personsMax', child_age_required: 'childAge', child_age_range: 'childAge',
+  consent_required: 'consent',
 };
 
 /**
@@ -27,7 +37,14 @@ const DEFAULT_MESSAGES = {
  *   language    – Sprache der Antwort, wird mitgesendet
  *   messages    – übersetzte Fehlermeldungen
  *   trimEmail   – Leerzeichen um die E-Mail vor der Prüfung entfernen
+ *   strictEmail – E-Mail mit derselben Formprüfung wie im Server prüfen
+ *   healthConsent – Einwilligung verlangen, sobald Allergien oder freie Ernährungshinweise eingetragen sind
  */
+/** Enthält die Gästeliste Allergien oder freie Ernährungshinweise? */
+export function needsHealthConsent(guests) {
+  return (Array.isArray(guests) ? guests : []).some((g) => g && ((typeof g.allergies === 'string' && g.allergies.trim()) || (g.diet === 'other' && typeof g.diet_note === 'string' && g.diet_note.trim())));
+}
+
 export function useRSVP(options = {}) {
   const messages = { ...DEFAULT_MESSAGES, ...(options.messages || {}) };
   const maxPersons = Number.isInteger(options.maxPersons) && options.maxPersons > 0 ? options.maxPersons : null;
@@ -76,6 +93,7 @@ export function useRSVP(options = {}) {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return failWith('emailInvalid', messages.emailInvalid);
+    if (options.strictEmail && !isPlausibleEmail(email)) return failWith('emailInvalid', messages.emailInvalid);
 
     if (formData.persons < 1) return failWith('persons', messages.persons);
 
@@ -84,6 +102,9 @@ export function useRSVP(options = {}) {
     if (options.childAges) {
       const bad = (formData.guests || []).some(g => g && g.is_child && !(Number.isInteger(g.age) && g.age >= 0 && g.age <= 17));
       if (bad) return failWith('childAge', messages.childAge);
+    }
+    if (options.healthConsent && formData.attending && needsHealthConsent(formData.guests) && formData.healthConsent !== true) {
+      return failWith('consent', messages.consent);
     }
 
     return true;
@@ -144,6 +165,8 @@ export function useRSVP(options = {}) {
         custom_answer: formData.customAnswer?.trim() || '',
         // Sprache der Antwort nur mitsenden, wenn das Theme eine vorgibt
         ...(options.language ? { language: options.language } : {}),
+        // Einwilligung nur mitsenden, wenn sie verlangt und erteilt wurde
+        ...(options.healthConsent && formData.healthConsent === true ? { health_consent: true } : {}),
       });
       
       if (submitError) throw submitError;
@@ -158,6 +181,10 @@ export function useRSVP(options = {}) {
       if (err.message?.includes('duplicate') || err.code === '23505' || err.code === 'duplicate') {
         setError(messages.duplicate);
         setErrorCode('duplicate');
+      } else if (SERVER_CODES[err.code]) {
+        // Der Server hat die Eingabe abgelehnt: dieselbe Meldung wie bei der Prüfung im Browser
+        setError(messages[SERVER_CODES[err.code]]);
+        setErrorCode(SERVER_CODES[err.code]);
       } else {
         setError(messages.generic);
         setErrorCode(err.code || 'generic');

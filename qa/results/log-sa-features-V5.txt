@@ -1,6 +1,9 @@
 ok   Zusatzfunktionen: gespeicherte Einstellung wird angezeigt (4 Sprachen, 8 Personen)
 ok   RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder
 ok   RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen
+ok   RSVP-Übersicht: Ernährungsweisen gezählt, Allergie-Angaben gezählt
+ok   RSVP-Übersicht: Ernährung und Allergien je Person sichtbar
+ok   RSVP-Übersicht: ältere Antwort ohne Angaben je Person bleibt lesbar
 ok   RSVP-Übersicht ist rein lesend (keine Eingabefelder, keine Knöpfe)
 ok   Speichern schreibt nur die Spalte features dieses Projekts
 ok   Gespeichert: Sprachen en, de, fr und höchstens 6 Personen
@@ -16,4 +19,4 @@ ok   Theme Cassis steht zur Auswahl
 ok   Komponentenliste enthält keine Kinderbetreuung mehr
 ok   Keine Fehler im Browser
 
-17/17 bestanden
+20/20 bestanden
