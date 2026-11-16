@@ -1,5 +1,6 @@
 // core/editors/ListEditor.js - Reusable List Editor Logic
 import React from 'react';
+import { useAdmin } from '../AdminContext';
 
 /**
  * Generic List Editor - handles any array-based content
@@ -20,6 +21,10 @@ function ListEditor({
   addLabel = '+ Hinzufügen',
   maxItems
 }) {
+  // In einer Übersetzung bleibt der Aufbau der Liste fest: Einträge anlegen, entfernen und
+  // verschieben geht nur in der Hauptsprache (die Übersetzungen hängen an der Position).
+  const { translationMode } = useAdmin();
+
   // Support multiple update modes:
   // 1. onChange('field', value) - single field update for objects
   // 2. onChange({ field1: value1, field2: value2 }) - batch update for objects
@@ -62,7 +67,7 @@ function ListEditor({
         <C.ItemCard key={index}>
           <C.ItemHeader>
             <C.ItemNumber>#{index + 1}</C.ItemNumber>
-            <C.ItemActions>
+            {!translationMode && <C.ItemActions>
               {index > 0 && (
                 <C.SmallButton onClick={() => moveItem(index, -1)} title="Nach oben">↑</C.SmallButton>
               )}
@@ -70,12 +75,12 @@ function ListEditor({
                 <C.SmallButton onClick={() => moveItem(index, 1)} title="Nach unten">↓</C.SmallButton>
               )}
               <C.SmallButton $variant="danger" onClick={() => removeItem(index)}>×</C.SmallButton>
-            </C.ItemActions>
+            </C.ItemActions>}
           </C.ItemHeader>
           {renderItem(item, index, (field, value) => updateItem(index, field, value))}
         </C.ItemCard>
       ))}
-      {(!maxItems || items.length < maxItems) && (
+      {!translationMode && (!maxItems || items.length < maxItems) && (
         <C.SmallButton onClick={addItem} style={{ marginBottom: '1.5rem' }}>
           {addLabel}
         </C.SmallButton>

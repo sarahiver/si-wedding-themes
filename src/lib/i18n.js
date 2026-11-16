@@ -131,3 +131,67 @@ export function useLocalizedContent(component) {
   const { lang, master } = useLanguage();
   return localizeContent(content ? content[component] : null, lang, master);
 }
+
+// ---- Bearbeiten von Übersetzungen im Dashboard -----------------------------------------
+
+/**
+ * Was unterscheidet die bearbeitete Fassung von der Hauptsprache? Zurück kommt genau der Teil,
+ * der unter `i18n.<sprache>` gespeichert wird: nur Texte, die von der Hauptsprache abweichen.
+ * Leere Texte, Zahlen, Schalter und Bilder ergeben `undefined` (= es gilt die Hauptsprache).
+ * Listen behalten Länge und Reihenfolge der Hauptsprache; Einträge ohne Übersetzung sind `null`.
+ */
+// Felder, die in jeder Sprache gleich sind: Uhrzeiten, Daten, Bilder, Links, Telefonnummern …
+const NEUTRAL_KEY = /^(id|type|icon|time|date|lat|lng|phone|whatsapp|email|color|slug|url|href|src|image|images|video|focal|zoom|timezone)$|^(deadline|layout)$|(_image|_images|_url|_date|_time|_media|_focal|_mobile|_id|_embed|_link|_until|_from|_playlist)$/;
+export const isNeutralField = (key) => NEUTRAL_KEY.test(String(key || ''));
+
+export function diffTranslation(base, value) {
+  if (Array.isArray(base)) {
+    if (!Array.isArray(value)) return undefined;
+    const out = base.map((item, i) => { const d = diffTranslation(item, value[i]); return d === undefined ? null : d; });
+    return out.some((x) => x !== null) ? out : undefined;
+  }
+  if (isPlain(base)) {
+    if (!isPlain(value)) return undefined;
+    const out = {};
+    for (const k of new Set([...Object.keys(base), ...Object.keys(value)])) {
+      if (k === 'i18n' || isNeutralField(k)) continue;
+      const d = diffTranslation(base[k], value[k]);
+      if (d !== undefined) out[k] = d;
+    }
+    return Object.keys(out).length ? out : undefined;
+  }
+  if (typeof base === 'string' || base === undefined || base === null) {
+    return typeof value === 'string' && value.trim() !== '' && value !== base ? value : undefined;
+  }
+  return undefined;
+}
+
+/** Hat sich an einer Liste die Struktur geändert (Einträge hinzugefügt, entfernt oder umsortiert)? */
+export function listStructureChanged(before, after) {
+  if (!Array.isArray(before) || !Array.isArray(after)) return false;
+  if (before.length !== after.length) return true;
+  return after.some((item, i) => item !== before[i] && before.includes(item));
+}
+
+/**
+ * Wird in der Hauptsprache ein Eintrag gelöscht, hinzugefügt oder verschoben, wandern die
+ * Übersetzungen mit: jeder verbliebene Eintrag behält seine Übersetzung, neue Einträge sind leer.
+ * Erkannt werden Einträge an ihrer Identität (unveränderte Einträge bleiben dasselbe Objekt).
+ */
+export function realignTranslations(before, after, translated) {
+  if (!Array.isArray(translated) || !Array.isArray(before) || !Array.isArray(after)) return translated;
+  const out = after.map((item) => { const i = before.indexOf(item); return i >= 0 && translated[i] !== undefined ? translated[i] : null; });
+  return out.some((x) => x !== null) ? out : undefined;
+}
+
+/** Schreibt die Übersetzung eines Feldes in den Inhalt eines Bereichs (oder entfernt sie, wenn leer). */
+export function withTranslation(content, lang, field, translated) {
+  const c = isPlain(content) ? content : {};
+  const all = isPlain(c.i18n) ? { ...c.i18n } : {};
+  const mine = isPlain(all[lang]) ? { ...all[lang] } : {};
+  if (translated === undefined) delete mine[field]; else mine[field] = translated;
+  if (Object.keys(mine).length) all[lang] = mine; else delete all[lang];
+  const next = { ...c };
+  if (Object.keys(all).length) next.i18n = all; else delete next.i18n;
+  return next;
+}

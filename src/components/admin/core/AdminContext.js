@@ -1,5 +1,5 @@
 // core/AdminContext.js - Central State Management for Admin Dashboard
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useWedding } from '../../../context/WeddingContext';
 import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
@@ -10,6 +10,7 @@ import {
   getAdminSession, clearAdminToken, AUTH_EXPIRED_EVENT,
 } from '../../../lib/supabase';
 import { hasFeature, getProcessSteps, getPackage } from '../../../lib/pricing';
+import { projectLanguages, localizeContent, diffTranslation, listStructureChanged, realignTranslations, withTranslation, isNeutralField } from '../../../lib/i18n';
 
 const AdminContext = createContext(null);
 
@@ -328,17 +329,56 @@ export function AdminProvider({ children }) {
   }, []);
 
   // CONTENT EDITING
+  // Sprache, in der die Inhalte gerade bearbeitet werden. null = Hauptsprache.
+  // In einer Übersetzung sehen die Editoren die Fassung dieser Sprache; gespeichert werden
+  // nur die abweichenden Texte unter `i18n.<sprache>` des Bereichs (siehe lib/i18n.js).
+  const { languages: contentLanguages, master: masterLanguage } = useMemo(() => projectLanguages(project), [project]);
+  const [editLangRaw, setEditLang] = useState(null);
+  const editLang = editLangRaw && editLangRaw !== masterLanguage && contentLanguages.includes(editLangRaw) ? editLangRaw : null;
+  const translationMode = !!editLang;
+  const viewStates = useMemo(() => {
+    if (!editLang) return contentStates;
+    const out = {};
+    for (const k of Object.keys(contentStates)) out[k] = localizeContent(contentStates[k], editLang, masterLanguage);
+    return out;
+  }, [contentStates, editLang, masterLanguage]);
+  const viewRef = useRef(viewStates); viewRef.current = viewStates;
+  const lockedNotice = useCallback(() => showFeedback('error', 'Einträge hinzufügen, entfernen oder verschieben geht nur in der Hauptsprache.'), [showFeedback]);
+
+  // Ein Feld setzen – in der Hauptsprache direkt, in einer Übersetzung als Abweichung zur Hauptsprache
+  const applyField = useCallback((sectionContent, field, value, section) => {
+    const cur = sectionContent || {};
+    if (field === 'i18n') return cur;
+    if (!editLang) {
+      let next = { ...cur, [field]: value };
+      // Liste umgebaut: die Übersetzungen der Einträge wandern mit
+      if (cur.i18n && listStructureChanged(cur[field], value)) {
+        for (const l of Object.keys(cur.i18n)) {
+          const tr = cur.i18n[l] && cur.i18n[l][field];
+          if (Array.isArray(tr)) next = withTranslation(next, l, field, realignTranslations(cur[field], value, tr));
+        }
+      }
+      return next;
+    }
+    if (isNeutralField(field)) return cur; // sprachneutral: nur in der Hauptsprache änderbar
+    const shown = (viewRef.current[section] || {})[field];
+    if (listStructureChanged(shown, value)) { lockedNotice(); return cur; }
+    return withTranslation(cur, editLang, field, diffTranslation(cur[field], value));
+  }, [editLang, lockedNotice]);
+
   const updateContent = useCallback((section, data) => {
-    setContentStates(prev => ({ ...prev, [section]: data }));
-  }, []);
+    if (!editLang) { setContentStates(prev => ({ ...prev, [section]: data })); return; }
+    setContentStates(prev => {
+      let next = prev[section] || {};
+      for (const k of Object.keys(data || {})) next = applyField(next, k, data[k], section);
+      return { ...prev, [section]: next };
+    });
+  }, [editLang, applyField]);
 
   // Merge-safe field updater – prevents stale closure issues in editors
   const updateContentField = useCallback((section, field, value) => {
-    setContentStates(prev => ({
-      ...prev,
-      [section]: { ...prev[section], [field]: value },
-    }));
-  }, []);
+    setContentStates(prev => ({ ...prev, [section]: applyField(prev[section], field, value, section) }));
+  }, [applyField]);
 
   const saveContent = useCallback(async (section) => {
     if (!projectId) {
@@ -517,7 +557,9 @@ export function AdminProvider({ children }) {
     exportCSV,
     
     // Content
-    contentStates, updateContent, updateContentField, saveContent,
+    contentStates: viewStates, updateContent, updateContentField, saveContent,
+    // Übersetzungen bearbeiten
+    contentLanguages, masterLanguage, editLang, setEditLang, translationMode,
     
     // Feedback
     feedback, showFeedback, closeFeedback,

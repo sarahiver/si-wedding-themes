@@ -15,6 +15,7 @@ import { NeonAdminComponents } from './styles/NeonAdminStyles';
 import { VideoAdminComponents } from './styles/VideoAdminStyles';
 import { ClassicAdminComponents } from './styles/ClassicAdminStyles';
 import { ParallaxAdminComponents } from './styles/ParallaxAdminStyles';
+import { CassisAdminComponents } from './styles/CassisAdminStyles';
 
 // ============================================
 // Core exports (for creating custom themes)
@@ -61,9 +62,9 @@ export function ClassicAdmin() {
   return <AdminShell components={ClassicAdminComponents} />;
 }
 
-// Cassis - heller Classic-Look für das Cassis-Theme
+// Cassis - Farben und Schriften des Cassis-Themes (eigener Login: themes/cassis/AdminDashboard.js)
 export function CassisAdmin() {
-  return <AdminShell components={ClassicAdminComponents} />;
+  return <AdminShell components={CassisAdminComponents} />;
 }
 
 // Parallax - White/black, DM Sans, bold typography
@@ -82,3 +83,4 @@ export { NeonAdminComponents } from './styles/NeonAdminStyles';
 export { VideoAdminComponents } from './styles/VideoAdminStyles';
 export { ClassicAdminComponents } from './styles/ClassicAdminStyles';
 export { ParallaxAdminComponents } from './styles/ParallaxAdminStyles';
+export { CassisAdminComponents } from './styles/CassisAdminStyles';
