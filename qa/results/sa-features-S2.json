@@ -1,0 +1,92 @@
+[
+ {
+  "name": "Zusatzfunktionen: gespeicherte Einstellung wird angezeigt (4 Sprachen, 8 Personen)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder",
+  "pass": true,
+  "info": "RSVP-ÜBERSICHT (NUR LESEN) 3 ANTWORTEN 2 ZUSAGEN 1 ABSAGEN 6 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Sprache der Antworten: Türkisch 1 · Französisch 1 · Deutsch 1 NAME STATUS PERSONEN KINDER (ALTER) "
+ },
+ {
+  "name": "RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen",
+  "pass": true,
+  "info": "RSVP-ÜBERSICHT (NUR LESEN) 3 ANTWORTEN 2 ZUSAGEN 1 ABSAGEN 6 PERSONEN 2 KINDER Alter der Kinder: 0, 7 Sprache der Antworten: Türkisch 1 · Französisch 1 · Deutsch 1 NAME STATUS PERSONEN KINDER (ALTER) SPRACHE Familie Kaya"
+ },
+ {
+  "name": "RSVP-Übersicht ist rein lesend (keine Eingabefelder, keine Knöpfe)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Speichern schreibt nur die Spalte features dieses Projekts",
+  "pass": true,
+  "info": "[{\"action\":\"update\",\"table\":\"projects\",\"data\":{\"features\":{\"i18n\":{\"languages\":[\"en\",\"de\",\"fr\"],\"default\":\"en\"},\"rsvp\":{\"max_persons\":6,\"child_ages\":true,\"confirmation_mail\":true}}},\"filters\":[{\"op\":\""
+ },
+ {
+  "name": "Gespeichert: Sprachen en, de, fr und höchstens 6 Personen",
+  "pass": true,
+  "info": "{\"i18n\":{\"languages\":[\"en\",\"de\",\"fr\"],\"default\":\"en\"},\"rsvp\":{\"max_persons\":6,\"child_ages\":true,\"confirmation_mail\":true}}"
+ },
+ {
+  "name": "„Cassis-Vorgaben übernehmen\" setzt Sprachen, Regeln und Bereiche",
+  "pass": true,
+  "info": "{\"i18n\":{\"languages\":[\"en\",\"tr\",\"de\",\"fr\"],\"default\":\"en\"},\"rsvp\":{\"max_persons\":8,\"child_ages\":true,\"confirmation_mail\":true}}"
+ },
+ {
+  "name": "RSVP-Antworten bleiben unverändert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Ohne Spalte features: Hinweis und gesperrtes Formular",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Ohne Spalte features: es wird nichts an die Datenbank geschickt",
+  "pass": true,
+  "info": "[]"
+ },
+ {
+  "name": "Kein Knopf für Cassis-Vorgaben bei anderem Theme",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Leere Einstellung: nichts angehakt, Formular bedienbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Speichern ohne Auswahl lässt die Einstellung leer (Projekt bleibt Altprojekt)",
+  "pass": true,
+  "info": "{}"
+ },
+ {
+  "name": "Der bestehende Speichern-Knopf der Seite sendet die Spalte features nicht mit",
+  "pass": true,
+  "info": "56 Felder"
+ },
+ {
+  "name": "Theme Cassis steht zur Auswahl",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Komponentenliste des Cassis-Projekts zeigt Kinderbetreuung",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Komponentenliste anderer Projekte bleibt ohne Kinderbetreuung",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Keine Fehler im Browser",
+  "pass": true,
+  "info": ""
+ }
+]

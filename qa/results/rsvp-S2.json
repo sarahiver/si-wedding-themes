@@ -1,0 +1,615 @@
+{
+ "themes": [
+  {
+   "theme": "botanical",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "ja:✓ Ja, ich bin dabei",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getMusicWishes",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-botanical@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "editorial",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "ja:Ja, ich bin dabei",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getMusicWishes",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-editorial@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "contemporary",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "klick:Weiter →",
+    "klick:Weiter →",
+    "klick:Absenden →"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-contemporary@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "luxe",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-luxe@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "neon",
+   "status": "ok",
+   "steps": [
+    "ja:Hell Yeah!",
+    "klick:Continue",
+    "name+mail",
+    "klick:Continue",
+    "klick:Submit RSVP"
+   ],
+   "actions": [
+    "getGiftReservations",
+    "getGuestbookEntries",
+    "getMusicWishes",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-neon@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": false
+  },
+  {
+   "theme": "video",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-video@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "classic",
+   "status": "ok",
+   "steps": [
+    "name+mail",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getMusicWishes",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-classic@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "parallax",
+   "status": "ok",
+   "opened": true,
+   "steps": [
+    "name+mail",
+    "klick:Absenden"
+   ],
+   "actions": [
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-parallax@example.test",
+    "persons": 1,
+    "attending": true,
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": true,
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  },
+  {
+   "theme": "summer",
+   "status": "ok",
+   "steps": [
+    "ja:Ja, wir kommen! 🎉",
+    "klick:Weiter →",
+    "name+mail",
+    "klick:Weiter →",
+    "klick:Absenden ✓"
+   ],
+   "actions": [
+    "getGuestbookEntries",
+    "getMusicWishes",
+    "getGiftReservations",
+    "checkDuplicateRSVP",
+    "submitRSVP",
+    "/api/notify:rsvp"
+   ],
+   "payloadKeys": [
+    "allergies",
+    "attending",
+    "custom_answer",
+    "dietary",
+    "email",
+    "guests",
+    "message",
+    "name",
+    "persons"
+   ],
+   "payload": {
+    "name": "Test Gast",
+    "email": "gast-summer@example.test",
+    "persons": 1,
+    "attending": "yes",
+    "dietary": "",
+    "allergies": "",
+    "message": "",
+    "guests": [],
+    "custom_answer": ""
+   },
+   "stored": {
+    "project_ok": true,
+    "persons": 1,
+    "attending": "yes",
+    "columns": [
+     "allergies",
+     "attending",
+     "created_at",
+     "custom_answer",
+     "dietary",
+     "email",
+     "guests",
+     "id",
+     "message",
+     "name",
+     "persons",
+     "project_id"
+    ]
+   },
+   "confirmationVisible": true
+  }
+ ],
+ "mails": [
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  },
+  {
+   "to": [
+    {
+     "email": "paar@example.test",
+     "name": "Mia & Noah"
+    }
+   ],
+   "subject": "[Mia & Noah] RSVP: Test Gast — ✅ Zusage"
+  }
+ ],
+ "blocked": []
+}

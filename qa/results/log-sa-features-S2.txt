@@ -1,0 +1,20 @@
+ok   Zusatzfunktionen: gespeicherte Einstellung wird angezeigt (4 Sprachen, 8 Personen)
+ok   RSVP-Übersicht: Antworten, Zusagen, Absagen, Personen, Kinder
+ok   RSVP-Übersicht: Alter der Kinder (inkl. 0) und Sprachen
+ok   RSVP-Übersicht ist rein lesend (keine Eingabefelder, keine Knöpfe)
+ok   Speichern schreibt nur die Spalte features dieses Projekts
+ok   Gespeichert: Sprachen en, de, fr und höchstens 6 Personen
+ok   „Cassis-Vorgaben übernehmen" setzt Sprachen, Regeln und Bereiche
+ok   RSVP-Antworten bleiben unverändert
+ok   Ohne Spalte features: Hinweis und gesperrtes Formular
+ok   Ohne Spalte features: es wird nichts an die Datenbank geschickt
+ok   Kein Knopf für Cassis-Vorgaben bei anderem Theme
+ok   Leere Einstellung: nichts angehakt, Formular bedienbar
+ok   Speichern ohne Auswahl lässt die Einstellung leer (Projekt bleibt Altprojekt)
+ok   Der bestehende Speichern-Knopf der Seite sendet die Spalte features nicht mit
+ok   Theme Cassis steht zur Auswahl
+ok   Komponentenliste des Cassis-Projekts zeigt Kinderbetreuung
+ok   Komponentenliste anderer Projekte bleibt ohne Kinderbetreuung
+ok   Keine Fehler im Browser
+
+18/18 bestanden

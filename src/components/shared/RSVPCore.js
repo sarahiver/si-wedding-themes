@@ -5,10 +5,32 @@ import { useState } from 'react';
 import { useWedding } from '../../context/WeddingContext';
 import { submitRSVP, checkDuplicateRSVP } from '../../lib/supabase';
 
+// Standardmeldungen (unverändert). Themes mit Sprachen übergeben eigene Texte.
+const DEFAULT_MESSAGES = {
+  name: 'Bitte gib deinen Namen ein',
+  email: 'Bitte gib deine E-Mail-Adresse ein',
+  emailInvalid: 'Bitte gib eine gültige E-Mail-Adresse ein',
+  persons: 'Mindestens 1 Person erforderlich',
+  personsMax: 'Zu viele Personen für eine Anmeldung',
+  childAge: 'Bitte gib das Alter jedes Kindes an (0–17)',
+  duplicate: 'Du hast bereits eine Rückmeldung gegeben.',
+  generic: 'Fehler beim Senden. Bitte versuche es erneut.',
+};
+
 /**
  * useRSVP - Hook for RSVP functionality
+ *
+ * Ohne Optionen verhält sich der Hook exakt wie bisher. Optionen (alle optional,
+ * nur für Projekte mit hinterlegten RSVP-Regeln):
+ *   maxPersons  – Obergrenze je Anmeldung (Standard: 10 über die Knöpfe)
+ *   childAges   – Kinder brauchen eine Altersangabe 0–17
+ *   language    – Sprache der Antwort, wird mitgesendet
+ *   messages    – übersetzte Fehlermeldungen
+ *   trimEmail   – Leerzeichen um die E-Mail vor der Prüfung entfernen
  */
-export function useRSVP() {
+export function useRSVP(options = {}) {
+  const messages = { ...DEFAULT_MESSAGES, ...(options.messages || {}) };
+  const maxPersons = Number.isInteger(options.maxPersons) && options.maxPersons > 0 ? options.maxPersons : null;
   // Get projectId from WeddingContext - handle both real and demo mode
   const weddingContext = useWedding();
   const projectId = weddingContext?.projectId || weddingContext?.project?.id;
@@ -16,6 +38,8 @@ export function useRSVP() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
+  // Maschinenlesbarer Fehler zusätzlich zum Text (z. B. 'duplicate')
+  const [errorCode, setErrorCode] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -37,32 +61,31 @@ export function useRSVP() {
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
+    setErrorCode(null);
   };
+
+  const failWith = (code, message) => { setError(message); setErrorCode(code); return false; };
 
   // Validate form
   const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError('Bitte gib deinen Namen ein');
-      return false;
-    }
-    
-    if (!formData.email.trim()) {
-      setError('Bitte gib deine E-Mail-Adresse ein');
-      return false;
-    }
-    
+    if (!formData.name.trim()) return failWith('name', messages.name);
+
+    const email = options.trimEmail ? formData.email.trim() : formData.email;
+    if (!email.trim()) return failWith('email', messages.email);
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Bitte gib eine gültige E-Mail-Adresse ein');
-      return false;
+    if (!emailRegex.test(email)) return failWith('emailInvalid', messages.emailInvalid);
+
+    if (formData.persons < 1) return failWith('persons', messages.persons);
+
+    // Nur mit Regeln: Obergrenze und Kinderalter
+    if (maxPersons && formData.persons > maxPersons) return failWith('personsMax', messages.personsMax);
+    if (options.childAges) {
+      const bad = (formData.guests || []).some(g => g && g.is_child && !(Number.isInteger(g.age) && g.age >= 0 && g.age <= 17));
+      if (bad) return failWith('childAge', messages.childAge);
     }
-    
-    if (formData.persons < 1) {
-      setError('Mindestens 1 Person erforderlich');
-      return false;
-    }
-    
+
     return true;
   };
 
@@ -103,7 +126,8 @@ export function useRSVP() {
       // Check duplicate BEFORE submitting
       const isDuplicate = await checkDuplicateEmail(formData.email);
       if (isDuplicate) {
-        setError('Du hast bereits eine Rückmeldung gegeben.');
+        setError(messages.duplicate);
+        setErrorCode('duplicate');
         setSubmitting(false);
         return { success: false, error: 'duplicate' };
       }
@@ -118,6 +142,8 @@ export function useRSVP() {
         message: formData.message.trim(),
         guests: formData.guests,
         custom_answer: formData.customAnswer?.trim() || '',
+        // Sprache der Antwort nur mitsenden, wenn das Theme eine vorgibt
+        ...(options.language ? { language: options.language } : {}),
       });
       
       if (submitError) throw submitError;
@@ -129,10 +155,12 @@ export function useRSVP() {
       console.error('RSVP submit error:', err);
       
       // Handle duplicate email (fallback if DB constraint catches it)
-      if (err.message?.includes('duplicate') || err.code === '23505') {
-        setError('Du hast bereits eine Rückmeldung gegeben.');
+      if (err.message?.includes('duplicate') || err.code === '23505' || err.code === 'duplicate') {
+        setError(messages.duplicate);
+        setErrorCode('duplicate');
       } else {
-        setError('Fehler beim Senden. Bitte versuche es erneut.');
+        setError(messages.generic);
+        setErrorCode(err.code || 'generic');
       }
       
       return { success: false, error: err.message };
@@ -159,6 +187,7 @@ export function useRSVP() {
       customAnswer: '',
     });
     setError(null);
+    setErrorCode(null);
     setSubmitted(false);
   };
 
@@ -172,7 +201,7 @@ export function useRSVP() {
   const adjustPersons = (delta) => {
     setFormData(prev => ({
       ...prev,
-      persons: Math.max(1, Math.min(10, prev.persons + delta)),
+      persons: Math.max(1, Math.min(maxPersons || 10, prev.persons + delta)),
     }));
   };
 
@@ -181,12 +210,14 @@ export function useRSVP() {
     submitting,
     submitted,
     error,
+    errorCode,
     formData,
     projectId,
     
     // Computed
     isAttending: formData.attending,
     isDemo: !projectId || projectId === 'demo',
+    maxPersons: maxPersons || 10,
     
     // Actions
     updateField,

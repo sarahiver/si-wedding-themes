@@ -63,6 +63,9 @@ function TimelineEditor({ components: C }) {
           <C.Label>Titel</C.Label>
           <C.Input value={content.title || ''} onChange={(e) => update('title', e.target.value)} placeholder="Tagesablauf" />
         </C.FormGroup>
+        {theme === 'cassis' && (
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/timeline`} label="Foto über dem Ablauf" helpText="Zweites Paarfoto, erscheint direkt vor dem Ablauf." />
+        )}
         <C.SectionLabel>Programmpunkte</C.SectionLabel>
         <ListEditor components={C} items={content.events || []} onItemsChange={(events) => update('events', events)}
           renderItem={renderItem} createNewItem={() => ({ time: '', title: '', description: '', icon: '💒', location: '', image: '' })} addLabel="+ Programmpunkt" />

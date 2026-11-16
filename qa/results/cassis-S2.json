@@ -1,0 +1,412 @@
+[
+ {
+  "name": "Breite 320: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 320: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "countdown,timeline,directions,childcare,rsvp,witnesses,faq"
+ },
+ {
+  "name": "Breite 320: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[13,307]"
+ },
+ {
+  "name": "Breite 320: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 320: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 390: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 390: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "countdown,timeline,directions,childcare,rsvp,witnesses,faq"
+ },
+ {
+  "name": "Breite 390: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[16,374]"
+ },
+ {
+  "name": "Breite 390: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 390: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Tippflächen mindestens 40 px hoch",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 768: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 768: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "countdown,timeline,directions,childcare,rsvp,witnesses,faq"
+ },
+ {
+  "name": "Breite 768: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[32,736]"
+ },
+ {
+  "name": "Breite 768: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 768: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1440: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 1440: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "countdown,timeline,directions,childcare,rsvp,witnesses,faq"
+ },
+ {
+  "name": "Breite 1440: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[368,1072]"
+ },
+ {
+  "name": "Breite 1440: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1440: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Keine Galerie, keine fremden Bereiche",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Ablauf: alle sieben Programmpunkte",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Datum und Ort im Kopf",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Zugänglichkeit: jedes Feld beschriftet, jeder Knopf benannt",
+  "pass": true,
+  "info": "{\"unlabeled\":0,\"unnamedButtons\":0,\"h1\":1,\"h1name\":\"Lena Tom\",\"imgNoAlt\":0}"
+ },
+ {
+  "name": "Zugänglichkeit: eine Hauptüberschrift mit den Namen, Bilder mit Alternativtext",
+  "pass": true,
+  "info": "{\"unlabeled\":0,\"unnamedButtons\":0,\"h1\":1,\"h1name\":\"Lena Tom\",\"imgNoAlt\":0}"
+ },
+ {
+  "name": "Route öffnet Google Maps mit der Adresse in neuem Tab",
+  "pass": true,
+  "info": "{\"href\":\"https://www.google.com/maps/search/?api=1&query=Ch%C3%A2teau%20de%20Cassis%20Traverse%20du%20Ch%C3%A2teau%0A13260%20Cassis%0AFrance\",\"target\":\"_blank\",\"rel\":\"noopener noreferrer\"}"
+ },
+ {
+  "name": "„Nach oben\" führt an den Seitenanfang",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Gerätesprache tr-TR → tr",
+  "pass": true,
+  "info": "tr/tr"
+ },
+ {
+  "name": "Gerätesprache fr-FR → fr",
+  "pass": true,
+  "info": "fr/fr"
+ },
+ {
+  "name": "Gerätesprache de-AT → de",
+  "pass": true,
+  "info": "de/de"
+ },
+ {
+  "name": "Gerätesprache en-GB → en",
+  "pass": true,
+  "info": "en/en"
+ },
+ {
+  "name": "Gerätesprache es-ES → en",
+  "pass": true,
+  "info": "en/en"
+ },
+ {
+  "name": "Sprachleiste zeigt ENG, TR, DE, FR",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Hauptsprache: Titel des Ablaufs aus dem Inhalt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Nicht übersetzter Inhalt fällt auf Englisch zurück",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Gewählte Sprache bleibt nach dem Neuladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Türkisch: feste Texte türkisch, fehlende Übersetzung englisch",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Türkisch: Datum in türkischer Schreibweise",
+  "pass": true,
+  "info": "ENG\nTR\nDE\nFR\nYes\n\nEvleniyoruz\n\n15 Mayıs 2027\n\nChâteau de Cassis\n\nTraverse du Château\n13260 Cassis\nFrance\nYol tarifi\nTakvime ekle\nMayıs 2027\nPZT\nSAL\nÇAR\nPER\nCUM\nCMT\nPAZ\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14"
+ },
+ {
+  "name": "Französisch: übersetzter Titel und Datum",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Countdown: Kalenderblatt Mai 2027, 180 Tage (Gerät in New York, Ziel in Paris)",
+  "pass": true,
+  "info": "Mai 2027 MO DI MI DO FR SA SO 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 180 TAGE"
+ },
+ {
+  "name": "Countdown: genau der 15. ist markiert",
+  "pass": true,
+  "info": "15"
+ },
+ {
+  "name": "Kalenderdatei: 15.05.2027 15:00–02:00 Uhr Pariser Zeit",
+  "pass": true,
+  "info": "DTSTART:20270515T130000Z,DTEND:20270516T000000Z"
+ },
+ {
+  "name": "Kalenderdatei: Titel, Ort und Dateiname",
+  "pass": true,
+  "info": "lena-tom.ics"
+ },
+ {
+  "name": "Countdown am Hochzeitstag vor Beginn: 0 Tage, keine negativen Werte",
+  "pass": true,
+  "info": " 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 1:00 HEUTE IST ES SO WEIT"
+ },
+ {
+  "name": "Countdown nach der Hochzeit: Abschlusstext statt Zahlen, nichts Negatives",
+  "pass": true,
+  "info": " 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 WIR HABEN JA GESAGT"
+ },
+ {
+  "name": "Zusage mit 3 Personen und Kind wird gespeichert",
+  "pass": true,
+  "info": "{\"id\":\"cb96d9d8-8b49-4e5c-9063-27ba1633378a\",\"created_at\":\"2026-11-16T09:28:12.616Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
+ },
+ {
+  "name": "Alter des Kindes steht bei der richtigen Person",
+  "pass": true,
+  "info": "[{\"name\":\"Ayşe Yılmaz\",\"dietary\":\"\",\"allergies\":\"\"},{\"name\":\"Mehmet Yılmaz\",\"dietary\":\"\",\"allergies\":\"\"},{\"name\":\"Elif\",\"dietary\":\"\",\"allergies\":\"\",\"is_child\":true,\"age\":5}]"
+ },
+ {
+  "name": "Sprache der Antwort gespeichert (tr)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Danke-Text erscheint in der Sprache des Gasts",
+  "pass": true,
+  "info": "RSVP\n\nTeşekkürler! Geleceğiniz için çok mutluyuz."
+ },
+ {
+  "name": "Genau eine Bestätigungsmail, auf Türkisch, nur im Testpostfach",
+  "pass": true,
+  "info": "[\"rsvp-confirmation\",\"lang-tr\"]"
+ },
+ {
+  "name": "Mehr als 8 Personen lassen sich nicht einstellen",
+  "pass": true,
+  "info": "8"
+ },
+ {
+  "name": "Hinweis nennt die Obergrenze",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Bei 8 Personen: sieben weitere Namensfelder",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Anmeldung mit 8 Personen wird angenommen",
+  "pass": true,
+  "info": "{\"id\":\"ed359c10-ab91-48cf-8a25-e8a5e80340ef\",\"created_at\":\"2026-11-16T09:28:15.597Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
+ },
+ {
+  "name": "Kind ohne Alter: verständliche Meldung, nichts gespeichert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Alter 0 (Baby) wird angenommen und gespeichert",
+  "pass": true,
+  "info": "[{\"name\":\"Ohne Alter\",\"dietary\":\"\",\"allergies\":\"\"},{\"name\":\"Kind\",\"dietary\":\"\",\"allergies\":\"\",\"is_child\":true,\"age\":0}]"
+ },
+ {
+  "name": "Zweite Antwort mit derselben E-Mail (andere Schreibweise): Hinweis, kein zweiter Eintrag",
+  "pass": true,
+  "info": "Für diese E-Mail-Adresse liegt bereits eine Antwort vor."
+ },
+ {
+  "name": "Abgelehnte Doppelantwort löst keine zweite Mail aus",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Ungültige E-Mail: Meldung, nichts gespeichert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Fehlender Name: Meldung, nichts gespeichert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Absage: keine Personen- und Kinderfelder",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Absage gespeichert, Doppelklick erzeugt nur einen Eintrag",
+  "pass": true,
+  "info": "[{\"id\":\"477f7fbc-3a26-4aa6-b73f-aa8e34e2a5c5\",\"created_at\":\"2026-11-16T09:28:29.244Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
+ },
+ {
+  "name": "Absage: eine Bestätigung auf Französisch",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Mailfehler: Antwort bleibt gespeichert und der Gast sieht die Bestätigung",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Netzfehler: Meldung und Eingaben bleiben erhalten",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Zweiter Versuch nach Netzfehler: genau ein Eintrag",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Cassis mit Gäste-Passwort: Passwortseite erscheint, Feld passt aufs Handy",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Nach dem Passwort erscheint die Cassis-Seite",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Endzeit aus dem Dashboard steuert die Kalenderdatei (04:00 Uhr)",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Cassis im Entwurf: Coming Soon, keine Inhalte, kein Formular",
+  "pass": true,
+  "info": "S&I.\nHier entsteht eine wunderschöne Hochzeitswebsite.\n\nIndividuelle Designs, RSVP, Gästeliste & meh"
+ },
+ {
+  "name": "Dashboard Cassis: Anmeldung, Menü enthält Kinderbetreuung",
+  "pass": true,
+  "info": "Dashboard|RSVP6|Gästeliste|Hero|Countdown|Ablauf|Anfahrt|Kinderbetreuung|RSVP Text|Trauzeug:innen|FAQ|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
+ },
+ {
+  "name": "Dashboard Cassis: keine Einträge für abgewählte Bereiche (Galerie, Gästebuch, Musik)",
+  "pass": true,
+  "info": "Dashboard|RSVP6|Gästeliste|Hero|Countdown|Ablauf|Anfahrt|Kinderbetreuung|RSVP Text|Trauzeug:innen|FAQ|Footer|Save the Date|Archiv|Einstellungen|Status|Zurück zur Website"
+ },
+ {
+  "name": "Dashboard Cassis: Kinderbetreuung speichern landet im richtigen Projekt",
+  "pass": true,
+  "info": "{\"id\":\"54151604-4671-45db-ac9d-f1ebdf21cd45\",\"created_at\":\"2026-11-16T09:27:54.718Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"childcare\",\"content\":{\"title\":\"Childcare\",\"descrip"
+ },
+ {
+  "name": "Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard Cassis: Countdown-Editor bietet die Endzeit",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter",
+  "pass": true,
+  "info": "Kinder und Sprachen 2 Kinder bei den Zusagen · höchstens 8 Personen pro Anmeldung ALTER KIND ANMELDUNG 0 Jahre Kind Ohne Alter 5 Jahre Elif Ayşe Yılmaz Sprache der Antworten: Deutsch 4 · Französisch 1"
+ },
+ {
+  "name": "Dashboard Cassis: Export enthält Kind, Alter und Sprache",
+  "pass": true,
+  "info": "﻿\"Anmeldung\";\"E-Mail\";\"Status\";\"Personen gesamt\";\"Person\";\"Kind\";\"Alter\";\"Sprache\" / \"Netz Weg\";\"netz@example.test\";\"Zusage\";\"1\";\"Netz Weg\";\"nein\";\"\";\"Deutsch\" / \"Mail Kaputt\";\"mailkaputt@example.test"
+ },
+ {
+  "name": "Dashboard Cassis: keine Fehler",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Altprojekt (Classic): kein Menüpunkt Kinderbetreuung, keine Zusatzübersicht",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Altprojekt (Classic): Hero-Editor ohne Schriftzug-Feld",
+  "pass": true,
+  "info": ""
+ }
+]

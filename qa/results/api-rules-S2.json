@@ -1,0 +1,440 @@
+[
+ {
+  "group": "Projekt",
+  "name": "Funktionen des Projekts werden ausgeliefert (Sprachen, RSVP-Regeln)",
+  "pass": true,
+  "info": "{\"i18n\":{\"languages\":[\"en\",\"tr\",\"de\",\"fr\"],\"default\":\"en\"},\"rsvp\":{\"max_persons\":8,\"child_ages\":true,\"confirmation_mail\":true}}"
+ },
+ {
+  "group": "Projekt",
+  "name": "Altprojekt ohne Spalte features bleibt unverändert lesbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Grenze",
+  "name": "eine Person wird angenommen",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Grenze",
+  "name": "acht Personen werden angenommen",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Grenze",
+  "name": "neun Personen werden abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Höchstens 8 Personen pro Anmeldung\",\"code\":\"persons_max\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "null Personen werden abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Mindestens eine Person\",\"code\":\"persons_min\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "negative Personenzahl wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Mindestens eine Person\",\"code\":\"persons_min\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "Kommazahl wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Personenzahl ist ungültig\",\"code\":\"persons_invalid\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "Text statt Zahl wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Personenzahl ist ungültig\",\"code\":\"persons_invalid\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "riesige Zahl wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Höchstens 8 Personen pro Anmeldung\",\"code\":\"persons_max\",\"field\":\"persons\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Grenze",
+  "name": "mehr Gästezeilen als Personen werden abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Mehr Gäste als angemeldete Personen\",\"code\":\"guests_count\",\"field\":\"guests\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "leerer Name wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Name fehlt\",\"code\":\"name_required\",\"field\":\"name\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "ungültige E-Mail wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "fehlende E-Mail wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"E-Mail-Adresse ist ungültig\",\"code\":\"email_invalid\",\"field\":\"email\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "fehlende Zu-/Absage wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Zu- oder Absage fehlt\",\"code\":\"attending_invalid\",\"field\":\"attending\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "Gästeliste als Text wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Gästeliste ist ungültig\",\"code\":\"guests_invalid\",\"field\":\"guests\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Eingaben",
+  "name": "Name und E-Mail werden bereinigt, „yes\" als Zusage verstanden",
+  "pass": true,
+  "info": "{\"id\":\"84425c6c-8906-4883-a5a8-30a0c37102bf\",\"created_at\":\"2026-11-16T09:28:47.990Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Anna\",\"email\":\"gross@example.test\",\"persons\":1,\"attendi"
+ },
+ {
+  "group": "Eingaben",
+  "name": "eingeschleuste Felder werden verworfen",
+  "pass": true,
+  "info": "[\"id\",\"created_at\",\"project_id\",\"name\",\"email\",\"persons\",\"attending\",\"dietary\",\"allergies\",\"message\",\"guests\",\"custom_answer\",\"language\",\"dedupe_key\"]"
+ },
+ {
+  "group": "Eingaben",
+  "name": "Sonderzeichen bleiben unverändert erhalten",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Kinder",
+  "name": "mehrere Kinder mit unterschiedlichem Alter werden je Kind gespeichert",
+  "pass": true,
+  "info": "[{\"name\":\"Mama\",\"dietary\":\"\",\"allergies\":\"\"},{\"name\":\"Papa\",\"dietary\":\"\",\"allergies\":\"\"},{\"name\":\"Kind 1\",\"dietary\":\"\",\"allergies\":\"\",\"is_child\":true,\"age\":3},{\"name\":\"Kind 2\",\"dietary\":\"\",\"allergies\""
+ },
+ {
+  "group": "Kinder",
+  "name": "Alter 0 wird angenommen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Kinder",
+  "name": "Alter 17 wird angenommen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Kinder",
+  "name": "Alter 18 wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Alter des Kindes muss zwischen 0 und 17 liegen\",\"code\":\"child_age_range\",\"field\":\"guests[1].age\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Kinder",
+  "name": "negatives Alter wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Alter des Kindes muss zwischen 0 und 17 liegen\",\"code\":\"child_age_range\",\"field\":\"guests[1].age\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Kinder",
+  "name": "Kind ohne Altersangabe wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Alter des Kindes fehlt\",\"code\":\"child_age_required\",\"field\":\"guests[1].age\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Kinder",
+  "name": "Alter als Text wird abgelehnt",
+  "pass": true,
+  "info": "400 {\"message\":\"Alter des Kindes fehlt\",\"code\":\"child_age_required\",\"field\":\"guests[1].age\",\"status\":400} gespeichert:0"
+ },
+ {
+  "group": "Kinder",
+  "name": "Altersangabe bei Erwachsenen wird nicht gespeichert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Sprache",
+  "name": "Sprache en wird gespeichert",
+  "pass": true,
+  "info": "en"
+ },
+ {
+  "group": "Sprache",
+  "name": "Sprache tr wird gespeichert",
+  "pass": true,
+  "info": "tr"
+ },
+ {
+  "group": "Sprache",
+  "name": "Sprache de wird gespeichert",
+  "pass": true,
+  "info": "de"
+ },
+ {
+  "group": "Sprache",
+  "name": "Sprache fr wird gespeichert",
+  "pass": true,
+  "info": "fr"
+ },
+ {
+  "group": "Sprache",
+  "name": "regionale Variante fr-FR wird zu fr",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Sprache",
+  "name": "ungültige Sprache fällt auf Englisch zurück",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Sprache",
+  "name": "fehlende Sprache fällt auf Englisch zurück",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Sprache",
+  "name": "manipulierter Sprachwert fällt auf Englisch zurück",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Idempotenz",
+  "name": "erste Antwort wird gespeichert und bestätigt",
+  "pass": true,
+  "info": "\"sent\""
+ },
+ {
+  "group": "Idempotenz",
+  "name": "wiederholte Anfrage wird als Doppel abgelehnt (409)",
+  "pass": true,
+  "info": "409"
+ },
+ {
+  "group": "Idempotenz",
+  "name": "andere Schreibweise derselben E-Mail gilt als Doppel",
+  "pass": true,
+  "info": "409"
+ },
+ {
+  "group": "Idempotenz",
+  "name": "nach Wiederholungen genau eine gespeicherte Antwort",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Idempotenz",
+  "name": "nach Wiederholungen genau eine Bestätigungsmail",
+  "pass": true,
+  "info": "1"
+ },
+ {
+  "group": "Idempotenz",
+  "name": "zwölf gleichzeitige Anfragen: genau eine wird gespeichert",
+  "pass": true,
+  "info": "ok=1 doppelt=11"
+ },
+ {
+  "group": "Idempotenz",
+  "name": "zwölf gleichzeitige Anfragen: genau eine Bestätigungsmail",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Idempotenz",
+  "name": "dieselbe E-Mail in einem anderen Projekt ist erlaubt",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Fehler",
+  "name": "Datenbankfehler: Fehler gemeldet, nichts gespeichert, keine Mail",
+  "pass": true,
+  "info": "502"
+ },
+ {
+  "group": "Fehler",
+  "name": "erneuter Versuch nach dem Fehler gelingt genau einmal",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Fehler",
+  "name": "Brevo-Fehler: Antwort bleibt gespeichert und gilt als Erfolg",
+  "pass": true,
+  "info": "200 failed"
+ },
+ {
+  "group": "Fehler",
+  "name": "Netzwerkfehler beim Mailversand: Antwort bleibt gespeichert",
+  "pass": true,
+  "info": "200 failed"
+ },
+ {
+  "group": "Fehler",
+  "name": "nach Mailfehler löst eine Wiederholung keine zweite Antwort aus",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mail",
+  "name": "Bestätigung auf en: Sprache, Empfänger und Sonderzeichen stimmen",
+  "pass": true,
+  "info": "Your RSVP for the wedding of Lena & Tom"
+ },
+ {
+  "group": "Mail",
+  "name": "Bestätigung auf tr: Sprache, Empfänger und Sonderzeichen stimmen",
+  "pass": true,
+  "info": "Lena & Tom düğünü için katılım yanıtınız"
+ },
+ {
+  "group": "Mail",
+  "name": "Bestätigung auf de: Sprache, Empfänger und Sonderzeichen stimmen",
+  "pass": true,
+  "info": "Eure Zusage zur Hochzeit von Lena & Tom"
+ },
+ {
+  "group": "Mail",
+  "name": "Bestätigung auf fr: Sprache, Empfänger und Sonderzeichen stimmen",
+  "pass": true,
+  "info": "Votre réponse pour le mariage de Lena & Tom"
+ },
+ {
+  "group": "Mail",
+  "name": "vier unterschiedliche Betreffzeilen",
+  "pass": true,
+  "info": "{\"en\":\"Your RSVP for the wedding of Lena & Tom\",\"tr\":\"Lena & Tom düğünü için katılım yanıtınız\",\"de\":\"Eure Zusage zur Hochzeit von Lena & Tom\",\"fr\":\"Votre réponse pour le mariage de Lena & Tom\"}"
+ },
+ {
+  "group": "Mail",
+  "name": "unbekannte Sprache: Bestätigung auf Englisch",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mail",
+  "name": "Absage erhält eine eigene Bestätigung ohne Personenzahl",
+  "pass": true,
+  "info": "Eure Rückmeldung zur Hochzeit von Lena & Tom"
+ },
+ {
+  "group": "Mail",
+  "name": "Altprojekte verschicken keine Bestätigung an Gäste",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mail",
+  "name": "kein Aufruf an echte Server",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Altprojekt",
+  "name": "Projekt ohne Regeln nimmt Antworten wie bisher an",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Altprojekt",
+  "name": "Altprojekt bekommt keine neuen Spalten geschrieben",
+  "pass": true,
+  "info": "[\"id\",\"created_at\",\"project_id\",\"name\",\"email\",\"persons\",\"attending\",\"dietary\",\"allergies\",\"message\",\"guests\",\"custom_answer\"]"
+ },
+ {
+  "group": "Altprojekt",
+  "name": "leere features-Spalte gilt als Altprojekt",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "eigenes Paar sieht Kinderalter und Sprache",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "fremdes Paar kann Kinderalter und Sprache nicht lesen",
+  "pass": true,
+  "info": "403"
+ },
+ {
+  "group": "Mandanten",
+  "name": "ohne Anmeldung keine Antworten",
+  "pass": true,
+  "info": "401"
+ },
+ {
+  "group": "Mandanten",
+  "name": "fremdes Paar erhält auch mit bekannter Kennung nichts",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "fremdes Paar kann die Antwort nicht ändern",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "fremdes Paar kann die Antwort nicht löschen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "group": "Mandanten",
+  "name": "fremdes Paar kann keine (Sprach-)Inhalte überschreiben",
+  "pass": true,
+  "info": "403"
+ },
+ {
+  "group": "Mandanten",
+  "name": "Paar kann die eigenen RSVP-Regeln nicht selbst ändern",
+  "pass": true,
+  "info": "400"
+ },
+ {
+  "group": "Änderung",
+  "name": "Paar ändert die Antwort; Kinderalter und Sprache bleiben erhalten",
+  "pass": true,
+  "info": "{\"id\":\"b4964643-d0fa-4f95-b5cc-08f7affb9cd9\",\"created_at\":\"2026-11-16T09:28:48.103Z\",\"project_id\":\"00000000-0000-4000-8000-000000000070\",\"name\":\"Familie Neu\",\"email\":\"familie@example.test\",\"persons\":4"
+ },
+ {
+  "group": "Änderung",
+  "name": "Änderung über die Personengrenze wird abgelehnt",
+  "pass": true,
+  "info": "400"
+ },
+ {
+  "group": "Änderung",
+  "name": "Änderung auf eine bereits vergebene E-Mail wird abgelehnt",
+  "pass": true,
+  "info": "409"
+ },
+ {
+  "group": "Änderung",
+  "name": "erneutes Speichern derselben Antwort bleibt möglich",
+  "pass": true,
+  "info": "200"
+ },
+ {
+  "group": "Änderung",
+  "name": "Änderungen lösen keine weitere Bestätigungsmail aus",
+  "pass": true,
+  "info": ""
+ }
+]

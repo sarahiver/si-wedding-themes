@@ -15,6 +15,7 @@ export { default as GuestbookEditor } from './GuestbookEditor';
 export { default as MusicWishesEditor } from './MusicWishesEditor';
 export { default as PhotoUploadEditor } from './PhotoUploadEditor';
 export { default as FAQEditor } from './FAQEditor';
+export { default as ChildcareEditor } from './ChildcareEditor';
 export { default as ABCEditor } from './ABCEditor';
 export { default as FooterEditor } from './FooterEditor';
 export { default as SaveTheDateEditor } from './SaveTheDateEditor';

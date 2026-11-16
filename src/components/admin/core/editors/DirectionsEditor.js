@@ -217,6 +217,11 @@ function DirectionsEditor({ components: C }) {
           {!hidden('accent_image') && <ImageUploader components={C} image={content.accent_image} onUpload={(url) => update('accent_image', url)} folder={`${baseFolder}/directions`} label="Akzent-Bild" helpText="Kleines überlappendes Bild" />}
         </>)}
 
+        {project?.theme === 'cassis' && (<>
+          <C.SectionLabel>Illustration</C.SectionLabel>
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/directions`} label="Illustration zum Ort" helpText="Erscheint beim Datum und Ort unter dem Startbild." />
+        </>)}
+
         <C.Divider />
         <C.Button onClick={() => saveContent('directions')} disabled={isSaving}>
           {isSaving ? 'Speichern...' : '💾 Speichern'}

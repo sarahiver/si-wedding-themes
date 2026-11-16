@@ -61,6 +61,11 @@ export function ClassicAdmin() {
   return <AdminShell components={ClassicAdminComponents} />;
 }
 
+// Cassis - heller Classic-Look für das Cassis-Theme
+export function CassisAdmin() {
+  return <AdminShell components={ClassicAdminComponents} />;
+}
+
 // Parallax - White/black, DM Sans, bold typography
 export function ParallaxAdmin() {
   return <AdminShell components={ParallaxAdminComponents} />;

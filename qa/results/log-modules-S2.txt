@@ -1,0 +1,36 @@
+ok   [Gästebuch] Eintrag wird gespeichert, zunächst nicht freigegeben
+ok   [Gästebuch] nicht freigegebener Eintrag ist für Gäste unsichtbar
+ok   [Gästebuch] fremdes Paar kann den Eintrag nicht freigeben
+ok   [Gästebuch] Freigabe ohne Anmeldung wird abgelehnt
+ok   [Gästebuch] Paar gibt den Eintrag frei
+ok   [Gästebuch] freigegebener Eintrag erscheint für Gäste
+ok   [Gästebuch] Eintrag erscheint nicht in einem anderen Projekt
+ok   [Gästebuch] fremdes Paar kann den Eintrag nicht löschen
+ok   [Gästebuch] Paar löscht den Eintrag
+ok   [Gästebuch] Eintrag in ein Entwurfsprojekt wird abgelehnt (423)
+ok   [Musikwünsche] Wunsch wird gespeichert (Titel und Interpret)
+ok   [Musikwünsche] Wunsch erscheint in der Liste des Projekts
+ok   [Musikwünsche] Wunsch erscheint nicht in einem anderen Projekt
+ok   [Musikwünsche] fremdes Paar kann den Wunsch nicht löschen
+ok   [Musikwünsche] Löschen ohne Anmeldung wird abgelehnt
+ok   [Musikwünsche] Paar löscht den Wunsch
+ok   [Musikwünsche] Wunsch an ein Entwurfsprojekt wird abgelehnt (423)
+ok   [Foto-Upload] Foto-Eintrag wird gespeichert, zunächst nicht freigegeben
+ok   [Foto-Upload] nicht freigegebenes Foto ist für Gäste unsichtbar
+ok   [Foto-Upload] fremdes Paar kann das Foto nicht freigeben
+ok   [Foto-Upload] Paar gibt das Foto frei
+ok   [Foto-Upload] freigegebenes Foto erscheint für Gäste
+ok   [Foto-Upload] Foto erscheint nicht in einem anderen Projekt
+ok   [Foto-Upload] fremdes Paar kann das Foto nicht löschen
+ok   [Foto-Upload] Paar löscht das Foto
+ok   [Geschenke] Reservierung wird gespeichert
+ok   [Geschenke] Reservierung erscheint im Projekt
+ok   [Geschenke] Reservierung erscheint nicht in einem anderen Projekt
+ok   [Geschenke] fremdes Paar kann die Reservierung nicht aufheben
+ok   [Geschenke] Aufheben ohne Anmeldung wird abgelehnt
+ok   [Geschenke] Paar hebt die Reservierung auf
+ok   [Geschenke] Reservierung in einem Entwurfsprojekt wird abgelehnt (423)
+ok   [Gästebuch] Formular auf der Seite (Classic, Handybreite) speichert den Eintrag im richtigen Projekt
+ok   [Musikwünsche] Formular auf der Seite (Classic, Handybreite) speichert den Eintrag im richtigen Projekt
+
+34/34 bestanden
