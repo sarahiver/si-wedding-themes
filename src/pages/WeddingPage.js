@@ -288,7 +288,7 @@ const themeConfig = {
     background: "#F0ECED",
     hasSpecialBackground: false,
     // Eigene Standardreihenfolge, falls im Projekt keine hinterlegt ist
-    defaultOrder: ["hero", "timeline", "countdown", "rsvp", "directions", "faq", "witnesses"],
+    defaultOrder: ["hero", "countdown", "timeline", "directions", "rsvp", "witnesses", "faq"],
   },
 }
 

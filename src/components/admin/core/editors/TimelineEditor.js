@@ -64,7 +64,7 @@ function TimelineEditor({ components: C }) {
           <C.Input value={content.title || ''} onChange={(e) => update('title', e.target.value)} placeholder="Tagesablauf" />
         </C.FormGroup>
         {theme === 'cassis' && (
-          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/timeline`} label="Foto nach dem Ablauf" helpText="Zweites Paarfoto. Erscheint als eigener Bildabschnitt zwischen Ablauf und Countdown." />
+          <ImageUploader components={C} image={content.image} onUpload={(url) => update('image', url)} folder={`${baseFolder}/timeline`} label="Foto nach dem Ablauf" helpText="Zweites Paarfoto. Erscheint als eigener Bildabschnitt nach dem Ablauf; das Bild wird unten beschnitten." />
         )}
         <C.SectionLabel>Programmpunkte</C.SectionLabel>
         <ListEditor components={C} items={content.events || []} onItemsChange={(events) => update('events', events)}

@@ -1,9 +1,9 @@
 // src/themes/cassis/Navigation.js
-// Kopfzeile: Schriftzug links, Menü in der Mitte, Sprachwahl rechts.
-// Solange das Startfoto zu sehen ist, gehört sie zum Foto: durchsichtig, am oberen
-// Rand, und sie scrollt mit dem Foto weg – sie kann den großen Schriftzug also nie
-// überlagern. Erst wenn das Foto fast durchgescrollt ist, gleitet eine dezent
-// hinterlegte, fixierte Fassung von oben herein. Beide Fassungen sind gleich hoch
+// Kopfzeile. Über dem Startbild gehört sie zur Doppelseite: durchsichtig, ohne eigenen
+// Schriftzug (der große steht direkt darunter); das Menü liegt auf dem Papier, die
+// Sprachwahl auf dem Foto. Menüpunkte, die über die Kante reichen, wechseln dort die
+// Farbe – wie der Schriftzug. Erst wenn das Startbild fast durchgescrollt ist, gleitet
+// eine dezent hinterlegte, fixierte Fassung mit Schriftzug von oben herein. Beide Fassungen sind gleich hoch
 // und liegen außerhalb des Textflusses: Der Wechsel verschiebt nichts.
 // Auf dem Handy: Schriftzug, Sprachwahl (Auswahlfeld des Geräts) und ein Menü zum Aufklappen.
 import React, { useEffect, useId, useRef, useState } from 'react';
@@ -13,11 +13,14 @@ import { useLanguage, useLocalizedContent, LANGUAGE_LABELS, LANGUAGE_NAMES } fro
 import STRINGS from './strings';
 import { C, FONT, SCRIPT, HEADER } from './shared';
 
-// Reihenfolge wie auf der Seite; angezeigt wird nur, was dort tatsächlich steht
+// Angezeigt wird nur, was auf der Seite tatsächlich steht – in der Reihenfolge der Seite
 const ITEMS = [
-  { id: 'timeline', key: 'navTimeline' }, { id: 'countdown', key: 'navCountdown' }, { id: 'rsvp', key: 'navRsvp' },
-  { id: 'directions', key: 'navDirections' }, { id: 'faq', key: 'navFaq' }, { id: 'witnesses', key: 'navWitnesses' },
+  { id: 'countdown', key: 'navCountdown' }, { id: 'timeline', key: 'navTimeline' }, { id: 'directions', key: 'navDirections' },
+  { id: 'rsvp', key: 'navRsvp' }, { id: 'witnesses', key: 'navWitnesses' }, { id: 'faq', key: 'navFaq' },
 ];
+// Anteil des Papiers an der Breite des Startbilds (siehe Hero.js, --split) und ab wann die Doppelseite gilt
+const SPLIT = 0.41;
+const SPREAD = 900;
 const WIDE = '@media (min-width: 1024px)';
 const NARROW = '@media (max-width: 1023px)';
 
@@ -36,7 +39,7 @@ const Bar = styled.header`
   @media print { position: absolute; animation: none; }
 `;
 const Mark = styled.a`
-  display: block; flex: none; color: inherit; text-decoration: none; line-height: 1;
+  display: ${(p) => (p.$solid ? 'block' : 'none')}; flex: none; color: inherit; text-decoration: none; line-height: 1;
   img {
     display: block; width: auto; height: 3rem;
     /* Die Grafik ist weiß: über dem Foto mit Schatten, auf hellem Grund dunkel eingefärbt */
@@ -55,8 +58,17 @@ const link = `
 `;
 const Menu = styled.nav`
   ${WIDE} {
-    display: flex; align-items: center; gap: clamp(1rem, 2.2vw, 2.75rem); margin: 0 auto;
-    a { ${link} min-height: 2.75rem; font-size: clamp(0.9375rem, 1.05vw, 1.0625rem); letter-spacing: 0.06em; white-space: nowrap; text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')}; }
+    display: flex; align-items: center; gap: clamp(1rem, 2.2vw, 2.75rem); margin: ${(p) => (p.$solid ? '0 auto' : '0 auto 0 0')};
+    a { ${link} min-height: 2.75rem; font-size: clamp(0.9375rem, 1.05vw, 1.0625rem); letter-spacing: 0.06em; white-space: nowrap; }
+    /* Über dem Startbild: dunkel auf dem Papier, weiß auf dem Foto. --x ist der Abstand des Menüpunkts zur Kante. */
+    ${(p) => !p.$solid && `
+      a { color: transparent; background-image: linear-gradient(90deg, ${C.ink} var(--x, 200vw), ${C.white} var(--x, 200vw)); -webkit-background-clip: text; background-clip: text; }
+      a::after { background: linear-gradient(90deg, ${C.ink} var(--x, 200vw), ${C.white} var(--x, 200vw)); }
+      a:focus-visible { outline-color: ${C.ink}; }
+      a[data-side='photo']:focus-visible { outline-color: ${C.white}; }
+      /* Auf dem Foto hält ein weicher Schatten die weiße Schrift auch vor hellen Motiven lesbar */
+      a[data-side='photo'] { filter: drop-shadow(0 0 5px rgba(51,53,63,0.6)); }
+    `}
   }
   ${NARROW} {
     position: absolute; top: 100%; left: 0; right: 0; box-sizing: border-box; max-height: calc(100vh - ${HEADER}); max-height: calc(100dvh - ${HEADER}); overflow-y: auto;
@@ -68,7 +80,7 @@ const Menu = styled.nav`
     @media (prefers-reduced-motion: reduce) { transition: none; transform: none; }
   }
 `;
-const Right = styled.div`display: flex; align-items: center; gap: 0.25rem; flex: none; margin-right: -0.5rem;`;
+const Right = styled.div`display: flex; align-items: center; gap: 0.25rem; flex: none; margin-left: auto; margin-right: -0.5rem;`;
 const LangWrap = styled.div`position: relative; display: flex; align-items: center;`;
 const iconButton = `
   display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; height: 2.75rem; padding: 0 0.5rem; border: none; background: transparent; color: inherit; cursor: pointer;
@@ -153,7 +165,8 @@ function Navigation() {
     let frame = 0;
     const check = () => {
       frame = 0;
-      const ids = ITEMS.map((i) => i.id).filter((id) => document.getElementById(id));
+      const pos = (a, b) => (document.getElementById(a).compareDocumentPosition(document.getElementById(b)) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+      const ids = ITEMS.map((i) => i.id).filter((id) => document.getElementById(id)).sort(pos);
       setPresent((prev) => (prev.join() === ids.join() ? prev : ids));
     };
     check();
@@ -162,6 +175,24 @@ function Navigation() {
     mo.observe(document.body, { childList: true, subtree: true });
     return () => { mo.disconnect(); if (frame) window.cancelAnimationFrame(frame); };
   }, []);
+
+  // Über dem Startbild: für jeden Menüpunkt messen, wo die Kante zwischen Papier und Foto liegt
+  useEffect(() => {
+    const paint = () => {
+      const nav = menuRef.current; if (!nav) return;
+      const edge = window.innerWidth >= SPREAD ? window.innerWidth * SPLIT : 0; // darunter liegt das Foto oben: alles weiß
+      nav.querySelectorAll('a').forEach((a) => {
+        const b = a.getBoundingClientRect();
+        a.style.setProperty('--x', `${Math.round(edge - b.left)}px`);
+        a.setAttribute('data-side', b.left + b.width / 2 > edge ? 'photo' : 'paper');
+      });
+    };
+    paint();
+    window.addEventListener('resize', paint);
+    const late = window.setTimeout(paint, 700); // Schriften können die Breiten noch ändern
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint).catch(() => {});
+    return () => { window.removeEventListener('resize', paint); window.clearTimeout(late); };
+  }, [present, lang, pinned, open]);
 
   // Escape schließt; bei offenem Menü scrollt die Seite dahinter nicht mit
   useEffect(() => {
@@ -189,7 +220,7 @@ function Navigation() {
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
   const label = names.length ? names.join(' ') : (coupleNames || '');
   const solid = pinned || open;
-  const items = ITEMS.filter((i) => present.includes(i.id));
+  const items = present.map((id) => ITEMS.find((i) => i.id === id)).filter(Boolean);
   const multi = enabled && languages.length > 1;
 
   const toggleMenu = () => {

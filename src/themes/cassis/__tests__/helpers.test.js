@@ -1,0 +1,30 @@
+import { follows, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
+
+const all = () => true;
+test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
+  expect(follows({}, all, 'directions', 'rsvp')).toBe(true);
+  expect(follows({ component_order: [] }, all, 'witnesses', 'faq')).toBe(true);
+  expect(DEFAULT_ORDER[0]).toBe('hero');
+});
+test('Frühere Reihenfolge: nichts wird zusammengelegt', () => {
+  const p = { component_order: ['hero', 'timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses'] };
+  expect(follows(p, all, 'directions', 'rsvp')).toBe(false);
+  expect(follows(p, all, 'witnesses', 'faq')).toBe(false);
+});
+test('Unbekannte und ausgeschaltete Bereiche dazwischen zählen nicht', () => {
+  const p = { component_order: ['hero', 'directions', 'childcare', 'gallery', 'rsvp', 'witnesses', 'faq'] };
+  expect(follows(p, all, 'directions', 'rsvp')).toBe(true);
+  expect(follows(p, (id) => id !== 'gallery', 'directions', 'rsvp')).toBe(true);
+  const q = { component_order: ['hero', 'directions', 'timeline', 'rsvp'] };
+  expect(follows(q, all, 'directions', 'rsvp')).toBe(false);
+  expect(follows(q, (id) => id !== 'timeline', 'directions', 'rsvp')).toBe(true);
+});
+test('Ist ein Bereich ausgeschaltet oder fehlt er, gibt es keine gemeinsame Fläche', () => {
+  expect(follows({}, (id) => id !== 'rsvp', 'directions', 'rsvp')).toBe(false);
+  expect(follows({ component_order: ['hero', 'rsvp'] }, all, 'directions', 'rsvp')).toBe(false);
+});
+test('Wochentag und Datum in der Sprache der Seite', () => {
+  expect(formatWeddingDay('2027-05-15', 'de')).toBe('Samstag, 15. Mai 2027');
+  expect(formatWeddingDay('2027-05-15', 'fr')).toMatch(/^samedi 15 mai 2027$/);
+  expect(formatWeddingDay('', 'de')).toBe('');
+});

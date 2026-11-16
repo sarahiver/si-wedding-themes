@@ -4,67 +4,108 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP, needsHealthConsent } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
-import { formatWeddingDate } from './helpers';
 import STRINGS from './strings';
-import { C, FONT, SERIF, Section, Inner, Aside, Body, Title, Lead, Button, DESK } from './shared';
+import { C, FONT, SERIF, Section, Inner, Aside, Body, Title, Lead, Button, DESK, G, reveal, useReveal } from './shared';
+import { formatWeddingDate, follows } from './helpers';
 
-// Fehlerfarbe: dunkles Rot, auf Blaugrau und auf hellem Grund gut lesbar
+// Fehlerfarbe: dunkles Rot, auf hellem Grund gut lesbar
 const ERR = '#6E1620';
-const Form = styled.form`display: grid; gap: 1.75rem; ${DESK} { gap: 2.25rem; }`;
-const Field = styled.label`display: grid; gap: 0.5rem; font-size: 1.0625rem; line-height: 1.35; color: ${C.ink}; ${DESK} { gap: 0.65rem; font-size: clamp(1.0625rem, 1.15vw, 1.25rem); }`;
+// Die Antwort ist eine Karte wie aus der Einladung: doppelte Haarlinie, Schreiblinien statt Kästen.
+// Sie ist die einzige Karte der Seite.
+export const Card = styled.section`
+  position: relative; z-index: 2; box-sizing: border-box; scroll-margin-top: 5.5rem; background: ${C.pearl}; color: ${C.ink};
+  margin: 0 calc(${G} * -1 + 0.75rem); padding: 2.25rem 1.5rem 2.5rem;
+  font-family: ${FONT}; font-size: 1.0625rem; line-height: 1.5;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 30px 60px -32px rgba(51,53,63,0.55);
+  &::before { content: ''; position: absolute; inset: 0.7rem; border: 1px solid ${C.haze}; pointer-events: none; }
+  &::after { content: ''; position: absolute; inset: 1rem; border: 1px solid rgba(199,197,204,0.5); pointer-events: none; }
+  > * { position: relative; z-index: 1; }
+  ${DESK} { margin: 0; padding: clamp(2rem, 4.6vw, 5rem); }
+  ${reveal}
+`;
+const Question = styled.h3`margin: 0; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 3.4vw, 3.5rem); line-height: 1; text-align: center; overflow-wrap: anywhere;`;
+const Rule = styled.div`width: 3.5rem; height: 1px; background: ${C.ink}; opacity: 0.6; margin: 1.5rem auto 2.5rem;`;
+const Form = styled.form`display: grid; gap: 2rem;`;
+const Field = styled.label`display: grid; gap: 0.5rem; font-size: 0.6875rem; line-height: 1.4; letter-spacing: 0.24em; text-transform: uppercase; color: ${C.inkSoft};`;
 const inputCss = `
-  box-sizing: border-box; width: 100%; min-height: 3.25rem; padding: 0.6rem 0.9rem; border: 1px solid transparent; border-radius: 0;
-  background: ${C.pearl}; color: ${C.ink}; font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem;
-  transition: background-color 0.2s ease;
-  &:hover { background: ${C.white}; }
-  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; background: ${C.white}; }
-  &[aria-invalid='true'] { border-color: ${ERR}; box-shadow: inset 0 0 0 1px ${ERR}; }
-  ${DESK} { min-height: 4rem; padding: 0.8rem 1.1rem; font-size: clamp(1.0625rem, 1.15vw, 1.3125rem); }
+  box-sizing: border-box; width: 100%; min-height: 3rem; padding: 0.3rem 0; border: 0; border-bottom: 1px dotted ${C.ink}; border-radius: 0;
+  background: transparent; color: ${C.ink}; font-family: ${SERIF}; font-weight: 400; font-size: clamp(1.375rem, 1.7vw, 1.625rem); letter-spacing: 0; text-transform: none;
+  &::placeholder { color: ${C.haze}; font-style: italic; opacity: 1; }
+  &:focus-visible { outline: 0; border-bottom-style: solid; box-shadow: 0 1px 0 ${C.ink}; }
+  &[aria-invalid='true'] { border-bottom: 1px solid ${ERR}; box-shadow: 0 1px 0 ${ERR}; }
 `;
 const Input = styled.input`${inputCss}`;
-const Select = styled.select`${inputCss} appearance: none; -webkit-appearance: none; padding-right: 2.75rem; cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2333353F' stroke-width='1.2'%3E%3Cpath d='M1 3 L5 7 L9 3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.7rem;`;
+const Select = styled.select`${inputCss} appearance: none; -webkit-appearance: none; padding-right: 2rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2333353F' stroke-width='1.2'%3E%3Cpath d='M1 3 L5 7 L9 3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.25rem center; background-size: 0.7rem;`;
 // Ernährung und Allergien einer Person stehen ab Tablet nebeneinander
-const Pair = styled.div`display: grid; gap: 0.9rem; @media (min-width: 640px) { grid-template-columns: 1fr 1fr; gap: 1rem; }`;
-const Area = styled.textarea`${inputCss} resize: vertical; min-height: 6.5rem; line-height: 1.5;`;
-// Die gewählte Antwort ist gefüllt und trägt einen Haken; die andere tritt zurück
+const Pair = styled.div`display: grid; gap: 1.5rem; align-items: end; @media (min-width: 640px) { grid-template-columns: 1fr 1fr; }`;
+// Nachricht: Schreiblinien wie auf einer Karte
+const Area = styled.textarea`${inputCss} border: 0; padding: 0.2rem 0; resize: vertical; min-height: 7.2rem; font-size: 1.375rem; line-height: 2.4rem;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(2.4rem - 1px), ${C.haze} calc(2.4rem - 1px), ${C.haze} 2.4rem);
+  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 4px; box-shadow: none; }`;
+// Zu- und Absage zum Ankreuzen. Vor der Wahl sind beide gleichwertig.
 const Choice = styled.div`
-  display: grid; gap: 0.75rem; @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }
-  button[aria-pressed='true']::before { content: ''; flex: none; width: 0.45em; height: 0.85em; margin: -0.2em 0.75em 0 0; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
-  &[data-chosen='true'] button[aria-pressed='false'] { opacity: 0.6; }
-  &[data-chosen='true'] button[aria-pressed='false']:hover, &[data-chosen='true'] button[aria-pressed='false']:focus-visible { opacity: 1; }
+  display: grid; gap: 0.5rem 1rem; padding: 1.25rem 0; border-top: 1px solid ${C.haze}; border-bottom: 1px solid ${C.haze};
+  @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }
+  button {
+    display: flex; align-items: center; justify-content: center; gap: 0.9rem; min-height: 3.25rem; padding: 0; border: 0; background: none; cursor: pointer;
+    font-family: ${SERIF}; font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.1; color: ${C.ink}; transition: color 0.2s ease;
+  }
+  button::before { content: ''; flex: none; box-sizing: border-box; width: 1.1rem; height: 1.1rem; border: 1px solid ${C.ink};
+    background: no-repeat center / 0.7rem url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'/%3E"); }
+  button[aria-pressed='true']::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%2333353F' stroke-width='1.6'%3E%3Cpath d='M1.5 6.5 L4.8 9.6 L10.5 2.4'/%3E%3C/svg%3E"); }
+  &[data-chosen='true'] button[aria-pressed='false'] { color: ${C.inkSoft}; }
+  button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
 `;
+const Persons = styled.div`display: grid; justify-items: center; gap: 0.6rem; text-align: center;`;
 const Stepper = styled.div`
-  display: grid; grid-template-columns: 3.25rem 1fr 3.25rem; align-items: center; background: ${C.pearl}; color: ${C.ink}; max-width: 14rem;
-  button { height: 3.25rem; border: none; background: transparent; color: ${C.ink}; font-size: 1.5rem; font-family: ${FONT}; font-weight: 300; cursor: pointer; }
+  display: grid; grid-template-columns: 3rem 3.5rem 3rem; align-items: center;
+  button { width: 3rem; height: 3rem; border: 1px solid ${C.haze}; border-radius: 50%; background: transparent; color: ${C.ink}; font-size: 1.25rem; font-family: ${FONT}; font-weight: 300; cursor: pointer; }
   button:disabled { opacity: 0.35; cursor: default; }
-  button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: -2px; }
-  output { text-align: center; font-size: 1.375rem; font-weight: 300; font-variant-numeric: tabular-nums; }
-  ${DESK} { grid-template-columns: 4rem 1fr 4rem; max-width: 17rem; button { height: 4rem; } output { font-size: 1.625rem; } }
+  button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
+  output { text-align: center; font-family: ${SERIF}; font-size: 2rem; line-height: 1; font-variant-numeric: lining-nums; }
 `;
-const Hint = styled.p`margin: 0; font-size: 0.9375rem; line-height: 1.5; color: ${C.ink}; ${DESK} { font-size: clamp(0.9375rem, 1vw, 1.0625rem); }`;
+const Hint = styled.p`margin: 0; font-size: 0.9375rem; line-height: 1.5; color: ${C.inkSoft}; letter-spacing: 0; text-transform: none;`;
+const Note = styled.p`margin: 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-size: 1.125rem; line-height: 1.5; color: ${C.inkSoft};`;
 const Guest = styled.fieldset`
-  margin: 0; padding: 1.25rem 0 0; border: 0; border-top: 1px solid ${C.line}; display: grid; gap: 0.9rem; min-width: 0;
-  legend { float: left; width: 100%; padding: 0; margin-bottom: 0.25rem; font-size: 1.0625rem; font-weight: 300; }
+  margin: 0; padding: 1.75rem 0 0; border: 0; border-top: 1px solid ${C.haze}; display: grid; gap: 1.5rem; min-width: 0;
+  legend { float: left; width: 100%; padding: 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-size: 1.5rem; line-height: 1.2; color: ${C.ink}; overflow-wrap: anywhere; }
   legend + * { clear: both; }
 `;
-const Row = styled.div`display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end;`;
+const Row = styled.div`display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: end;`;
 const Check = styled.label`
-  display: flex; align-items: center; gap: 0.6rem; min-height: 3.25rem; font-size: 1.0625rem; color: ${C.ink}; cursor: pointer;
-  input { width: 1.25rem; height: 1.25rem; accent-color: ${C.deep}; }
+  display: flex; align-items: center; gap: 0.75rem; min-height: 3rem; font-size: 0.9375rem; line-height: 1.5; color: ${C.ink}; cursor: pointer;
+  input { flex: none; appearance: none; -webkit-appearance: none; box-sizing: border-box; width: 1.1rem; height: 1.1rem; margin: 0; border: 1px solid ${C.ink}; border-radius: 0; background: transparent no-repeat center / 0.7rem; cursor: pointer; }
+  input:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%2333353F' stroke-width='1.6'%3E%3Cpath d='M1.5 6.5 L4.8 9.6 L10.5 2.4'/%3E%3C/svg%3E"); }
+  input:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 3px; }
   input[aria-invalid='true'] { outline: 2px solid ${ERR}; outline-offset: 2px; }
-  span { line-height: 1.45; }
 `;
-const Err = styled.p`margin: 0; padding: 0.9rem 1.1rem; background: ${C.pearl}; color: ${ERR}; font-size: 1.0625rem; line-height: 1.45; border-left: 3px solid ${ERR}; ${DESK} { font-size: clamp(1.0625rem, 1.15vw, 1.25rem); }`;
-const Done = styled.p`margin: 0; font-family: ${SERIF}; font-weight: 500; font-size: clamp(1.625rem, 6vw, 2rem); line-height: 1.25; ${DESK} { font-weight: 400; font-size: clamp(2rem, 2.8vw, 3.25rem); }`;
+const Err = styled.p`margin: 0; padding: 0.9rem 1.1rem; background: ${C.shell}; color: ${ERR}; font-size: 1.0625rem; line-height: 1.45; border-left: 3px solid ${ERR};`;
+const Send = styled.div`text-align: center; button { min-width: 14rem; font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; }`;
+const Done = styled.p`margin: 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(1.75rem, 2.6vw, 2.75rem); line-height: 1.25;`;
 
-function RSVP() {
+// Überschrift des Bereichs: steht neben der Karte (oder, mit der Anfahrt zusammen, über dem Château)
+export function RsvpHead() {
+  const { lang, t } = useLanguage();
+  const c = useLocalizedContent('rsvp');
+  const deadline = c.deadline ? formatWeddingDate(c.deadline, lang) : '';
+  return (
+    <>
+      <Title>{c.title || t(STRINGS, 'navRsvp')}</Title>
+      {c.description && <Lead $onMist>{c.description}</Lead>}
+      {deadline && <Lead $onMist>{t(STRINGS, 'rsvpDeadline', { date: deadline })}</Lead>}
+    </>
+  );
+}
+
+export function RsvpCard() {
   const { project } = useWedding();
   const { lang, t } = useLanguage();
   const c = useLocalizedContent('rsvp');
   const rules = (project?.features && project.features.rsvp) || {};
   const max = Number.isInteger(rules.max_persons) ? rules.max_persons : 10;
   const uid = useId();
+  const cardRef = useReveal();
 
   const tt = (k, v) => t(STRINGS, k, v);
   const rsvp = useRSVP({
@@ -94,9 +135,10 @@ function RSVP() {
     if (next[0]) next[0] = { ...next[0], name: formData.name.trim(), is_child: false };
     if (want > 0) stash.current = null; // einmal zurückgeholt, danach gilt wieder nur das Formular
     if (JSON.stringify(next) !== JSON.stringify(cur)) updateField('guests', next);
-    // Die Länge der Liste gehört zu den Auslösern: Bei sehr schnellem Tippen auf „+" kann eine
-    // ältere Aktualisierung eine neuere überholen – dann gleicht dieser Lauf die Liste wieder an.
-  }, [formData.persons, formData.attending, formData.name, (formData.guests || []).length]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Läuft nach jeder Darstellung: Tippt jemand sehr schnell, kann eine ältere Aktualisierung eine
+    // neuere überholen und die Liste um einen Eintrag kürzen. Dieser Lauf gleicht sie dann wieder an;
+    // stimmt alles, ändert er nichts.
+  });
 
   const setGuest = (i, patch) => {
     const next = [...(formData.guests || [])];
@@ -141,23 +183,16 @@ function RSVP() {
 
   if (submitted) {
     return (
-      <Section id="rsvp" $tone="mist"><Inner>
-        <Aside><Title>{c.title || tt('rsvpTitle')}</Title></Aside>
-        <Body><Done role="status">{tt(formData.attending ? 'thanksYes' : 'thanksNo')}</Done></Body>
-      </Inner></Section>
+      <Card id="rsvp" ref={cardRef}>
+        <Question>{tt('rsvpTitle')}</Question><Rule />
+        <Done role="status">{tt(formData.attending ? 'thanksYes' : 'thanksNo')}</Done>
+      </Card>
     );
   }
 
-  const deadline = c.deadline ? formatWeddingDate(c.deadline, lang) : '';
   return (
-    <Section id="rsvp" $tone="mist">
-      <Inner>
-        <Aside>
-          <Title>{c.title || tt('rsvpTitle')}</Title>
-          {c.description && <Lead $onMist>{c.description}</Lead>}
-          {deadline && <Lead $onMist>{tt('rsvpDeadline', { date: deadline })}</Lead>}
-        </Aside>
-        <Body>
+      <Card id="rsvp" ref={cardRef}>
+        <Question>{tt('rsvpTitle')}</Question><Rule />
         <Form onSubmit={onSubmit} noValidate ref={formRef}>
           <Field htmlFor={`${uid}-name`}>{tt('yourName')}
             <Input id={`${uid}-name`} name="name" autoComplete="name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} maxLength={120}
@@ -169,21 +204,21 @@ function RSVP() {
           </Field>
 
           <Choice role="group" aria-label={c.title || tt('rsvpTitle')} data-chosen={chosen ? 'true' : 'false'}>
-            <Button as="button" type="button" $block $solid={chosen && formData.attending === true} aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</Button>
-            <Button as="button" type="button" $block $solid={chosen && formData.attending === false} aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}>{tt('no')}</Button>
+            <button type="button" aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</button>
+            <button type="button" aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}>{tt('no')}</button>
           </Choice>
 
           {chosen && formData.attending && (
             <>
-              <div>
+              <Persons>
                 <Field as="div" id={`${uid}-persons`}>{tt('persons')}</Field>
                 <Stepper role="group" aria-labelledby={`${uid}-persons`}>
                   <button type="button" aria-label={tt('fewer')} disabled={formData.persons <= 1} onClick={() => adjustPersons(-1)}>−</button>
                   <output aria-live="polite">{formData.persons}</output>
                   <button type="button" aria-label={tt('more')} disabled={formData.persons >= max} onClick={() => adjustPersons(1)}>+</button>
                 </Stepper>
-                <Hint style={{ marginTop: '0.5rem' }}>{tt('personsHint', { max })}</Hint>
-              </div>
+                <Hint>{tt('personsHint', { max })}</Hint>
+              </Persons>
 
               {/* Jede Person hat ihre eigenen Angaben. Person 1 ist die anmeldende Person
                   und braucht nur dann einen eigenen Block, wenn nach Ernährung gefragt wird. */}
@@ -235,11 +270,11 @@ function RSVP() {
                 );
               })}
 
-              {(askDiet || askAllergies) && <Hint>{tt('healthNote')}</Hint>}
+              {(askDiet || askAllergies) && <Note>{tt('healthNote')}</Note>}
               {consentNeeded && (
                 <Check style={{ alignItems: 'flex-start' }}>
                   <input id={`${uid}-consent`} type="checkbox" checked={formData.healthConsent === true} onChange={(e) => updateField('healthConsent', e.target.checked)}
-                    aria-invalid={invalid.consent ? 'true' : undefined} aria-describedby={invalid.consent ? `${uid}-err` : undefined} style={{ marginTop: '0.2rem', flex: 'none' }} />
+                    aria-invalid={invalid.consent ? 'true' : undefined} aria-describedby={invalid.consent ? `${uid}-err` : undefined} style={{ marginTop: '0.2rem' }} />
                   <span>{tt('consent')}</span>
                 </Check>
               )}
@@ -259,9 +294,25 @@ function RSVP() {
           )}
 
           <div aria-live="assertive">{error && <Err role="alert" id={`${uid}-err`}>{error}</Err>}</div>
-          {chosen && <div><Button as="button" type="submit" $solid disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button></div>}
+          {chosen && <Send><Button as="button" type="submit" $solid disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button></Send>}
         </Form>
-        </Body>
+      </Card>
+  );
+}
+
+// Eigener Abschnitt – außer die Antwortkarte steht direkt hinter der Anfahrt:
+// dann zeigt die Anfahrt beide auf einer Fläche (siehe Directions.js).
+function RSVP() {
+  const { project, isComponentActive } = useWedding();
+  const d = useLocalizedContent('directions');
+  const items = Array.isArray(d.items) ? d.items : (Array.isArray(d.options) ? d.options : []);
+  const hasDirections = !!(d.description || d.address || items.some((x) => x && (x.title || x.description)));
+  if (hasDirections && follows(project, isComponentActive, 'directions', 'rsvp')) return null;
+  return (
+    <Section $tone="mist">
+      <Inner>
+        <Aside><RsvpHead /></Aside>
+        <Body><RsvpCard /></Body>
       </Inner>
     </Section>
   );
