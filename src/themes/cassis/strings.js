@@ -3,7 +3,7 @@
 // Inhalte des Paares (Titel, Ablauf, FAQ …) kommen aus dem Dashboard, nicht von hier.
 const STRINGS = {
   en: {
-    language: 'Language', weMarry: 'We are getting married', route: 'Directions', calendar: 'Save to calendar',
+    language: 'Language', menu: 'Menu', closeMenu: 'Close menu', navTimeline: 'Schedule', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Getting there', navFaq: 'FAQ', navWitnesses: 'Witnesses', weMarry: 'We are getting married', route: 'Directions', calendar: 'Save to calendar',
     countdownTitle: 'Save the date', daysLeft: 'days to go', dayLeft: 'day to go', today: 'Today is the day', past: 'We said yes',
     hours: 'hours', minutes: 'minutes',
     schedule: 'Schedule', directions: 'Getting there', witnesses: 'Your contacts', faq: 'Questions & answers',
@@ -22,7 +22,7 @@ const STRINGS = {
     placeholder: 'Content to follow',
   },
   de: {
-    language: 'Sprache', weMarry: 'Wir heiraten', route: 'Route', calendar: 'Im Kalender speichern',
+    language: 'Sprache', menu: 'Menü', closeMenu: 'Menü schließen', navTimeline: 'Ablauf', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Anfahrt', navFaq: 'FAQ', navWitnesses: 'Trauzeug:innen', weMarry: 'Wir heiraten', route: 'Route', calendar: 'Im Kalender speichern',
     countdownTitle: 'Save the Date', daysLeft: 'Tage', dayLeft: 'Tag', today: 'Heute ist es so weit', past: 'Wir haben Ja gesagt',
     hours: 'Stunden', minutes: 'Minuten',
     schedule: 'Ablauf', directions: 'Anfahrt', witnesses: 'Eure Ansprechpersonen', faq: 'Fragen & Antworten',
@@ -41,7 +41,7 @@ const STRINGS = {
     placeholder: 'Inhalt folgt',
   },
   fr: {
-    language: 'Langue', weMarry: 'Nous nous marions', route: 'Itinéraire', calendar: 'Ajouter au calendrier',
+    language: 'Langue', menu: 'Menu', closeMenu: 'Fermer le menu', navTimeline: 'Programme', navCountdown: 'Compte à rebours', navRsvp: 'RSVP', navDirections: 'Accès', navFaq: 'FAQ', navWitnesses: 'Témoins', weMarry: 'Nous nous marions', route: 'Itinéraire', calendar: 'Ajouter au calendrier',
     countdownTitle: 'Réservez la date', daysLeft: 'jours', dayLeft: 'jour', today: 'C’est aujourd’hui', past: 'Nous nous sommes dit oui',
     hours: 'heures', minutes: 'minutes',
     schedule: 'Programme', directions: 'Accès', witnesses: 'Vos contacts', faq: 'Questions & réponses',
@@ -60,7 +60,7 @@ const STRINGS = {
     placeholder: 'Contenu à venir',
   },
   tr: {
-    language: 'Dil', weMarry: 'Evleniyoruz', route: 'Yol tarifi', calendar: 'Takvime ekle',
+    language: 'Dil', menu: 'Menü', closeMenu: 'Menüyü kapat', navTimeline: 'Program', navCountdown: 'Geri sayım', navRsvp: 'LCV', navDirections: 'Ulaşım', navFaq: 'SSS', navWitnesses: 'Şahitler', weMarry: 'Evleniyoruz', route: 'Yol tarifi', calendar: 'Takvime ekle',
     countdownTitle: 'Tarihi not edin', daysLeft: 'gün kaldı', dayLeft: 'gün kaldı', today: 'Bugün büyük gün', past: 'Evet dedik',
     hours: 'saat', minutes: 'dakika',
     schedule: 'Program', directions: 'Ulaşım', witnesses: 'İletişim kişileri', faq: 'Sorular ve yanıtlar',

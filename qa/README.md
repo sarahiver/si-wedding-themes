@@ -27,7 +27,7 @@ Nach Änderungen am Code: App neu bauen und den jeweiligen Server neu starten.
 | `flows.js` | Entwurf, Passwortseite, Dashboard-Anmeldung und Speichern je Theme |
 | `api-tests.js` | Mandantentrennung und Zugriffsschutz der Schnittstelle |
 | `sa.js` | SuperAdmin: Anmeldung, Liste, Projektdetail, Speichern |
-| `cassis.js` | Cassis-Theme: Darstellung 320–1440 px, vier Sprachen, Countdown, Kalenderdatei, RSVP mit Kindern, Passwortseite, Dashboard |
+| `cassis.js` | Cassis-Theme: Darstellung 320–1920 px, Navigation, Bewegung, vier Sprachen, Countdown, Kalenderdatei, RSVP mit Kindern, Passwortseite, Dashboard |
 | `api-rules.js` | RSVP-Regeln auf dem Server: Grenzen, Kinderalter, Doppelantworten, gleichzeitige Anfragen, Mailfehler |
 | `modules.js` | Gästebuch, Musikwünsche, Foto-Upload, Geschenke |
 | `sa-features.js` | SuperAdmin: Zusatzfunktionen je Projekt und RSVP-Übersicht |

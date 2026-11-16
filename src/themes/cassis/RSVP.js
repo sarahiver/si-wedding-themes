@@ -6,24 +6,34 @@ import { useRSVP } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { formatWeddingDate } from './helpers';
 import STRINGS from './strings';
-import { C, FONT, Section, Inner, Aside, Body, Title, Lead, Button } from './shared';
+import { C, FONT, Section, Inner, Aside, Body, Title, Lead, Button, DESK } from './shared';
 
-const Form = styled.form`display: grid; gap: 1.5rem;`;
-const Field = styled.label`display: grid; gap: 0.45rem; font-size: 1rem; color: ${C.ink};`;
+const Form = styled.form`display: grid; gap: 1.5rem; ${DESK} { gap: 2rem; }`;
+const Field = styled.label`display: grid; gap: 0.45rem; font-size: 1rem; color: ${C.ink}; ${DESK} { gap: 0.6rem; font-size: clamp(1rem, 1.05vw, 1.1875rem); }`;
 const inputCss = `
   box-sizing: border-box; width: 100%; min-height: 3.25rem; padding: 0.6rem 0.9rem; border: 1px solid transparent; border-radius: 0;
   background: ${C.pearl}; color: ${C.ink}; font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem;
-  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
+  transition: background-color 0.2s ease;
+  &:hover { background: ${C.white}; }
+  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; background: ${C.white}; }
+  ${DESK} { min-height: 4rem; padding: 0.8rem 1.1rem; font-size: clamp(1.0625rem, 1.15vw, 1.3125rem); }
 `;
 const Input = styled.input`${inputCss}`;
 const Area = styled.textarea`${inputCss} resize: vertical; min-height: 6.5rem; line-height: 1.5;`;
-const Choice = styled.div`display: grid; gap: 0.75rem; @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }`;
+// Die gewählte Antwort ist gefüllt und trägt einen Haken; die andere tritt zurück
+const Choice = styled.div`
+  display: grid; gap: 0.75rem; @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }
+  button[aria-pressed='true']::before { content: ''; flex: none; width: 0.45em; height: 0.85em; margin: -0.2em 0.75em 0 0; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+  &[data-chosen='true'] button[aria-pressed='false'] { opacity: 0.6; }
+  &[data-chosen='true'] button[aria-pressed='false']:hover, &[data-chosen='true'] button[aria-pressed='false']:focus-visible { opacity: 1; }
+`;
 const Stepper = styled.div`
   display: grid; grid-template-columns: 3.25rem 1fr 3.25rem; align-items: center; background: ${C.pearl}; color: ${C.ink}; max-width: 14rem;
   button { height: 3.25rem; border: none; background: transparent; color: ${C.ink}; font-size: 1.5rem; font-family: ${FONT}; font-weight: 300; cursor: pointer; }
   button:disabled { opacity: 0.35; cursor: default; }
   button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: -2px; }
   output { text-align: center; font-size: 1.375rem; font-weight: 300; font-variant-numeric: tabular-nums; }
+  ${DESK} { grid-template-columns: 4rem 1fr 4rem; max-width: 17rem; button { height: 4rem; } output { font-size: 1.625rem; } }
 `;
 const Hint = styled.p`margin: 0; font-size: 0.9375rem; color: ${C.ink};`;
 const Guest = styled.fieldset`
@@ -37,7 +47,7 @@ const Check = styled.label`
   input { width: 1.25rem; height: 1.25rem; accent-color: ${C.deep}; }
 `;
 const Err = styled.p`margin: 0; padding: 0.85rem 1rem; background: ${C.pearl}; color: #7A1B26; font-size: 1rem; border-left: 3px solid #7A1B26;`;
-const Done = styled.p`margin: 0; font-weight: 300; font-size: clamp(1.375rem, 5vw, 1.75rem); line-height: 1.35;`;
+const Done = styled.p`margin: 0; font-weight: 300; font-size: clamp(1.375rem, 5vw, 1.75rem); line-height: 1.35; ${DESK} { font-size: clamp(1.75rem, 2.3vw, 2.75rem); }`;
 
 function RSVP() {
   const { project } = useWedding();
@@ -110,7 +120,7 @@ function RSVP() {
             <Input id={`${uid}-email`} name="email" type="email" autoComplete="email" inputMode="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} maxLength={254} />
           </Field>
 
-          <Choice role="group" aria-label={c.title || tt('rsvpTitle')}>
+          <Choice role="group" aria-label={c.title || tt('rsvpTitle')} data-chosen={chosen ? 'true' : 'false'}>
             <Button as="button" type="button" $block $solid={chosen && formData.attending === true} aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</Button>
             <Button as="button" type="button" $block $solid={chosen && formData.attending === false} aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}>{tt('no')}</Button>
           </Choice>

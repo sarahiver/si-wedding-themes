@@ -12,7 +12,7 @@
  {
   "name": "Breite 320: Schriftzug-Grafik geladen und vollständig im Bild",
   "pass": true,
-  "info": "[35,285]"
+  "info": "[26,294]"
  },
  {
   "name": "Breite 320: Startfoto geladen",
@@ -23,6 +23,41 @@
   "name": "Breite 320: keine Fehler in der Browser-Konsole",
   "pass": true,
   "info": ""
+ },
+ {
+  "name": "Breite 320: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":3,\"overlap\":0,\"right\":312,\"vw\":320}"
+ },
+ {
+  "name": "Breite 375: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 375: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "timeline,countdown,rsvp,directions,faq,witnesses"
+ },
+ {
+  "name": "Breite 375: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[30,345]"
+ },
+ {
+  "name": "Breite 375: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 375: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 375: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":3,\"overlap\":0,\"right\":367,\"vw\":375}"
  },
  {
   "name": "Breite 390: kein seitliches Scrollen",
@@ -37,7 +72,7 @@
  {
   "name": "Breite 390: Schriftzug-Grafik geladen und vollständig im Bild",
   "pass": true,
-  "info": "[43,347]"
+  "info": "[31,359]"
  },
  {
   "name": "Breite 390: Startfoto geladen",
@@ -55,6 +90,11 @@
   "info": ""
  },
  {
+  "name": "Breite 390: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":3,\"overlap\":0,\"right\":382,\"vw\":390}"
+ },
+ {
   "name": "Breite 768: kein seitliches Scrollen",
   "pass": true,
   "info": "0"
@@ -67,7 +107,7 @@
  {
   "name": "Breite 768: Schriftzug-Grafik geladen und vollständig im Bild",
   "pass": true,
-  "info": "[192,576]"
+  "info": "[176,592]"
  },
  {
   "name": "Breite 768: Startfoto geladen",
@@ -78,6 +118,41 @@
   "name": "Breite 768: keine Fehler in der Browser-Konsole",
   "pass": true,
   "info": ""
+ },
+ {
+  "name": "Breite 768: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":3,\"overlap\":0,\"right\":745.28125,\"vw\":768}"
+ },
+ {
+  "name": "Breite 1024: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 1024: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "timeline,countdown,rsvp,directions,faq,witnesses"
+ },
+ {
+  "name": "Breite 1024: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[287,737]"
+ },
+ {
+  "name": "Breite 1024: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1024: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1024: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":11,\"overlap\":0,\"right\":991.046875,\"vw\":1024}"
  },
  {
   "name": "Breite 1440: kein seitliches Scrollen",
@@ -92,7 +167,7 @@
  {
   "name": "Breite 1440: Schriftzug-Grafik geladen und vollständig im Bild",
   "pass": true,
-  "info": "[480,960]"
+  "info": "[414,1026]"
  },
  {
   "name": "Breite 1440: Startfoto geladen",
@@ -103,6 +178,41 @@
   "name": "Breite 1440: keine Fehler in der Browser-Konsole",
   "pass": true,
   "info": ""
+ },
+ {
+  "name": "Breite 1440: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":11,\"overlap\":0,\"right\":1392,\"vw\":1440}"
+ },
+ {
+  "name": "Breite 1920: kein seitliches Scrollen",
+  "pass": true,
+  "info": "0"
+ },
+ {
+  "name": "Breite 1920: Bereiche in der richtigen Reihenfolge",
+  "pass": true,
+  "info": "timeline,countdown,rsvp,directions,faq,witnesses"
+ },
+ {
+  "name": "Breite 1920: Schriftzug-Grafik geladen und vollständig im Bild",
+  "pass": true,
+  "info": "[593,1327]"
+ },
+ {
+  "name": "Breite 1920: Startfoto geladen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1920: keine Fehler in der Browser-Konsole",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Breite 1920: Kopfzeile ohne Überlappung und ohne Überstand",
+  "pass": true,
+  "info": "{\"count\":11,\"overlap\":0,\"right\":1872,\"vw\":1920}"
  },
  {
   "name": "Keine Galerie, keine fremden Bereiche",
@@ -117,17 +227,17 @@
  {
   "name": "Zweites Foto steht als eigener Abschnitt zwischen Ablauf und Countdown",
   "pass": true,
-  "info": "{\"timeline\":844,\"photo\":1423,\"countdown\":2008,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[20,14,56],\"vw\":390}"
+  "info": "{\"timeline\":844,\"photo\":1436,\"countdown\":2021,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
  },
  {
   "name": "Beide Fotos je genau einmal, Schloss-Illustration genau einmal",
   "pass": true,
-  "info": "{\"timeline\":844,\"photo\":1423,\"countdown\":2008,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[20,14,56],\"vw\":390}"
+  "info": "{\"timeline\":844,\"photo\":1436,\"countdown\":2021,\"heroPhoto\":1,\"secondPhoto\":1,\"castle\":1,\"mark\":[16,8,48],\"vw\":390}"
  },
  {
   "name": "Schriftzug oben links in der Kopfzeile",
   "pass": true,
-  "info": "[20,14,56]"
+  "info": "[16,8,48]"
  },
  {
   "name": "Startfoto füllt den Bildschirm; Namen und Datum stehen darauf",
@@ -163,6 +273,211 @@
   "name": "„Nach oben\" führt an den Seitenanfang",
   "pass": true,
   "info": ""
+ },
+ {
+  "name": "Navigation (Desktop): sechs Menüpunkte in der Reihenfolge der Seite",
+  "pass": true,
+  "info": "[[\"Ablauf\",\"#timeline\"],[\"Countdown\",\"#countdown\"],[\"RSVP\",\"#rsvp\"],[\"Anfahrt\",\"#directions\"],[\"FAQ\",\"#faq\"],[\"Trauzeug:innen\",\"#witnesses\"]]"
+ },
+ {
+  "name": "Navigation (Desktop): kein Aufklappmenü, Sprachen direkt sichtbar",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Kopfzeile über dem Foto durchsichtig",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „timeline\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „countdown\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „rsvp\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „directions\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „faq\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Menüpunkt führt zum Bereich „witnesses\", direkt unter die Kopfzeile",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Kopfzeile nach dem Scrollen hinterlegt und weiter oben fixiert",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Hinterlegte Kopfzeile: dunkle Schrift auf hellem Grund",
+  "pass": true,
+  "info": "rgb(51, 53, 63)"
+ },
+ {
+  "name": "Menü folgt der Sprache (Französisch)",
+  "pass": true,
+  "info": "Programme,Compte à rebours,RSVP,Accès,FAQ,Témoins"
+ },
+ {
+  "name": "Menü folgt der Sprache (Türkisch)",
+  "pass": true,
+  "info": "Program,Geri sayım,LCV,Ulaşım,SSS,Şahitler"
+ },
+ {
+  "name": "Menü folgt der Sprache (Englisch)",
+  "pass": true,
+  "info": "Schedule,Countdown,RSVP,Getting there,FAQ,Witnesses"
+ },
+ {
+  "name": "Tastatur: Schriftzug, sechs Menüpunkte, vier Sprachen der Reihe nach",
+  "pass": true,
+  "info": "#top,#timeline,#countdown,#rsvp,#directions,#faq,#witnesses,en,tr,de,fr"
+ },
+ {
+  "name": "Tastatur: sichtbarer Fokusrahmen",
+  "pass": true,
+  "info": "solid 2px"
+ },
+ {
+  "name": "Navigation (Handy): Menü zunächst geschlossen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Navigation (Handy): Knopf benannt und mit dem Menü verknüpft",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Navigation (Handy): Tippflächen mindestens 44 × 44 px",
+  "pass": true,
+  "info": "[{\"x\":338,\"y\":10,\"width\":44,\"height\":44},{\"x\":280.390625,\"y\":10,\"width\":53.609375,\"height\":44}]"
+ },
+ {
+  "name": "Menü öffnet: Zustand gemeldet, Punkte sichtbar, erster Punkt im Fokus",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Offenes Menü: Seite dahinter scrollt nicht",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Escape schließt das Menü, Fokus zurück am Knopf, Seite scrollt wieder",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Auswahl eines Punkts schließt das Menü und führt zum Bereich",
+  "pass": true,
+  "info": "62"
+ },
+ {
+  "name": "Sprachliste (Handy): öffnet, Zustand gemeldet",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Menü und Sprachliste sind nie gleichzeitig offen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Sprachwahl (Handy): wechselt die Sprache und schließt die Liste",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Menü zeigt nur Bereiche, die auf der Seite stehen",
+  "pass": true,
+  "info": "#countdown,#rsvp"
+ },
+ {
+  "name": "Einblenden: Bereiche unterhalb des Bildschirms warten, nichts oberhalb ist versteckt",
+  "pass": true,
+  "info": "armed,armed,armed,armed,armed,armed,armed"
+ },
+ {
+  "name": "Startbild: nach der Eingangsbewegung vollständig sichtbar",
+  "pass": true,
+  "info": "1,1"
+ },
+ {
+  "name": "Einblenden: nach einmaligem Durchscrollen ist alles sichtbar und bleibt es",
+  "pass": true,
+  "info": "in,in,in,in,in,in,in / versteckt: 0"
+ },
+ {
+  "name": "Kein erneutes Ausblenden beim Zurückscrollen",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Linie des Ablaufs steht nach dem Aufbau vollständig",
+  "pass": true,
+  "info": "none"
+ },
+ {
+  "name": "FAQ öffnet und zeigt die Antwort",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "FAQ schließt wieder",
+  "pass": true,
+  "info": ""
+ },
+ {
+  "name": "Reduzierte Bewegung: keine Eingangsbewegung, nichts versteckt",
+  "pass": true,
+  "info": "{\"armed\":0,\"anim\":\"none\",\"hidden\":0}"
+ },
+ {
+  "name": "Ohne IntersectionObserver: alle Inhalte sichtbar",
+  "pass": true,
+  "info": "{\"io\":\"undefined\",\"armed\":0,\"hidden\":0}"
+ },
+ {
+  "name": "Desktop 1440: große Schrift (Überschrift ≥ 48, Ablauf ≥ 28, Fließtext ≥ 19 px)",
+  "pass": true,
+  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+ },
+ {
+  "name": "Desktop 1440: Kalenderblatt ≥ 600 px breit, Tageszahl ≥ 180 px hoch gesetzt",
+  "pass": true,
+  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+ },
+ {
+  "name": "Desktop 1440: Formular ≥ 600 px breit, Felder ≥ 60 px hoch",
+  "pass": true,
+  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+ },
+ {
+  "name": "Desktop 1440: zweites Foto über die ganze Breite und höher als der Bildschirm",
+  "pass": true,
+  "info": "{\"title\":53.28,\"item\":30.96,\"body\":19.44,\"day\":28.8,\"count\":216,\"sheet\":664,\"form\":664,\"input\":64,\"photo\":1440,\"photoH\":1210,\"mark\":612}"
+ },
+ {
+  "name": "Desktop 1440: Schriftzug im Startbild ≥ 560 px breit",
+  "pass": true,
+  "info": "612"
  },
  {
   "name": "Gerätesprache tr-TR → tr",
@@ -222,7 +537,7 @@
  {
   "name": "Türkisch: Datum in türkischer Schreibweise",
   "pass": true,
-  "info": "ENG\nTR\nDE\nFR\n\n15 Mayıs 2027\nChâteau de Cassis\n\nTimeline\n15:00\nGrande entrée\n15:15\nCérémonie\n16:00\nVin d'honneur\n18:00\nDîner\n20:30\nPièce montée\n21:00\nOuverture du bal\n21:15\nSoirée dansante\n\n180\ngün kal"
+  "info": "TR\n\n15 Mayıs 2027\nChâteau de Cassis\n\nTimeline\n15:00\nGrande entrée\n15:15\nCérémonie\n16:00\nVin d'honneur\n18:00\nDîner\n20:30\nPièce montée\n21:00\nOuverture du bal\n21:15\nSoirée dansante\n\n180\ngün kaldı\n\nTakvim"
  },
  {
   "name": "Französisch: übersetzter Titel und Datum",
@@ -262,7 +577,7 @@
  {
   "name": "Zusage mit 3 Personen und Kind wird gespeichert",
   "pass": true,
-  "info": "{\"id\":\"66468b2c-a974-4669-9f34-6909ffeb72ab\",\"created_at\":\"2026-11-16T10:29:44.096Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
+  "info": "{\"id\":\"c23f196f-06f4-4c9b-902c-b1c6ec6d8529\",\"created_at\":\"2026-11-16T11:14:51.174Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Ayşe Yılmaz\",\"email\":\"ayse@example.test\",\"persons\":3,\"a"
  },
  {
   "name": "Alter des Kindes steht bei der richtigen Person",
@@ -302,7 +617,7 @@
  {
   "name": "Anmeldung mit 8 Personen wird angenommen",
   "pass": true,
-  "info": "{\"id\":\"84f1b8da-c80b-4d04-9a25-0876055832f7\",\"created_at\":\"2026-11-16T10:29:47.061Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
+  "info": "{\"id\":\"808642b5-ce61-4ebc-a367-bd02a2fba3f6\",\"created_at\":\"2026-11-16T11:14:54.156Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Große Familie\",\"email\":\"gross@example.test\",\"persons\":8"
  },
  {
   "name": "Kind ohne Alter: verständliche Meldung, nichts gespeichert",
@@ -342,7 +657,7 @@
  {
   "name": "Absage gespeichert, Doppelklick erzeugt nur einen Eintrag",
   "pass": true,
-  "info": "[{\"id\":\"ec97166f-291d-4828-8903-585ee75b48ec\",\"created_at\":\"2026-11-16T10:30:00.811Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
+  "info": "[{\"id\":\"362e2b32-1ef1-4170-a907-ff5c998d787a\",\"created_at\":\"2026-11-16T11:15:08.147Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"name\":\"Luc Martin\",\"email\":\"luc@example.test\",\"persons\":1,\"at"
  },
  {
   "name": "Absage: eine Bestätigung auf Französisch",
@@ -397,7 +712,7 @@
  {
   "name": "Dashboard Cassis: Anfahrt speichern landet im richtigen Projekt",
   "pass": true,
-  "info": "{\"id\":\"7b8aaedf-d663-4ed9-b6c9-a37d699afd8f\",\"created_at\":\"2026-11-16T10:29:26.029Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
+  "info": "{\"id\":\"636ad3f6-d1d4-4f45-88e2-ac2f490181ba\",\"created_at\":\"2026-11-16T11:13:58.463Z\",\"project_id\":\"00000000-0000-4000-8000-000000000072\",\"component\":\"directions"
  },
  {
   "name": "Gespeicherte Kinderbetreuungs-Daten bleiben erhalten (nichts gelöscht)",

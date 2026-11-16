@@ -5,7 +5,7 @@ const label = process.argv[2] || 'view'; const lang = process.argv[3] || 'de';
 (async () => {
   await seedCassis(); fs.mkdirSync(`shots/${label}`, { recursive: true });
   const browser = await chromium.launch();
-  for (const [vp, size] of Object.entries({ mobile: { width: 390, height: 844 }, small: { width: 320, height: 640 }, desktop: { width: 1440, height: 900 } })) {
+  for (const [vp, size] of Object.entries({ mobile: { width: 390, height: 844 }, small: { width: 320, height: 640 }, desktop: { width: 1440, height: 900 }, wide: { width: 1920, height: 1080 } })) {
     const ctx = await browser.newContext({ viewport: size, reducedMotion: 'reduce', deviceScaleFactor: vp === 'mobile' ? 2 : 1, locale: lang, timezoneId: 'Europe/Berlin' });
     const page = await ctx.newPage(); await page.clock.setFixedTime(new Date('2026-11-16T10:00:00Z')); await routeFonts(page); await routeAssets(page);
     await page.goto(`${BASE}/lena-tom`, { waitUntil: 'networkidle', timeout: 45000 }); await page.waitForTimeout(2500);

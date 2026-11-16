@@ -4,20 +4,20 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, Section, Inner, Aside, Body, Title, Text, Button } from './shared';
+import { C, Section, Inner, Aside, Body, Title, Text, Button, DESK } from './shared';
 import { mapsLink } from './helpers';
 
-const Place = styled.p`margin: 0; font-weight: 300; font-size: 1.375rem; line-height: 1.3;`;
+const Place = styled.p`margin: 0; font-weight: 300; font-size: 1.375rem; line-height: 1.3; ${DESK} { font-size: clamp(1.625rem, 2.15vw, 2.5rem); }`;
 const Address = styled.address`margin: 0.4rem 0 1.5rem; font-style: normal; white-space: pre-line; color: ${C.inkSoft};`;
 const Options = styled.dl`margin: 2rem 0 0; display: grid; gap: 1.5rem;`;
-const Term = styled.dt`font-weight: 300; font-size: 1.1875rem; line-height: 1.3;`;
+const Term = styled.dt`font-weight: 300; font-size: 1.1875rem; line-height: 1.3; ${DESK} { font-size: clamp(1.3125rem, 1.6vw, 1.875rem); }`;
 const Desc = styled.dd`margin: 0.3rem 0 0; white-space: pre-line; overflow-wrap: anywhere; color: ${C.inkSoft};`;
-const Actions = styled.div`margin-top: 0.5rem;`;
+const Actions = styled.div`margin-top: 0.5rem; ${DESK} { margin-top: 1.5rem; }`;
 // Die Illustration bleibt klein und zurückhaltend: ein Motiv, einmal auf der Seite
 // Auf dem Handy steht sie nach dem Text, ab Tablet unter der Überschrift.
 const Illustration = styled.img`
   display: block; width: 100%; max-width: 15rem; height: auto; margin: 0.5rem 0 0; opacity: 0.6;
-  @media (min-width: 900px) { grid-column: 1; grid-row: 2; max-width: 17rem; margin-top: 1rem; }
+  @media (min-width: 900px) { grid-column: 1; grid-row: 2; max-width: clamp(18rem, 24vw, 28rem); margin-top: 1rem; }
 `;
 const Content = styled(Body)`@media (min-width: 900px) { grid-column: 2; grid-row: 1 / span 2; }`;
 
