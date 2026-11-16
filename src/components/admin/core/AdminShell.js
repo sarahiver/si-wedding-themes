@@ -1,6 +1,7 @@
 // core/AdminShell.js - Main Layout (Logic Only)
 import React, { useState, useEffect } from 'react';
 import { useAdmin, AdminProvider } from './AdminContext';
+import { LANGUAGE_NAMES } from '../../../lib/i18n';
 import { AdminMobileStyles, SidebarBackdrop } from './AdminMobile';
 
 // Import Sections
@@ -104,6 +105,7 @@ function AdminShellInner({ components: C, LoginComponent }) {
     navItems, coupleNames, slug,
     isLoading,
     feedback, closeFeedback,
+    contentLanguages, masterLanguage, editLang, setEditLang,
   } = admin;
 
   // Body einfrieren, solange das Slide-in-Menü auf dem Handy offen ist
@@ -256,6 +258,9 @@ function AdminShellInner({ components: C, LoginComponent }) {
         <C.Header>
           <C.PageTitle>{titles[activeTab] || 'Admin'}</C.PageTitle>
         </C.Header>
+        {String(activeTab).startsWith('edit-') && contentLanguages.length > 1 && (
+          <LanguageBar languages={contentLanguages} master={masterLanguage} current={editLang || masterLanguage} onChange={setEditLang} />
+        )}
         <AdminErrorBoundary key={activeTab} onNavigate={setActiveTab}>
           {renderContent()}
         </AdminErrorBoundary>
@@ -267,6 +272,33 @@ function AdminShellInner({ components: C, LoginComponent }) {
         </C.FeedbackModal>
       )}
     </C.DashboardContainer>
+  );
+}
+
+// Sprache, in der die Inhalte bearbeitet werden. Erscheint nur bei mehrsprachigen Projekten.
+function LanguageBar({ languages, master, current, onChange }) {
+  const ordered = [master, ...languages.filter((l) => l !== master)];
+  const translating = current !== master;
+  const tab = (on) => ({
+    minHeight: '2.75rem', padding: '0 1rem', border: '1px solid var(--admin-border, rgba(0,0,0,0.15))', borderBottom: on ? '2px solid currentColor' : '1px solid var(--admin-border, rgba(0,0,0,0.15))',
+    background: on ? 'var(--admin-bg-hover, rgba(0,0,0,0.04))' : 'transparent', color: 'inherit', font: 'inherit', fontSize: '0.9rem', fontWeight: on ? 600 : 400, cursor: 'pointer',
+  });
+  return (
+    <div data-testid="content-language" style={{ margin: '0 0 1.5rem', color: 'var(--admin-text, #1a1a1a)' }}>
+      <div style={{ fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--admin-text-secondary, #555)' }}>Inhalte bearbeiten in</div>
+      <div role="group" aria-label="Sprache der Inhalte" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        {ordered.map((l) => (
+          <button key={l} type="button" lang={l} aria-pressed={l === current} onClick={() => onChange(l === master ? null : l)} style={tab(l === current)}>
+            {LANGUAGE_NAMES[l] || l}{l === master ? ' (Hauptsprache)' : ''}
+          </button>
+        ))}
+      </div>
+      <p role="status" style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--admin-text-secondary, #555)' }}>
+        {translating
+          ? `Übersetzung ${LANGUAGE_NAMES[current] || current}: Hier ändert ihr nur Texte. Wo noch keine Übersetzung eingetragen ist, steht der Text der Hauptsprache – so erscheint er auch auf der Website. Uhrzeiten, Daten, Bilder und neue Einträge legt ihr in der Hauptsprache an. Speichern nicht vergessen.`
+          : 'Hauptsprache: Hier legt ihr Einträge, Uhrzeiten und Bilder an. Die anderen Sprachen übernehmen alles, was nicht übersetzt ist.'}
+      </p>
+    </div>
   );
 }
 
