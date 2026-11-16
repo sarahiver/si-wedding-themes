@@ -209,7 +209,6 @@ const themeComponents = {
     Countdown: lazy(() => import("../themes/cassis/Countdown")),
     Timeline: lazy(() => import("../themes/cassis/Timeline")),
     Directions: lazy(() => import("../themes/cassis/Directions")),
-    Childcare: lazy(() => import("../themes/cassis/Childcare")),
     RSVP: lazy(() => import("../themes/cassis/RSVP")),
     ContactWitnesses: lazy(() => import("../themes/cassis/ContactWitnesses")),
     FAQ: lazy(() => import("../themes/cassis/FAQ")),
@@ -286,10 +285,10 @@ const themeConfig = {
   },
   cassis: {
     GlobalStyles: CassisGlobalStyles,
-    background: "#8A91A3",
+    background: "#F0ECED",
     hasSpecialBackground: false,
     // Eigene Standardreihenfolge, falls im Projekt keine hinterlegt ist
-    defaultOrder: ["hero", "countdown", "timeline", "directions", "childcare", "rsvp", "witnesses", "faq"],
+    defaultOrder: ["hero", "timeline", "countdown", "rsvp", "directions", "faq", "witnesses"],
   },
 }
 
@@ -349,8 +348,6 @@ function ComponentRenderer({ componentId, components, isComponentActive, compone
     witnesses: { Component: components.ContactWitnesses },
     faq: { Component: components.FAQ },
     weddingabc: { Component: components.WeddingABC },
-    // Nur Themes, die diesen Bereich mitbringen, rendern ihn (sonst null)
-    childcare: { Component: components.Childcare },
   }
 
   const config = componentMap[componentId]

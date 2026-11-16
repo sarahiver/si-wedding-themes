@@ -143,7 +143,6 @@ function AdminShellInner({ components: C, LoginComponent }) {
     'edit-musicwishes': 'Musikwünsche bearbeiten',
     'edit-photoupload': 'Foto-Upload bearbeiten',
     'edit-faq': 'FAQ',
-    'edit-childcare': 'Kinderbetreuung',
     'edit-abc': 'Hochzeits-ABC',
     'edit-footer': 'Footer',
     'edit-savethedate': 'Save the Date',
@@ -200,7 +199,6 @@ function AdminShellInner({ components: C, LoginComponent }) {
       case 'edit-musicwishes': return <Editors.MusicWishesEditor components={C} />;
       case 'edit-photoupload': return <Editors.PhotoUploadEditor components={C} />;
       case 'edit-faq': return <Editors.FAQEditor components={C} />;
-      case 'edit-childcare': return <Editors.ChildcareEditor components={C} />;
       case 'edit-abc': return <Editors.ABCEditor components={C} />;
       case 'edit-footer': return <Editors.FooterEditor components={C} />;
       case 'edit-savethedate': return <Editors.SaveTheDateEditor components={C} />;

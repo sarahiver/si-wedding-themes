@@ -1,27 +1,34 @@
-// src/themes/cassis/Timeline.js – zweites Paarfoto und Ablauf
+// src/themes/cassis/Timeline.js – Ablauf von oben nach unten, danach das zweite Foto als eigener Bildabschnitt
 import React from 'react';
 import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
+import { optimizedUrl } from '../../lib/cloudinary';
 import STRINGS from './strings';
-import { C, Section, Inner, Title } from './shared';
+import { C, Section, Inner, Aside, Body, Title } from './shared';
 
-const Photo = styled.img`display: block; width: 100%; height: auto; max-height: 92vh; object-fit: cover; background: ${C.blueLight};`;
-const List = styled.ol`
-  list-style: none; margin: 0; padding: 0.5rem 0 0.5rem 0; position: relative;
-  &::before { content: ''; position: absolute; top: 0; bottom: 0; left: 7.1rem; width: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); }
-  @media (max-width: 360px) { &::before { left: 5.9rem; } }
-`;
+// Eine durchgehende feine Linie; jede Zeile sitzt mit einem kleinen Punkt darauf.
+const List = styled.ol`list-style: none; margin: 0; padding: 0;`;
 const Item = styled.li`
-  display: grid; grid-template-columns: 6rem 1fr; column-gap: 2.5rem; align-items: baseline; padding: 0.9rem 0;
-  @media (max-width: 360px) { grid-template-columns: 5rem 1fr; column-gap: 2rem; }
+  position: relative; display: grid; grid-template-columns: 4.25rem 1fr; column-gap: 2.75rem; align-items: baseline;
+  padding: 0 0 clamp(1.75rem, 6vw, 2.5rem);
+  &::before { content: ''; position: absolute; left: 5.625rem; top: 0.75rem; bottom: -0.75rem; width: 1px; background: ${C.haze}; }
+  &:last-child { padding-bottom: 0; }
+  &:last-child::before { display: none; }
+  &::after { content: ''; position: absolute; left: calc(5.625rem - 3px); top: 0.6rem; width: 7px; height: 7px; border-radius: 50%; background: ${C.mist}; }
 `;
-const Time = styled.time`
-  justify-self: end; font-size: 1.75rem; line-height: 1; font-weight: 300; white-space: nowrap;
-  sup { font-size: 0.5em; vertical-align: 0.75em; margin-left: 0.3em; letter-spacing: 0.04em; }
-`;
+const Time = styled.time`font-weight: 300; font-size: 1.375rem; line-height: 1.3; font-variant-numeric: tabular-nums; white-space: nowrap; color: ${C.inkSoft};`;
 const What = styled.div`
-  font-size: 1.375rem; line-height: 1.25; overflow-wrap: anywhere;
-  small { display: block; margin-top: 0.2rem; font-size: 1rem; line-height: 1.45; }
+  font-weight: 300; font-size: 1.375rem; line-height: 1.3; overflow-wrap: anywhere;
+  small { display: block; margin-top: 0.3rem; font-weight: 400; font-size: 1rem; line-height: 1.5; color: ${C.inkSoft}; }
+`;
+// Bildabschnitt: auf dem Handy randlos, auf großen Flächen als ganzes Hochformat mit Luft
+const Figure = styled.figure`
+  margin: 0; background: ${C.mist}; line-height: 0; text-align: center;
+  img { display: block; width: 100%; height: auto; }
+  @media (min-width: 900px) {
+    padding: clamp(4rem, 8vw, 7rem) 2rem;
+    img { display: inline-block; width: auto; max-width: 100%; height: min(86vh, 58rem); object-fit: cover; }
+  }
 `;
 
 function Timeline() {
@@ -31,23 +38,24 @@ function Timeline() {
   if (!events.length && !tl.image) return null;
   return (
     <>
-      {tl.image && <Photo src={tl.image} alt="" loading="lazy" />}
-      <Section id="timeline" $tone="blue">
-        <Inner>
-          <Title $align="left">{tl.title || t(STRINGS, 'schedule')}</Title>
-          <List>
-            {events.map((e, i) => {
-              const [h, m] = String(e.time || '').split(/[:.]/);
-              return (
-                <Item key={i}>
-                  <Time dateTime={e.time || undefined}>{h}{m !== undefined && <sup>{m}</sup>}</Time>
-                  <What>{e.title}{(e.location || e.description) && <small>{[e.location, e.description].filter(Boolean).join(' · ')}</small>}</What>
-                </Item>
-              );
-            })}
-          </List>
-        </Inner>
-      </Section>
+      {events.length > 0 && (
+        <Section id="timeline" $tone="shell">
+          <Inner>
+            <Aside><Title>{tl.title || t(STRINGS, 'schedule')}</Title></Aside>
+            <Body>
+              <List>
+                {events.map((e, i) => (
+                  <Item key={i}>
+                    <Time dateTime={e.time || undefined}>{e.time}</Time>
+                    <What>{e.title}{(e.location || e.description) && <small>{[e.location, e.description].filter(Boolean).join(', ')}</small>}</What>
+                  </Item>
+                ))}
+              </List>
+            </Body>
+          </Inner>
+        </Section>
+      )}
+      {tl.image && <Figure data-cassis-photo><img src={optimizedUrl.hero(tl.image)} alt="" loading="lazy" /></Figure>}
     </>
   );
 }

@@ -13,8 +13,7 @@ ok   Leere Einstellung: nichts angehakt, Formular bedienbar
 ok   Speichern ohne Auswahl lässt die Einstellung leer (Projekt bleibt Altprojekt)
 ok   Der bestehende Speichern-Knopf der Seite sendet die Spalte features nicht mit
 ok   Theme Cassis steht zur Auswahl
-ok   Komponentenliste des Cassis-Projekts zeigt Kinderbetreuung
-ok   Komponentenliste anderer Projekte bleibt ohne Kinderbetreuung
+ok   Komponentenliste enthält keine Kinderbetreuung mehr
 ok   Keine Fehler im Browser
 
-18/18 bestanden
+17/17 bestanden

@@ -4,39 +4,40 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
-import { formatWeddingDate } from './Hero';
+import { formatWeddingDate } from './helpers';
 import STRINGS from './strings';
-import { C, FONT, Section, Inner, Title, Lead, Button } from './shared';
+import { C, FONT, Section, Inner, Aside, Body, Title, Lead, Button } from './shared';
 
-const Form = styled.form`display: grid; gap: 1.5rem; margin-top: 2rem;`;
-const Field = styled.label`display: grid; gap: 0.4rem; font-size: 1.25rem; color: ${C.inkSoft};`;
+const Form = styled.form`display: grid; gap: 1.5rem;`;
+const Field = styled.label`display: grid; gap: 0.45rem; font-size: 1rem; color: ${C.ink};`;
 const inputCss = `
   box-sizing: border-box; width: 100%; min-height: 3.25rem; padding: 0.6rem 0.9rem; border: 1px solid transparent; border-radius: 0;
-  background: #fff; color: ${C.ink}; font-family: ${FONT}; font-weight: 300; font-size: 1.125rem;
+  background: ${C.pearl}; color: ${C.ink}; font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem;
   &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
 `;
 const Input = styled.input`${inputCss}`;
-const Area = styled.textarea`${inputCss} resize: vertical; min-height: 6rem;`;
-const Choice = styled.div`display: grid; gap: 0.6rem;`;
+const Area = styled.textarea`${inputCss} resize: vertical; min-height: 6.5rem; line-height: 1.5;`;
+const Choice = styled.div`display: grid; gap: 0.75rem; @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }`;
 const Stepper = styled.div`
-  display: grid; grid-template-columns: 3.25rem 1fr 3.25rem; align-items: center; background: #fff; color: ${C.ink};
-  button { height: 3.25rem; border: none; background: ${C.blueLight}; color: ${C.ink}; font-size: 1.6rem; font-family: ${FONT}; cursor: pointer; }
-  button:disabled { opacity: 0.45; cursor: default; }
-  button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
-  output { text-align: center; font-size: 1.5rem; }
+  display: grid; grid-template-columns: 3.25rem 1fr 3.25rem; align-items: center; background: ${C.pearl}; color: ${C.ink}; max-width: 14rem;
+  button { height: 3.25rem; border: none; background: transparent; color: ${C.ink}; font-size: 1.5rem; font-family: ${FONT}; font-weight: 300; cursor: pointer; }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: -2px; }
+  output { text-align: center; font-size: 1.375rem; font-weight: 300; font-variant-numeric: tabular-nums; }
 `;
-const Hint = styled.p`margin: 0; font-size: 1rem; color: ${C.inkSoft};`;
+const Hint = styled.p`margin: 0; font-size: 0.9375rem; color: ${C.ink};`;
 const Guest = styled.fieldset`
-  margin: 0; padding: 1rem; border: 1px solid ${C.line}; display: grid; gap: 0.8rem;
-  legend { padding: 0 0.4rem; font-size: 0.875rem; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft}; }
+  margin: 0; padding: 1.25rem 0 0; border: 0; border-top: 1px solid ${C.line}; display: grid; gap: 0.9rem; min-width: 0;
+  legend { float: left; width: 100%; padding: 0; margin-bottom: 0.25rem; font-size: 1.0625rem; font-weight: 300; }
+  legend + * { clear: both; }
 `;
-const Row = styled.div`display: grid; grid-template-columns: 1fr auto; gap: 0.8rem; align-items: end;`;
+const Row = styled.div`display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end;`;
 const Check = styled.label`
-  display: flex; align-items: center; gap: 0.6rem; min-height: 2.75rem; font-size: 1.125rem; color: ${C.ink}; cursor: pointer;
-  input { width: 1.25rem; height: 1.25rem; accent-color: ${C.blueDeep}; }
+  display: flex; align-items: center; gap: 0.6rem; min-height: 3.25rem; font-size: 1.0625rem; color: ${C.ink}; cursor: pointer;
+  input { width: 1.25rem; height: 1.25rem; accent-color: ${C.deep}; }
 `;
-const Err = styled.p`margin: 0; padding: 0.75rem 1rem; background: #fff; color: #8A1F2B; font-size: 1.0625rem;`;
-const Done = styled.p`margin: 2rem 0 0; padding: 1.5rem; background: #fff; color: ${C.ink}; font-size: 1.375rem; line-height: 1.35; text-align: center;`;
+const Err = styled.p`margin: 0; padding: 0.85rem 1rem; background: ${C.pearl}; color: #7A1B26; font-size: 1rem; border-left: 3px solid #7A1B26;`;
+const Done = styled.p`margin: 0; font-weight: 300; font-size: clamp(1.375rem, 5vw, 1.75rem); line-height: 1.35;`;
 
 function RSVP() {
   const { project } = useWedding();
@@ -84,21 +85,23 @@ function RSVP() {
 
   if (submitted) {
     return (
-      <Section id="rsvp" $tone="paper"><Inner>
-        <Title $align="left">{c.title || tt('rsvpTitle')}</Title>
-        <Done role="status">{tt(formData.attending ? 'thanksYes' : 'thanksNo')}</Done>
+      <Section id="rsvp" $tone="mist"><Inner>
+        <Aside><Title>{c.title || tt('rsvpTitle')}</Title></Aside>
+        <Body><Done role="status">{tt(formData.attending ? 'thanksYes' : 'thanksNo')}</Done></Body>
       </Inner></Section>
     );
   }
 
   const deadline = c.deadline ? formatWeddingDate(c.deadline, lang) : '';
   return (
-    <Section id="rsvp" $tone="paper">
+    <Section id="rsvp" $tone="mist">
       <Inner>
-        <Title $align="left">{c.title || tt('rsvpTitle')}</Title>
-        {c.description && <Lead $align="left">{c.description}</Lead>}
-        {deadline && <Hint>{tt('rsvpDeadline', { date: deadline })}</Hint>}
-
+        <Aside>
+          <Title>{c.title || tt('rsvpTitle')}</Title>
+          {c.description && <Lead $onMist>{c.description}</Lead>}
+          {deadline && <Lead $onMist>{tt('rsvpDeadline', { date: deadline })}</Lead>}
+        </Aside>
+        <Body>
         <Form onSubmit={onSubmit} noValidate>
           <Field htmlFor={`${uid}-name`}>{tt('yourName')}
             <Input id={`${uid}-name`} name="name" autoComplete="name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} maxLength={120} />
@@ -108,10 +111,8 @@ function RSVP() {
           </Field>
 
           <Choice role="group" aria-label={c.title || tt('rsvpTitle')}>
-            <Button as="button" type="button" aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}
-              style={chosen && formData.attending === true ? { outline: `2px solid ${C.ink}`, outlineOffset: '2px' } : undefined}>{tt('yes')}</Button>
-            <Button as="button" type="button" $dark aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}
-              style={chosen && formData.attending === false ? { outline: `2px solid ${C.ink}`, outlineOffset: '2px' } : undefined}>{tt('no')}</Button>
+            <Button as="button" type="button" $block $solid={chosen && formData.attending === true} aria-pressed={chosen && formData.attending === true} onClick={() => choose(true)}>{tt('yes')}</Button>
+            <Button as="button" type="button" $block $solid={chosen && formData.attending === false} aria-pressed={chosen && formData.attending === false} onClick={() => choose(false)}>{tt('no')}</Button>
           </Choice>
 
           {chosen && formData.attending && (
@@ -123,7 +124,7 @@ function RSVP() {
                   <output aria-live="polite">{formData.persons}</output>
                   <button type="button" aria-label={tt('more')} disabled={formData.persons >= max} onClick={() => updateField('persons', Math.min(max, formData.persons + 1))}>+</button>
                 </Stepper>
-                <Hint style={{ marginTop: '0.4rem' }}>{tt('personsHint', { max })}</Hint>
+                <Hint style={{ marginTop: '0.5rem' }}>{tt('personsHint', { max })}</Hint>
               </div>
 
               {(formData.guests || []).slice(1).map((g, idx) => {
@@ -132,13 +133,13 @@ function RSVP() {
                   <Guest key={i}>
                     <legend>{tt('guest', { n: i + 1 })}</legend>
                     <Row>
-                      <Field htmlFor={`${uid}-g${i}`} style={{ fontSize: '1rem' }}>{tt('guestName')}
+                      <Field htmlFor={`${uid}-g${i}`}>{tt('guestName')}
                         <Input id={`${uid}-g${i}`} value={g.name || ''} onChange={(e) => setGuest(i, { name: e.target.value })} maxLength={120} />
                       </Field>
                       <Check><input type="checkbox" checked={!!g.is_child} onChange={(e) => setGuest(i, { is_child: e.target.checked })} />{tt('child')}</Check>
                     </Row>
                     {g.is_child && rules.child_ages === true && (
-                      <Field htmlFor={`${uid}-a${i}`} style={{ fontSize: '1rem', maxWidth: '10rem' }}>{tt('age')}
+                      <Field htmlFor={`${uid}-a${i}`} style={{ maxWidth: '10rem' }}>{tt('age')}
                         <Input id={`${uid}-a${i}`} type="number" inputMode="numeric" min={0} max={17} step={1} placeholder={tt('agePlaceholder')}
                           value={Number.isInteger(g.age) ? g.age : ''}
                           onChange={(e) => { const v = e.target.value; setGuest(i, { age: v === '' ? undefined : Math.trunc(Number(v)) }); }} />
@@ -173,8 +174,9 @@ function RSVP() {
           )}
 
           <div aria-live="assertive">{error && <Err role="alert">{error}</Err>}</div>
-          {chosen && <Button as="button" type="submit" $dark disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button>}
+          {chosen && <div><Button as="button" type="submit" $solid disabled={submitting}>{submitting ? tt('sending') : tt('send')}</Button></div>}
         </Form>
+        </Body>
       </Inner>
     </Section>
   );

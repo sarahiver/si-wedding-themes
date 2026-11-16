@@ -1,96 +1,86 @@
-// src/themes/cassis/Hero.js – Foto, Schriftzug, „Wir sagen Ja", Datum, Ort, Route und Kalender
+// src/themes/cassis/Hero.js – großes Startfoto mit Schriftzug, Datum und Ort
 import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
-import { eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
-import STRINGS, { LOCALES } from './strings';
-import { C, FONT, SCRIPT, Section, Inner, Watermark, Button, fadeIn } from './shared';
+import { focalCss, imgFocalCss, FOCAL_BREAKPOINT } from '../../lib/focalPoint';
+import { optimizedUrl } from '../../lib/cloudinary';
+import { C, FONT, SCRIPT } from './shared';
+import { formatWeddingDate } from './helpers';
 
-const Photo = styled.header`
-  position: relative; background: ${C.blue}; overflow: hidden;
-  height: min(150vw, 92vh); min-height: 26rem;
-  img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: ${(p) => p.$focal || '50% 30%'}; }
-  &::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(47,52,66,0) 45%, rgba(47,52,66,0.28)); }
+// Für Importe aus früheren Fassungen
+export { formatWeddingDate };
+
+const Wrap = styled.header`
+  position: relative; overflow: hidden; background: ${C.mist}; color: ${C.white};
+  min-height: 34rem; height: 100vh; height: 100svh; max-height: 75rem;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; ${(p) => imgFocalCss(p.$focal)} }
+  /* Verlauf nur dort, wo Schrift steht: oben für die Kopfzeile, unten für Namen und Datum */
+  &::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(51,53,63,0.34), rgba(51,53,63,0) 22%),
+      linear-gradient(to top, rgba(51,53,63,0.62), rgba(51,53,63,0.28) 34%, rgba(51,53,63,0) 62%);
+  }
+`;
+const Content = styled.div`
+  position: relative; z-index: 1; box-sizing: border-box; width: 100%; text-align: center;
+  padding: 0 clamp(1.5rem, 6vw, 4rem) clamp(2.5rem, 9vh, 5.5rem);
+  @media (prefers-reduced-motion: no-preference) {
+    animation: cassisRise 1.1s ease 0.15s both;
+    @keyframes cassisRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  }
 `;
 const Names = styled.h1`
-  position: absolute; z-index: 1; left: 0; right: 0; bottom: 8%; margin: 0; padding: 0 4%; ${fadeIn}
-  img { display: block; width: min(100%, 44rem); height: auto; margin: 0 auto; }
-  span.text { display: block; text-align: center; font-family: ${SCRIPT}; font-weight: 400; color: ${C.white}; font-size: clamp(4rem, 21vw, 9rem); line-height: 0.95; text-shadow: 0 1px 18px rgba(47,52,66,0.35); }
+  margin: 0;
+  img { display: block; margin: 0 auto; height: auto; width: min(78vw, 24rem); filter: drop-shadow(0 2px 14px rgba(51,53,63,0.35)); }
+  span.text { display: block; font-family: ${SCRIPT}; font-weight: 400; font-size: clamp(4rem, 20vw, 8rem); line-height: 0.95; text-shadow: 0 2px 18px rgba(51,53,63,0.4); }
   span.text span { display: block; }
-  span.text span:last-child { padding-left: 1.6em; }
+  span.text span + span { padding-left: 1.4em; }
+  @media (min-width: ${FOCAL_BREAKPOINT + 1}px) { img { width: min(34vw, 30rem); } }
 `;
-const Tagline = styled.p`
-  position: relative; margin: 0; text-align: right; font-family: ${FONT}; font-weight: 300; font-size: clamp(2rem, 9.5vw, 3.25rem); line-height: 1.12; white-space: pre-line;
+const Facts = styled.p`
+  margin: clamp(1.5rem, 4vh, 2.5rem) 0 0; font-family: ${FONT}; font-weight: 300; font-size: clamp(1.125rem, 4.4vw, 1.375rem); line-height: 1.5; letter-spacing: 0.04em;
+  text-shadow: 0 1px 12px rgba(51,53,63,0.5);
+  time, span { display: block; }
 `;
-const DateLine = styled.p`margin: 0 0 2rem; text-align: right; font-size: clamp(2rem, 9.5vw, 3rem); line-height: 1.1; color: ${C.inkSoft};`;
-const Place = styled.p`margin: 0; text-align: right; font-size: clamp(1.9rem, 9vw, 2.75rem); line-height: 1.1; color: ${C.inkSoft};`;
-const Address = styled.address`margin: 0.4rem 0 0; text-align: right; font-style: normal; white-space: pre-line; color: ${C.inkSoft}; font-size: 1.125rem; line-height: 1.5;`;
-const Illustration = styled.img`display: block; width: 100%; height: auto; margin: 1.5rem 0 0.5rem; opacity: 0.9;`;
-const Actions = styled.div`display: grid; gap: 0.6rem; margin-top: 2rem;`;
-
-export function formatWeddingDate(iso, lang) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
-  if (!m) return '';
-  return new Intl.DateTimeFormat(LOCALES[lang] || LOCALES.en, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
-    .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
-}
 
 function Hero() {
-  const { project, coupleNames, weddingDate, slug } = useWedding();
-  const { lang, t } = useLanguage();
+  const { project, coupleNames, weddingDate } = useWedding();
+  const { lang } = useLanguage();
   const hero = useLocalizedContent('hero');
   const countdown = useLocalizedContent('countdown');
-  const directions = useLocalizedContent('directions');
 
   const date = countdown.target_date || weddingDate;
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
-  const label = coupleNames || names.join(' & ');
-  const address = directions.address || '';
-  const mapsUrl = directions.maps_url
-    || (directions.lat && directions.lng ? `https://www.google.com/maps?q=${directions.lat},${directions.lng}`
-      : (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${project?.location || ''} ${address}`.trim())}` : ''));
-
-  const saveToCalendar = (e) => {
-    e.preventDefault();
-    const { startMs, endMs } = eventTimes({ date, time: countdown.target_time, endDate: countdown.end_date, endTime: countdown.end_time, timeZone: countdown.timezone || 'Europe/Paris' });
-    const ics = buildIcs({
-      uid: `${slug || 'wedding'}@siwedding.de`, title: `${t(STRINGS, 'weMarry')}: ${label}`, startMs, endMs,
-      location: [project?.location, address.replace(/\n/g, ', ')].filter(Boolean).join(', '),
-      url: typeof window !== 'undefined' ? window.location.href.split('#')[0] : '',
-    });
-    downloadIcs(ics, `${slug || 'wedding'}.ics`);
-  };
+  const label = names.length ? names.join(' ') : (coupleNames || '');
+  const image = hero.background_image;
+  const mobileImage = hero.background_image_mobile;
+  const place = hero.location_short || project?.location;
 
   return (
-    <>
-      <Photo id="top" $focal={hero.background_focal ? `${hero.background_focal.x ?? 50}% ${hero.background_focal.y ?? 30}%` : null}>
-        {hero.background_image && <img className="bg" src={hero.background_image} alt="" />}
+    <Wrap id="top" $focal={image && hero.background_focal ? focalCss(hero.background_focal) : null}>
+      {image && (
+        <picture>
+          {mobileImage && <source media={`(max-width: ${FOCAL_BREAKPOINT}px)`} srcSet={optimizedUrl.hero(mobileImage)} />}
+          <img className="bg" src={optimizedUrl.hero(image)} alt="" />
+        </picture>
+      )}
+      <Content>
         <Names aria-label={label}>
           {hero.name_image
             ? <img src={hero.name_image} alt={label} />
             : <span className="text" aria-hidden="true">{(names.length ? names : [label]).map((n) => <span key={n}>{n}</span>)}</span>}
         </Names>
-      </Photo>
-
-      <Section $tone="blue" style={{ paddingTop: 'clamp(5rem, 22vw, 9rem)', paddingBottom: 'clamp(5rem, 22vw, 9rem)' }}>
-        <Watermark aria-hidden="true" $top="18%">Yes</Watermark>
-        <Inner><Tagline>{hero.tagline || t(STRINGS, 'weMarry')}</Tagline></Inner>
-      </Section>
-
-      <Section $tone="paper">
-        <Inner>
-          {date && <DateLine><time dateTime={date}>{formatWeddingDate(date, lang)}</time></DateLine>}
-          {project?.location && <Place>{project.location}</Place>}
-          {address && <Address>{address}</Address>}
-          {directions.image && <Illustration src={directions.image} alt="" />}
-          <Actions>
-            {mapsUrl && <Button href={mapsUrl} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'route')}</Button>}
-            {date && <Button as="button" type="button" $dark onClick={saveToCalendar}>{t(STRINGS, 'calendar')}</Button>}
-          </Actions>
-        </Inner>
-      </Section>
-    </>
+        {(date || place) && (
+          <Facts>
+            {date && <time dateTime={date}>{formatWeddingDate(date, lang)}</time>}
+            {place && <span>{place}</span>}
+          </Facts>
+        )}
+      </Content>
+    </Wrap>
   );
 }
 export default Hero;
