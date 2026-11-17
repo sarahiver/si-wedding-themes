@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { verifyProjectPassword } from '../../lib/supabase';
+import { useWedding } from '../../context/WeddingContext';
+import { GATE_TEXT, gateLanguage } from './gateThemes';
 
 // ============================================
 // ANIMATIONS
@@ -407,6 +409,82 @@ const themeStyles = {
       font-size: 4rem;
     }
   `,
+  // Classic – helles Papier, feine Linien
+  classic: css`
+    background: #FDFCFA;
+    .lock, .decoration { display: none; }
+    .content { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); }
+    .title { font-family: 'Cormorant Garamond', Georgia, serif; color: #1A1A1A; font-weight: 300; letter-spacing: 0.01em; }
+    .subtitle { font-family: 'Josefin Sans', sans-serif; color: #555555; font-weight: 300; letter-spacing: 0.03em; }
+    input {
+      background: transparent; border: 1px solid rgba(0,0,0,0.2); color: #1A1A1A; font-family: 'Josefin Sans', sans-serif; 
+      &:focus { border-color: #1A1A1A; }
+      &::placeholder { color: #767676; }
+    }
+    button {
+      background: #1A1A1A; border: 1px solid #1A1A1A; color: #FFFFFF; font-family: 'Josefin Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.8rem;
+      &:hover:not(:disabled) { background: #333333; }
+      &:focus-visible { outline: 2px solid #1A1A1A; outline-offset: 3px; }
+    }
+    .error { color: #A32020; font-family: 'Josefin Sans', sans-serif; }
+  `,
+  // Summer – warmes Papier, diagonal gerundete Ecken
+  summer: css`
+    background: #FAF6F0;
+    .lock, .decoration { display: none; }
+    .content { background: #F5EDE0; border: 1px solid rgba(193,57,43,0.15); border-radius: 0 24px 0 24px; }
+    .title { font-family: 'Playfair Display', Georgia, serif; color: #2C2416; font-style: italic; font-weight: 400; }
+    .subtitle { font-family: 'DM Sans', system-ui, sans-serif; color: #6B5744;  }
+    input {
+      background: #FDFAF6; border: 1px solid rgba(44,36,22,0.2); color: #2C2416; font-family: 'DM Sans', system-ui, sans-serif; border-radius: 0 8px 0 8px;
+      &:focus { border-color: #C1392B; }
+      &::placeholder { color: #8A705C; }
+    }
+    button {
+      background: #C1392B; border: 1px solid #C1392B; color: #FFFFFF; font-family: 'DM Sans', system-ui, sans-serif; border-radius: 0 8px 0 8px; font-weight: 500;
+      &:hover:not(:disabled) { background: #A02E22; border-color: #A02E22; }
+      &:focus-visible { outline: 2px solid #2C2416; outline-offset: 3px; }
+    }
+    .error { color: #A02E22; font-family: 'DM Sans', system-ui, sans-serif; }
+  `,
+  // Parallax – Schwarz und Weiß, kräftige Schrift
+  parallax: css`
+    background: #000000;
+    .lock, .decoration { display: none; }
+    .content { border: 1px solid rgba(255,255,255,0.25); }
+    .title { font-family: 'DM Sans', sans-serif; color: #FFFFFF; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .subtitle { font-family: 'DM Sans', sans-serif; color: rgba(255,255,255,0.7);  }
+    input {
+      background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #FFFFFF; font-family: 'DM Sans', sans-serif; 
+      &:focus { border-color: #FFFFFF; }
+      &::placeholder { color: rgba(255,255,255,0.55); }
+    }
+    button {
+      background: #FFFFFF; border: 1px solid #FFFFFF; color: #000000; font-family: 'DM Sans', sans-serif; font-weight: 700;
+      &:hover:not(:disabled) { background: transparent; color: #FFFFFF; }
+      &:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; }
+    }
+    .error { color: #FF8A8A; font-family: 'DM Sans', sans-serif; }
+  `,
+  // Cassis – Antwortkarte auf Blaugrau (wie RSVP und Login des Dashboards)
+  cassis: css`
+    background: #9A9FAD;
+    .lock, .decoration { display: none; }
+    .content { position: relative; background: #F8F6F6; box-shadow: 0 30px 60px -32px rgba(51,53,63,0.55); outline: 1px solid #C7C5CC; outline-offset: -0.7rem; }
+    .title { font-family: 'Cassis Serif', 'Cormorant Garamond', Garamond, serif; color: #33353F; font-style: italic; font-weight: 400; }
+    .subtitle { font-family: 'Cassis Sans', 'Lato', 'Gill Sans', sans-serif; color: #5D5C66; font-size: 1rem; }
+    input {
+      background: transparent; border: 0; color: #33353F; font-family: 'Cassis Sans', 'Lato', 'Gill Sans', sans-serif; border-bottom: 1px dotted #33353F; border-radius: 0; padding-left: 0; padding-right: 0; text-align: center;
+      &:focus { border-bottom-style: solid; box-shadow: 0 1px 0 #33353F; }
+      &::placeholder { color: #6E6D78; }
+    }
+    button {
+      background: #3F424F; border: 1px solid #3F424F; color: #FFFFFF; font-family: 'Cassis Sans', 'Lato', 'Gill Sans', sans-serif; min-height: 3.5rem; font-size: 1.0625rem; letter-spacing: 0.03em;
+      &:hover:not(:disabled) { background: #33353F; }
+      &:focus-visible { outline: 2px solid #33353F; outline-offset: 3px; }
+    }
+    .error { color: #6E1620; font-family: 'Cassis Sans', 'Lato', 'Gill Sans', sans-serif; }
+  `,
 };
 
 // ============================================
@@ -510,12 +588,15 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  // Einsprachige Projekte bleiben deutsch; mehrsprachige folgen der Sprache des Geräts
+  const { project } = useWedding();
+  const tx = GATE_TEXT[gateLanguage(project)] || GATE_TEXT.de;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!password.trim()) {
-      setError('Bitte Passwort eingeben');
+      setError(tx.empty);
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
       return;
@@ -532,13 +613,13 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
         sessionStorage.setItem(`pw_access_${slug}`, 'granted');
         onSuccess();
       } else {
-        setError('Falsches Passwort');
+        setError(tx.wrong);
         setHasError(true);
         setTimeout(() => setHasError(false), 500);
         setPassword('');
       }
     } catch (err) {
-      setError('Ein Fehler ist aufgetreten');
+      setError(tx.failed);
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
     } finally {
@@ -562,26 +643,27 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
   return (
     <Container $theme={theme}>
       <Content className="content">
-        <LockIcon>🔐</LockIcon>
+        <LockIcon className="lock" aria-hidden="true">🔐</LockIcon>
         
-        <Decoration className="decoration">
+        <Decoration className="decoration" aria-hidden="true">
           {getDecoration()}
         </Decoration>
         
         <Title className="title">
-          {coupleNames || 'Private Hochzeit'}
+          {coupleNames || tx.fallbackTitle}
         </Title>
         
         <Subtitle className="subtitle">
-          Diese Hochzeitsseite ist passwortgeschützt.
+          {tx.protected}
           <br />
-          Bitte gib das Passwort ein, das ihr von uns erhalten habt.
+          {tx.enter}
         </Subtitle>
         
         <Form onSubmit={handleSubmit}>
           <Input
             type="password"
-            placeholder="Passwort eingeben..."
+            placeholder={tx.placeholder}
+            aria-label={tx.password}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             $error={hasError}
@@ -590,11 +672,11 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
           />
           
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Prüfe...' : 'Eintreten'}
+            {isLoading ? tx.checking : tx.submit}
           </Button>
           
           {error && (
-            <ErrorMessage className="error">
+            <ErrorMessage className="error" role="alert">
               {error}
             </ErrorMessage>
           )}
