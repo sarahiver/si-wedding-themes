@@ -642,7 +642,7 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
 
   return (
     <Container $theme={theme}>
-      <Content className="content">
+      <Content as="main" className="content">
         <LockIcon className="lock" aria-hidden="true">🔐</LockIcon>
         
         <Decoration className="decoration" aria-hidden="true">

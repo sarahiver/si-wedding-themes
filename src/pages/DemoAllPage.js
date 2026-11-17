@@ -2,7 +2,8 @@
 // Showcase-Seite: Alle Themes mit allen Komponenten
 // Zeigt jedes Theme als Sektion mit Demo-Daten
 
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
+import { loadSharedFonts } from "../lib/sharedFonts"
 import styled from "styled-components"
 
 // GlobalStyles per Theme
@@ -347,6 +348,8 @@ function ThemeSectionRenderer({ themeName }) {
 
 function DemoAllPage() {
   const [activeTheme, setActiveTheme] = useState(null)
+  // Die Übersicht zeigt alle Themes und braucht deshalb die gemeinsamen Schriften
+  useEffect(() => { loadSharedFonts() }, [])
   const themes = Object.keys(themeComponents)
 
   const scrollToTheme = (themeName) => {

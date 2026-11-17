@@ -31,7 +31,7 @@ async function getProjectData(slug) {
 
   // Fetch project by slug
   const projectRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/projects?slug=eq.${encodeURIComponent(slug)}&select=id,slug,couple_names,wedding_date,location,theme`,
+    `${SUPABASE_URL}/rest/v1/projects?slug=eq.${encodeURIComponent(slug)}&select=id,slug,couple_names,wedding_date,location,theme,features`,
     { headers }
   );
 
@@ -90,10 +90,10 @@ function buildOgImageUrl(coupleNames, dateStr, heroImageUrl) {
 // ============================================
 // FORMAT DATE
 // ============================================
-function formatDate(dateStr) {
+function formatDate(dateStr, locale = 'de-DE') {
   if (!dateStr) return '';
   try {
-    return new Date(dateStr).toLocaleDateString('de-DE', {
+    return new Date(dateStr).toLocaleDateString(locale, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -126,44 +126,68 @@ export default async function handler(req, res) {
 
   const project = await getProjectData(slug);
 
+  const canonicalUrl = `https://www.siwedding.de/${esc(slug)}`;
+
+  // Cassis: Die Vorschau in Messengern ist für jeden abrufbar, der die Adresse kennt – auch bei
+  // Passwortschutz. Deshalb nennt sie standardmäßig weder Namen noch Datum, Ort oder Foto.
+  // Die persönliche Vorschau gibt es nur, wenn sie für das Projekt ausdrücklich eingeschaltet ist
+  // (projects.features.link_preview = "personal").
+  const personal = isPlain(project?.features) && project.features.link_preview === 'personal';
+  if (project?.theme === 'cassis' && !personal) {
+    return send(res, page({ lang: 'en', title: 'Wedding invitation', description: 'Open the link to view the invitation.', url: canonicalUrl }));
+  }
+
   // Fallback values
   const coupleNames = project?.couple_names || 'S&I Wedding';
-  const dateFormatted = formatDate(project?.wedding_date);
+  const cassis = project?.theme === 'cassis';
+  const dateFormatted = formatDate(project?.wedding_date, cassis ? 'en-GB' : 'de-DE');
   const location = project?.location || '';
   const theme = project?.theme || 'editorial';
   const heroImage = project?.heroContent?.background_image || '';
 
   // Build description
-  const descParts = ['Wir heiraten!'];
+  const descParts = cassis ? [] : ['Wir heiraten!'];
   if (dateFormatted) descParts.push(dateFormatted);
   if (location) descParts.push(location);
-  const description = descParts.join(' — ');
+  const description = descParts.join(cassis ? ' · ' : ' — ');
 
-  // Build OG image: Cloudinary overlay or theme fallback
-  const overlayUrl = buildOgImageUrl(coupleNames, dateFormatted, heroImage);
-  const ogImage = overlayUrl || FALLBACK_OG_IMAGES[theme] || DEFAULT_FALLBACK;
+  // Build OG image: Cloudinary overlay or theme fallback. Cassis zeigt das Foto ohne aufgesetzte Schrift.
+  const overlayUrl = cassis ? plainOgImageUrl(heroImage) : buildOgImageUrl(coupleNames, dateFormatted, heroImage);
+  const ogImage = overlayUrl || (cassis ? '' : (FALLBACK_OG_IMAGES[theme] || DEFAULT_FALLBACK));
 
-  const canonicalUrl = `https://www.siwedding.de/${esc(slug)}`;
+  return send(res, page({ lang: cassis ? 'en' : 'de', title: coupleNames, pageTitle: cassis ? coupleNames : `${coupleNames} — Hochzeit`, description, image: ogImage, url: canonicalUrl }));
+}
 
-  const html = `<!DOCTYPE html>
-<html lang="de">
+const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+// Foto im Vorschauformat, ohne Text
+function plainOgImageUrl(heroImageUrl) {
+  const m = String(heroImageUrl || '').match(/res\.cloudinary\.com\/[^/]+\/image\/upload\/(?:v\d+\/)?(.+)$/);
+  return m ? `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/w_1200,h_630,c_fill/${m[1]}` : '';
+}
+
+function page({ lang, title, pageTitle, description, image, url }) {
+  return `<!DOCTYPE html>
+<html lang="${lang}">
 <head>
   <meta charset="utf-8" />
-  <title>${esc(coupleNames)} — Hochzeit</title>
-  <meta property="og:title" content="${esc(coupleNames)}" />
-  <meta property="og:description" content="${esc(description)}" />
-  <meta property="og:image" content="${esc(ogImage)}" />
-  <meta property="og:url" content="${canonicalUrl}" />
+  <title>${esc(pageTitle || title)}</title>
+  <meta property="og:title" content="${esc(title)}" />
+  <meta property="og:description" content="${esc(description)}" />${image ? `
+  <meta property="og:image" content="${esc(image)}" />` : ''}
+  <meta property="og:url" content="${url}" />
   <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${esc(coupleNames)}" />
-  <meta name="twitter:description" content="${esc(description)}" />
-  <meta name="twitter:image" content="${esc(ogImage)}" />
-  <meta http-equiv="refresh" content="0;url=${canonicalUrl}" />
+  <meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />
+  <meta name="twitter:title" content="${esc(title)}" />
+  <meta name="twitter:description" content="${esc(description)}" />${image ? `
+  <meta name="twitter:image" content="${esc(image)}" />` : ''}
+  <meta http-equiv="refresh" content="0;url=${url}" />
 </head>
 <body></body>
 </html>`;
+}
 
+function send(res, html) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
   return res.status(200).send(html);

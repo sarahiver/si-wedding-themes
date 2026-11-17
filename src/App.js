@@ -7,6 +7,8 @@ import React, { Suspense, lazy, useState, useEffect, Component } from 'react';
 import { resolveSlugFromHost, isPlatformHost } from './lib/customDomain';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
+import NotFound from './components/shared/NotFound';
+import { loadSharedFonts, needsSharedFonts } from './lib/sharedFonts';
 import { checkPasswordRequired } from './lib/supabase';
 
 // Central WeddingPage (handles all themes)
@@ -266,35 +268,36 @@ function ThemeRouter() {
     favicon.setAttribute('type', 'image/svg+xml');
     favicon.setAttribute('href', faviconUrl);
 
+    // Gemeinsame Schriften nur für Themes, die sie brauchen (Cassis bringt eigene Dateien mit)
+    if (needsSharedFonts(project.theme)) loadSharedFonts();
+
+    // Cassis: Browserleiste in der Papierfarbe der Seite; auf dem Startbildschirm steht der Name des Paares
+    if (project.theme === 'cassis') {
+      const setMeta = (name, value) => {
+        let tag = document.querySelector(`meta[name="${name}"]`);
+        if (!tag) { tag = document.createElement('meta'); tag.setAttribute('name', name); document.head.appendChild(tag); }
+        tag.setAttribute('content', value);
+      };
+      setMeta('theme-color', '#F0ECED');
+      setMeta('apple-mobile-web-app-title', names);
+      // Das allgemeine Manifest nennt „S&I Wedding" und Schwarz – ohne es gilt der Seitentitel
+      const manifest = document.querySelector('link[rel="manifest"]');
+      if (manifest) manifest.remove();
+    }
+
     return () => { };
   }, [project, coupleNames]);
 
   // WICHTIG: Warte bis project UND theme geladen sind
   // passwordChecked muss NICHT abgewartet werden wenn kein Passwort benötigt wird
-  if (isLoading || !project) return <Loading />;
-  
+  if (isLoading) return <Loading />;
+
+  // Kein Projekt zu dieser Adresse oder Laden gescheitert: Hinweisseite statt endlosem Ladebildschirm.
+  // Interne Fehlermeldungen werden nicht angezeigt.
+  if (error || !project) return <NotFound kind={error && error !== 'Project not found' ? 'error' : 'missing'} />;
+
   // Nur blockieren wenn passwordChecked noch läuft UND ein Passwort tatsächlich benötigt wird
   if (!passwordChecked && passwordRequired) return <Loading />;
-  
-  if (error) {
-    return (
-      <div style={{ 
-        padding: '2rem', 
-        textAlign: 'center',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#0a0a0a',
-        color: '#fff'
-      }}>
-        <div>
-          <h1 style={{ marginBottom: '1rem' }}>Projekt nicht gefunden</h1>
-          <p style={{ color: '#666' }}>{error}</p>
-        </div>
-      </div>
-    );
-  }
 
   // Theme aus project direkt verwenden (nicht aus hook mit fallback)
   const themeName = project.theme || 'botanical';
