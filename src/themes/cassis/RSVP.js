@@ -26,7 +26,7 @@ export const Card = styled.section`
 const Question = styled.h3`margin: 0; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 3.4vw, 3.5rem); line-height: 1; text-align: center; overflow-wrap: anywhere;`;
 const Rule = styled.div`width: 3.5rem; height: 1px; background: ${C.ink}; opacity: 0.6; margin: 1.5rem auto 2.5rem;`;
 const Form = styled.form`display: grid; gap: 2rem;`;
-const Field = styled.label`display: grid; gap: 0.5rem; font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft}; transition: color 0.2s ease; &:focus-within { color: ${C.ink}; }`;
+const Field = styled.label`display: grid; gap: 0.5rem; min-width: 0; overflow-wrap: anywhere; font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft}; transition: color 0.2s ease; &:focus-within { color: ${C.ink}; }`;
 const inputCss = `
   box-sizing: border-box; width: 100%; min-height: 3rem; padding: 0.3rem 0; border: 0; border-bottom: 1px dotted ${C.ink}; border-radius: 0;
   background: transparent; color: ${C.ink}; font-family: ${SERIF}; font-weight: 400; font-size: clamp(1.375rem, 1.7vw, 1.625rem); letter-spacing: 0; text-transform: none;
@@ -89,7 +89,7 @@ const Check = styled.label`
   input[aria-invalid='true'] { outline: 2px solid ${ERR}; outline-offset: 2px; }
 `;
 const Err = styled.p`margin: 0; padding: 0.9rem 1.1rem; background: ${C.shell}; color: ${ERR}; font-size: 1.0625rem; line-height: 1.45; border-left: 3px solid ${ERR};`;
-const Send = styled.div`text-align: center; button { min-width: 14rem; font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; }`;
+const Send = styled.div`text-align: center; button { min-width: min(14rem, 100%); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; }`;
 const Done = styled.p`margin: 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(1.75rem, 2.6vw, 2.75rem); line-height: 1.25;`;
 
 // Überschrift des Bereichs: steht neben der Karte (oder, mit der Anfahrt zusammen, über dem Château)
