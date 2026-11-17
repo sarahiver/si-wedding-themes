@@ -42,3 +42,11 @@ test('Übersetzungen wandern beim Löschen, Hinzufügen und Verschieben mit', ()
   expect(realignTranslations([a, b, c], [a, b, c, n], tr)).toEqual([{ title: 'a-de' }, null, { title: 'c-de' }, null]);
   expect(realignTranslations([a, b, c], [b], tr)).toBeUndefined();
 });
+test('Hotels und Dresscode: Codes, Preisklasse und Farbwerte gelten für alle Sprachen', () => {
+  const hotels = [{ name: 'Hôtel A', distance: '10 min walk', booking_code: 'ABC', price_range: '€€', maps_url: 'https://example.test/m' }];
+  const edited = [{ name: 'Hôtel A', distance: '10 Minuten zu Fuß', booking_code: 'XYZ', price_range: '€', maps_url: 'https://example.test/x' }];
+  expect(diffTranslation(hotels, edited)).toEqual([{ distance: '10 Minuten zu Fuß' }]);
+  expect(diffTranslation([{ hex: '#9A9FAD', name: 'Blue grey' }], [{ hex: '#000000', name: 'Blaugrau' }])).toEqual([{ name: 'Blaugrau' }]);
+  expect(diffTranslation('Black tie optional', 'Festlich elegant')).toBe('Festlich elegant'); // Feld „code" des Dresscodes ist Text
+  expect(diffTranslation(['Long dresses'], ['Lange Kleider'])).toEqual(['Lange Kleider']);
+});

@@ -141,7 +141,7 @@ export function useLocalizedContent(component) {
  * Listen behalten Länge und Reihenfolge der Hauptsprache; Einträge ohne Übersetzung sind `null`.
  */
 // Felder, die in jeder Sprache gleich sind: Uhrzeiten, Daten, Bilder, Links, Telefonnummern …
-const NEUTRAL_KEY = /^(id|type|icon|time|date|lat|lng|phone|whatsapp|email|color|slug|url|href|src|image|images|video|focal|zoom|timezone)$|^(deadline|layout)$|(_image|_images|_url|_date|_time|_media|_focal|_mobile|_id|_embed|_link|_until|_from|_playlist)$/;
+const NEUTRAL_KEY = /^(id|type|icon|time|date|lat|lng|phone|whatsapp|email|color|slug|url|href|src|image|images|video|focal|zoom|timezone)$|^(deadline|layout|hex)$|(_image|_images|_url|_date|_time|_media|_focal|_mobile|_id|_embed|_link|_until|_from|_playlist|_code|_range)$/;
 export const isNeutralField = (key) => NEUTRAL_KEY.test(String(key || ''));
 
 export function diffTranslation(base, value) {

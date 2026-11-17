@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SERIF, Section, Inner, Title, DESK } from './shared';
+import { C, SERIF, Section, Inner, Title, DESK } from './shared';
 import { follows } from './helpers';
 
 // Öffnet und schließt ruhig: Wo der Browser es kann, wächst die Antwort in der Höhe;
@@ -20,10 +20,14 @@ const Item = styled.details`
     min-height: 3.5rem; box-sizing: border-box; padding: 1.5rem 0; font-family: ${SERIF}; font-weight: 400; font-size: clamp(1.5rem, 2.2vw, 2.25rem); line-height: 1.2; overflow-wrap: anywhere;
   }
   summary::-webkit-details-marker { display: none; }
-  summary::after { content: '+'; flex: none; font-family: ${FONT}; font-weight: 300; line-height: 1; color: ${C.inkSoft}; transition: transform 0.25s ease; }
-  &[open] summary::after { transform: rotate(45deg); }
+  /* Feines Kreuz aus zwei Haarlinien; geöffnet bleibt nur der Strich */
+  summary::after { content: ''; flex: none; align-self: center; width: 1.125rem; height: 1.125rem; transition: transform 0.3s ease, opacity 0.3s ease;
+    background: linear-gradient(${C.ink}, ${C.ink}) center / 100% 1px no-repeat, linear-gradient(${C.ink}, ${C.ink}) center / 1px 100% no-repeat; opacity: 0.7; }
+  &[open] summary::after { background: linear-gradient(${C.ink}, ${C.ink}) center / 100% 1px no-repeat; opacity: 1; }
+  summary:hover::after { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { summary::after { transition: none; } }
   summary:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
-  p { margin: 0; padding: 0 0 1.75rem; max-width: 34em; white-space: pre-line; color: ${C.inkSoft}; overflow-wrap: anywhere; }
+  p { margin: 0; padding: 0 2.5rem 2rem 0; max-width: 34em; white-space: pre-line; line-height: 1.7; color: ${C.inkSoft}; overflow-wrap: anywhere; }
 `;
 const Block = styled.section`scroll-margin-top: 5.5rem; min-width: 0; h2 { margin-bottom: 2.5rem; } ${DESK} { grid-column: 6 / 13; }`;
 
