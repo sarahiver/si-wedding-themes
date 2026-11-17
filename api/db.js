@@ -254,7 +254,13 @@ const actions = {
     const access = gate ? evaluateAccess(gate, ctx.tokens || []) : { locked: true, reason: 'preview' };
 
     let visible;
-    if (access.locked) visible = pickFields(data, LOCKED_PROJECT_FIELDS);
+    if (access.locked) {
+      visible = pickFields(data, LOCKED_PROJECT_FIELDS);
+      // Nur die Sprachen des Projekts: Passwort-Abfrage und „Hier entsteht …" zeigen sich in der
+      // Sprache des Geräts. Alle anderen Einstellungen bleiben bei gesperrter Seite verborgen.
+      const i18n = data.features && typeof data.features === 'object' ? data.features.i18n : null;
+      if (i18n && Array.isArray(i18n.languages)) visible.features = { i18n: { languages: i18n.languages, default: i18n.default } };
+    }
     else if (access.level === 'admin') visible = pickFields(data, [...PUBLIC_PROJECT_FIELDS, ...ADMIN_PROJECT_FIELDS]);
     else visible = pickFields(data, PUBLIC_PROJECT_FIELDS);
 
