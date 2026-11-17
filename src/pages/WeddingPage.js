@@ -20,6 +20,10 @@ import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
 import SummerGlobalStyles from "../themes/summer/GlobalStyles"
 import CassisGlobalStyles from "../themes/cassis/GlobalStyles"
+// Nur der Reihenfolge wegen: Die Stile des Parallax-Themes enthalten eine @import-Regel und müssen – wie die
+// der anderen Themes – schon beim Start angemeldet sein, sonst verliert die Passwortseite ihr Aussehen.
+// Die Datei ist klein und bringt die 3D-Bibliothek nicht mit.
+import "../themes/parallax/GlobalStyles"
 
 
 // Special Components
@@ -28,13 +32,15 @@ import BotanicalBackground from "../themes/botanical/BotanicalBackground"
 // Video Theme special import
 import VideoHorizontalScroll from "../themes/video/HorizontalScroll"
 
-// Parallax Theme special import
-import ParallaxWeddingApp from "../themes/parallax/WeddingApp"
 
 // ============================================
 // VARIANT IMPORTS
 // ============================================
 import SplitScreenHero from "../variants/hero/SplitScreenHero"
+
+// Das Parallax-Theme bringt die 3D-Bibliothek (three.js) mit – rund die Hälfte des Startpakets.
+// Es wird deshalb erst geladen, wenn ein Projekt dieses Theme nutzt. Die Ladegrenze liegt in App.js.
+const ParallaxWeddingApp = lazy(() => import("../themes/parallax/WeddingApp"))
 
 // Variants Registry - hier neue Varianten registrieren
 const variants = {
