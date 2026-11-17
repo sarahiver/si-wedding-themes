@@ -34,9 +34,25 @@ const SHOWN = new Set(DEFAULT_ORDER);
  * (Anfahrt und Antwortkarte, Trauzeug:innen und Fragen). Gezählt werden nur Bereiche,
  * die das Theme kennt und die im Projekt eingeschaltet sind.
  */
-export function follows(project, isComponentActive, first, second) {
+function shownOrder(project, isComponentActive) {
   const saved = project && Array.isArray(project.component_order) && project.component_order.length ? project.component_order : DEFAULT_ORDER;
-  const order = saved.filter((id) => SHOWN.has(id) && (id === 'hero' || typeof isComponentActive !== 'function' || isComponentActive(id)));
+  return saved.filter((id) => SHOWN.has(id) && (id === 'hero' || typeof isComponentActive !== 'function' || isComponentActive(id)));
+}
+export function follows(project, isComponentActive, first, second) {
+  const order = shownOrder(project, isComponentActive);
   const i = order.indexOf(first);
   return i >= 0 && order[i + 1] === second;
+}
+/** Bereich, der auf der Seite direkt vor `id` steht (leer, wenn `id` fehlt oder vorn steht). */
+export function previous(project, isComponentActive, id) {
+  const order = shownOrder(project, isComponentActive);
+  const i = order.indexOf(id);
+  return i > 0 ? order[i - 1] : '';
+}
+/**
+ * Ton der Fläche für Ansprechpersonen und Fragen: Blaugrau als ruhiger Übergang zur dunklen Fußzeile –
+ * außer direkt davor liegt schon eine blaugraue Fläche (Anfahrt, Antwortkarte, der jeweils andere Bereich).
+ */
+export function closingTone(project, isComponentActive, id) {
+  return ['directions', 'rsvp', 'witnesses', 'faq'].includes(previous(project, isComponentActive, id)) ? 'pearl' : 'mist';
 }
