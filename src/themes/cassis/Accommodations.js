@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { optimizedUrl } from '../../lib/cloudinary';
 import STRINGS from './strings';
+import { OWN_TITLE } from './helpers';
 import { C, SERIF, G, DESK, italic, textLink, Section, Inner, Full, Title, Lead } from './shared';
 
 // Kopf über die ganze Breite: Überschrift links, Begleitsatz rechts auf der Grundlinie
@@ -52,7 +53,7 @@ const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u)
 
 function Accommodations() {
   const { t } = useLanguage();
-  const a = useLocalizedContent('accommodations');
+  const a = useLocalizedContent('accommodations', OWN_TITLE);
   const hotels = (Array.isArray(a.hotels) ? a.hotels : []).filter((h) => h && h.name);
   if (!hotels.length && !a.description) return null;
   return (

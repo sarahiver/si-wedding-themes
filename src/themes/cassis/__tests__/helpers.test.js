@@ -1,4 +1,4 @@
-import { follows, previous, closingTone, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
+import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
 
 const all = () => true;
 test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
@@ -39,4 +39,14 @@ test('Ton der Schlussfläche: Blaugrau, außer direkt davor liegt schon Blaugrau
   expect(closingTone(old, all, 'witnesses')).toBe('pearl');
   expect(closingTone({ component_order: ['hero', 'faq', 'witnesses'] }, all, 'faq')).toBe('mist');
   expect(previous({}, all, 'gallery')).toBe('');
+});
+test('Anfahrt: Verkehrsmittel aus der Liste bekommen ihren Titel aus den Texten des Themes', () => {
+  const { transportKey } = require('../helpers');
+  expect(transportKey({ type: 'car', title: 'Auto', description: 'x' })).toBe('trCar');
+  expect(transportKey({ type: 'train', title: '', description: 'x' })).toBe('trTrain');
+  expect(transportKey({ description: 'x' })).toBe('trCar'); // neu angelegt, noch nichts gewählt
+  // Eigener Titel bleibt
+  expect(transportKey({ type: 'custom', title: 'Shuttle ab Marseille' })).toBeNull();
+  expect(transportKey({ type: 'car', title: 'Mit dem Mietwagen' })).toBeNull();
+  expect(transportKey({ title: 'Hotels' })).toBeNull();
 });

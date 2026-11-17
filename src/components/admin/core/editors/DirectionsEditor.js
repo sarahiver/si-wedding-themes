@@ -73,7 +73,7 @@ function DirectionsEditor({ components: C }) {
 
         {isCustom && (
           <>
-            <C.FormGroup>
+            {!hidden('item_icon') && <C.FormGroup>
               <C.Label>Icon (Emoji)</C.Label>
               <C.Input
                 value={item.icon || ''}
@@ -81,7 +81,7 @@ function DirectionsEditor({ components: C }) {
                 placeholder="🚗"
                 style={{ width: '80px' }}
               />
-            </C.FormGroup>
+            </C.FormGroup>}
             <C.FormGroup>
               <C.Label>Titel</C.Label>
               <C.Input
@@ -176,7 +176,7 @@ function DirectionsEditor({ components: C }) {
           </C.FormGroup>
         )}
 
-        <C.FormGroup>
+        {!hidden('maps_embed') && <C.FormGroup>
           <C.Label>Google Maps Embed URL</C.Label>
           <C.Input
             value={content.maps_embed || ''}
@@ -189,7 +189,7 @@ function DirectionsEditor({ components: C }) {
               : 'Embed-Link von Google Maps (Teilen → Karte einbetten)'
             }
           </C.HelpText>
-        </C.FormGroup>
+        </C.FormGroup>}
 
         <C.FormGroup>
           <C.Label>Hinweis (optional)</C.Label>

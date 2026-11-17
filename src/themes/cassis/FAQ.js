@@ -5,7 +5,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
 import { C, SERIF, G, DESK, Section, Inner, Title } from './shared';
-import { follows, closingTone } from './helpers';
+import { follows, closingTone, OWN_TITLE } from './helpers';
 
 // Ansprechpersonen und Fragen stehen erst nebeneinander, wenn beide Spalten ihre Überschrift tragen können
 export const WIDE = '@media (min-width: 1000px)';
@@ -45,7 +45,7 @@ const Block = styled.section`
 `;
 
 function useQuestions() {
-  const f = useLocalizedContent('faq');
+  const f = useLocalizedContent('faq', OWN_TITLE);
   return { f, items: (Array.isArray(f.questions) ? f.questions : []).filter((q) => q && q.question) };
 }
 // Der Block allein – steht neben den Ansprechpersonen oder in einem eigenen Abschnitt

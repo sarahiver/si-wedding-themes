@@ -6,7 +6,7 @@ import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
 import { C, FONT, SERIF, Section, DESK, G, italic, reveal, useReveal } from './shared';
-import { formatWeddingDate } from './helpers';
+import { formatWeddingDate, OWN_TITLE } from './helpers';
 
 // Die Zahl der Tage steht als große, helle Fläche; das Kalenderblatt liegt darauf.
 // Lesbar steht die Zahl noch einmal im Satz darunter – die große Fassung ist Schmuck.
@@ -63,7 +63,7 @@ function weekdayNames(lang) {
 function Countdown() {
   const { project, coupleNames, weddingDate, slug } = useWedding();
   const { lang, t } = useLanguage();
-  const cd = useLocalizedContent('countdown');
+  const cd = useLocalizedContent('countdown', OWN_TITLE);
   const directions = useLocalizedContent('directions');
   const date = cd.target_date || weddingDate;
   const target = zonedToUtcMs(date, cd.target_time || '00:00', cd.timezone || 'Europe/Paris');

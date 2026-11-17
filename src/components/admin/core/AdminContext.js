@@ -10,7 +10,7 @@ import {
   getAdminSession, clearAdminToken, AUTH_EXPIRED_EVENT,
 } from '../../../lib/supabase';
 import { hasFeature, getProcessSteps, getPackage } from '../../../lib/pricing';
-import { projectLanguages, localizeContent, diffTranslation, listStructureChanged, realignTranslations, withTranslation, isNeutralField } from '../../../lib/i18n';
+import { projectLanguages, localizeContent, diffTranslation, listStructureChanged, realignTranslations, withTranslation, isNeutralField, pruneBlankTranslations, neutralChanged } from '../../../lib/i18n';
 
 const AdminContext = createContext(null);
 
@@ -339,11 +339,18 @@ export function AdminProvider({ children }) {
   const viewStates = useMemo(() => {
     if (!editLang) return contentStates;
     const out = {};
-    for (const k of Object.keys(contentStates)) out[k] = localizeContent(contentStates[k], editLang, masterLanguage);
+    for (const k of Object.keys(contentStates)) out[k] = localizeContent(contentStates[k], editLang, masterLanguage, true);
     return out;
   }, [contentStates, editLang, masterLanguage]);
   const viewRef = useRef(viewStates); viewRef.current = viewStates;
   const lockedNotice = useCallback(() => showFeedback('error', 'Einträge hinzufügen, entfernen oder verschieben geht nur in der Hauptsprache.'), [showFeedback]);
+
+  const neutralAt = useRef(0);
+  const neutralNotice = useCallback(() => {
+    const now = Date.now(); if (now - neutralAt.current < 4000) return; neutralAt.current = now;
+    setFeedback({ show: true, type: 'error', message: 'Dieses Feld gilt für alle Sprachen (Uhrzeit, Datum, Link, Telefonnummer, Code). Bitte in der Hauptsprache ändern.' });
+    setTimeout(() => setFeedback((f) => (/gilt für alle Sprachen/.test(f.message || '') ? { ...f, show: false } : f)), 4000);
+  }, []);
 
   // Ein Feld setzen – in der Hauptsprache direkt, in einer Übersetzung als Abweichung zur Hauptsprache
   const applyField = useCallback((sectionContent, field, value, section) => {
@@ -360,11 +367,13 @@ export function AdminProvider({ children }) {
       }
       return next;
     }
-    if (isNeutralField(field)) return cur; // sprachneutral: nur in der Hauptsprache änderbar
     const shown = (viewRef.current[section] || {})[field];
+    // sprachneutral (Uhrzeit, Link, Telefonnummer …): nur in der Hauptsprache änderbar – und das wird gesagt
+    if (neutralChanged(shown, value, field)) neutralNotice();
+    if (isNeutralField(field)) return cur;
     if (listStructureChanged(shown, value)) { lockedNotice(); return cur; }
     return withTranslation(cur, editLang, field, diffTranslation(cur[field], value));
-  }, [editLang, lockedNotice]);
+  }, [editLang, lockedNotice, neutralNotice]);
 
   const updateContent = useCallback((section, data) => {
     if (!editLang) { setContentStates(prev => ({ ...prev, [section]: data })); return; }
@@ -388,7 +397,10 @@ export function AdminProvider({ children }) {
     
     setIsSaving(true);
     try {
-      const { data, error } = await updateProjectContent(projectId, section, contentStates[section]);
+      // Leere Übersetzungen werden nicht gespeichert: dort gilt wieder die Hauptsprache
+      const toSave = pruneBlankTranslations(contentStates[section]);
+      if (toSave !== contentStates[section]) setContentStates((prev) => ({ ...prev, [section]: pruneBlankTranslations(prev[section]) }));
+      const { data, error } = await updateProjectContent(projectId, section, toSave);
       
       if (error) {
         console.error('Save error:', error);

@@ -6,7 +6,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
 import { C, FONT, SERIF, Title, Button, DESK, LOW, HEADER, G, italic, reveal, useReveal } from './shared';
-import { mapsLink, follows } from './helpers';
+import { mapsLink, follows, transportKey, OWN_TITLE } from './helpers';
 import { RsvpCard, RsvpHead } from './RSVP';
 
 // Zwei Zeilen: oben die Anfahrt, darunter die Antwortkarte. Die Illustration reicht über beide.
@@ -75,12 +75,13 @@ const CardSlot = styled.div`
 function Directions() {
   const { project, isComponentActive } = useWedding();
   const { t } = useLanguage();
-  const d = useLocalizedContent('directions');
+  const d = useLocalizedContent('directions', OWN_TITLE);
   const imgRef = useReveal();
   const infoRef = useReveal();
-  const items = (Array.isArray(d.items) ? d.items : (Array.isArray(d.options) ? d.options : [])).filter((x) => x && (x.title || x.description));
+  const items = (Array.isArray(d.items) ? d.items : (Array.isArray(d.options) ? d.options : [])).filter((x) => x && (x.title || x.description))
+    .map((x) => { const key = transportKey(x); return key ? { ...x, title: t(STRINGS, key) } : x; });
   const url = mapsLink(d, project?.location);
-  if (!d.description && !d.address && !items.length) return null;
+  if (!d.description && !d.address && !d.note && !items.length) return null;
   // Steht die Antwortkarte direkt dahinter, teilen sich beide diese Fläche
   const withRsvp = isComponentActive('rsvp') && follows(project, isComponentActive, 'directions', 'rsvp');
   return (
@@ -96,6 +97,7 @@ function Directions() {
             {items.map((x, i) => (<div key={i}><Term>{x.title}</Term><Desc>{x.description}</Desc></div>))}
           </Options>
         )}
+        {d.note && <Note>{d.note}</Note>}
       </Info>
       {withRsvp && (<>
         <HeadStand><div><RsvpHead /></div></HeadStand>

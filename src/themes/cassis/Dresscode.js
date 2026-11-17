@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
+import { OWN_TITLE } from './helpers';
 import { C, SERIF, DESK, Section, Inner, Full, Title } from './shared';
 
 const Page = styled.div`text-align: center; max-width: 62rem; margin: 0 auto;`;
@@ -34,7 +35,7 @@ const clean = (list) => (Array.isArray(list) ? list : []).map((x) => (typeof x =
 
 function Dresscode() {
   const { t } = useLanguage();
-  const d = useLocalizedContent('dresscode');
+  const d = useLocalizedContent('dresscode', OWN_TITLE);
   const colors = (Array.isArray(d.colors) ? d.colors : []).map((c) => (typeof c === 'string' ? { hex: c, name: '' } : c)).filter((c) => c && HEX.test(String(c.hex || '').trim()));
   const dos = clean(d.dos); const donts = clean(d.donts);
   if (!d.code && !d.description && !colors.length && !dos.length && !donts.length) return null;
