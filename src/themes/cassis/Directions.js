@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SERIF, Title, Button, DESK, HEADER, G, italic, reveal, useReveal } from './shared';
+import { C, FONT, SERIF, Title, Button, DESK, LOW, HEADER, G, italic, reveal, useReveal } from './shared';
 import { mapsLink, follows } from './helpers';
 import { RsvpCard, RsvpHead } from './RSVP';
 
@@ -25,8 +25,10 @@ const Stand = styled.div`
   order: 2; position: sticky; top: ${HEADER}; padding: 1.5rem 0; display: flex; justify-content: center;
   img { display: block; width: 88%; max-height: 52vh; max-height: 52svh; object-fit: contain; opacity: 0.55; }
   ${DESK} {
-    grid-column: 1 / 7; grid-row: 1 / 3; align-self: start; height: calc(100vh - ${HEADER}); box-sizing: border-box; padding: 0 0 5vh; align-items: flex-end; justify-content: flex-start;
-    img { width: 100%; max-height: 54vh; object-position: left bottom; }
+    grid-column: 1 / 7; grid-row: 1 / 4; align-self: start; height: calc(100vh - ${HEADER}); box-sizing: border-box; padding: 0 0 5vh; align-items: flex-end; justify-content: flex-start;
+    /* Über der Illustration bleibt Platz für die stehende Überschrift der Antwort */
+    img { width: 100%; max-height: min(54vh, calc(100vh - 21rem - 5vh)); object-position: left bottom; }
+    ${LOW} { img { max-height: 54vh; } }
   }
   img { ${reveal} }
   img[data-reveal='armed'] { transform: translateX(-2vw); }
@@ -38,7 +40,8 @@ const Info = styled.section`
   ${DESK} {
     grid-column: 8 / 13; grid-row: 1; box-sizing: border-box; padding: clamp(5rem, 9vw, 9rem) 0 clamp(3rem, 6vw, 6rem);
     display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-    min-height: ${(p) => (p.$tall ? `calc(100vh - ${HEADER})` : '0')};
+    /* Raum für die Illustration daneben – auf sehr hohen Bildschirmen (Tablet hochkant) begrenzt */
+    min-height: ${(p) => (p.$tall ? `min(calc(100vh - ${HEADER}), 46rem)` : '0')};
   }
   ${reveal}
 `;
@@ -59,12 +62,14 @@ const HeadStand = styled.div`
     grid-column: 1 / 6; grid-row: 2; align-self: start; position: sticky; top: ${HEADER}; height: calc(100vh - ${HEADER}); box-sizing: border-box;
     margin: 0; padding-top: 1.5rem; pointer-events: none;
     > * { pointer-events: auto; }
+    /* Niedrige Fenster: Überschrift und Illustration hätten nicht beide Platz – die Überschrift läuft dann mit der Karte mit */
+    ${LOW} { grid-column: 6 / 13; position: relative; top: auto; height: auto; padding: 0 0 1.5rem; }
   }
   @media print { position: relative; height: auto; }
 `;
 const CardSlot = styled.div`
   order: 4; position: relative; z-index: 2; min-width: 0;
-  ${DESK} { grid-column: 6 / 13; grid-row: 2; }
+  ${DESK} { grid-column: 6 / 13; grid-row: 2; ${LOW} { grid-row: 3; } }
 `;
 
 function Directions() {

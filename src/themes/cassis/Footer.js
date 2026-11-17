@@ -11,8 +11,11 @@ const Wrap = styled.footer`
   position: relative; z-index: 1; overflow: hidden; background: ${C.deep}; color: ${C.white}; font-family: ${FONT}; font-weight: 400;
   padding: clamp(4rem, 8vw, 8rem) ${G} 2.5rem;
   .mark { margin: 0 0 2.5rem; }
-  .mark img { display: block; width: 100%; max-width: 44rem; height: auto; }
+  /* Auch im Querformat ganz im Bild: die Breite richtet sich zusätzlich nach der Höhe des Fensters */
+  .mark img { display: block; width: min(100%, 44rem, 105vh); width: min(100%, 44rem, 105svh); height: auto; }
   .mark span { font-family: ${SCRIPT}; font-size: clamp(2.5rem, 12vw, 6rem); line-height: 1; }
+  /* Schlusspunkt: eine kurze Linie wie auf der Antwortkarte, dann Datum und Ort */
+  .meta::before { content: ''; display: block; width: 3.5rem; height: 1px; background: ${C.white}; opacity: 0.6; margin: 0 0 1.5rem; }
   .line { margin: 0 0 0.5rem; font-family: ${SERIF}; font-size: clamp(1.5rem, 2.2vw, 2.25rem); line-height: 1.2; font-variant-numeric: lining-nums; }
   .line + .links { margin-top: 1.5rem; }
   .links { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-left: -0.25rem; }
@@ -26,6 +29,7 @@ const Wrap = styled.footer`
     display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end;
     .mark { grid-column: 1 / 8; margin: 0 0 -1.5vw; }
     .meta { grid-column: 9 / 13; text-align: right; }
+    .meta::before { margin-left: auto; }
     .links { justify-content: flex-end; margin: 0 -0.25rem 0 0; }
   }
 `;

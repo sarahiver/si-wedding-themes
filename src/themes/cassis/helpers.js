@@ -27,7 +27,7 @@ export function formatWeddingDay(iso, lang) {
 }
 
 // Reihenfolge der Seite, falls im Projekt keine hinterlegt ist
-export const DEFAULT_ORDER = ['hero', 'countdown', 'timeline', 'directions', 'rsvp', 'witnesses', 'faq'];
+export const DEFAULT_ORDER = ['hero', 'countdown', 'timeline', 'directions', 'rsvp', 'accommodations', 'dresscode', 'witnesses', 'faq'];
 const SHOWN = new Set(DEFAULT_ORDER);
 /**
  * Steht Bereich `second` auf der Seite direkt hinter `first`? Dann teilen sich beide eine Fläche

@@ -210,6 +210,8 @@ const themeComponents = {
     Timeline: lazy(() => import("../themes/cassis/Timeline")),
     Directions: lazy(() => import("../themes/cassis/Directions")),
     RSVP: lazy(() => import("../themes/cassis/RSVP")),
+    Accommodations: lazy(() => import("../themes/cassis/Accommodations")),
+    Dresscode: lazy(() => import("../themes/cassis/Dresscode")),
     ContactWitnesses: lazy(() => import("../themes/cassis/ContactWitnesses")),
     FAQ: lazy(() => import("../themes/cassis/FAQ")),
     Footer: lazy(() => import("../themes/cassis/Footer")),
@@ -288,7 +290,7 @@ const themeConfig = {
     background: "#F0ECED",
     hasSpecialBackground: false,
     // Eigene Standardreihenfolge, falls im Projekt keine hinterlegt ist
-    defaultOrder: ["hero", "countdown", "timeline", "directions", "rsvp", "witnesses", "faq"],
+    defaultOrder: ["hero", "countdown", "timeline", "directions", "rsvp", "accommodations", "dresscode", "witnesses", "faq"],
   },
 }
 

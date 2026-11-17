@@ -5,7 +5,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { focalCss, imgFocalCss, FOCAL_BREAKPOINT } from '../../lib/focalPoint';
 import { optimizedUrl } from '../../lib/cloudinary';
-import { C, FONT, SERIF, SCRIPT, G, DESK } from './shared';
+import { C, FONT, SERIF, SCRIPT, G, SPREAD, TALL } from './shared';
 import { formatWeddingDate, formatWeddingDay } from './helpers';
 
 // Für Importe aus früheren Fassungen
@@ -23,15 +23,17 @@ const Wrap = styled.header`
   position: relative; z-index: 0; overflow: hidden; background: ${C.shell}; color: ${C.ink}; font-family: ${FONT};
   display: flex; flex-direction: column; height: 100vh; height: 100svh; min-height: 34rem;
   --wmw: min(86vw, 28rem); --wmh: calc(var(--wmw) * 0.703); --paper: calc(var(--wmh) * 0.45 + 8.5rem);
-  /* Bleibt stehen, während die Seite darüber zieht – nur wenn es ganz auf den Bildschirm passt */
-  @media (min-height: 34rem) { position: sticky; top: 0; }
+  /* Bleibt stehen, während die Seite darüber zieht – nur bei genug Höhe. Das Startbild ist nie höher
+     als der Bildschirm (außer unter der Mindesthöhe), sein unterer Rand bleibt also immer sichtbar. */
+  ${TALL} { position: sticky; top: 0; }
   @keyframes cassisFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes cassisZoom { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: none; } }
   @keyframes cassisRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  ${DESK} {
-    display: block; min-height: 42rem; max-height: 70rem;
-    --split: 41vw; --wmw: min(50vw, 100vh); --wml: 15vw; --wmt: calc(50% - var(--wmw) * 0.36);
-    @media (max-height: 41.99rem) { position: relative; }
+  ${SPREAD} {
+    display: block; min-height: 20rem; max-height: 70rem;
+    /* Der Schriftzug richtet sich nach Breite und Höhe – so passt er auch auf ein Handy im Querformat */
+    --split: 41vw; --wmw: min(50vw, 89vh); --wmw: min(50vw, 89svh); --wml: 15vw; --wmt: calc(50% - var(--wmw) * 0.36);
+    @media (max-height: 30rem) { --wmw: min(50vw, 70vh); --wmw: min(50vw, 70svh); }
   }
   @media print { position: relative; }
 `;
@@ -43,7 +45,7 @@ const Photo = styled.div`
   }
   &::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(51,53,63,0.3), rgba(51,53,63,0) 22%, rgba(51,53,63,0) 55%, rgba(51,53,63,0.28)); }
   img.wm { position: absolute; z-index: 2; left: 7vw; bottom: calc(var(--wmh) * -0.45); width: var(--wmw); height: auto; filter: drop-shadow(0 2px 14px rgba(51,53,63,0.3)); ${enter('cassisRise', 350, 900)} }
-  ${DESK} {
+  ${SPREAD} {
     position: absolute; top: 0; bottom: 0; left: var(--split); right: 0;
     img.bg { object-position: 38% 42%; ${(p) => imgFocalCss(p.$focal)} }
     img.wm { left: calc(var(--wml) - var(--split)); top: var(--wmt); bottom: auto; }
@@ -51,7 +53,7 @@ const Photo = styled.div`
 `;
 const Paper = styled.div`
   position: relative; flex: none; height: var(--paper); overflow: hidden;
-  ${DESK} { position: absolute; top: 0; bottom: 0; left: 0; width: var(--split); height: auto; }
+  ${SPREAD} { position: absolute; top: 0; bottom: 0; left: 0; width: var(--split); height: auto; }
 `;
 const Names = styled.h1`
   margin: 0; ${enter('cassisRise', 350, 900)}
@@ -62,7 +64,7 @@ const Names = styled.h1`
   span.text { display: block; padding: 1.5rem ${G} 0; font-family: ${SCRIPT}; font-weight: 400; font-size: clamp(2.75rem, 13vw, 4.5rem); line-height: 1; }
   span.text span { display: block; }
   span.text span + span { padding-left: 1em; }
-  ${DESK} {
+  ${SPREAD} {
     &[data-graphic='true'] { left: var(--wml); top: var(--wmt); }
     span.text { position: absolute; left: 0; right: 0; top: 32%; padding: 0 ${G}; font-size: clamp(3rem, 6vw, 7rem); }
   }
@@ -71,11 +73,11 @@ const Facts = styled.p`
   position: absolute; z-index: 3; left: ${G}; right: ${G}; bottom: 2rem; margin: 0; ${enter('cassisRise', 750, 800)}
   time { display: block; font-family: ${SERIF}; font-size: clamp(1.75rem, 2.6vw, 2.75rem); line-height: 1.1; font-variant-numeric: lining-nums; }
   span { display: block; margin-top: 0.5rem; font-size: 1rem; letter-spacing: 0.04em; color: ${C.inkSoft}; }
-  ${DESK} { bottom: clamp(2rem, 6vh, 4rem); }
+  ${SPREAD} { bottom: clamp(2rem, 6vh, 4rem); }
 `;
 const Edge = styled.p`
   display: none;
-  ${DESK} { display: block; position: absolute; z-index: 3; right: ${G}; bottom: clamp(2rem, 6vh, 4rem); margin: 0; writing-mode: vertical-rl; transform: rotate(180deg); color: ${C.white}; font-size: 0.8125rem; letter-spacing: 0.14em; opacity: 0.9; text-shadow: 0 0 10px rgba(51,53,63,0.5); }
+  ${SPREAD} { display: block; position: absolute; z-index: 3; right: ${G}; bottom: clamp(2rem, 6vh, 4rem); margin: 0; writing-mode: vertical-rl; transform: rotate(180deg); color: ${C.white}; font-size: 0.8125rem; letter-spacing: 0.14em; opacity: 0.9; text-shadow: 0 0 10px rgba(51,53,63,0.5); }
 `;
 
 function Hero() {

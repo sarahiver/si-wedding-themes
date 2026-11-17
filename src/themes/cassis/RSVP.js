@@ -26,19 +26,23 @@ export const Card = styled.section`
 const Question = styled.h3`margin: 0; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 3.4vw, 3.5rem); line-height: 1; text-align: center; overflow-wrap: anywhere;`;
 const Rule = styled.div`width: 3.5rem; height: 1px; background: ${C.ink}; opacity: 0.6; margin: 1.5rem auto 2.5rem;`;
 const Form = styled.form`display: grid; gap: 2rem;`;
-const Field = styled.label`display: grid; gap: 0.5rem; font-size: 0.6875rem; line-height: 1.4; letter-spacing: 0.24em; text-transform: uppercase; color: ${C.inkSoft};`;
+const Field = styled.label`display: grid; gap: 0.5rem; font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft}; transition: color 0.2s ease; &:focus-within { color: ${C.ink}; }`;
 const inputCss = `
   box-sizing: border-box; width: 100%; min-height: 3rem; padding: 0.3rem 0; border: 0; border-bottom: 1px dotted ${C.ink}; border-radius: 0;
   background: transparent; color: ${C.ink}; font-family: ${SERIF}; font-weight: 400; font-size: clamp(1.375rem, 1.7vw, 1.625rem); letter-spacing: 0; text-transform: none;
-  &::placeholder { color: ${C.haze}; font-style: italic; opacity: 1; }
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  &::placeholder { color: #8F8D98; font-style: italic; opacity: 1; }
+  &:hover { border-bottom-style: solid; }
   &:focus-visible { outline: 0; border-bottom-style: solid; box-shadow: 0 1px 0 ${C.ink}; }
+  @media (prefers-reduced-motion: reduce) { transition: none; }
   &[aria-invalid='true'] { border-bottom: 1px solid ${ERR}; box-shadow: 0 1px 0 ${ERR}; }
 `;
 const Input = styled.input`${inputCss}`;
 const Select = styled.select`${inputCss} appearance: none; -webkit-appearance: none; padding-right: 2rem; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2333353F' stroke-width='1.2'%3E%3Cpath d='M1 3 L5 7 L9 3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.25rem center; background-size: 0.7rem;`;
 // Ernährung und Allergien einer Person stehen ab Tablet nebeneinander
-const Pair = styled.div`display: grid; gap: 1.5rem; align-items: end; @media (min-width: 640px) { grid-template-columns: 1fr 1fr; }`;
+// Nebeneinander, sobald die Karte selbst breit genug ist (nicht das Fenster) – sonst untereinander
+const Pair = styled.div`display: grid; gap: 1.5rem; align-items: end; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));`;
 // Nachricht: Schreiblinien wie auf einer Karte
 const Area = styled.textarea`${inputCss} border: 0; padding: 0.2rem 0; resize: vertical; min-height: 7.2rem; font-size: 1.375rem; line-height: 2.4rem;
   background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(2.4rem - 1px), ${C.haze} calc(2.4rem - 1px), ${C.haze} 2.4rem);
@@ -46,13 +50,14 @@ const Area = styled.textarea`${inputCss} border: 0; padding: 0.2rem 0; resize: v
 // Zu- und Absage zum Ankreuzen. Vor der Wahl sind beide gleichwertig.
 const Choice = styled.div`
   display: grid; gap: 0.5rem 1rem; padding: 1.25rem 0; border-top: 1px solid ${C.haze}; border-bottom: 1px solid ${C.haze};
-  @media (min-width: 520px) { grid-template-columns: 1fr 1fr; }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   button {
     display: flex; align-items: center; justify-content: center; gap: 0.9rem; min-height: 3.25rem; padding: 0; border: 0; background: none; cursor: pointer;
     font-family: ${SERIF}; font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.1; color: ${C.ink}; transition: color 0.2s ease;
   }
   button::before { content: ''; flex: none; box-sizing: border-box; width: 1.1rem; height: 1.1rem; border: 1px solid ${C.ink};
     background: no-repeat center / 0.7rem url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'/%3E"); }
+  button:hover::before { box-shadow: 0 0 0 3px ${C.shell}; }
   button[aria-pressed='true']::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%2333353F' stroke-width='1.6'%3E%3Cpath d='M1.5 6.5 L4.8 9.6 L10.5 2.4'/%3E%3C/svg%3E"); }
   &[data-chosen='true'] button[aria-pressed='false'] { color: ${C.inkSoft}; }
   button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
@@ -61,6 +66,8 @@ const Persons = styled.div`display: grid; justify-items: center; gap: 0.6rem; te
 const Stepper = styled.div`
   display: grid; grid-template-columns: 3rem 3.5rem 3rem; align-items: center;
   button { width: 3rem; height: 3rem; border: 1px solid ${C.haze}; border-radius: 50%; background: transparent; color: ${C.ink}; font-size: 1.25rem; font-family: ${FONT}; font-weight: 300; cursor: pointer; }
+  button { transition: background-color 0.2s ease, border-color 0.2s ease; }
+  button:hover:not(:disabled) { background: ${C.shell}; border-color: ${C.ink}; }
   button:disabled { opacity: 0.35; cursor: default; }
   button:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
   output { text-align: center; font-family: ${SERIF}; font-size: 2rem; line-height: 1; font-variant-numeric: lining-nums; }
@@ -77,6 +84,7 @@ const Check = styled.label`
   display: flex; align-items: center; gap: 0.75rem; min-height: 3rem; font-size: 0.9375rem; line-height: 1.5; color: ${C.ink}; cursor: pointer;
   input { flex: none; appearance: none; -webkit-appearance: none; box-sizing: border-box; width: 1.1rem; height: 1.1rem; margin: 0; border: 1px solid ${C.ink}; border-radius: 0; background: transparent no-repeat center / 0.7rem; cursor: pointer; }
   input:checked { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%2333353F' stroke-width='1.6'%3E%3Cpath d='M1.5 6.5 L4.8 9.6 L10.5 2.4'/%3E%3C/svg%3E"); }
+  input:hover { box-shadow: 0 0 0 3px ${C.shell}; }
   input:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 3px; }
   input[aria-invalid='true'] { outline: 2px solid ${ERR}; outline-offset: 2px; }
 `;

@@ -37,8 +37,17 @@ const tones = {
   mist: css`background:${C.mist};color:${C.ink};`,
 };
 
-// Ab dieser Breite gilt das zwölfspaltige Raster
-export const DESK = '@media (min-width: 900px)';
+// Das zwölfspaltige Raster gilt ab 700 px Breite (Tablet hochkant) – und im Querformat schon ab 640 px:
+// ein Handy quer ist breit genug für zwei Spalten, aber zu niedrig für gestapelte Flächen.
+export const DESK_Q = '(min-width: 700px), (min-width: 640px) and (orientation: landscape)';
+export const DESK = `@media ${DESK_Q}`;
+// Startbild als Doppelseite (Papier links, Foto rechts): wie oben, im Querformat ab 480 px
+export const SPREAD_Q = '(min-width: 900px), (min-width: 480px) and (orientation: landscape)';
+export const SPREAD = `@media ${SPREAD_Q}`;
+// Stehende Bilder brauchen Höhe: darunter (Handy quer, sehr niedrige Fenster) läuft alles im normalen Fluss
+export const TALL = '@media (min-height: 34rem)';
+// Niedrige Fenster: stehende Überschriften neben stehenden Bildern würden sich überlagern
+export const LOW = '@media (max-height: 39.99rem)';
 // Höhe der fixierten Kopfzeile – Sprungziele halten diesen Abstand
 export const HEADER = '4rem';
 // Seitenrand und Spaltenabstand des Rasters

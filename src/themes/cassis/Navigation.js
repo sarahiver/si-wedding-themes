@@ -11,16 +11,16 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent, LANGUAGE_LABELS, LANGUAGE_NAMES } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SCRIPT, HEADER } from './shared';
+import { C, FONT, SCRIPT, HEADER, SPREAD_Q } from './shared';
 
 // Angezeigt wird nur, was auf der Seite tatsächlich steht – in der Reihenfolge der Seite
 const ITEMS = [
   { id: 'countdown', key: 'navCountdown' }, { id: 'timeline', key: 'navTimeline' }, { id: 'directions', key: 'navDirections' },
-  { id: 'rsvp', key: 'navRsvp' }, { id: 'witnesses', key: 'navWitnesses' }, { id: 'faq', key: 'navFaq' },
+  { id: 'rsvp', key: 'navRsvp' }, { id: 'accommodations', key: 'navHotels' }, { id: 'dresscode', key: 'navDresscode' },
+  { id: 'witnesses', key: 'navWitnesses' }, { id: 'faq', key: 'navFaq' },
 ];
 // Anteil des Papiers an der Breite des Startbilds (siehe Hero.js, --split) und ab wann die Doppelseite gilt
 const SPLIT = 0.41;
-const SPREAD = 900;
 const WIDE = '@media (min-width: 1024px)';
 const NARROW = '@media (max-width: 1023px)';
 
@@ -78,6 +78,8 @@ const Menu = styled.nav`
     a { display: flex; align-items: center; min-height: 3.5rem; color: ${C.ink}; text-decoration: none; font-weight: 300; font-size: 1.5rem; border-bottom: 1px solid ${C.line}; }
     a:focus-visible { outline: 2px solid ${C.ink}; outline-offset: -2px; }
     @media (prefers-reduced-motion: reduce) { transition: none; transform: none; }
+    /* Querformat mit wenig Höhe: zwei Spalten, damit das Menü ohne Scrollen passt */
+    @media (orientation: landscape) and (max-height: 30rem) { grid-template-columns: 1fr 1fr; column-gap: clamp(1rem, 4vw, 3.5rem); a { min-height: 3rem; font-size: 1.25rem; } }
   }
 `;
 const Right = styled.div`display: flex; align-items: center; gap: 0.25rem; flex: none; margin-left: auto; margin-right: -0.5rem;`;
@@ -180,7 +182,8 @@ function Navigation() {
   useEffect(() => {
     const paint = () => {
       const nav = menuRef.current; if (!nav) return;
-      const edge = window.innerWidth >= SPREAD ? window.innerWidth * SPLIT : 0; // darunter liegt das Foto oben: alles weiß
+      const spread = window.matchMedia && window.matchMedia(SPREAD_Q).matches;
+      const edge = spread ? window.innerWidth * SPLIT : 0; // sonst liegt das Foto oben: alles weiß
       nav.querySelectorAll('a').forEach((a) => {
         const b = a.getBoundingClientRect();
         a.style.setProperty('--x', `${Math.round(edge - b.left)}px`);
