@@ -20,6 +20,10 @@ import VideoGlobalStyles from "../themes/video/GlobalStyles"
 import ClassicGlobalStyles from "../themes/classic/GlobalStyles"
 import SummerGlobalStyles from "../themes/summer/GlobalStyles"
 import CassisGlobalStyles from "../themes/cassis/GlobalStyles"
+// Nur der Reihenfolge wegen: Die Stile des Parallax-Themes enthalten eine @import-Regel und müssen – wie die
+// der anderen Themes – schon beim Start angemeldet sein, sonst verliert die Passwortseite ihr Aussehen.
+// Die Datei ist klein und bringt die 3D-Bibliothek nicht mit.
+import "../themes/parallax/GlobalStyles"
 
 
 // Special Components
