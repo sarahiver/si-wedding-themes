@@ -21,8 +21,10 @@ const ITEMS = [
 ];
 // Anteil des Papiers an der Breite des Startbilds (siehe Hero.js, --split) und ab wann die Doppelseite gilt
 const SPLIT = 0.41;
-const WIDE = '@media (min-width: 1024px)';
-const NARROW = '@media (max-width: 1023px)';
+// In em statt px: Bei vergrößerter Schrift im Browser passt die Menüzeile nicht mehr in die Breite –
+// dann gilt schon früher das aufklappbare Menü. Bei üblicher Schriftgröße liegt die Grenze unverändert bei 1024 px.
+const WIDE = '@media (min-width: 64em)';
+const NARROW = '@media (max-width: 63.9375em)';
 
 const Bar = styled.header`
   position: ${(p) => (p.$pinned ? 'fixed' : 'absolute')}; z-index: 50; top: 0; left: 0; right: 0; box-sizing: border-box; height: ${HEADER};
@@ -247,7 +249,7 @@ function Navigation() {
   // Wird das Fenster breit, gibt es kein Aufklappmenü mehr
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const mq = window.matchMedia('(min-width: 1024px)');
+    const mq = window.matchMedia('(min-width: 64em)');
     const onChange = () => { if (mq.matches) setOpen(false); };
     if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
     return () => { if (mq.removeEventListener) mq.removeEventListener('change', onChange); else mq.removeListener(onChange); };
@@ -300,7 +302,7 @@ function Navigation() {
             </LangPick>
             <Langs aria-label={t(STRINGS, 'language')}>
               {languages.map((l) => (
-                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} aria-pressed={l === lang} aria-label={LANGUAGE_NAMES[l]} onClick={() => setLang(l)}>
+                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} aria-pressed={l === lang} aria-label={`${LANGUAGE_LABELS[l]} – ${LANGUAGE_NAMES[l]}`} onClick={() => setLang(l)}>
                   {LANGUAGE_LABELS[l]}
                 </Lang>
               ))}

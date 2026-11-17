@@ -56,11 +56,13 @@ const Term = styled.dt`font-family: ${SERIF}; font-size: clamp(1.375rem, 1.8vw, 
 const Desc = styled.dd`margin: 0.3rem 0 0; white-space: pre-line; overflow-wrap: anywhere;`;
 // Überschrift der Antwort: läuft mit der Karte hoch und bleibt dann über der Illustration stehen.
 // Gleiche Höhe wie die Fläche der Illustration – beide lösen sich am Ende im selben Moment.
+// Auf dem Handy bringt sie ihre eigene Fläche mit: Überschrift und Einleitung ziehen als geschlossener
+// Streifen über die stehende Zeichnung, statt quer über deren Linien zu liegen.
 const HeadStand = styled.div`
-  order: 3; position: relative; z-index: 1; margin: 1rem 0 1.5rem;
+  order: 3; position: relative; z-index: 1; margin: 0 calc(${G} * -1); padding: 1.5rem ${G}; background: ${C.mist};
   ${DESK} {
     grid-column: 1 / 6; grid-row: 2; align-self: start; position: sticky; top: ${HEADER}; height: calc(100vh - ${HEADER}); box-sizing: border-box;
-    margin: 0; padding-top: 1.5rem; pointer-events: none;
+    margin: 0; padding: 1.5rem 0 0; background: none; pointer-events: none;
     > * { pointer-events: auto; }
     /* Niedrige Fenster: Überschrift und Illustration hätten nicht beide Platz – die Überschrift läuft dann mit der Karte mit */
     ${LOW} { grid-column: 6 / 13; position: relative; top: auto; height: auto; padding: 0 0 1.5rem; }
