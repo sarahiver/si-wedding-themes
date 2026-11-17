@@ -13,21 +13,17 @@ import { C, SERIF, G, DESK, HEADER, italic, textLink, Section, Inner, Full, Titl
 // die deckende Fläche gehört dazu, damit die Einträge sauber dahinter verschwinden.
 // Sehr niedrige Fenster (Handy quer) haben dafür keinen Platz – dort läuft alles normal mit.
 const STICK = '@media (min-height: 30.01rem)';
-// Unter der Fläche läuft ein kurzer Verlauf aus: Zeilen tauchen weich ab statt hart abgeschnitten zu werden.
-const bar = css`
-  position: sticky; top: calc(${HEADER} - 1px); z-index: 2; background: ${C.pearl};
-  &::after { content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 1.25rem; pointer-events: none; background: linear-gradient(${C.pearl}, rgba(248, 246, 246, 0)); }
-`;
+const bar = css`position: sticky; top: calc(${HEADER} - 1px); z-index: 2; background: ${C.pearl};`;
 const Head = styled.div`
   display: contents;
-  h2 { padding: 0.75rem 0 0.35rem; margin-top: -0.75rem; ${STICK} { ${bar} } }
+  h2 { padding: 0.75rem 0 0.5rem; margin-top: -0.75rem; ${STICK} { ${bar} } }
   h2:only-child { margin-bottom: clamp(2.5rem, 5vw, 5rem); }
-  p { margin: 1.25rem 0 clamp(2.5rem, 5vw, 5rem); }
+  p { margin: 0.75rem 0 clamp(2.5rem, 5vw, 5rem); }
   ${DESK} {
     display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end;
     padding: 1rem 0 clamp(1.25rem, 2vw, 2rem); margin: -1rem 0 clamp(1.25rem, 3vw, 3rem);
     ${STICK} { ${bar} }
-    h2, h2:only-child { grid-column: 1 / 8; position: static; padding: 0; margin: 0; background: none; &::after { content: none; } }
+    h2, h2:only-child { grid-column: 1 / 8; position: static; padding: 0; margin: 0; background: none; }
     p { grid-column: 8 / 13; margin: 0 0 0.35em; max-width: none; }
   }
 `;
