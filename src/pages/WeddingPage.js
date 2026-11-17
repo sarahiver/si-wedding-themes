@@ -28,13 +28,15 @@ import BotanicalBackground from "../themes/botanical/BotanicalBackground"
 // Video Theme special import
 import VideoHorizontalScroll from "../themes/video/HorizontalScroll"
 
-// Parallax Theme special import
-import ParallaxWeddingApp from "../themes/parallax/WeddingApp"
 
 // ============================================
 // VARIANT IMPORTS
 // ============================================
 import SplitScreenHero from "../variants/hero/SplitScreenHero"
+
+// Das Parallax-Theme bringt die 3D-Bibliothek (three.js) mit – rund die Hälfte des Startpakets.
+// Es wird deshalb erst geladen, wenn ein Projekt dieses Theme nutzt. Die Ladegrenze liegt in App.js.
+const ParallaxWeddingApp = lazy(() => import("../themes/parallax/WeddingApp"))
 
 // Variants Registry - hier neue Varianten registrieren
 const variants = {
