@@ -28,6 +28,12 @@ const HIDDEN_FIELDS = {
     footer: ['hashtag', 'tagline', 'image', 'image2'],
     savethedate: ['__entire_section__'], // Hide entire editor
   },
+  // Cassis: nur Felder, die das Theme auch zeigt
+  cassis: {
+    hero: ['tagline'],
+    countdown: ['title', 'show_seconds'],
+    directions: ['maps_embed', 'item_icon'],
+  },
   // Add other themes as needed:
   // neon: { hero: ['script_line'], ... },
 };

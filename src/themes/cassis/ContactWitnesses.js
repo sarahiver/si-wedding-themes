@@ -5,7 +5,7 @@ import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
 import { useWedding } from '../../context/WeddingContext';
 import { C, SERIF, G, DESK, italic, textLink, Section, Inner, Title } from './shared';
-import { follows, closingTone } from './helpers';
+import { follows, closingTone, OWN_TITLE } from './helpers';
 import { FaqBlock, WIDE } from './FAQ';
 
 const List = styled.ul`
@@ -40,7 +40,7 @@ const digits = (s) => String(s || '').replace(/[^\d+]/g, '');
 function ContactWitnesses() {
   const { project, isComponentActive } = useWedding();
   const { t } = useLanguage();
-  const w = useLocalizedContent('witnesses');
+  const w = useLocalizedContent('witnesses', OWN_TITLE);
   const persons = (Array.isArray(w.persons) ? w.persons : []).filter((p) => p && p.name);
   if (!persons.length) return null;
   // Stehen die Fragen direkt dahinter, teilen sich beide diese Seite

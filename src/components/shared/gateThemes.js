@@ -36,6 +36,8 @@ export function gateLanguage(project, wanted) {
   const { languages, master } = projectLanguages(project);
   if (languages.length === 1) return GATE_TEXT[languages[0]] ? languages[0] : 'de';
   if (languages.length < 2) return 'de';
+  // Zuerst die Sprache, die auf der Seite schon einmal gewählt wurde
+  if (!wanted && project && project.slug) { try { const st = localStorage.getItem(`si_lang_${project.slug}`); if (st && languages.includes(st) && GATE_TEXT[st]) return st; } catch { /* Speicher gesperrt */ } }
   const prefs = wanted || (typeof navigator !== 'undefined' ? (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language]) : []);
   for (const p of prefs) {
     const code = String(p || '').toLowerCase().split('-')[0];

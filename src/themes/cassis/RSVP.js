@@ -6,7 +6,7 @@ import { useRSVP, needsHealthConsent } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
 import { C, FONT, SERIF, Section, Inner, Aside, Body, Title, Lead, Button, DESK, G, reveal, useReveal } from './shared';
-import { formatWeddingDate, follows } from './helpers';
+import { formatWeddingDate, follows, OWN_TITLE } from './helpers';
 
 // Fehlerfarbe: dunkles Rot, auf hellem Grund gut lesbar
 const ERR = '#6E1620';
@@ -95,7 +95,7 @@ const Done = styled.p`margin: 0; text-align: center; font-family: ${SERIF}; font
 // Überschrift des Bereichs: steht neben der Karte (oder, mit der Anfahrt zusammen, über dem Château)
 export function RsvpHead() {
   const { lang, t } = useLanguage();
-  const c = useLocalizedContent('rsvp');
+  const c = useLocalizedContent('rsvp', OWN_TITLE);
   const deadline = c.deadline ? formatWeddingDate(c.deadline, lang) : '';
   return (
     <>
@@ -109,7 +109,7 @@ export function RsvpHead() {
 export function RsvpCard() {
   const { project } = useWedding();
   const { lang, t } = useLanguage();
-  const c = useLocalizedContent('rsvp');
+  const c = useLocalizedContent('rsvp', OWN_TITLE);
   const rules = (project?.features && project.features.rsvp) || {};
   const max = Number.isInteger(rules.max_persons) ? rules.max_persons : 10;
   const uid = useId();
@@ -319,7 +319,7 @@ function RSVP() {
   const { project, isComponentActive } = useWedding();
   const d = useLocalizedContent('directions');
   const items = Array.isArray(d.items) ? d.items : (Array.isArray(d.options) ? d.options : []);
-  const hasDirections = !!(d.description || d.address || items.some((x) => x && (x.title || x.description)));
+  const hasDirections = !!(d.description || d.address || d.note || items.some((x) => x && (x.title || x.description)));
   if (hasDirections && follows(project, isComponentActive, 'directions', 'rsvp')) return null;
   return (
     <Section $tone="mist">

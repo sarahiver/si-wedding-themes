@@ -44,19 +44,21 @@ const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 // Leerer oder nur aus Leerzeichen bestehender Text gilt als „nicht übersetzt"
 const isBlank = (v) => v === undefined || v === null || (typeof v === 'string' && v.trim() === '');
 
-function overlay(base, tr) {
+function overlay(base, tr, keepBlank) {
+  // Im Dashboard bleibt ein bewusst geleertes Feld leer, solange daran gearbeitet wird
+  if (keepBlank && tr === '' && (typeof base === 'string' || base === undefined || base === null)) return '';
   if (isBlank(tr)) return base;
   if (Array.isArray(base)) {
     if (!Array.isArray(tr)) return base;
     // Listen folgen der Hauptsprache: Anzahl und Reihenfolge bleiben, je Eintrag wird überlagert
-    return base.map((item, i) => overlay(item, tr[i]));
+    return base.map((item, i) => overlay(item, tr[i], keepBlank));
   }
   if (isPlain(base)) {
     if (!isPlain(tr)) return base;
     const out = { ...base };
     for (const k of Object.keys(tr)) {
       if (k === 'i18n') continue;
-      out[k] = k in base ? overlay(base[k], tr[k]) : (isBlank(tr[k]) ? base[k] : tr[k]);
+      out[k] = k in base ? overlay(base[k], tr[k], keepBlank) : (isBlank(tr[k]) ? base[k] : tr[k]);
     }
     return out;
   }
@@ -66,11 +68,19 @@ function overlay(base, tr) {
 }
 
 /** Inhalt eines Bereichs in der gewählten Sprache; fehlende Texte kommen aus der Hauptsprache. */
-export function localizeContent(content, lang, master) {
+export function localizeContent(content, lang, master, keepBlank = false) {
   if (!isPlain(content)) return content || {};
   const { i18n, ...base } = content;
   if (!lang || lang === master || !isPlain(i18n) || !isPlain(i18n[lang])) return base;
-  return overlay(base, i18n[lang]);
+  return overlay(base, i18n[lang], keepBlank);
+}
+
+/** Ist dieses Feld in der gewählten Sprache eigens eingetragen (Hauptsprache: ist es überhaupt gefüllt)? */
+export function hasOwnText(content, lang, master, field) {
+  if (!isPlain(content)) return false;
+  if (!lang || lang === master) return !isBlank(content[field]);
+  const tr = isPlain(content.i18n) && isPlain(content.i18n[lang]) ? content.i18n[lang][field] : undefined;
+  return typeof tr === 'string' && !isBlank(tr);
 }
 
 // ---- gewählte Sprache je Projekt (ohne Provider, für alle Bereiche einer Seite gleich) ----
@@ -126,10 +136,18 @@ export function useLanguage() {
 }
 
 /** Inhalt eines Bereichs in der aktuellen Sprache. */
-export function useLocalizedContent(component) {
+export function useLocalizedContent(component, ownLanguageOnly) {
   const { content } = useWedding();
   const { lang, master } = useLanguage();
-  return localizeContent(content ? content[component] : null, lang, master);
+  const raw = content ? content[component] : null;
+  const out = localizeContent(raw, lang, master);
+  // Felder, für die das Theme selbst einen Text in jeder Sprache hat (z. B. Überschriften):
+  // Ohne eigene Übersetzung bleibt das Feld leer, damit der Text des Themes in der gewählten
+  // Sprache erscheint – und nicht die Überschrift der Hauptsprache auf einer sonst übersetzten Seite.
+  if (Array.isArray(ownLanguageOnly) && lang && lang !== master) {
+    for (const f of ownLanguageOnly) if (!hasOwnText(raw, lang, master, f)) out[f] = '';
+  }
+  return out;
 }
 
 // ---- Bearbeiten von Übersetzungen im Dashboard -----------------------------------------
@@ -141,7 +159,7 @@ export function useLocalizedContent(component) {
  * Listen behalten Länge und Reihenfolge der Hauptsprache; Einträge ohne Übersetzung sind `null`.
  */
 // Felder, die in jeder Sprache gleich sind: Uhrzeiten, Daten, Bilder, Links, Telefonnummern …
-const NEUTRAL_KEY = /^(id|type|icon|time|date|lat|lng|phone|whatsapp|email|color|slug|url|href|src|image|images|video|focal|zoom|timezone)$|^(deadline|layout|hex)$|(_image|_images|_url|_date|_time|_media|_focal|_mobile|_id|_embed|_link|_until|_from|_playlist|_code|_range)$/;
+const NEUTRAL_KEY = /^(id|type|icon|time|date|lat|lng|phone|whatsapp|email|color|slug|url|href|src|image|images|video|focal|zoom|timezone)$|^(deadline|layout|hex)$|(_image|_images|_url|_date|_time|_media|_focal|_mobile|_id|_embed|_link|_until|_from|_playlist|_code)$/;
 export const isNeutralField = (key) => NEUTRAL_KEY.test(String(key || ''));
 
 export function diffTranslation(base, value) {
@@ -161,9 +179,35 @@ export function diffTranslation(base, value) {
     return Object.keys(out).length ? out : undefined;
   }
   if (typeof base === 'string' || base === undefined || base === null) {
-    return typeof value === 'string' && value.trim() !== '' && value !== base ? value : undefined;
+    if (typeof value !== 'string' || value === base) return undefined;
+    // Geleertes Feld: bleibt als leerer Eintrag stehen, solange bearbeitet wird (sonst spränge der Text
+    // der Hauptsprache beim Löschen des letzten Zeichens zurück ins Feld). Beim Speichern entfällt er.
+    if (value.trim() === '') return isBlank(base) ? undefined : '';
+    return value;
   }
   return undefined;
+}
+
+/** Entfernt leere Einträge aus den Übersetzungen (vor dem Speichern). */
+export function pruneBlankTranslations(content) {
+  if (!isPlain(content) || !isPlain(content.i18n)) return content;
+  const clean = (v) => {
+    if (typeof v === 'string') return v.trim() === '' ? undefined : v;
+    if (Array.isArray(v)) { const a = v.map((x) => { const c = clean(x); return c === undefined ? null : c; }); return a.some((x) => x !== null) ? a : undefined; }
+    if (isPlain(v)) { const o = {}; for (const k of Object.keys(v)) { const c = clean(v[k]); if (c !== undefined) o[k] = c; } return Object.keys(o).length ? o : undefined; }
+    return v === null ? undefined : v;
+  };
+  const all = clean(content.i18n);
+  const next = { ...content };
+  if (all) next.i18n = all; else delete next.i18n;
+  return next;
+}
+
+/** Wurde in einer Übersetzung ein sprachneutrales Feld (Uhrzeit, Link, Telefonnummer …) verändert? */
+export function neutralChanged(shown, value, key) {
+  if (Array.isArray(value)) return Array.isArray(shown) && value.some((v, i) => neutralChanged(shown[i], v, key));
+  if (isPlain(value)) return Object.keys(value).some((k) => k !== 'i18n' && neutralChanged(isPlain(shown) ? shown[k] : undefined, value[k], k));
+  return isNeutralField(key) && (typeof value === 'string' || typeof value === 'number') && String(value) !== String(shown ?? '');
 }
 
 /** Hat sich an einer Liste die Struktur geändert (Einträge hinzugefügt, entfernt oder umsortiert)? */

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { optimizedUrl } from '../../lib/cloudinary';
 import STRINGS from './strings';
+import { OWN_TITLE } from './helpers';
 import { C, SERIF, Section, Inner, Aside, Body, Title, DESK, TALL, G, italic, useReveal } from './shared';
 
 // Jede Zeile trägt die Uhrzeit als Überschrift; feine Linien trennen die Zeilen.
@@ -48,7 +49,7 @@ const Figure = styled.figure`
 
 function Timeline() {
   const { t } = useLanguage();
-  const tl = useLocalizedContent('timeline');
+  const tl = useLocalizedContent('timeline', OWN_TITLE);
   const listRef = useReveal();
   const events = Array.isArray(tl.events) ? tl.events.filter((e) => e && (e.time || e.title)) : [];
   if (!events.length && !tl.image) return null;

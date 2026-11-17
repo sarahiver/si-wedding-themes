@@ -26,6 +26,21 @@ export function formatWeddingDay(iso, lang) {
     .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
 }
 
+// Anfahrt: Im Dashboard wählt das Paar ein Verkehrsmittel aus einer Liste; gespeichert wird dabei der
+// deutsche Titel. Auf einer mehrsprachigen Seite kommt der Titel deshalb aus den Texten des Themes –
+// außer das Paar hat einen eigenen Titel eingetragen.
+const TRANSPORT = {
+  car: ['trCar', 'Auto'], parking: ['trParking', 'Parkplätze'], train: ['trTrain', 'Bahn / Zug'], public: ['trPublic', 'Öffentliche Verkehrsmittel'], bus: ['trBus', 'Bus'],
+  taxi: ['trTaxi', 'Taxi / Shuttle'], plane: ['trPlane', 'Flugzeug'], bike: ['trBike', 'Fahrrad'], walk: ['trWalk', 'Zu Fuß'], boat: ['trBoat', 'Boot / Fähre'],
+};
+/** Schlüssel des Titels in strings.js für eine Option der Anfahrt – oder null, wenn der eigene Titel gilt. */
+export function transportKey(item) {
+  const preset = item && TRANSPORT[item.type || (item.title ? '' : 'car')];
+  if (!preset) return null;
+  const title = String(item.title || '').trim();
+  return !title || title === preset[1] ? preset[0] : null;
+}
+
 // Reihenfolge der Seite, falls im Projekt keine hinterlegt ist
 export const DEFAULT_ORDER = ['hero', 'countdown', 'timeline', 'directions', 'rsvp', 'accommodations', 'dresscode', 'witnesses', 'faq'];
 const SHOWN = new Set(DEFAULT_ORDER);
@@ -56,3 +71,6 @@ export function previous(project, isComponentActive, id) {
 export function closingTone(project, isComponentActive, id) {
   return ['directions', 'rsvp', 'witnesses', 'faq'].includes(previous(project, isComponentActive, id)) ? 'pearl' : 'mist';
 }
+
+// Überschriften: Hat eine Sprache keine eigene, gilt die des Themes in dieser Sprache (nicht die der Hauptsprache)
+export const OWN_TITLE = ['title'];

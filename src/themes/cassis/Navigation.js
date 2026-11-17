@@ -120,9 +120,42 @@ const Burger = styled.button`
   @media (prefers-reduced-motion: reduce) { span::before, span::after { transition: none; } }
 `;
 
+// Sprachwechsel mitten auf der Seite: Texte sind je Sprache verschieden lang. Damit die Stelle, die man
+// gerade liest, stehen bleibt, wird ein sichtbares Element gemerkt und danach wieder an seinen Platz geschoben.
+function readingAnchor() {
+  if (typeof window === 'undefined' || window.scrollY < 4) return null;
+  const sticky = (el) => { for (let e = el; e && e !== document.body; e = e.parentElement) { if (getComputedStyle(e).position === 'sticky' || getComputedStyle(e).position === 'fixed') return true; } return false; };
+  let best = null;
+  for (const el of document.querySelectorAll('section h2, section h3, section li, section p, section summary, section address, section label, section fieldset, footer p')) {
+    const r = el.getBoundingClientRect();
+    if (r.top < 64 || r.top > window.innerHeight || r.height === 0) continue;
+    // Am nächsten am oberen Fünftel des Fensters: dort liest man
+    const d = Math.abs(r.top - window.innerHeight * 0.2);
+    if (best && d >= best.d) continue;
+    if (sticky(el)) continue;
+    best = { el, top: r.top, d };
+  }
+  return best;
+}
+function keepReadingPlace(anchor) {
+  if (!anchor) return;
+  let last = window.scrollY;
+  const fix = () => {
+    // Hat inzwischen jemand selbst gescrollt, bleibt die Seite, wo sie ist
+    if (!anchor.el.isConnected || Math.abs(window.scrollY - last) > 2) return;
+    const d = anchor.el.getBoundingClientRect().top - anchor.top;
+    if (Math.abs(d) > 1) { window.scrollBy({ top: d, behavior: 'instant' }); last = window.scrollY; }
+  };
+  requestAnimationFrame(() => { fix(); requestAnimationFrame(fix); });
+  // Andere Sprachen laden teils weitere Schriftzeichen nach; danach rückt der Text noch einmal
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(fix));
+  setTimeout(fix, 400);
+}
+
 function Navigation() {
   const { project, coupleNames } = useWedding();
-  const { enabled, lang, languages, setLang, t } = useLanguage();
+  const { enabled, lang, languages, setLang: applyLang, t } = useLanguage();
+  const setLang = (l) => { if (l === lang) return; const anchor = readingAnchor(); applyLang(l); keepReadingPlace(anchor); };
   const hero = useLocalizedContent('hero');
   const [pinned, setPinned] = useState(false);
   const [open, setOpen] = useState(false);

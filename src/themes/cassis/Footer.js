@@ -43,7 +43,8 @@ function Footer() {
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
   const label = f.names || (names.length ? names.join(' ') : (coupleNames || ''));
   const date = formatWeddingDate(countdown.target_date || weddingDate, lang);
-  const tag = f.tagline || f.hashtag || project?.hashtag;
+  // Schlusszeile und Hashtag stehen beide da, wenn beide eingetragen sind
+  const tagline = f.tagline; const tag = f.hashtag || project?.hashtag;
   const toTop = () => {
     const calm = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
@@ -53,7 +54,8 @@ function Footer() {
       <p className="mark">{hero.name_image ? <img src={hero.name_image} alt={label} loading="lazy" /> : <span>{label}</span>}</p>
       <div className="meta">
       {date && <p className="line">{date}</p>}
-      {tag && <p className="line">{tag}</p>}
+      {tagline && <p className="line">{tagline}</p>}
+      {tag && tag !== tagline && <p className="line">{tag}</p>}
       <div className="links">
         <button type="button" onClick={toTop}>{t(STRINGS, 'backToTop')}</button>
         <a href="/impressum" target="_blank" rel="noopener noreferrer">{t(STRINGS, 'imprint')}</a>

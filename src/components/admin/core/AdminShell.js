@@ -295,7 +295,7 @@ function LanguageBar({ languages, master, current, onChange }) {
       </div>
       <p role="status" style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--admin-text-secondary, #555)' }}>
         {translating
-          ? `Übersetzung ${LANGUAGE_NAMES[current] || current}: Hier ändert ihr nur Texte. Wo noch keine Übersetzung eingetragen ist, steht der Text der Hauptsprache – so erscheint er auch auf der Website. Uhrzeiten, Daten, Bilder und neue Einträge legt ihr in der Hauptsprache an. Speichern nicht vergessen.`
+          ? `Übersetzung ${LANGUAGE_NAMES[current] || current}: Hier ändert ihr nur Texte. Wo noch keine Übersetzung eingetragen ist, steht der Text der Hauptsprache – so erscheint er auch auf der Website. Ausnahme: Überschriften der Bereiche ohne Übersetzung zeigt die Website mit der Standardüberschrift dieser Sprache. Uhrzeiten, Daten, Links, Telefonnummern, Bilder und neue Einträge legt ihr in der Hauptsprache an. Speichern nicht vergessen.`
           : 'Hauptsprache: Hier legt ihr Einträge, Uhrzeiten und Bilder an. Die anderen Sprachen übernehmen alles, was nicht übersetzt ist.'}
       </p>
     </div>

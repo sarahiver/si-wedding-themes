@@ -14,7 +14,7 @@ function HeroEditor({ components: C }) {
   const theme = project?.theme;
   const isVideoTheme = theme === 'video';
   const isClassicTheme = theme === 'classic';
-  const showTagline = !['luxe', 'neon'].includes(theme);
+  const showTagline = !['luxe', 'neon', 'cassis'].includes(theme);
   const showScriptLine = theme === 'classic';
   const showLocationShort = !['contemporary', 'luxe', 'neon'].includes(theme);
   const showMobileBg = ['classic', 'editorial'].includes(theme);
