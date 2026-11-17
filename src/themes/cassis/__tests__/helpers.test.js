@@ -1,4 +1,4 @@
-import { follows, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
+import { follows, previous, closingTone, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
 
 const all = () => true;
 test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
@@ -27,4 +27,16 @@ test('Wochentag und Datum in der Sprache der Seite', () => {
   expect(formatWeddingDay('2027-05-15', 'de')).toBe('Samstag, 15. Mai 2027');
   expect(formatWeddingDay('2027-05-15', 'fr')).toMatch(/^samedi 15 mai 2027$/);
   expect(formatWeddingDay('', 'de')).toBe('');
+});
+
+test('Ton der Schlussfläche: Blaugrau, außer direkt davor liegt schon Blaugrau', () => {
+  expect(previous({}, all, 'witnesses')).toBe('dresscode');
+  expect(closingTone({}, all, 'witnesses')).toBe('mist');
+  // Hotels und Dresscode ausgeschaltet: die Antwortkarte liegt direkt davor
+  expect(closingTone({}, (id) => id !== 'accommodations' && id !== 'dresscode', 'witnesses')).toBe('pearl');
+  const old = { component_order: ['hero', 'timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses'] };
+  expect(closingTone(old, all, 'faq')).toBe('pearl');
+  expect(closingTone(old, all, 'witnesses')).toBe('pearl');
+  expect(closingTone({ component_order: ['hero', 'faq', 'witnesses'] }, all, 'faq')).toBe('mist');
+  expect(previous({}, all, 'gallery')).toBe('');
 });

@@ -1,28 +1,51 @@
-// src/themes/cassis/Accommodations.js – Hotels als ruhige Liste
+// src/themes/cassis/Accommodations.js – Hotels wie die Seite eines kleinen Reiseführers:
+// großer Name, Bild und Angaben in zwei ruhigen Spalten, Haarlinien dazwischen.
 import React from 'react';
 import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { optimizedUrl } from '../../lib/cloudinary';
 import STRINGS from './strings';
-import { C, SERIF, Section, Inner, Aside, Body, Title, Lead } from './shared';
+import { C, SERIF, G, DESK, italic, textLink, Section, Inner, Full, Title, Lead } from './shared';
 
-const List = styled.ul`list-style: none; margin: 0; padding: 0;`;
-// Mit Bild steht es links neben dem Text – sobald der Eintrag selbst breit genug ist
-const Hotel = styled.li`
-  display: grid; gap: 1.25rem clamp(1.25rem, 2.5vw, 2.5rem); align-items: start; padding: clamp(1.25rem, 2vw, 2rem) 0; border-top: 1px solid ${C.haze};
-  grid-template-columns: ${(p) => (p.$image ? 'repeat(auto-fit, minmax(min(100%, 13rem), 1fr))' : '1fr')};
-  &:last-child { border-bottom: 1px solid ${C.haze}; }
-  img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+// Kopf über die ganze Breite: Überschrift links, Begleitsatz rechts auf der Grundlinie
+const Head = styled.div`
+  margin-bottom: clamp(2.5rem, 5vw, 5rem);
+  ${DESK} {
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end;
+    h2 { grid-column: 1 / 8; }
+    p { grid-column: 8 / 13; margin: 0 0 0.35em; max-width: none; }
+  }
 `;
-const Name = styled.h3`margin: 0; font-family: ${SERIF}; font-weight: 400; font-size: clamp(1.625rem, 2.2vw, 2.25rem); line-height: 1.15; overflow-wrap: anywhere;`;
-const Facts = styled.p`margin: 0.35rem 0 0; display: flex; flex-wrap: wrap; gap: 0 1.25rem; color: ${C.inkSoft};`;
-const Address = styled.address`margin: 0.75rem 0 0; font-style: normal; white-space: pre-line; overflow-wrap: anywhere;`;
-const Code = styled.p`margin: 0.75rem 0 0; b { font-weight: 400; letter-spacing: 0.06em; }`;
+const List = styled.ul`list-style: none; margin: 0; padding: 0;`;
+// Jeder Eintrag hat dieselben zwei Spalten. Links steht das Bild – ohne Bild der Name.
+const Hotel = styled.li`
+  padding: clamp(1.75rem, 3.2vw, 3.5rem) 0; border-top: 1px solid ${C.line};
+  &:last-child { border-bottom: 1px solid ${C.line}; }
+  ${DESK} { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; }
+`;
+const Shot = styled.figure`
+  margin: 0 0 1.5rem;
+  img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  ${DESK} { grid-column: 1 / 7; margin: 0; }
+`;
+const Lede = styled.div`min-width: 0; ${DESK} { grid-column: 1 / 7; }`;
+// Neben einem Bild steht der Name oben und die Angaben schließen unten mit dem Bild ab
+const Info = styled.div`
+  min-width: 0; margin-top: ${(p) => (p.$after ? '1.25rem' : '0')}; display: flex; flex-direction: column; justify-content: space-between; gap: 1.25rem;
+  ${DESK} { grid-column: 7 / 13; margin-top: 0; gap: 2rem; padding-top: ${(p) => (p.$after ? '0.5em' : '0')}; }
+`;
+const Name = styled.h3`margin: 0; font-family: ${SERIF}; font-weight: 400; font-size: clamp(2rem, 3.6vw, 3.75rem); line-height: 1.05; letter-spacing: -0.005em; overflow-wrap: anywhere;`;
+const Distance = styled.p`margin: 0.6rem 0 0; ${italic} color: ${C.inkSoft}; overflow-wrap: anywhere;`;
+const Facts = styled.div`
+  address { margin: 0; font-style: normal; white-space: pre-line; overflow-wrap: anywhere; }
+  p { margin: 0.5rem 0 0; overflow-wrap: anywhere; }
+  p:first-child { margin-top: 0; }
+  .soft { color: ${C.inkSoft}; }
+  b { font-weight: 400; letter-spacing: 0.08em; }
+`;
 const Links = styled.p`
-  margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0 1.5rem;
-  a { color: ${C.ink}; min-height: 2.75rem; display: inline-flex; align-items: center; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.3em; text-decoration-color: ${C.haze}; transition: text-decoration-color 0.2s ease; }
-  a:hover { text-decoration-color: ${C.ink}; }
-  a:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
+  && { margin: 0.75rem 0 -0.5rem; } display: flex; flex-wrap: wrap; gap: 0 2rem;
+  a { ${textLink} }
 `;
 const mapUrl = (h) => h.maps_url || (h.lat && h.lng ? `https://www.google.com/maps?q=${h.lat},${h.lng}` : (h.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name || ''} ${h.address}`.trim())}` : ''));
 const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
@@ -35,34 +58,45 @@ function Accommodations() {
   return (
     <Section id="accommodations" $tone="pearl">
       <Inner>
-        <Aside>
-          <Title $small>{a.title || t(STRINGS, 'hotelsTitle')}</Title>
-          {a.description && <Lead>{a.description}</Lead>}
-        </Aside>
-        <Body>
-          <List>
-            {hotels.map((h, i) => {
-              const route = safeUrl(mapUrl(h)); const book = safeUrl(h.booking_url || h.url);
-              return (
-                <Hotel key={i} $image={!!h.image}>
-                  {h.image && <img src={optimizedUrl.card ? optimizedUrl.card(h.image) : h.image} alt="" loading="lazy" />}
-                  <div>
-                    <Name>{h.name}</Name>
-                    {(h.distance || h.price_range) && <Facts>{h.distance && <span>{h.distance}</span>}{h.price_range && <span>{h.price_range}</span>}</Facts>}
-                    {h.address && <Address>{h.address}</Address>}
-                    {h.booking_code && <Code>{t(STRINGS, 'bookingCode')}: <b>{h.booking_code}</b></Code>}
+        <Full>
+          <Head>
+            <Title>{a.title || t(STRINGS, 'hotelsTitle')}</Title>
+            {a.description && <Lead>{a.description}</Lead>}
+          </Head>
+          {hotels.length > 0 && (
+            <List>
+              {hotels.map((h, i) => {
+                const route = safeUrl(mapUrl(h)); const book = safeUrl(h.booking_url || h.url);
+                const facts = h.address || h.price_range || h.booking_code || route || book;
+                const head = (<><Name>{h.name}</Name>{h.distance && <Distance>{h.distance}</Distance>}</>);
+                const details = facts && (
+                  <Facts>
+                    {h.address && <address>{h.address}</address>}
+                    {h.price_range && <p className="soft">{h.price_range}</p>}
+                    {h.booking_code && <p><span className="soft">{t(STRINGS, 'bookingCode')}:</span> <b>{h.booking_code}</b></p>}
                     {(route || book) && (
                       <Links>
                         {book && <a href={book} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'book')}</a>}
                         {route && <a href={route} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'route')}</a>}
                       </Links>
                     )}
-                  </div>
-                </Hotel>
-              );
-            })}
-          </List>
-        </Body>
+                  </Facts>
+                );
+                return h.image ? (
+                  <Hotel key={i}>
+                    <Shot><img src={optimizedUrl.preview ? optimizedUrl.preview(h.image) : h.image} alt="" loading="lazy" /></Shot>
+                    <Info><div>{head}</div>{details}</Info>
+                  </Hotel>
+                ) : (
+                  <Hotel key={i}>
+                    <Lede>{head}</Lede>
+                    {details && <Info $after>{details}</Info>}
+                  </Hotel>
+                );
+              })}
+            </List>
+          )}
+        </Full>
       </Inner>
     </Section>
   );

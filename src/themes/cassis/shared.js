@@ -18,6 +18,7 @@ export const C = {
   deep: '#3F424F',      // dunkle Fläche: Knöpfe, Fußzeile (Weiß darauf 10:1)
   white: '#FFFFFF',
   line: 'rgba(51,53,63,0.2)',
+  lineMist: 'rgba(51,53,63,0.34)', // Haarlinie auf Blaugrau
 };
 // Drei Schriftrollen – mehr nicht:
 // 1. Schreibschrift: ausschließlich die Original-Grafik der Namen (Startbild, Kopfzeile, Fußzeile).
@@ -110,6 +111,16 @@ export const Title = styled.h2`
   ${(p) => p.$small && css`font-size: clamp(2.5rem, 4.6vw, 5rem); line-height: 1;`}
 `;
 export const Lead = styled.p`margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; ${italic} color: ${(p) => (p.$onMist ? C.ink : C.inkSoft)}; ${DESK} { max-width: 20em; }`;
+// Über die ganze Breite des Rasters
+export const Full = styled.div`min-width: 0; ${DESK} { grid-column: 1 / -1; }`;
+// Textaktion: Verweis als unterstrichener Text, kein Knopf
+export const textLink = css`
+  color: ${C.ink}; min-height: 2.75rem; display: inline-flex; align-items: center; overflow-wrap: anywhere;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.35em; text-decoration-color: currentColor; transition: opacity 0.2s ease;
+  &:hover { opacity: 0.62; }
+  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+`;
 export const Text = styled.p`margin: 0 0 1.25rem; white-space: pre-line; overflow-wrap: anywhere;`;
 
 // Zwei Knopfarten: gefüllt (Hauptaktion) und mit Linie (Nebenaktion)
