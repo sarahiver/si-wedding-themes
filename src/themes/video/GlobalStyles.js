@@ -1,5 +1,9 @@
 // Video Theme GlobalStyles - Horizontal Scroll, S/W, Dusty Blue Accent
 import { createGlobalStyle, keyframes } from 'styled-components';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['Inter', [300, 400, 500, 600, 700]], ['Manrope', [300, 400, 500, 600, 700, 800]], ['Cormorant Garamond', [400, 500, 600], [400, 500]]]);
 
 // ============================================
 // ANIMATIONS
@@ -38,7 +42,7 @@ export const pulse = keyframes`
 // GLOBAL STYLES
 // ============================================
 const VideoGlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   

@@ -1,4 +1,8 @@
 import { createGlobalStyle, keyframes } from 'styled-components';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['Space Grotesk', [400, 500, 600, 700]]]);
 
 // Exportierte Keyframes für alle Komponenten
 export const float = keyframes`
@@ -49,7 +53,7 @@ export const fadeIn = keyframes`
 `;
 
 const ContemporaryGlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   
