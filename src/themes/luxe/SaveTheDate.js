@@ -4,6 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
 import LuxeGlobalStyles from './GlobalStyles';
+import LegalLinks from '../../components/shared/LegalLinks';
 
 // Animations
 const fadeIn = keyframes`
@@ -203,7 +204,8 @@ const CountdownLabel = styled.div`
 
 const Footer = styled.div`
   position: absolute;
-  bottom: 2rem;
+  /* Platz für die Zeile mit Datenschutz und Impressum darunter */
+  bottom: 3.75rem;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -332,6 +334,7 @@ function SaveTheDate() {
         <Footer>
           <FooterText>Einladung folgt</FooterText>
         </Footer>
+        <LegalLinks pinned shadow color="rgba(255,255,255,0.85)" />
       </Page>
     </>
   );

@@ -4,6 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
 import EditorialGlobalStyles from './GlobalStyles';
+import LegalLinks from '../../components/shared/LegalLinks';
 
 // ============================================
 // ANIMATIONS
@@ -344,6 +345,7 @@ function SaveTheDate() {
         
         <Footer>
           <FooterText>Einladung folgt</FooterText>
+          <LegalLinks color="rgba(255,255,255,0.7)" style={{ marginTop: '0.5rem' }} />
         </Footer>
       </Page>
     </>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes, createGlobalStyle, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
+import LegalLinks from '../../components/shared/LegalLinks';
 
 const NeonGlobalStyles = createGlobalStyle`
   :root {
@@ -439,6 +440,8 @@ function SaveTheDate() {
               <StatusLine>
                 Status: <span>Einladung folgt...</span>
               </StatusLine>
+              {/* Datenschutz und Impressum – in der Schrift des Terminals */}
+              <LegalLinks color="rgba(255,255,255,0.7)" font="'Space Mono', monospace" style={{ marginTop: '0.75rem' }} />
             </TerminalBody>
           </Terminal>
         </Card>
