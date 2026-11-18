@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
+import HealthConsent, { HEALTH_CONSENT_TEXT } from '../../components/shared/HealthConsent';
 
 const fadeUp  = keyframes`from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}`;
 const slideIn = keyframes`from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}`;
@@ -106,7 +107,7 @@ function RSVP(){
   const{content}=useWedding();
   /* Admin fields: title, description, ask_dietary, ask_allergies, custom_question */
   const r=content?.rsvp||{};
-  const{formData,submitting,submitted,error,updateField,submit}=useRSVP();
+  const{formData,submitting,submitted,error,errorCode,healthConsentNeeded,updateField,submit}=useRSVP({healthConsent:true,messages:{consent:HEALTH_CONSENT_TEXT.de.error}});
   const[step,setStep]=useState(1);
   const[ref,v]=useInView();
 
@@ -160,7 +161,8 @@ function RSVP(){
               <Inp type="email" placeholder="email@beispiel.de" value={formData.email||''} onChange={e=>updateField('email',e.target.value)} required/>
               {formData.attending!=='no'&&<>
                 <Lbl>Anzahl Personen</Lbl>
-                <Sel value={formData.guests||'1'} onChange={e=>updateField('guests',e.target.value)}>
+                {/* Personenzahl gehört in `persons`; vorher landete sie als Text in `guests` und ging als Zahl verloren */}
+                <Sel value={formData.persons||1} onChange={e=>updateField('persons',parseInt(e.target.value,10)||1)}>
                   {[1,2,3,4].map(n=><option key={n} value={n}>{n} {n===1?'Person':'Personen'}</option>)}
                 </Sel>
               </>}
@@ -187,6 +189,9 @@ function RSVP(){
                 <Lbl>Allergien & Unverträglichkeiten</Lbl>
                 <Inp placeholder="z.B. Laktose, Nüsse..." value={formData.allergies||''} onChange={e=>updateField('allergies',e.target.value)}/>
               </>}
+              {/* Einwilligung – nur wenn Allergien oder Unverträglichkeiten eingetragen sind */}
+              {healthConsentNeeded&&<HealthConsent checked={formData.healthConsent===true} onChange={v=>updateField('healthConsent',v)} invalid={errorCode==='consent'}
+                look={{font:'var(--font-b)',size:'.82rem',color:'var(--c-text)',border:'var(--c-text-sec, #6B5744)',radius:'3px',accent:'var(--c-accent)',mark:'#ffffff',focus:'var(--c-accent)',error:'var(--c-accent)',margin:'.9rem 0 0'}}/>}
               {r.custom_question&&<>
                 <Lbl>{r.custom_question}</Lbl>
                 <Inp placeholder="Eure Antwort" value={formData.custom_answer||''} onChange={e=>updateField('custom_answer',e.target.value)}/>

@@ -70,13 +70,18 @@ describe('Ernährung und Allergien je Person', () => {
     expect(v.clean.guests).toEqual([{ name: 'A', dietary: '', allergies: '' }]);
   });
   test('ältere Form (freier Text für die ganze Anmeldung) bleibt gültig und unverändert', () => {
-    const v = rules.validateRsvp({ ...base, persons: 2, dietary: 'vegetarisch', allergies: 'Laktose', guests: [{ name: 'A' }, { name: 'B' }] }, R);
+    // Die Allergie an der Antwort selbst braucht seit der Vereinheitlichung dieselbe Einwilligung wie eine Angabe je Person
+    const data = { ...base, persons: 2, dietary: 'vegetarisch', allergies: 'Laktose', guests: [{ name: 'A' }, { name: 'B' }] };
+    expect(rules.validateRsvp(data, R).code).toBe('consent_required');
+    const v = rules.validateRsvp({ ...data, health_consent: true }, R);
     expect(v.ok).toBe(true);
     expect([v.clean.dietary, v.clean.allergies]).toEqual(['vegetarisch', 'Laktose']);
     expect(v.clean.guests.every((g) => g.diet === undefined)).toBe(true);
   });
   test('Bearbeiten im Dashboard (ohne Gästeliste) verlangt keine Einwilligung', () => {
-    expect(rules.validateRsvp({ ...base, allergies: 'Nüsse', guests: undefined }, R).ok).toBe(true);
+    // Der Server kennt die Anmeldung des Paares und schaltet die Einwilligung dafür ausdrücklich ab
+    expect(rules.validateRsvp({ ...base, allergies: 'Nüsse', guests: undefined }, R, { requireHealthConsent: false }).ok).toBe(true);
+    expect(rules.validateRsvp({ ...base, allergies: 'Nüsse', guests: undefined }, R).code).toBe('consent_required');
   });
   test('Längen werden begrenzt', () => {
     const v = rules.validateRsvp({ ...base, health_consent: true, guests: [{ name: 'A', diet: 'other', diet_note: 'x'.repeat(500), allergies: 'y'.repeat(900) }] }, R);

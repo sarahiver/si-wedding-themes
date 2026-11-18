@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
+import HealthConsent, { HEALTH_CONSENT_TEXT } from '../../components/shared/HealthConsent';
 import FeedbackModal from '../../components/shared/FeedbackModal';
 import SectionWrapper from './SectionWrapper';
 
@@ -44,7 +45,9 @@ function RSVP() {
     error,
     submitted,
     submit,
-  } = useRSVP();
+    errorCode,
+    healthConsentNeeded,
+  } = useRSVP({ healthConsent: true, messages: { consent: HEALTH_CONSENT_TEXT.de.error } });
 
   const [visible, setVisible] = useState(false);
   const [modalState, setModalState] = useState({ isOpen: false, type: 'success', message: '' });
@@ -245,6 +248,16 @@ function RSVP() {
                 </GuestSection>
               )}
             </>
+          )}
+
+          {/* Einwilligung – nur wenn Allergien oder Unverträglichkeiten eingetragen sind */}
+          {healthConsentNeeded && (
+            <HealthConsent
+              checked={formData.healthConsent === true}
+              onChange={(v) => updateField('healthConsent', v)}
+              invalid={errorCode === 'consent'}
+              look={{ font: 'var(--font-primary)', size: '0.85rem', color: 'var(--video-light)', border: 'var(--video-silver)', accent: 'var(--video-accent)', mark: '#ffffff', focus: 'var(--video-accent-light)', error: '#ff6b6b', margin: '1rem 0 0' }}
+            />
           )}
 
           {customQuestion && (

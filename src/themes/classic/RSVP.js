@@ -3,6 +3,7 @@ import { focalCss } from '../../lib/focalPoint';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
+import HealthConsent, { HEALTH_CONSENT_TEXT } from '../../components/shared/HealthConsent';
 import { optimizedUrl } from '../../lib/cloudinary';
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
@@ -54,7 +55,7 @@ const GuestNum = styled.span`font-size:0.5rem;letter-spacing:0.1em;text-transfor
 
 function RSVP(){
   const{content}=useWedding();const r=content?.rsvp||{};
-  const{formData,submitting,submitted,error,updateField,submit}=useRSVP();
+  const{formData,submitting,submitted,error,errorCode,healthConsentNeeded,updateField,submit}=useRSVP({healthConsent:true,messages:{consent:HEALTH_CONSENT_TEXT.de.error}});
   const[ref,v]=useInView();
   const bgImage=r.background_image||content?.hero?.background_image||null;
   const askDietary = r.ask_dietary;
@@ -139,6 +140,10 @@ function RSVP(){
               </GuestBox>
             }
           </>}
+
+          {/* Einwilligung – nur wenn Allergien oder Unverträglichkeiten eingetragen sind */}
+          {healthConsentNeeded&&<HealthConsent checked={formData.healthConsent===true} onChange={v=>updateField('healthConsent',v)} invalid={errorCode==='consent'}
+            look={{font:'var(--font-b)',size:'0.8rem',weight:300,color:'var(--c-text-sec)',border:'var(--c-text-sec)',accent:'var(--c-dark,#1A1A1A)',mark:'#ffffff',focus:'var(--c-dark,#1A1A1A)',error:'#c44',margin:'1.5rem 0 0'}}/>}
 
           {showDetails&&customQ&&<><Lbl>{customQ}</Lbl><Txt placeholder="Deine Antwort..." value={formData.customAnswer||''} onChange={e=>updateField('customAnswer',e.target.value)} style={{minHeight:'50px'}}/></>}
           <Lbl>Nachricht</Lbl><Txt placeholder="Sonderwünsche, Grüße..." value={formData.message||''} onChange={e=>updateField('message',e.target.value)}/>
