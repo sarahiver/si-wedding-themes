@@ -317,7 +317,7 @@ function RSVPSection({ components: C }) {
 
       <C.Panel>
         <C.PanelContent>
-          <C.TableWrapper>
+          <C.TableWrapper className="si-admin-wide-table">
             <C.Table>
               <thead>
                 <tr>
@@ -369,14 +369,15 @@ function RSVPSection({ components: C }) {
                       <tr
                         key={`companion-${row._rsvpId}-${idx}`}
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
+                          // neutral getönt: auf hellen wie dunklen Dashboards erkennbar
+                          background: 'rgba(128,128,128,0.06)',
                           borderLeft: '3px solid rgba(196, 30, 58, 0.3)',
                         }}
                       >
-                        <C.Td style={{ paddingLeft: '1.5rem', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                        <C.Td style={{ paddingLeft: '1.5rem', fontSize: '0.85rem' }}>
                           ↳ {row.name || 'Begleitung'}
                         </C.Td>
-                        <C.Td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)' }}>{row.email}</C.Td>
+                        <C.Td style={{ fontSize: '0.85rem' }}>{row.email}</C.Td>
                         <C.Td></C.Td>
                         <C.Td>
                           <C.StatusBadge $status={row.attending ? 'confirmed' : 'declined'}>
@@ -427,7 +428,7 @@ function RSVPSection({ components: C }) {
                       <C.Td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {row.message || '-'}
                       </C.Td>
-                      <C.Td style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                      <C.Td style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                         {new Date(row.created_at).toLocaleDateString('de-DE')}
                       </C.Td>
                       <C.Td>
