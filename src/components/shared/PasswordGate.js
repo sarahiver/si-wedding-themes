@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { verifyProjectPassword } from '../../lib/supabase';
 import { useWedding } from '../../context/WeddingContext';
-import { GATE_TEXT, gateLanguage } from './gateThemes';
+import { GATE_TEXT, gateLanguage, gateTheme } from './gateThemes';
+import LegalLinks from './LegalLinks';
 
 // ============================================
 // ANIMATIONS
@@ -590,7 +591,9 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
   const [hasError, setHasError] = useState(false);
   // Einsprachige Projekte bleiben deutsch; mehrsprachige folgen der Sprache des Geräts
   const { project } = useWedding();
-  const tx = GATE_TEXT[gateLanguage(project)] || GATE_TEXT.de;
+  const lang = gateLanguage(project);
+  const tx = GATE_TEXT[lang] || GATE_TEXT.de;
+  const look = gateTheme(theme);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -681,6 +684,9 @@ export default function PasswordGate({ slug, theme = 'botanical', coupleNames, o
             </ErrorMessage>
           )}
         </Form>
+
+        {/* Datenschutz und Impressum sind ohne Passwort erreichbar */}
+        <LegalLinks lang={lang} color={look.soft} font={look.body} style={{ marginTop: '1.5rem' }} />
       </Content>
     </Container>
   );

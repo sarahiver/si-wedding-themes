@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 
-const F = styled.div`
+const F = styled.footer`
   padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vw, 3rem);
   background: var(--c-text);
   position: relative;
@@ -70,6 +70,27 @@ const Credit = styled.p`
   }
 `;
 
+// Datenschutz und Impressum – gleiche Schrift wie die Datumszeile, gut lesbar auf dem dunklen Grund
+const Legal = styled.p`
+  font-family: var(--font-b);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-top: 0.75rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    color: inherit;
+    transition: color 0.2s;
+    &:hover { color: rgba(255,255,255,0.9); }
+    &:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
+  }
+`;
+
 function Footer() {
   const { project } = useWedding();
   const cn = project?.couple_names || 'Lena & Jonas';
@@ -88,6 +109,11 @@ function Footer() {
         <Credit>
           Erstellt mit <a href="https://siwedding.de" target="_blank" rel="noopener noreferrer">S&I. Wedding</a>
         </Credit>
+        <Legal>
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutz</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/impressum" target="_blank" rel="noopener noreferrer">Impressum</a>
+        </Legal>
       </Inner>
     </F>
   );

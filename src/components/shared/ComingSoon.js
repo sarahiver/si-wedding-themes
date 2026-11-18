@@ -6,6 +6,7 @@ import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { gateTheme, GATE_TEXT, gateLanguage, gateDate } from './gateThemes';
+import LegalLinks from './LegalLinks';
 
 function LoginModal({ show, onClose, onSubmit, accent, error, isLoading }) {
   const [password, setPassword] = useState('');
@@ -208,6 +209,7 @@ export default function ComingSoon({ onAdminAccess }) {
           <Rule $t={t} />
           {date && <DateLine>{date}</DateLine>}
           <Note $t={t}>{tx.soonNote}</Note>
+          <LegalLinks lang={lang} color={t.soft} style={{ marginTop: '2rem' }} />
         </Sheet>
       </Page>
       <LoginModal 

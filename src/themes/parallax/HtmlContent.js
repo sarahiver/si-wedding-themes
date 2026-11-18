@@ -182,6 +182,12 @@ export default function HtmlContent({ project, content, onOpenModal, scrollOffse
         <p style={{ ...s.footerSub, opacity: 0.4 }}>{wDate}</p>
         <div style={{ width: '40px', height: '1px', background: 'rgba(0,0,0,0.15)', margin: '1.5rem 0 0.5rem' }} />
         <p style={{ ...s.footerSub, opacity: 0.2, fontSize: '0.55rem' }}>MADE WITH LOVE</p>
+        {/* Datenschutz und Impressum */}
+        <p style={{ ...s.footerSub, color: 'rgba(0,0,0,0.65)', fontSize: '0.6rem', margin: 0 }}>
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer" style={s.footerLink}>Datenschutz</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/impressum" target="_blank" rel="noopener noreferrer" style={s.footerLink}>Impressum</a>
+        </p>
       </div>
 
     </div>
@@ -254,6 +260,7 @@ function ScatteredTitle({ t, idx, isMobile, onOpenModal }) {
 }
 
 const s = {
+  footerLink: { display: 'inline-flex', alignItems: 'center', minHeight: '44px', padding: '0 0.5rem', color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '0.2em' },
   footerNames: {
     fontFamily: "'DM Sans', sans-serif",
     fontSize: 'clamp(2rem, 5vw, 3.5rem)',

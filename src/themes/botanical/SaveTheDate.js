@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import BotanicalBackground from './BotanicalBackground';
 import GlobalStyles from './GlobalStyles';
+import LegalLinks from '../../components/shared/LegalLinks';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(30px); }
@@ -178,6 +179,7 @@ function SaveTheDate() {
           
           <Note>Einladung folgt</Note>
         </GlassCard>
+        <LegalLinks pinned shadow color="rgba(255,255,255,0.85)" />
       </Container>
     </>
   );
