@@ -128,25 +128,26 @@ export default async function handler(req, res) {
 
   const canonicalUrl = `https://www.siwedding.de/${esc(slug)}`;
 
-  // Cassis: Die Vorschau in Messengern ist für jeden abrufbar, der die Adresse kennt – auch bei
-  // Passwortschutz. Deshalb nennt sie standardmäßig weder Namen noch Datum, Ort oder Foto.
-  // Die persönliche Vorschau gibt es nur, wenn sie für das Projekt ausdrücklich eingeschaltet ist
-  // (projects.features.link_preview = "personal").
-  const personal = isPlain(project?.features) && project.features.link_preview === 'personal';
-  if (project?.theme === 'cassis' && !personal) {
+  // Cassis: persönliche Vorschau wie bei allen anderen Designs (Namen, Datum, Ort, Foto) – eine
+  // bewusste Produktentscheidung, auch bei Passwortschutz. Wer das für ein Projekt nicht möchte,
+  // schaltet sie ab (projects.features.link_preview = "neutral"); dann nennt die Vorschau nichts davon.
+  const neutral = isPlain(project?.features) && project.features.link_preview === 'neutral';
+  if (project?.theme === 'cassis' && neutral) {
     return send(res, page({ lang: 'en', title: 'Wedding invitation', description: 'Open the link to view the invitation.', url: canonicalUrl }));
   }
 
   // Fallback values
   const coupleNames = project?.couple_names || 'S&I Wedding';
   const cassis = project?.theme === 'cassis';
-  const dateFormatted = formatDate(project?.wedding_date, cassis ? 'en-GB' : 'de-DE');
+  // Cassis ist mehrsprachig: Die Vorschau erscheint in der Hauptsprache des Projekts (Standard: Englisch)
+  const cl = cassis ? cassisLanguage(project) : null;
+  const dateFormatted = formatDate(project?.wedding_date, cassis ? cl.locale : 'de-DE');
   const location = project?.location || '';
   const theme = project?.theme || 'editorial';
   const heroImage = project?.heroContent?.background_image || '';
 
   // Build description
-  const descParts = cassis ? [] : ['Wir heiraten!'];
+  const descParts = cassis ? [cl.phrase] : ['Wir heiraten!'];
   if (dateFormatted) descParts.push(dateFormatted);
   if (location) descParts.push(location);
   const description = descParts.join(cassis ? ' · ' : ' — ');
@@ -155,10 +156,23 @@ export default async function handler(req, res) {
   const overlayUrl = cassis ? plainOgImageUrl(heroImage) : buildOgImageUrl(coupleNames, dateFormatted, heroImage);
   const ogImage = overlayUrl || (cassis ? '' : (FALLBACK_OG_IMAGES[theme] || DEFAULT_FALLBACK));
 
-  return send(res, page({ lang: cassis ? 'en' : 'de', title: coupleNames, pageTitle: cassis ? coupleNames : `${coupleNames} — Hochzeit`, description, image: ogImage, url: canonicalUrl }));
+  return send(res, page({ lang: cassis ? cl.lang : 'de', title: coupleNames, pageTitle: cassis ? coupleNames : `${coupleNames} — Hochzeit`, description, image: ogImage, url: canonicalUrl }));
 }
 
 const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+const CASSIS_TEXT = {
+  en: { locale: 'en-GB', phrase: 'We’re getting married' },
+  de: { locale: 'de-DE', phrase: 'Wir heiraten' },
+  fr: { locale: 'fr-FR', phrase: 'Nous nous marions' },
+  tr: { locale: 'tr-TR', phrase: 'Evleniyoruz' },
+};
+// Hauptsprache des Projekts (features.i18n.default), sonst Englisch
+function cassisLanguage(project) {
+  const i18n = isPlain(project?.features) && isPlain(project.features.i18n) ? project.features.i18n : {};
+  const lang = CASSIS_TEXT[i18n.default] ? i18n.default : 'en';
+  return { lang, ...CASSIS_TEXT[lang] };
+}
 
 // Foto im Vorschauformat, ohne Text
 function plainOgImageUrl(heroImageUrl) {
