@@ -36,9 +36,10 @@ const Stand = styled.div`
   @media print { position: relative; height: auto; }
 `;
 const Info = styled.section`
-  order: 1; position: relative; z-index: 1; scroll-margin-top: calc(${HEADER} - 2px); padding: 4.5rem 0 1rem;
+  order: 1; position: relative; z-index: 1; scroll-margin-top: calc(${HEADER} - 2px); padding: 4.5rem 0 2.5rem;
   ${DESK} {
-    grid-column: 8 / 13; grid-row: 1; box-sizing: border-box; padding: clamp(5rem, 9vw, 9rem) 0 clamp(3rem, 6vw, 6rem);
+    /* unten großzügig: Luft zwischen der Anfahrt und der Antwortkarte */
+    grid-column: 8 / 13; grid-row: 1; box-sizing: border-box; padding: clamp(5rem, 9vw, 9rem) 0 clamp(5rem, 10vw, 10rem);
     display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
     /* Raum für die Illustration daneben – auf sehr hohen Bildschirmen (Tablet hochkant) begrenzt */
     min-height: ${(p) => (p.$tall ? `min(calc(100vh - ${HEADER}), 46rem)` : '0')};
@@ -64,6 +65,10 @@ const HeadStand = styled.div`
     grid-column: 1 / 6; grid-row: 2; align-self: start; position: sticky; top: ${HEADER}; height: calc(100vh - ${HEADER}); box-sizing: border-box;
     margin: 0; padding: 1.5rem 0 0; background: none; pointer-events: none;
     > * { pointer-events: auto; }
+    /* In schmalen Spalten (Tablet, kleine Fenster) bricht die Einleitung länger um und reicht bis zur Zeichnung:
+       Der Text bringt deshalb auch hier seine Fläche mit und liegt nicht über deren Linien.
+       Auf breiten Bildschirmen stehen beide mit Abstand übereinander; dort bleibt alles wie es war. */
+    @media (max-width: 1099px) { > * { background: ${C.mist}; padding-bottom: 1.25rem; } }
     /* Niedrige Fenster: Überschrift und Illustration hätten nicht beide Platz – die Überschrift läuft dann mit der Karte mit */
     ${LOW} { grid-column: 6 / 13; position: relative; top: auto; height: auto; padding: 0 0 1.5rem; }
   }

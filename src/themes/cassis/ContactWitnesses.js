@@ -61,9 +61,9 @@ function ContactWitnesses() {
                   {p.role && <Role $soft={mist ? C.ink : C.inkSoft}>{p.role}</Role>}
                   {(p.phone || p.whatsapp || p.email) && (
                     <Links>
-                      {p.phone && <a href={`tel:${digits(p.phone)}`} aria-label={`${t(STRINGS, 'call')}: ${p.phone}`}>{p.phone}</a>}
+                      {p.phone && <a href={`tel:${digits(p.phone)}`}>{t(STRINGS, 'call')}</a>}
                       {p.whatsapp && <a href={`https://wa.me/${digits(p.whatsapp).replace('+', '')}`} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'whatsapp')}</a>}
-                      {p.email && <a href={`mailto:${p.email}`} aria-label={`${t(STRINGS, 'mail')}: ${p.email}`}>{p.email}</a>}
+                      {p.email && <a href={`mailto:${p.email}`}>{t(STRINGS, 'mail')}</a>}
                     </Links>
                   )}
                 </div>
