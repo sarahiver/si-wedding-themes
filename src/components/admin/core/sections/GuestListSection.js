@@ -1,75 +1,11 @@
 // core/sections/GuestListSection.js
-// Gästeliste verwalten: CSV-Upload, RSVP-Abgleich, Erinnerungen senden
+// Gästeliste verwalten: Import (CSV, Excel), Abgleich mit den Antworten über E-Mail und Namen, Erinnerungen senden
 import React, { useState, useMemo, useCallback } from 'react';
 import { useAdmin } from '../AdminContext';
 import { uploadGuestList, deleteGuestListEntry, clearGuestList, markReminderSent, authFetch } from '../../../../lib/supabase';
-// CSV/Excel parsing (simple, no library needed)
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-
-  // Detect separator
-  const sep = lines[0].includes(';') ? ';' : ',';
-  const headers = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
-
-  // Find column indices
-  const nameIdx = headers.findIndex(h => ['name', 'gast', 'gästename', 'gastname', 'vorname'].includes(h));
-  const emailIdx = headers.findIndex(h => ['email', 'e-mail', 'mail', 'emailadresse'].includes(h));
-  const groupIdx = headers.findIndex(h => ['gruppe', 'group', 'kategorie', 'kreis'].includes(h));
-
-  if (nameIdx === -1 || emailIdx === -1) return null; // Invalid format
-
-  const guests = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
-    const name = cols[nameIdx]?.trim();
-    const email = cols[emailIdx]?.trim();
-    if (name && email && email.includes('@')) {
-      guests.push({
-        name,
-        email: email.toLowerCase(),
-        group_name: groupIdx !== -1 ? (cols[groupIdx]?.trim() || '') : '',
-      });
-    }
-  }
-  return guests;
-}
-
-// XLSX parsing (dynamisch geladen)
-async function parseXLSX(buffer) {
-  try {
-    const XLSX = await import('xlsx');
-    const wb = XLSX.read(buffer, { type: 'array' });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-    if (!rows.length) return [];
-
-    // Find column names (case-insensitive)
-    const keys = Object.keys(rows[0]);
-    const findCol = (candidates) => keys.find(k => candidates.includes(k.toLowerCase().trim()));
-    const nameCol = findCol(['name', 'gast', 'gästename', 'gastname', 'vorname']);
-    const emailCol = findCol(['email', 'e-mail', 'mail', 'emailadresse']);
-    const groupCol = findCol(['gruppe', 'group', 'kategorie', 'kreis']);
-
-    if (!nameCol || !emailCol) return null;
-
-    const guests = [];
-    for (const row of rows) {
-      const name = String(row[nameCol] || '').trim();
-      const email = String(row[emailCol] || '').trim();
-      if (name && email && email.includes('@')) {
-        guests.push({
-          name,
-          email: email.toLowerCase(),
-          group_name: groupCol ? String(row[groupCol] || '').trim() : '',
-        });
-      }
-    }
-    return guests;
-  } catch {
-    return null;
-  }
-}
+import { parseCsv, parseXlsx } from '../../../../lib/guestImport';
+import { matchGuestList, hasRealEmail, placeholderEmail, VIA_LABEL } from '../../../../lib/guestMatch';
+import { downloadXlsx, today } from '../../../../lib/xlsxExport';
 
 function GuestListSection({ components: C }) {
   const { guestList = [], rsvpData = [], projectId, project, loadData, showFeedback, searchTerm, setSearchTerm, hasArchive, checkActive } = useAdmin();
@@ -82,26 +18,14 @@ function GuestListSection({ components: C }) {
   const [sendProgress, setSendProgress] = useState({ sent: 0, total: 0 });
   const [emailPreview, setEmailPreview] = useState(null); // { type, recipients, subject, body, onConfirm }
 
-  // RSVP-Abgleich: welche E-Mails haben bereits geantwortet?
-  const rsvpEmails = useMemo(() => {
-    const set = new Set();
-    rsvpData.forEach(r => {
-      if (r.email) set.add(r.email.toLowerCase());
-    });
-    return set;
-  }, [rsvpData]);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [newGuest, setNewGuest] = useState(null); // { name, email, group_name }
 
-  // Gästeliste mit Status anreichern
-  const enrichedGuests = useMemo(() => {
-    return (guestList || []).map(g => {
-      const rsvpMatch = rsvpData.find(r => r.email?.toLowerCase() === g.email?.toLowerCase());
-      let status = 'pending'; // Noch keine Antwort
-      if (rsvpMatch) {
-        status = rsvpMatch.attending ? 'confirmed' : 'declined';
-      }
-      return { ...g, status, rsvpMatch };
-    });
-  }, [guestList, rsvpData]);
+  // Abgleich mit den Antworten: erst über die E-Mail-Adresse, dann über die Namen (auch Begleitpersonen)
+  const matched = useMemo(() => matchGuestList(guestList || [], rsvpData || []), [guestList, rsvpData]);
+  const enrichedGuests = matched.guests;
+  // Zusagen, zu denen es keinen Eintrag auf der Gästeliste gibt
+  const unlisted = useMemo(() => matched.unlisted.filter(p => p.attending), [matched]);
 
   // Stats
   const stats = useMemo(() => {
@@ -110,25 +34,29 @@ function GuestListSection({ components: C }) {
     const declined = enrichedGuests.filter(g => g.status === 'declined').length;
     const pending = enrichedGuests.filter(g => g.status === 'pending').length;
     const reminderSent = enrichedGuests.filter(g => g.reminder_sent_at).length;
-    return { total, confirmed, declined, pending, reminderSent };
+    const noEmail = enrichedGuests.filter(g => !hasRealEmail(g.email)).length;
+    const toCheck = enrichedGuests.filter(g => g.via === 'name-likely').length;
+    return { total, confirmed, declined, pending, reminderSent, noEmail, toCheck };
   }, [enrichedGuests]);
 
   // Filter
   const filteredGuests = useMemo(() => {
     return enrichedGuests.filter(g => {
+      if (statusFilter === 'check' ? g.via !== 'name-likely' : (statusFilter !== 'all' && g.status !== statusFilter)) return false;
       if (!searchTerm) return true;
       const term = searchTerm.toLowerCase();
       return (g.name || '').toLowerCase().includes(term) ||
-        (g.email || '').toLowerCase().includes(term) ||
+        (hasRealEmail(g.email) && g.email.toLowerCase().includes(term)) ||
         (g.group_name || '').toLowerCase().includes(term);
     });
-  }, [enrichedGuests, searchTerm]);
+  }, [enrichedGuests, searchTerm, statusFilter]);
 
   // Pending guests (for reminder)
-  const pendingGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'pending'), [enrichedGuests]);
+  // Erinnert werden kann nur, wer eine E-Mail-Adresse hat
+  const pendingGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'pending' && hasRealEmail(g.email)), [enrichedGuests]);
 
   // Confirmed guests (for post-wedding thank you & photo reminder)
-  const confirmedGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'confirmed'), [enrichedGuests]);
+  const confirmedGuests = useMemo(() => enrichedGuests.filter(g => g.status === 'confirmed' && hasRealEmail(g.email)), [enrichedGuests]);
 
   // Has photo upload feature?
   const hasPhotoUpload = checkActive?.('photoupload');
@@ -245,25 +173,18 @@ function GuestListSection({ components: C }) {
 
     setUploading(true);
     try {
-      let guests;
       const isXlsx = file.name.match(/\.xlsx?$/i);
+      const parsed = isXlsx ? await parseXlsx(await file.arrayBuffer()) : parseCsv(await file.text());
 
-      if (isXlsx) {
-        const buffer = await file.arrayBuffer();
-        guests = await parseXLSX(buffer);
-      } else {
-        const text = await file.text();
-        guests = parseCSV(text);
-      }
-
-      if (guests === null) {
-        showFeedback('error', 'Ungültiges Format. Die Datei muss mindestens die Spalten "Name" und "Email" enthalten.');
+      if (parsed === null) {
+        showFeedback('error', 'Ungültiges Format. Die Datei braucht eine Kopfzeile mit der Spalte "Name" (oder "Vorname" und "Nachname").');
         setUploading(false);
         return;
       }
+      const { guests, withoutEmail } = parsed;
 
       if (guests.length === 0) {
-        showFeedback('error', 'Keine gültigen Einträge gefunden. Prüfe ob E-Mail-Adressen vorhanden sind.');
+        showFeedback('error', 'Keine Einträge gefunden. Prüfe, ob unter der Kopfzeile Namen stehen.');
         setUploading(false);
         return;
       }
@@ -272,7 +193,7 @@ function GuestListSection({ components: C }) {
       if (error) {
         showFeedback('error', 'Fehler beim Upload: ' + error.message);
       } else {
-        showFeedback('success', `${count} Gäste importiert!`);
+        showFeedback('success', `${count} Gäste importiert${withoutEmail ? `, davon ${withoutEmail} ohne E-Mail (Abgleich über den Namen)` : ''}.`);
         setShowUpload(false);
         await loadData();
       }
@@ -323,6 +244,42 @@ function GuestListSection({ components: C }) {
     setSending(false);
     });
   }, [projectId, pendingGuests, showFeedback, loadData]);
+
+  // Einzelnen Gast von Hand hinzufügen (E-Mail freiwillig)
+  const handleAddGuest = useCallback(async () => {
+    const name = (newGuest?.name || '').replace(/\s+/g, ' ').trim();
+    const mail = (newGuest?.email || '').trim().toLowerCase();
+    if (!name) { showFeedback('error', 'Bitte einen Namen eintragen.'); return; }
+    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { showFeedback('error', 'Die E-Mail-Adresse ist nicht gültig. Das Feld darf auch leer bleiben.'); return; }
+    // Gleichnamige Gäste ohne E-Mail bekommen eine laufende Nummer, damit keiner den anderen überschreibt
+    let email = mail;
+    if (!email) { let n = 1; const taken = new Set((guestList || []).map(g => g.email)); while (taken.has(placeholderEmail(name, n))) n++; email = placeholderEmail(name, n); }
+    else if ((guestList || []).some(g => g.email === email)) { showFeedback('error', 'Diese E-Mail-Adresse steht schon auf der Liste.'); return; }
+    const { error } = await uploadGuestList(projectId, [{ name, email, group_name: (newGuest?.group_name || '').trim() }]);
+    if (error) { showFeedback('error', 'Fehler beim Speichern: ' + error.message); return; }
+    showFeedback('success', 'Gast hinzugefügt');
+    setNewGuest(null);
+    await loadData();
+  }, [newGuest, guestList, projectId, showFeedback, loadData]);
+
+  // Abgleich als Excel-Datei: Gästeliste mit Status, dazu die Zusagen ohne Eintrag auf der Liste
+  const handleExport = useCallback(async () => {
+    try {
+      const label = { confirmed: 'Zugesagt', declined: 'Abgesagt', pending: 'Offen' };
+      const rows = [['Name', 'E-Mail', 'Gruppe', 'Status', 'Erkannt', 'Antwort von', 'Möglicher Treffer', 'Erinnerung gesendet']];
+      enrichedGuests.forEach(g => rows.push([
+        g.name, hasRealEmail(g.email) ? g.email : '', g.group_name || '', label[g.status], VIA_LABEL[g.via] || '',
+        g.match ? (g.match.name === g.match.rsvpName ? g.match.name : `${g.match.name} (Antwort von ${g.match.rsvpName})`) : '',
+        g.hint ? g.hint.join(', ') : '', g.reminder_sent_at ? new Date(g.reminder_sent_at) : '',
+      ]));
+      const extra = [['Person', 'Antwort von']];
+      unlisted.forEach(p => extra.push([p.name, p.rsvpName]));
+      await downloadXlsx(`Gaesteliste_Abgleich_${today()}.xlsx`, [{ name: 'Gästeliste', rows }, { name: 'Zusagen ohne Eintrag', rows: extra }]);
+      showFeedback('success', 'Export erstellt');
+    } catch (e) {
+      showFeedback('error', 'Export fehlgeschlagen');
+    }
+  }, [enrichedGuests, unlisted, showFeedback]);
 
   // Delete single guest
   const handleDelete = useCallback(async (id) => {
@@ -377,13 +334,19 @@ function GuestListSection({ components: C }) {
           <C.ActionButton onClick={() => setShowUpload(!showUpload)}>
             📤 Importieren
           </C.ActionButton>
-          {stats.pending > 0 && (
+          <C.ActionButton onClick={() => setNewGuest(newGuest ? null : { name: '', email: '', group_name: '' })}>
+            + Gast hinzufügen
+          </C.ActionButton>
+          {stats.total > 0 && (
+            <C.ActionButton onClick={handleExport}>📥 Abgleich als Excel</C.ActionButton>
+          )}
+          {pendingGuests.length > 0 && (
             <C.ActionButton
               $primary
               onClick={handleSendReminders}
               disabled={sending}
             >
-              {sending ? `⏳ Sende... (${sendProgress.sent}/${sendProgress.total})` : `📧 Erinnerung senden (${stats.pending})`}
+              {sending ? `⏳ Sende... (${sendProgress.sent}/${sendProgress.total})` : `📧 Erinnerung senden (${pendingGuests.length})`}
             </C.ActionButton>
           )}
           {stats.total > 0 && (
@@ -394,15 +357,47 @@ function GuestListSection({ components: C }) {
         </div>
       </C.ActionBar>
 
+      {/* Einzelnen Gast hinzufügen */}
+      {newGuest && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.25rem' }} data-testid="guest-add">
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Gast hinzufügen</h3>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <C.SearchInput aria-label="Name" placeholder="Name" value={newGuest.name} onChange={e => setNewGuest({ ...newGuest, name: e.target.value })} />
+            <C.SearchInput aria-label="E-Mail (freiwillig)" placeholder="E-Mail (freiwillig)" value={newGuest.email} onChange={e => setNewGuest({ ...newGuest, email: e.target.value })} />
+            <C.SearchInput aria-label="Gruppe (freiwillig)" placeholder="Gruppe (freiwillig)" value={newGuest.group_name} onChange={e => setNewGuest({ ...newGuest, group_name: e.target.value })} />
+            <C.ActionButton $primary onClick={handleAddGuest}>Speichern</C.ActionButton>
+            <C.ActionButton onClick={() => setNewGuest(null)}>Abbrechen</C.ActionButton>
+          </div>
+        </C.Card>
+      )}
+
+      {/* Hinweise zum Abgleich */}
+      {stats.total > 0 && (
+        <div data-testid="guest-match-info" style={{ marginBottom: '1rem', fontSize: '0.82rem', lineHeight: 1.6, opacity: 0.75 }}>
+          Der Status ergibt sich aus den Antworten: zuerst über die E-Mail-Adresse, sonst über den Namen – auch der Name einer Begleitperson zählt.
+          {stats.noEmail > 0 && <> {stats.noEmail} {stats.noEmail === 1 ? 'Gast hat' : 'Gäste haben'} keine E-Mail-Adresse und {stats.noEmail === 1 ? 'kann' : 'können'} nicht per Mail erinnert werden.</>}
+          {stats.toCheck > 0 && <> {stats.toCheck} {stats.toCheck === 1 ? 'Zuordnung ist' : 'Zuordnungen sind'} nicht ganz eindeutig und mit „bitte prüfen“ markiert.</>}
+        </div>
+      )}
+
+      {/* Filter nach Status */}
+      {stats.total > 0 && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }} role="group" aria-label="Nach Status filtern">
+          {[['all', `Alle (${stats.total})`], ['pending', `Offen (${stats.pending})`], ['confirmed', `Zugesagt (${stats.confirmed})`], ['declined', `Abgesagt (${stats.declined})`], ...(stats.toCheck > 0 ? [['check', `Bitte prüfen (${stats.toCheck})`]] : [])].map(([key, label]) => (
+            <C.ActionButton key={key} $primary={statusFilter === key} aria-pressed={statusFilter === key} onClick={() => setStatusFilter(key)}>{label}</C.ActionButton>
+          ))}
+        </div>
+      )}
+
       {/* Post-Wedding Emails */}
-      {stats.confirmed > 0 && (
+      {confirmedGuests.length > 0 && (
         <C.Card style={{ marginBottom: '1rem', padding: '1.5rem', background: 'linear-gradient(135deg, rgba(201,169,98,0.08), rgba(201,169,98,0.02))' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <span style={{ fontSize: '1.3rem' }}>💌</span>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Nach der Hochzeit</h3>
           </div>
           <p style={{ fontSize: '0.82rem', opacity: 0.6, lineHeight: 1.6, marginBottom: '1rem' }}>
-            Verschickt persönliche Nachrichten an alle Gäste, die zugesagt haben ({stats.confirmed} Gäste). Perfekt für die Tage und Wochen nach eurer Feier.
+            Verschickt persönliche Nachrichten an alle Gäste, die zugesagt haben und eine E-Mail-Adresse haben ({confirmedGuests.length} Gäste). Perfekt für die Tage und Wochen nach eurer Feier.
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <C.ActionButton
@@ -410,7 +405,7 @@ function GuestListSection({ components: C }) {
               disabled={sendingThank}
               style={{ background: 'rgba(201,169,98,0.15)', border: '1px solid rgba(201,169,98,0.3)' }}
             >
-              {sendingThank ? '⏳ Wird gesendet...' : `💛 Danke sagen (${stats.confirmed})`}
+              {sendingThank ? '⏳ Wird gesendet...' : `💛 Danke sagen (${confirmedGuests.length})`}
             </C.ActionButton>
             {hasArchive && hasPhotoUpload && (
               <C.ActionButton
@@ -418,7 +413,7 @@ function GuestListSection({ components: C }) {
                 disabled={sendingPhoto}
                 style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}
               >
-                {sendingPhoto ? '⏳ Wird gesendet...' : `📸 Foto-Erinnerung (${stats.confirmed})`}
+                {sendingPhoto ? '⏳ Wird gesendet...' : `📸 Foto-Erinnerung (${confirmedGuests.length})`}
               </C.ActionButton>
             )}
           </div>
@@ -493,18 +488,18 @@ function GuestListSection({ components: C }) {
         <C.Card style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>📤 Gästeliste importieren</h3>
           <p style={{ marginBottom: '1rem', fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.6 }}>
-            Lade eine CSV- oder Excel-Datei (.xlsx) hoch. Die Datei braucht mindestens zwei Spalten:<br />
-            <strong>Name</strong> und <strong>Email</strong> (optional: <strong>Gruppe</strong>)
+            Lade eine CSV- oder Excel-Datei (.xlsx) hoch. Die Datei braucht eine Kopfzeile und die Spalte <strong>Name</strong> (oder <strong>Vorname</strong> und <strong>Nachname</strong>).<br />
+            Freiwillig: <strong>Email</strong> und <strong>Gruppe</strong>. Gäste ohne E-Mail-Adresse werden über den Namen mit den Antworten abgeglichen.
           </p>
           <div style={{ background: 'rgba(128,128,128,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem', lineHeight: 1.8 }}>
             <strong>Beispiel:</strong><br />
             Name;Email;Gruppe<br />
             Anna Müller;anna@example.de;Familie<br />
-            Max Schmidt;max@example.de;Freunde<br />
+            Max Schmidt;;Freunde<br />
             Lisa Weber;lisa@example.de;Kollegen
           </div>
           <p style={{ marginBottom: '1rem', fontSize: '0.8rem', opacity: 0.5 }}>
-            Unterstützt: .csv (Komma oder Semikolon getrennt) und .xlsx (Excel). Duplikate (gleiche E-Mail) werden übersprungen.
+            Unterstützt: .csv (Komma oder Semikolon getrennt) und .xlsx (Excel). Gleiche E-Mail-Adressen werden nur einmal übernommen. Ein erneuter Import ergänzt die Liste und überschreibt nichts doppelt.
           </p>
           <input
             type="file"
@@ -525,7 +520,7 @@ function GuestListSection({ components: C }) {
             <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>📋</div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Gästeliste & RSVP-Erinnerungen</h3>
             <p style={{ fontSize: '0.85rem', opacity: 0.6, maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
-              Ladet eure Gästeliste hoch und verschickt automatisch Erinnerungen an Gäste, die noch nicht zugesagt haben.
+              Ladet eure Gästeliste hoch und seht, wer schon geantwortet hat und wer noch fehlt – auch ohne E-Mail-Adressen, über die Namen. Gäste mit E-Mail-Adresse könnt ihr erinnern.
             </p>
           </div>
 
@@ -536,7 +531,7 @@ function GuestListSection({ components: C }) {
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', fontWeight: 700, fontSize: '0.9rem' }}>1</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
               <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Datei erstellen</p>
-              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalten "Name" und "Email" anlegen. Als .xlsx oder .csv speichern</p>
+              <p style={{ fontSize: '0.75rem', opacity: 0.5, lineHeight: 1.5 }}>Excel öffnen, Spalte "Name" anlegen, "Email" wenn vorhanden. Als .xlsx oder .csv speichern</p>
             </div>
             {/* Step 2 */}
             <div style={{ textAlign: 'center', padding: '1.25rem', background: 'rgba(128,128,128,0.05)', borderRadius: '12px' }}>
@@ -562,19 +557,19 @@ function GuestListSection({ components: C }) {
                 Name;Email;Gruppe
               </div>
               <div style={{ opacity: 0.6 }}>Anna Müller;anna@example.de;Familie</div>
-              <div style={{ opacity: 0.6 }}>Max Schmidt;max@example.de;Freunde</div>
+              <div style={{ opacity: 0.6 }}>Max Schmidt;;Freunde</div>
               <div style={{ opacity: 0.6 }}>Lisa Weber;lisa@example.de;Kollegen</div>
             </div>
             <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.72rem', opacity: 0.45 }}>
               <span>✓ Komma oder Semikolon getrennt</span>
               <span>✓ Erste Zeile = Spaltenüberschriften</span>
-              <span>✓ "Gruppe" ist optional</span>
+              <span>✓ "Email" und "Gruppe" sind freiwillig</span>
             </div>
           </div>
 
           {/* Excel tip */}
           <div style={{ background: 'rgba(59,130,246,0.08)', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.78rem', lineHeight: 1.6 }}>
-            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen und ausfüllen. Ihr könnt die Datei direkt als .xlsx hochladen – oder alternativ als <em>CSV (Trennzeichen-getrennt)</em> speichern.
+            <strong>💡 Tipp:</strong> In Excel oder Google Sheets einfach die Spalten Name, Email und Gruppe anlegen und ausfüllen; Email und Gruppe dürfen leer bleiben. Ihr könnt die Datei direkt als .xlsx hochladen – oder alternativ als <em>CSV (Trennzeichen-getrennt)</em> speichern.
           </div>
 
           {/* CTA */}
@@ -583,6 +578,21 @@ function GuestListSection({ components: C }) {
               📤 Importieren
             </C.ActionButton>
           </div>
+        </C.Card>
+      )}
+
+      {/* Zusagen ohne Eintrag auf der Gästeliste */}
+      {stats.total > 0 && unlisted.length > 0 && (
+        <C.Card style={{ marginBottom: '1rem', padding: '1.25rem' }} data-testid="guest-unlisted">
+          <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>Zusagen ohne Eintrag auf der Gästeliste ({unlisted.length})</h3>
+          <p style={{ fontSize: '0.82rem', opacity: 0.7, lineHeight: 1.6, marginBottom: '0.75rem' }}>
+            Diese Personen haben zugesagt, stehen aber unter diesem Namen nicht auf eurer Liste – etwa Begleitpersonen, Kinder oder eine andere Schreibweise.
+          </p>
+          <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.85rem', lineHeight: 1.8 }}>
+            {unlisted.map((p, i) => (
+              <li key={i}>{p.name}{p.name !== p.rsvpName ? <span style={{ opacity: 0.6 }}> – in der Antwort von {p.rsvpName}</span> : null}</li>
+            ))}
+          </ul>
         </C.Card>
       )}
 
@@ -604,12 +614,20 @@ function GuestListSection({ components: C }) {
               {filteredGuests.map(g => (
                 <tr key={g.id} style={{ borderBottom: '1px solid rgba(128,128,128,0.1)' }}>
                   <td style={{ padding: '0.6rem 0.5rem', fontWeight: 500 }}>{g.name}</td>
-                  <td style={{ padding: '0.6rem 0.5rem', opacity: 0.7 }}>{g.email}</td>
+                  <td style={{ padding: '0.6rem 0.5rem', opacity: 0.7 }}>{hasRealEmail(g.email) ? g.email : '–'}</td>
                   <td style={{ padding: '0.6rem 0.5rem', opacity: 0.5 }}>{g.group_name || '–'}</td>
                   <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center' }}>
                     <span style={{ color: statusColor(g.status), fontWeight: 600, fontSize: '0.8rem' }}>
                       {statusLabel(g.status)}
                     </span>
+                    {g.via && g.via !== 'email' && (
+                      <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.15rem' }}>
+                        {g.via === 'name-likely' ? 'bitte prüfen: ' : 'über den Namen: '}{g.match.name}{g.match.name !== g.match.rsvpName ? ` (Antwort von ${g.match.rsvpName})` : ''}
+                      </div>
+                    )}
+                    {!g.via && g.hint && (
+                      <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.15rem' }}>vielleicht: {g.hint.join(', ')}</div>
+                    )}
                   </td>
                   <td style={{ padding: '0.6rem 0.5rem', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem' }}>
                     {g.reminder_sent_at ? `📧 ${formatDate(g.reminder_sent_at)}` : '–'}
@@ -627,8 +645,8 @@ function GuestListSection({ components: C }) {
               ))}
             </tbody>
           </table>
-          {filteredGuests.length === 0 && searchTerm && (
-            <p style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>Keine Ergebnisse für "{searchTerm}"</p>
+          {filteredGuests.length === 0 && (searchTerm || statusFilter !== 'all') && (
+            <p style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>{searchTerm ? `Keine Ergebnisse für "${searchTerm}"` : 'Keine Einträge mit diesem Status'}</p>
           )}
         </C.Card>
       )}

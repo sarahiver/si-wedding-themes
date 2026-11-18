@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { useAdmin } from '../AdminContext';
 import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../../lib/supabase';
-import RsvpExtrasPanel from './RsvpExtrasPanel';
+import RsvpExtrasPanel, { buildExtrasRows } from './RsvpExtrasPanel';
+import { downloadXlsx, today } from '../../../../lib/xlsxExport';
 
 // Hilfsfunktion: Guests-JSON parsen
 function parseGuests(r) {
@@ -14,7 +15,7 @@ function parseGuests(r) {
 }
 
 // Hilfsfunktion: RSVP-Daten in flache Zeilen umwandeln (1 Zeile pro Person)
-function flattenRsvpData(rsvpData) {
+export function flattenRsvpData(rsvpData) {
   const rows = [];
 
   rsvpData.forEach(r => {
@@ -64,8 +65,28 @@ function flattenRsvpData(rsvpData) {
   return rows;
 }
 
+/**
+ * Tabelle der Antworten (eine Zeile je Person) für den Export.
+ * asText = true liefert alles als Text (CSV); sonst bleiben Personenzahl und Datum echte Zahlen- und Datumswerte (Excel).
+ */
+export function buildRsvpRows(flatRows, asText = false) {
+  const headers = ['Name', 'E-Mail', 'Personen', 'Status', 'Ernährung', 'Allergien', 'Custom Antwort', 'Nachricht', 'Datum'];
+  const date = (d) => { const v = new Date(d); if (Number.isNaN(v.getTime())) return ''; return asText ? v.toLocaleDateString('de-DE') : new Date(v.getFullYear(), v.getMonth(), v.getDate()); };
+  return [headers, ...flatRows.map((row) => [
+    row.name,
+    row.email,
+    row._isMain ? (row.persons || 1) : '',
+    row.attending ? 'Zusage' : 'Absage',
+    row.dietary,
+    row.allergies,
+    row._isMain ? (row.custom_answer || '') : '',
+    row._isMain ? (row.message || '') : '',
+    row._isMain ? date(row.created_at) : '',
+  ])];
+}
+
 function RSVPSection({ components: C }) {
-  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId } = useAdmin();
+  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId, project } = useAdmin();
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
@@ -103,24 +124,24 @@ function RSVPSection({ components: C }) {
     return Array.from(set).sort();
   }, [flatRows]);
 
-  // Excel Export - flaches Format (1 Zeile pro Person)
+  // Export als Excel-Datei: ein Blatt mit einer Zeile je Person; bei Projekten mit RSVP-Regeln oder
+  // mehreren Sprachen zusätzlich das Blatt „Gäste je Person" (Kinder, Alter, Ernährung je Person, Sprache).
   const exportExcel = async () => {
     try {
-      const headers = ['Name', 'E-Mail', 'Personen', 'Status', 'Ernährung', 'Allergien', 'Custom Antwort', 'Nachricht', 'Datum'];
+      const sheets = [{ name: 'Antworten', rows: buildRsvpRows(flatRows) }];
+      const f = project?.features || {};
+      if (f.rsvp || (Array.isArray(f.i18n?.languages) && f.i18n.languages.length > 0)) sheets.push({ name: 'Gäste je Person', rows: buildExtrasRows(rsvpData) });
+      await downloadXlsx(`RSVP_${today()}.xlsx`, sheets);
+      showFeedback('success', 'Export erstellt');
+    } catch (e) {
+      showFeedback('error', 'Export fehlgeschlagen');
+    }
+  };
 
-      const exportRows = flatRows.map(row => [
-        row.name,
-        row.email,
-        row._isMain ? (row.persons || 1) : '',
-        row.attending ? 'Zusage' : 'Absage',
-        row.dietary,
-        row.allergies,
-        row._isMain ? (row.custom_answer || '') : '',
-        row._isMain ? (row.message || '') : '',
-        row._isMain ? new Date(row.created_at).toLocaleDateString('de-DE') : '',
-      ]);
-
-      const csvContent = '\uFEFF' + [headers, ...exportRows].map(row =>
+  // Export als CSV (wie bisher)
+  const exportCsv = () => {
+    try {
+      const csvContent = '\uFEFF' + buildRsvpRows(flatRows, true).map(row =>
         row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';')
       ).join('\n');
 
@@ -128,7 +149,7 @@ function RSVPSection({ components: C }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `RSVP_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `RSVP_${today()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       showFeedback('success', 'Export erstellt');
@@ -239,6 +260,7 @@ function RSVPSection({ components: C }) {
         )}
         <C.Button onClick={() => setShowAddForm(true)}>+ Hinzufügen</C.Button>
         <C.Button onClick={exportExcel}>📥 Excel Export</C.Button>
+        <C.Button onClick={exportCsv}>CSV Export</C.Button>
       </C.ActionBar>
 
       {/* Add Form */}

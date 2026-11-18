@@ -409,6 +409,8 @@ export default async function handler(req, res) {
     const sentIds = [];
 
     for (const guest of guests) {
+      // Gäste ohne E-Mail-Adresse stehen mit einer Platzhalter-Adresse auf der Liste – dorthin geht keine Mail
+      if (!guest || typeof guest.email !== 'string' || /@ohne-email\.invalid$/i.test(guest.email)) continue;
       try {
         const { subject, html } = getEmailConfig(guest);
 
