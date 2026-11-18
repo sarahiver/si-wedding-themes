@@ -40,9 +40,19 @@ const SERVER_CODES = {
  *   strictEmail – E-Mail mit derselben Formprüfung wie im Server prüfen
  *   healthConsent – Einwilligung verlangen, sobald Allergien oder freie Ernährungshinweise eingetragen sind
  */
-/** Enthält die Gästeliste Allergien oder freie Ernährungshinweise? */
-export function needsHealthConsent(guests) {
-  return (Array.isArray(guests) ? guests : []).some((g) => g && ((typeof g.allergies === 'string' && g.allergies.trim()) || (g.diet === 'other' && typeof g.diet_note === 'string' && g.diet_note.trim())));
+// Auswahlwerte der Ernährung, die auf eine Unverträglichkeit hinweisen. Sie zählen wie eine
+// Allergie-Angabe. Dieselbe Liste steht für den Server in api/lib/rsvpRules.js – ein Test hält beide gleich.
+export const HEALTH_DIETS = ['glutenfrei', 'laktosefrei'];
+const isHealthDiet = (v) => typeof v === 'string' && HEALTH_DIETS.includes(v.trim().toLowerCase());
+const filled = (v) => typeof v === 'string' && !!v.trim();
+
+/**
+ * Enthält die Antwort Allergien, freie Ernährungshinweise oder eine Auswahl wie „glutenfrei"?
+ * `top` sind die Angaben der Antwort selbst (Formulare ohne Angaben je Person).
+ */
+export function needsHealthConsent(guests, top) {
+  if (top && (filled(top.allergies) || isHealthDiet(top.dietary))) return true;
+  return (Array.isArray(guests) ? guests : []).some((g) => g && (filled(g.allergies) || isHealthDiet(g.dietary) || (g.diet === 'other' && filled(g.diet_note))));
 }
 
 export function useRSVP(options = {}) {
@@ -83,6 +93,10 @@ export function useRSVP(options = {}) {
 
   const failWith = (code, message) => { setError(message); setErrorCode(code); return false; };
 
+  // Einwilligung nötig? Nur bei einer Zusage mit Gesundheitsangaben (Summer meldet die Zusage als 'yes').
+  const isAttending = formData.attending === true || formData.attending === 'yes';
+  const healthConsentNeeded = !!options.healthConsent && isAttending && needsHealthConsent(formData.guests, formData);
+
   // Validate form
   const validateForm = () => {
     if (!formData.name.trim()) return failWith('name', messages.name);
@@ -103,7 +117,7 @@ export function useRSVP(options = {}) {
       const bad = (formData.guests || []).some(g => g && g.is_child && !(Number.isInteger(g.age) && g.age >= 0 && g.age <= 17));
       if (bad) return failWith('childAge', messages.childAge);
     }
-    if (options.healthConsent && formData.attending && needsHealthConsent(formData.guests) && formData.healthConsent !== true) {
+    if (healthConsentNeeded && formData.healthConsent !== true) {
       return failWith('consent', messages.consent);
     }
 
@@ -166,7 +180,7 @@ export function useRSVP(options = {}) {
         // Sprache der Antwort nur mitsenden, wenn das Theme eine vorgibt
         ...(options.language ? { language: options.language } : {}),
         // Einwilligung nur mitsenden, wenn sie verlangt und erteilt wurde
-        ...(options.healthConsent && formData.healthConsent === true ? { health_consent: true } : {}),
+        ...(healthConsentNeeded && formData.healthConsent === true ? { health_consent: true } : {}),
       });
       
       if (submitError) throw submitError;
@@ -245,6 +259,8 @@ export function useRSVP(options = {}) {
     isAttending: formData.attending,
     isDemo: !projectId || projectId === 'demo',
     maxPersons: maxPersons || 10,
+    // true, sobald die Antwort Gesundheitsangaben enthält und das Formular die Einwilligung zeigen muss
+    healthConsentNeeded,
     
     // Actions
     updateField,

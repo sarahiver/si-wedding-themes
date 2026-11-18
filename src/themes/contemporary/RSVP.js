@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useRSVP } from '../../components/shared/RSVPCore';
+import HealthConsent, { HEALTH_CONSENT_TEXT } from '../../components/shared/HealthConsent';
 
 const slideIn = keyframes`
   from { opacity: 0; transform: translateX(30px); }
@@ -297,7 +298,9 @@ function RSVP() {
     error,
     updateField,
     submit,
-  } = useRSVP();
+    errorCode,
+    healthConsentNeeded,
+  } = useRSVP({ healthConsent: true, messages: { consent: HEALTH_CONSENT_TEXT.de.error } });
   
   const [step, setStep] = useState(1);
   const totalSteps = 3;
@@ -523,6 +526,16 @@ function RSVP() {
                 </>
               )}
               
+              {/* Einwilligung – nur wenn Allergien oder Unverträglichkeiten eingetragen sind */}
+              {healthConsentNeeded && (
+                <HealthConsent
+                  checked={formData.healthConsent === true}
+                  onChange={(v) => updateField('healthConsent', v)}
+                  invalid={errorCode === 'consent'}
+                  look={{ size: '0.9rem', weight: 500, color: 'var(--black)', border: 'var(--black)', borderWidth: '3px', accent: 'var(--coral)', mark: '#0D0D0D', focus: 'var(--black)', error: 'var(--coral)', margin: '1.5rem 0 0' }}
+                />
+              )}
+
               {customQuestion && (
                 <FormGroup style={{ marginTop: '1.5rem' }}>
                   <Label>{customQuestion}</Label>

@@ -110,3 +110,60 @@ test('Zurücksetzen leert das Formular', async () => {
   expect(r.current.submitted).toBe(false);
   expect(r.current.formData.name).toBe('');
 });
+
+// ── Einwilligung für Allergie-Angaben (alle Designs) ──
+describe('Einwilligung für Allergie-Angaben', () => {
+  const setupConsent = async (fields = {}) => {
+    const h = await renderHook(() => useRSVP({ healthConsent: true, messages: { consent: 'Einwilligung fehlt' } }));
+    for (const [k, v] of Object.entries({ name: 'Mara Beispiel', email: 'mara@example.test', ...fields })) await act(async () => { h.result.current.updateField(k, v); });
+    return h.result;
+  };
+  test('ohne Allergie: keine Einwilligung nötig, nichts zusätzlich gesendet', async () => {
+    const r = await setupConsent({ dietary: 'vegan' });
+    expect(r.current.healthConsentNeeded).toBe(false);
+    expect((await submit(r)).success).toBe(true);
+    expect(mockSubmitCalls[0].data.health_consent).toBeUndefined();
+  });
+  test('mit Allergie: ohne Einwilligung wird nicht gesendet, mit Einwilligung schon', async () => {
+    const r = await setupConsent({ allergies: 'Nüsse' });
+    expect(r.current.healthConsentNeeded).toBe(true);
+    expect((await submit(r)).success).toBe(false);
+    expect(r.current.errorCode).toBe('consent'); expect(r.current.error).toBe('Einwilligung fehlt'); expect(mockSubmitCalls).toHaveLength(0);
+    await act(async () => { r.current.updateField('healthConsent', true); });
+    expect((await submit(r)).success).toBe(true);
+    expect(mockSubmitCalls[0].data).toMatchObject({ allergies: 'Nüsse', health_consent: true });
+  });
+  test('Allergie einer Begleitperson und Auswahl „glutenfrei" verlangen die Einwilligung', async () => {
+    let r = await setupConsent({ persons: 2, guests: [{ name: '', dietary: '', allergies: '' }, { name: 'Jonas', dietary: '', allergies: 'Laktose' }] });
+    expect(r.current.healthConsentNeeded).toBe(true);
+    r = await setupConsent({ dietary: 'glutenfrei' });
+    expect(r.current.healthConsentNeeded).toBe(true);
+  });
+  test('Absage: keine Einwilligung nötig', async () => {
+    const r = await setupConsent({ allergies: 'Nüsse', attending: false });
+    expect(r.current.healthConsentNeeded).toBe(false);
+    expect((await submit(r)).success).toBe(true);
+  });
+  test('Angabe wieder entfernt: Einwilligung entfällt und wird nicht mitgesendet', async () => {
+    const r = await setupConsent({ allergies: 'Nüsse', healthConsent: true });
+    await act(async () => { r.current.updateField('allergies', ''); });
+    expect(r.current.healthConsentNeeded).toBe(false);
+    expect((await submit(r)).success).toBe(true);
+    expect(mockSubmitCalls[0].data.health_consent).toBeUndefined();
+  });
+  test('Summer meldet die Zusage als „yes"', async () => {
+    const r = await setupConsent({ attending: 'yes', allergies: 'Nüsse' });
+    expect(r.current.healthConsentNeeded).toBe(true);
+  });
+  test('ohne die Option verhält sich der Hook wie bisher', async () => {
+    const r = await setup({ name: 'Mara Beispiel', email: 'mara@example.test', allergies: 'Nüsse' });
+    expect(r.current.healthConsentNeeded).toBe(false);
+    expect((await submit(r)).success).toBe(true);
+  });
+  test('Server meldet fehlende Einwilligung → Meldung im Formular', async () => {
+    const r = await setupConsent({ allergies: 'Nüsse', healthConsent: true });
+    mockSubmitResult = { data: null, error: { code: 'consent_required', message: 'x' } };
+    expect((await submit(r)).success).toBe(false);
+    expect(r.current.error).toBe('Einwilligung fehlt');
+  });
+});

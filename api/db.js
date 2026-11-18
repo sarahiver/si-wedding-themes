@@ -4,7 +4,7 @@
 // Token-auth required. Action whitelist — no generic query access.
 
 const { handleCors, requireProjectAdmin, applyRateLimit, getClientIP, createToken, verifyToken } = require('./lib/auth');
-const { readFeatures, getRsvpRules, validateRsvp } = require('./lib/rsvpRules');
+const { readFeatures, getRsvpRules, validateRsvp, applyHealthConsent } = require('./lib/rsvpRules');
 const { sendConfirmation } = require('./lib/rsvpMail');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -350,13 +350,22 @@ const actions = {
 
   // --- RSVP ---
 
-  async submitRSVP({ projectId, rsvpData }) {
+  async submitRSVP({ projectId, rsvpData }, ctx) {
     const loaded = await loadProjectForRsvp(projectId);
     if (loaded.error) return { data: null, error: loaded.error };
     const { project, rules } = loaded;
+    rsvpData = rsvpData && typeof rsvpData === 'object' ? rsvpData : {};
 
-    // ── Altprojekt (keine Regeln hinterlegt): unverändertes Verhalten ──
+    // Trägt das angemeldete Paar eine Antwort im Dashboard von Hand ein, liegt keine Einwilligung
+    // des Gastes vor diesem Formular vor – dann wird keine verlangt und kein Zeitpunkt vermerkt.
+    const byCouple = !!project && accessLevel((ctx && ctx.tokens) || [], project.slug) === 'admin';
+
+    // ── Projekt ohne Regeln: wie bisher, zusätzlich die Einwilligung für Gesundheitsangaben ──
     if (!rules) {
+      const health = applyHealthConsent(rsvpData, { requireHealthConsent: !byCouple });
+      if (!health.ok) {
+        return { data: null, error: { message: health.message, code: health.code, field: health.field, status: 400 } };
+      }
       const result = await supabaseRest('POST', 'rsvp_responses', 'select=*', {
         project_id: projectId,
         name: rsvpData.name,
@@ -364,16 +373,16 @@ const actions = {
         persons: rsvpData.persons || 1,
         attending: rsvpData.attending,
         dietary: rsvpData.dietary || '',
-        allergies: rsvpData.allergies || '',
+        allergies: health.data.allergies || '',
         message: rsvpData.message || '',
-        guests: rsvpData.guests || null,
+        guests: health.data.guests || null,
         custom_answer: rsvpData.custom_answer || '',
       });
       return { data: result.data?.[0] || null, error: result.error };
     }
 
     // ── Projekt mit Regeln: vollständige Prüfung im Server ──
-    const check = validateRsvp(rsvpData, rules);
+    const check = validateRsvp(rsvpData, rules, { requireHealthConsent: !byCouple });
     if (!check.ok) {
       return { data: null, error: { message: check.message, code: check.code, field: check.field, status: 400 } };
     }
@@ -446,7 +455,8 @@ const actions = {
     // Projekt mit Regeln: dieselbe Prüfung wie beim Absenden. Gästeliste,
     // Kinderalter und Sprache der Antwort bleiben dabei unangetastet.
     if (loaded.rules) {
-      const check = validateRsvp({ ...updates, guests: undefined }, loaded.rules);
+      // Änderung durch das angemeldete Paar: keine Einwilligung vor diesem Formular
+      const check = validateRsvp({ ...updates, guests: undefined }, loaded.rules, { requireHealthConsent: false });
       if (!check.ok) {
         return { data: null, error: { message: check.message, code: check.code, field: check.field, status: 400 } };
       }

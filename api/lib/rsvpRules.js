@@ -70,6 +70,52 @@ function getRsvpRules(features) {
 const fail = (code, field, message) => ({ ok: false, code, field, message });
 const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
+// Auswahlwerte der Ernährung, die auf eine Unverträglichkeit hinweisen. Sie zählen wie eine
+// Allergie-Angabe. Dieselbe Liste steht für den Browser in src/components/shared/RSVPCore.js.
+const HEALTH_DIETS = ['glutenfrei', 'laktosefrei'];
+const isHealthDiet = (v) => typeof v === 'string' && HEALTH_DIETS.includes(v.trim().toLowerCase());
+
+/**
+ * Enthält die Antwort Angaben, die Gesundheitsdaten sein können?
+ * Allergien (der Antwort oder einer einzelnen Person), freie Ernährungshinweise und
+ * Auswahlwerte wie „glutenfrei".
+ */
+function hasHealthData(d) {
+  if (!d || typeof d !== 'object') return false;
+  if (text(d.allergies, MAX_TEXT) || isHealthDiet(d.dietary)) return true;
+  return (Array.isArray(d.guests) ? d.guests : []).some((g) => g && typeof g === 'object'
+    && (text(g.allergies, MAX_TEXT) || isHealthDiet(g.dietary) || (g.diet === 'other' && text(g.diet_note, MAX_TEXT))));
+}
+
+/**
+ * Einwilligung für Projekte OHNE RSVP-Regeln (alle Designs außer Cassis).
+ * Die Antwort bleibt, wie sie ist – geprüft wird nur der Umgang mit Gesundheitsangaben:
+ * - Absage: Allergie-Angaben werden nicht gespeichert.
+ * - Zusage mit Gesundheitsangaben: nur mit ausdrücklicher Einwilligung; der Zeitpunkt wird
+ *   wie bei Cassis bei der ersten Person der Antwort festgehalten.
+ * @returns {{ok:true, data:{allergies:string, guests:any}} | {ok:false, code, field, message}}
+ */
+function applyHealthConsent(input, opts = {}) {
+  const d = input && typeof input === 'object' ? input : {};
+  const attending = toBool(d.attending);
+  const guestsIn = Array.isArray(d.guests) ? d.guests : null;
+  const out = { allergies: typeof d.allergies === 'string' ? d.allergies : '', guests: d.guests === undefined ? null : d.guests };
+  if (attending === false) {
+    out.allergies = '';
+    if (guestsIn) out.guests = guestsIn.map((g) => (g && typeof g === 'object' && !Array.isArray(g) ? { ...g, allergies: '' } : g));
+    return { ok: true, data: out };
+  }
+  if (!hasHealthData(d) || opts.requireHealthConsent === false) return { ok: true, data: out };
+  if (d.health_consent !== true) return fail('consent_required', 'health_consent', 'Einwilligung für Allergie-Angaben fehlt');
+  const at = new Date(opts.now || Date.now()).toISOString();
+  const first = guestsIn && guestsIn[0] && typeof guestsIn[0] === 'object' && !Array.isArray(guestsIn[0])
+    ? guestsIn[0]
+    // Antwort ohne Angaben je Person: die erste Person trägt die Angaben der Antwort
+    : { name: text(d.name, MAX_NAME), dietary: text(d.dietary, 300), allergies: text(d.allergies, 300) };
+  out.guests = [{ ...first, health_consent_at: at }, ...(guestsIn ? guestsIn.slice(1) : [])];
+  return { ok: true, data: out };
+}
+
 function toBool(v) {
   if (v === true || v === false) return v;
   if (v === 'yes' || v === 'true') return true;   // Theme Summer sendet 'yes'/'no'
@@ -148,24 +194,31 @@ function validateRsvp(input, rules, opts = {}) {
     usesDiet = false; health = false;
   }
 
+  // Die Felder der Antwort selbst zeigen die Angaben der anmeldenden Person –
+  // so stimmen Tabelle, Filter und Export des Dashboards ohne Umbau.
+  const perGuest = usesDiet || guests.some((g) => g.allergies);
+
+  // Allergien, die nicht je Person, sondern an der Antwort selbst hängen (direkter Aufruf der
+  // Schnittstelle, Eintrag des Paares im Dashboard): bei einer Absage nicht speichern, bei einer
+  // Zusage wie jede andere Allergie-Angabe behandeln.
+  const topAllergies = attending && !perGuest ? text(d.allergies, MAX_TEXT) : '';
+  if (topAllergies) health = true;
+
   // Allergien und freie Hinweise können Gesundheitsdaten sein: nur mit ausdrücklicher
   // Einwilligung speichern. Der Zeitpunkt wird hier im Server festgehalten.
   if (health && opts.requireHealthConsent !== false) {
     if (d.health_consent !== true) return fail('consent_required', 'health_consent', 'Einwilligung für Allergie-Angaben fehlt');
-    guests[0] = { ...guests[0], health_consent_at: new Date(opts.now || Date.now()).toISOString() };
+    const first = guests[0] || { name, dietary: text(d.dietary, 300), allergies: topAllergies.slice(0, 300) };
+    guests[0] = { ...first, health_consent_at: new Date(opts.now || Date.now()).toISOString() };
   }
-
-  // Die Felder der Antwort selbst zeigen die Angaben der anmeldenden Person –
-  // so stimmen Tabelle, Filter und Export des Dashboards ohne Umbau.
   const main = guests[0] || {};
-  const perGuest = usesDiet || guests.some((g) => g.allergies);
 
   return {
     ok: true,
     clean: {
       name, email, persons, attending,
       dietary: perGuest ? (main.dietary || '') : text(d.dietary, MAX_TEXT),
-      allergies: perGuest ? (main.allergies || '') : text(d.allergies, MAX_TEXT),
+      allergies: perGuest ? (main.allergies || '') : topAllergies,
       message: text(d.message, MAX_TEXT),
       custom_answer: text(d.custom_answer, MAX_TEXT),
       guests,
@@ -179,4 +232,4 @@ function childAgesOf(guests) {
   return (Array.isArray(guests) ? guests : []).filter((g) => g && g.is_child).map((g) => (Number.isInteger(g.age) ? g.age : null));
 }
 
-module.exports = { SUPPORTED_LANGUAGES, DIETS, isPlausibleEmail, readFeatures, getLanguages, getRsvpRules, validateRsvp, resolveLanguage, childAgesOf };
+module.exports = { SUPPORTED_LANGUAGES, DIETS, HEALTH_DIETS, isPlausibleEmail, readFeatures, getLanguages, getRsvpRules, validateRsvp, hasHealthData, applyHealthConsent, resolveLanguage, childAgesOf };

@@ -1,6 +1,7 @@
 // src/themes/parallax/ParallaxModal.js
 import { useEffect, useCallback, useState, useRef } from 'react'
 import { useRSVP } from '../../components/shared/RSVPCore'
+import HealthConsent, { HEALTH_CONSENT_TEXT } from '../../components/shared/HealthConsent'
 import { useGuestbook } from '../../components/shared/GuestbookCore'
 import { useMusicWishes } from '../../components/shared/MusicWishesCore'
 import { usePhotoUpload, HiddenFileInput } from '../../components/shared/PhotoUploadCore'
@@ -356,7 +357,7 @@ function DirectionsContent({ content, scrollTop }) {
 
 // ── RSVP ──
 function RSVPContent({ content, scrollTop }) {
-  const rsvp = useRSVP()
+  const rsvp = useRSVP({ healthConsent: true, messages: { consent: HEALTH_CONSENT_TEXT.de.error } })
   const cfg = content?.rsvp || {}
   const askDietary = cfg.ask_dietary !== false
   const askAllergies = cfg.ask_allergies !== false
@@ -463,6 +464,15 @@ function RSVPContent({ content, scrollTop }) {
               </div>
             )}
           </>
+        )}
+        {/* Einwilligung – nur wenn Allergien oder Unverträglichkeiten eingetragen sind */}
+        {rsvp.healthConsentNeeded && (
+          <HealthConsent
+            checked={rsvp.formData.healthConsent === true}
+            onChange={(v) => rsvp.updateField('healthConsent', v)}
+            invalid={rsvp.errorCode === 'consent'}
+            look={{ font: "'DM Sans', sans-serif", size: '0.9rem', weight: 500, color: '#ffffff', border: 'rgba(255,255,255,0.7)', accent: '#ffffff', mark: '#000000', focus: '#ffffff', error: '#ff6666', margin: '0' }}
+          />
         )}
         {cfg.custom_question && (
           <input style={st.input} placeholder={cfg.custom_question} value={rsvp.formData.custom_answer || ''} onChange={e => rsvp.updateField('custom_answer', e.target.value)} />
