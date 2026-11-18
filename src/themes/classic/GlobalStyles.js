@@ -1,7 +1,11 @@
 import { createGlobalStyle } from 'styled-components';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['Cormorant Garamond', [300, 400, 500, 600], [300, 400]], ['Josefin Sans', [300, 400, 500], [300]], ['Mrs Saint Delafield', [400]]]);
 
 const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Mrs+Saint+Delafield&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
 

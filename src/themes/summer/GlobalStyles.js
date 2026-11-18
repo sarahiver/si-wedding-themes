@@ -1,7 +1,11 @@
 import { createGlobalStyle } from 'styled-components';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['DM Sans', [300, 400, 500], [300, 400]], ['Playfair Display', [400, 500], [400, 500]], ['Dancing Script', [400, 500]]]);
 
 const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Dancing+Script:wght@400;500&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }

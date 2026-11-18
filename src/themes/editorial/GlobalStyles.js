@@ -1,6 +1,10 @@
 import React, { useContext } from 'react';
 import { createGlobalStyle } from 'styled-components';
 import WeddingContext from '../../context/WeddingContext';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['Oswald', [400, 500, 600, 700]], ['Source Serif 4', [400, 600], [400]], ['Inter', [300, 400, 500, 600]]]);
 
 const DEFAULT_ACCENT = '#C41E3A';
 const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -11,7 +15,7 @@ const EditorialGlobal = createGlobalStyle`
    * Inspired by modern editorial design with strong typography
    */
   
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
 

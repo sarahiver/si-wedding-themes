@@ -1,6 +1,10 @@
 // Luxe GlobalStyles - Phenomenon/Elyse Residence Inspired
 // Deep dark luxury with cinematic transitions
 import { createGlobalStyle, keyframes, css } from 'styled-components';
+import { fontFaceCss } from '../../fonts';
+
+// Schriften dieses Designs – lokal ausgeliefert (früher Google Fonts), dieselben Schnitte wie bisher
+const FONTS = fontFaceCss([['Cormorant', [300, 400, 500, 600], [300, 400, 500]], ['Outfit', [200, 300, 400, 500]]]);
 
 // ============================================
 // CINEMATIC ANIMATIONS
@@ -54,7 +58,7 @@ export const parallaxFloat = keyframes`
 // GLOBAL STYLES
 // ============================================
 const LuxeGlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+  ${FONTS}
 
   @keyframes siPageFadeIn { from { opacity: 0; } to { opacity: 1; } }
   

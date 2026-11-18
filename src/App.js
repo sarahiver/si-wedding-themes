@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'rea
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 import NotFound from './components/shared/NotFound';
 import { loadSharedFonts, needsSharedFonts } from './lib/sharedFonts';
+import { fontFaces } from './fonts';
 import { checkPasswordRequired } from './lib/supabase';
 
 // Central WeddingPage (handles all themes)
@@ -424,12 +425,15 @@ function ProjectWrapper() {
   );
 }
 
+// Schrift des Schriftzugs – lokal ausgeliefert (früher Google Fonts)
+const LANDING_FONTS = fontFaces('Roboto', [400, 700]);
+
 // Platzhalterseite für siwedding.de Root → Fullscreen Video + Link zu sarahiver.com
 function LandingPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        ${LANDING_FONTS}
         .si-landing { position: fixed; inset: 0; overflow: hidden; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
         .si-landing-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) brightness(0.4); }
         .si-landing-content { position: relative; z-index: 10; text-align: center; padding: 2rem; }
