@@ -51,6 +51,21 @@ export const AdminMobileStyles = createGlobalStyle`
     overflow-wrap: break-word;
     word-break: break-word;
   }
+  /* Ausnahme: breite Tabellen in einem seitlich scrollenden Rahmen (Antworten).
+     Mit der Regel oben werden ihre Spalten zusammengequetscht und Wörter mitten im Wort
+     umgebrochen („Zusag-e", E-Mail-Adressen Zeichen für Zeichen). Hier darf die Tabelle
+     breiter werden als ihr Rahmen; die Seite selbst scrollt weiterhin nicht. */
+  .si-admin .si-admin-wide-table table {
+    max-width: none;
+  }
+  .si-admin .si-admin-wide-table td {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .si-admin .si-admin-wide-table th,
+  .si-admin .si-admin-wide-table td:first-child {
+    white-space: nowrap;
+  }
 
   /* --------------------------------------------------------------
      3) Body einfrieren, solange das Slide-in-Menü offen ist.
