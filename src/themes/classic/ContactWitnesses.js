@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { optimizedUrl } from '../../lib/cloudinary';
+
+// Platzhalterbild mit Initialen – lokal erzeugt, damit kein Name an einen fremden Dienst geht
+export function initialsAvatar(name) {
+  const initials = String(name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => Array.from(w)[0].toUpperCase()).join('');
+  const safe = initials.replace(/[&<>"']/g, '');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#F5F0EB"/><text x="100" y="100" dy="0.35em" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="80" fill="#555">${safe}</text></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 const fadeUp = keyframes`from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}`;
 function useInView(th=0.08){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setV(true);},{threshold:th});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -38,7 +46,7 @@ function ContactWitnesses() {
         <Grid>
           {w.map((p,i) => (
             <Card key={i}>
-              <Av src={p.image ? optimizedUrl.avatar(p.image) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name||'')}&size=200&background=F5F0EB&color=555`} alt={p.name||''} />
+              <Av src={p.image ? optimizedUrl.avatar(p.image) : initialsAvatar(p.name)} alt={p.name||''} />
               <CN>{p.name || 'Ansprechpartner:in'}</CN>
               <Role>{p.role||p.rolle}</Role>
               {p.phone&&<Ph href={`tel:${p.phone.replace(/\s/g,'')}`}>📞 Anrufen</Ph>}
