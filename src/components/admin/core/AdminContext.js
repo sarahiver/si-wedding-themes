@@ -11,6 +11,7 @@ import {
 } from '../../../lib/supabase';
 import { hasFeature, getProcessSteps, getPackage } from '../../../lib/pricing';
 import { projectLanguages, localizeContent, diffTranslation, listStructureChanged, realignTranslations, withTranslation, isNeutralField, pruneBlankTranslations, neutralChanged } from '../../../lib/i18n';
+import { matchGuestList } from '../../../lib/guestMatch';
 
 const AdminContext = createContext(null);
 
@@ -452,7 +453,8 @@ export function AdminProvider({ children }) {
     totalPhotos: photoUploads.length,
     giftsReserved: giftReservations.length,
     guestListTotal: (guestList || []).length,
-    guestListPending: (guestList || []).filter(g => !(rsvpData || []).find(r => r.email?.toLowerCase() === g.email?.toLowerCase())).length,
+    // gleiche Zählung wie im Bereich Gästeliste: Abgleich über E-Mail und Namen
+    guestListPending: matchGuestList(guestList || [], rsvpData || []).guests.filter(g => g.status === 'pending').length,
   };
 
   // NAV ITEMS

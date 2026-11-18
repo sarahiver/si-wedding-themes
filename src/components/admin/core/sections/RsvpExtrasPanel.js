@@ -5,6 +5,7 @@
 // und ihr Export bleiben unverändert.
 import React, { useMemo } from 'react';
 import { useAdmin } from '../AdminContext';
+import { downloadXlsx, today } from '../../../../lib/xlsxExport';
 
 const LANG = { en: 'Englisch', tr: 'Türkisch', de: 'Deutsch', fr: 'Französisch' };
 
@@ -48,7 +49,8 @@ export function csvCell(v) {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-export function buildExtrasCsv(rsvpData) {
+/** Tabelle „Gäste je Person": Kopfzeile und Zeilen mit Zahlen als Zahlen (für CSV und Excel). */
+export function buildExtrasRows(rsvpData) {
   const rows = [['Anmeldung', 'E-Mail', 'Status', 'Personen gesamt', 'Person', 'Kind', 'Alter', 'Ernährung', 'Hinweis zur Ernährung', 'Allergien und Unverträglichkeiten', 'Sprache']];
   (rsvpData || []).forEach((r) => {
     const guests = parseGuests(r);
@@ -60,16 +62,25 @@ export function buildExtrasCsv(rsvpData) {
       r.attending ? dietLabel(g) : '', r.attending ? (g.diet_note || '') : '', r.attending ? (g.allergies || '') : '', LANG[r.language] || r.language || '',
     ]));
   });
-  return '﻿' + rows.map((row) => row.map(csvCell).join(';')).join('\n');
+  return rows;
+}
+
+export function buildExtrasCsv(rsvpData) {
+  return '\uFEFF' + buildExtrasRows(rsvpData).map((row) => row.map(csvCell).join(';')).join('\n');
 }
 
 function RsvpExtrasPanel({ components: C }) {
-  const { rsvpData, project } = useAdmin();
+  const { rsvpData, project, showFeedback } = useAdmin();
   const features = project?.features || {};
   const hasRules = !!features.rsvp;
   const hasLanguages = Array.isArray(features.i18n?.languages) && features.i18n.languages.length > 0;
   const sum = useMemo(() => summarizeExtras(rsvpData), [rsvpData]);
   if (!hasRules && !hasLanguages) return null;
+
+  const downloadExcel = async () => {
+    try { await downloadXlsx(`RSVP_Gaeste_je_Person_${today()}.xlsx`, [{ name: 'Gäste je Person', rows: buildExtrasRows(rsvpData) }]); }
+    catch { showFeedback?.('error', 'Export fehlgeschlagen'); }
+  };
 
   const download = () => {
     const blob = new Blob([buildExtrasCsv(rsvpData)], { type: 'text/csv;charset=utf-8;' });
@@ -117,7 +128,10 @@ function RsvpExtrasPanel({ components: C }) {
               : Object.entries(sum.byLang).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${LANG[l] || l} ${n}`).join(' · ')}
           </p>
         )}
-        <C.Button onClick={download}>Gäste je Person exportieren (CSV)</C.Button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <C.Button onClick={downloadExcel}>Gäste je Person exportieren (Excel)</C.Button>
+          <C.Button onClick={download}>Gäste je Person exportieren (CSV)</C.Button>
+        </div>
       </C.PanelContent>
     </C.Panel>
     </div>
