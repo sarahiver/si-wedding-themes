@@ -427,7 +427,7 @@ export default async function handler(req, res) {
           sentIds.push(guest.id);
         }
       } catch (e) {
-        console.error(`[reminder] Failed for ${guest.email}:`, e.message);
+        console.error(`[reminder] Failed for guest ${guest.id}:`, e.message);
       }
     }
 

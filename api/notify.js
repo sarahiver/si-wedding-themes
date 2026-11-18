@@ -39,7 +39,8 @@ async function getProjectEmail(projectId) {
   const data = await response.json();
   console.log(`[notify] Supabase returned ${data.length} rows`);
   if (data[0]) {
-    console.log(`[notify] client_email: ${data[0].client_email || 'EMPTY'}, admin_email: ${data[0].admin_email || 'EMPTY'}`);
+    // Keine Adressen ins Protokoll – nur, ob eine hinterlegt ist
+    console.log(`[notify] client_email: ${data[0].client_email ? 'set' : 'EMPTY'}, admin_email: ${data[0].admin_email ? 'set' : 'EMPTY'}`);
   }
   // Prefer admin_email (notification target), fallback to client_email
   if (data[0]) {
@@ -237,7 +238,7 @@ export default async function handler(req, res) {
 
     // 1. Get project data (customer_email)
     const project = await getProjectEmail(projectId);
-    console.log(`[notify] Project lookup:`, project ? `email=${project.notification_email}, name=${project.couple_names}` : 'NOT FOUND');
+    console.log(`[notify] Project lookup:`, project ? `found, email ${project.notification_email ? 'set' : 'missing'}` : 'NOT FOUND');
     
     if (!project || !project.notification_email) {
       // No email configured — silently succeed (don't break guest actions)
@@ -260,7 +261,8 @@ export default async function handler(req, res) {
     });
 
     // 3. Send
-    console.log(`[notify] Sending to ${project.notification_email}: ${subject}`);
+    // Betreff enthält den Namen des Gastes – nicht protokollieren
+    console.log(`[notify] Sending ${type} notification for project ${projectId}`);
     const sent = await sendEmail(
       project.notification_email,
       projectName,
