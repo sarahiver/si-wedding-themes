@@ -9,11 +9,14 @@ export function formatWeddingDate(iso, lang) {
     .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
 }
 
-/** Restzeit als lesbarer Teil eines Satzes, z. B. „171 Tage, 5 Stunden und 12 Minuten" – Einheiten und Mehrzahl in der Sprache der Seite. */
-export function formatTimeLeft({ days, hours, minutes }, lang) {
+/**
+ * Restzeit als lesbarer Text, z. B. „15 Stunden, 51 Minuten und 12 Sekunden" – Einheiten und Mehrzahl
+ * in der Sprache der Seite. units: welche Teile von remaining() erscheinen (Standard: Stunden, Minuten, Sekunden).
+ */
+const UNIT = { days: 'day', hours: 'hour', minutes: 'minute', seconds: 'second' };
+export function formatTimeLeft(left, lang, units = ['hours', 'minutes', 'seconds']) {
   const loc = LOCALES[lang] || LOCALES.en;
-  const unit = (n, u) => new Intl.NumberFormat(loc, { style: 'unit', unit: u, unitDisplay: 'long' }).format(n);
-  const parts = [unit(days, 'day'), unit(hours, 'hour'), unit(minutes, 'minute')];
+  const parts = units.map((u) => new Intl.NumberFormat(loc, { style: 'unit', unit: UNIT[u], unitDisplay: 'long' }).format(left[u] || 0));
   return Intl.ListFormat ? new Intl.ListFormat(loc, { style: 'long', type: 'unit' }).format(parts) : parts.join(', ');
 }
 

@@ -272,7 +272,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   { const { ctx, page } = await open(browser);
     const t = await page.locator('#countdown').innerText();
     ok('Countdown: Kalenderblatt Mai 2027, 180 Tage (Gerät in New York, Ziel in Paris)', /Mai 2027/.test(t) && /\b180\b/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
-    ok('Countdown: Restzeit mit Stunden und Minuten, ohne zusätzliche Datumszeile', /Noch 180 Tage, \d+ Stunden? und \d+ Minuten?/.test(t) && !/15\. Mai 2027/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
+    ok('Countdown: darunter Stunden, Minuten und Sekunden, ohne zusätzliche Datumszeile', /\d+ Stunden?, \d+ Minuten? und \d+ Sekunden?/.test(t) && !/15\. Mai 2027/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
     const marked = await page.locator('#countdown [data-wedding-day]').allTextContents();
     ok('Countdown: genau der 15. ist markiert', marked.join(',').trim() === '15', marked.join(','));
     const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('button, a').filter({ hasText: 'Im Kalender speichern' }).first().click()]);

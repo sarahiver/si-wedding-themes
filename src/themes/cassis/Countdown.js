@@ -9,8 +9,8 @@ import { C, FONT, SERIF, Section, DESK, G, italic, reveal, useReveal } from './s
 import { formatTimeLeft, OWN_TITLE } from './helpers';
 
 // Die Zahl der Tage steht als große, helle Fläche; das Kalenderblatt liegt darauf.
-// Lesbar steht die Restzeit mit Stunden und Minuten im Satz darunter – die große Fassung ist Schmuck.
-// Das Datum selbst zeigt das Kalenderblatt.
+// Darunter laufen Stunden, Minuten und Sekunden – die Tage stehen schon groß darüber,
+// das Datum zeigt das Kalenderblatt.
 const Layout = styled.div`
   ${DESK} { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end; }
 `;
@@ -26,7 +26,9 @@ const Num = styled.strong`
 const Label = styled.div`
   margin: 1.25rem 0 2.5rem;
   p { margin: 0; ${italic} }
-  p.count { font-family: ${FONT}; font-style: normal; font-size: 1.125rem; line-height: 1.6; }
+  p.count { font-family: ${FONT}; font-style: normal; font-size: 1.125rem; line-height: 1.6; font-variant-numeric: tabular-nums; }
+  /* Nur für Screenreader: die tickende Zeile würde sonst jede Sekunde neu vorgelesen */
+  .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   ${DESK} { grid-column: 1 / 6; grid-row: 2; margin: 2.25rem 0 0; }
 `;
 const Save = styled.button`
@@ -73,7 +75,7 @@ function Countdown() {
   const [now, setNow] = useState(null);
   useEffect(() => {
     setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 30 * 1000);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -99,11 +101,11 @@ function Countdown() {
   };
 
   // Große Zahl (Schmuck) und derselbe Stand als lesbarer Satz
-  let big = null; let line = null;
+  let big = null; let line = null; let spoken = null;
   if (left) {
     if (left.past) line = t(STRINGS, 'past');
     else if (left.days === 0) { big = `${left.hours}:${String(left.minutes).padStart(2, '0')}`; line = t(STRINGS, 'today'); }
-    else { big = String(left.days); line = t(STRINGS, 'timeLeft', { time: formatTimeLeft(left, lang) }); }
+    else { big = String(left.days); line = formatTimeLeft(left, lang); spoken = t(STRINGS, 'timeLeft', { time: formatTimeLeft(left, lang, ['days', 'hours', 'minutes']) }); }
   }
 
   return (
@@ -111,7 +113,9 @@ function Countdown() {
       <Layout>
         <Num ref={numRef} aria-hidden="true" data-clock={left && left.days === 0 && !left.past ? 'true' : undefined}>{big}</Num>
         <Label>
-          <p className="count" aria-live="polite">{line}</p>
+          {spoken
+            ? <p className="count"><span aria-hidden="true">{line}</span><span className="sr">{spoken}</span></p>
+            : <p className="count" aria-live="polite">{line}</p>}
           {!(left && left.past) && <Save type="button" onClick={saveToCalendar}>{t(STRINGS, 'calendar')}</Save>}
         </Label>
         <Sheet ref={sheetRef}>
