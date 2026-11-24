@@ -108,7 +108,7 @@ export function buildRsvpRows(flatRows, asText = false) {
 const dietText = (row) => [row.dietary, row.diet_note].filter(Boolean).join(': ') || '-';
 
 function RSVPSection({ components: C }) {
-  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId } = useAdmin();
+  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId, project } = useAdmin();
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
@@ -237,22 +237,25 @@ function RSVPSection({ components: C }) {
     });
   };
 
-  // Stats
+  // Stats: Rückmeldungen = abgeschickte Formulare; alle anderen Zahlen zählen Personen
+  const personsOf = (list) => list.reduce((sum, r) => sum + (r.persons || 1), 0);
   const stats = {
-    total: rsvpData.length,
-    confirmed: rsvpData.filter(r => r.attending).length,
-    declined: rsvpData.filter(r => !r.attending).length,
-    guests: rsvpData.filter(r => r.attending).reduce((sum, r) => sum + (r.persons || 1), 0)
+    responses: rsvpData.length,
+    attendingPersons: personsOf(rsvpData.filter(r => r.attending)),
+    declinedPersons: personsOf(rsvpData.filter(r => !r.attending)),
+    children: flatRows.filter(row => row.attending && row.is_child).length,
   };
+  // Kinder nur bei Projekten, deren Formular nach Kindern fragt (oder wenn schon welche angegeben sind)
+  const showChildren = !!project?.features?.rsvp || stats.children > 0;
 
   return (
     <>
       {/* Stats */}
       <C.StatsGrid style={{ marginBottom: '1.5rem' }}>
-        <C.StatCard $index={0}><C.StatNumber $index={0}>{stats.total}</C.StatNumber><C.StatLabel $index={0}>Anmeldungen</C.StatLabel></C.StatCard>
-        <C.StatCard $index={1}><C.StatNumber $index={1}>{stats.confirmed}</C.StatNumber><C.StatLabel $index={1}>Zusagen</C.StatLabel></C.StatCard>
-        <C.StatCard $index={2}><C.StatNumber $index={2}>{stats.declined}</C.StatNumber><C.StatLabel $index={2}>Absagen</C.StatLabel></C.StatCard>
-        <C.StatCard $index={3}><C.StatNumber $index={3}>{stats.guests}</C.StatNumber><C.StatLabel $index={3}>Gäste total</C.StatLabel></C.StatCard>
+        <C.StatCard $index={0}><C.StatNumber $index={0}>{stats.responses}</C.StatNumber><C.StatLabel $index={0}>Rückmeldungen</C.StatLabel></C.StatCard>
+        <C.StatCard $index={1}><C.StatNumber $index={1}>{stats.attendingPersons}</C.StatNumber><C.StatLabel $index={1}>Personen kommen</C.StatLabel></C.StatCard>
+        {showChildren && <C.StatCard $index={2}><C.StatNumber $index={2}>{stats.children}</C.StatNumber><C.StatLabel $index={2}>davon Kinder</C.StatLabel></C.StatCard>}
+        <C.StatCard $index={showChildren ? 3 : 2}><C.StatNumber $index={showChildren ? 3 : 2}>{stats.declinedPersons}</C.StatNumber><C.StatLabel $index={showChildren ? 3 : 2}>Personen kommen nicht</C.StatLabel></C.StatCard>
       </C.StatsGrid>
 
       <C.ActionBar>
