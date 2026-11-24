@@ -1,4 +1,4 @@
-import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
+import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, heroTone } from '../helpers';
 
 const all = () => true;
 test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
@@ -49,4 +49,10 @@ test('Anfahrt: Verkehrsmittel aus der Liste bekommen ihren Titel aus den Texten 
   expect(transportKey({ type: 'custom', title: 'Shuttle ab Marseille' })).toBeNull();
   expect(transportKey({ type: 'car', title: 'Mit dem Mietwagen' })).toBeNull();
   expect(transportKey({ title: 'Hotels' })).toBeNull();
+});
+test('Farbe des Schriftzugs: schwarz nur bei ausdrücklicher Wahl, sonst weiß', () => {
+  expect(heroTone({ logo_color: 'black' })).toBe('dark');
+  expect(heroTone({ logo_color: 'white' })).toBe('light');
+  expect(heroTone({})).toBe('light');
+  expect(heroTone(undefined)).toBe('light');
 });

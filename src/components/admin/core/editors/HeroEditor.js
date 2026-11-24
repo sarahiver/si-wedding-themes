@@ -255,6 +255,14 @@ function HeroEditor({ components: C }) {
               label="Schriftzug der Namen"
               helpText="Weiße Grafik mit durchsichtigem Hintergrund (SVG oder PNG). Erscheint groß auf dem Startfoto, klein oben links und in der Fußzeile. Ohne Grafik erscheinen die Namen in einer Ersatzschrift."
             />
+            <C.FormGroup>
+              <C.Label>Farbe auf dem Startfoto</C.Label>
+              <C.Select value={content.logo_color === 'black' ? 'black' : 'white'} onChange={(e) => update('logo_color', e.target.value)}>
+                <option value="white">Weiß – für dunklere Fotos</option>
+                <option value="black">Schwarz – für helle Fotos</option>
+              </C.Select>
+              <C.HelpText>Gilt für Schriftzug, Datum, Ort und Menü über dem Foto.</C.HelpText>
+            </C.FormGroup>
           </>
         )}
 

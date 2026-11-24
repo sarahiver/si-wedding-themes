@@ -1,10 +1,12 @@
 // src/themes/cassis/GlobalStyles.js
 import { createGlobalStyle } from 'styled-components';
 import { C, FONT } from './shared';
-import lato300 from './fonts/lato-latin-300-normal.woff2';
-import lato300x from './fonts/lato-latin-ext-300-normal.woff2';
-import lato400 from './fonts/lato-latin-400-normal.woff2';
-import lato400x from './fonts/lato-latin-ext-400-normal.woff2';
+import cabin from './fonts/cabin-latin-wght-normal.woff2';
+import cabinx from './fonts/cabin-latin-ext-wght-normal.woff2';
+import pinyon from './fonts/pinyon-script-latin-400-normal.woff2';
+import pinyonx from './fonts/pinyon-script-latin-ext-400-normal.woff2';
+import msd from './fonts/mrs-saint-delafield-latin-400-normal.woff2';
+import msdx from './fonts/mrs-saint-delafield-latin-ext-400-normal.woff2';
 import cg400 from './fonts/cormorant-garamond-latin-400-normal.woff2';
 import cg400x from './fonts/cormorant-garamond-latin-ext-400-normal.woff2';
 import cg500 from './fonts/cormorant-garamond-latin-500-normal.woff2';
@@ -15,7 +17,8 @@ import cg400i from './fonts/cormorant-garamond-latin-400-italic.woff2';
 import cg400ix from './fonts/cormorant-garamond-latin-ext-400-italic.woff2';
 
 // Die Schriften liegen im Projekt (SIL Open Font License, siehe fonts/LICENSE-*.txt).
-// Lato heißt hier „Cassis Sans", Cormorant Garamond „Cassis Serif". Das Theme selbst lädt
+// Cabin heißt hier „Cassis Sans", Cormorant Garamond „Cassis Serif", Pinyon Script „Cassis Script",
+// Mrs Saint Delafield „Cassis Hand". Das Theme selbst lädt
 // nichts von fremden Servern. (Die gemeinsame index.html aller Themes bindet weiterhin
 // Google Fonts ein – das lässt sich nur dort und für alle Themes zusammen ändern.)
 // Zwei Dateien je Schnitt: Grundzeichen und Erweiterung (u. a. türkische Zeichen);
@@ -26,8 +29,9 @@ const face = (family, weight, file, range, style = 'normal') => `
   @font-face { font-family: '${family}'; font-style: ${style}; font-weight: ${weight}; font-display: swap; src: url(${file}) format('woff2'); unicode-range: ${range}; }`;
 
 const GlobalStyles = createGlobalStyle`
-  ${face('Cassis Sans', 300, lato300, LATIN)}${face('Cassis Sans', 300, lato300x, LATIN_EXT)}
-  ${face('Cassis Sans', 400, lato400, LATIN)}${face('Cassis Sans', 400, lato400x, LATIN_EXT)}
+  ${face('Cassis Sans', '400 700', cabin, LATIN)}${face('Cassis Sans', '400 700', cabinx, LATIN_EXT)}
+  ${face('Cassis Script', 400, pinyon, LATIN)}${face('Cassis Script', 400, pinyonx, LATIN_EXT)}
+  ${face('Cassis Hand', 400, msd, LATIN)}${face('Cassis Hand', 400, msdx, LATIN_EXT)}
   ${face('Cassis Serif', 400, cg400, LATIN)}${face('Cassis Serif', 400, cg400x, LATIN_EXT)}
   ${face('Cassis Serif', 500, cg500, LATIN)}${face('Cassis Serif', 500, cg500x, LATIN_EXT)}
   ${face('Cassis Serif', 300, cg300, LATIN)}${face('Cassis Serif', 300, cg300x, LATIN_EXT)}
