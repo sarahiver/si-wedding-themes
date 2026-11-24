@@ -9,6 +9,9 @@ export function formatWeddingDate(iso, lang) {
     .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
 }
 
+/** Farbe des Schriftzugs auf dem Startfoto: im Dashboard je Projekt gewählt, ohne Wahl weiß. */
+export const heroTone = (hero) => (hero?.logo_color === 'black' ? 'dark' : 'light');
+
 /** Link zur Routenplanung aus den Angaben der Anfahrt; leer, wenn nichts hinterlegt ist. */
 export function mapsLink(directions, location) {
   const d = directions || {};

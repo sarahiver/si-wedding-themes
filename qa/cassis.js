@@ -161,12 +161,12 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     await page.goto(BASE + '/lena-tom', { waitUntil: 'networkidle' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(1500);
     const f = await page.evaluate(async () => { await document.fonts.ready; const fam = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e).fontFamily.split(',')[0].replace(/["']/g, '') : ''; };
       return { h2: fam('#timeline h2'), month: fam('#countdown h2'), body: fam('#directions address'), nav: fam('header[data-solid] nav a'), button: fam('#rsvp button'), input: fam('#rsvp input'), time: fam('#timeline time'),
-        loaded: [...document.fonts].filter((x) => x.status === 'loaded').map((x) => x.family.replace(/["']/g, '') + ' ' + x.weight).sort().join('|'), serifOk: document.fonts.check('400 40px "Cassis Serif"', 'ığşİÇöüéèàç'), latoOk: document.fonts.check('400 16px "Cassis Sans"', 'ığşİÇöüéèàç') }; });
+        loaded: [...document.fonts].filter((x) => x.status === 'loaded').map((x) => x.family.replace(/["']/g, '') + ' ' + x.weight).sort().join('|'), serifOk: document.fonts.check('400 40px "Cassis Serif"', 'ığşİÇöüéèàç'), latoOk: document.fonts.check('400 16px "Cassis Sans"', 'ığşİÇöüéèàç'), scriptOk: document.fonts.check('400 40px "Cassis Script"', 'ığşİÇöüéèàç') }; });
     ok('Schriften: das Theme lädt keine Schriftdatei von fremden Servern', !outside.includes('fonts.gstatic.com'), [...new Set(outside)].join());
     ok('Feststellung: die gemeinsame Startseite aller Themes ruft weiterhin fonts.googleapis.com auf (nicht Teil des Themes)', outside.every((h) => h === 'fonts.googleapis.com'), [...new Set(outside)].join());
-    ok('Schriftrollen: Überschriften in der Serifenschrift (Cormorant Garamond, lokal)', f.h2 === 'Cassis Serif' && f.month === 'Cassis Serif', JSON.stringify(f));
-    ok('Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Lato (lokal)', [f.body, f.nav, f.button, f.input, f.time].every((x) => x === 'Cassis Sans'), JSON.stringify(f));
-    ok('Schriften geladen, türkische und französische Zeichen vorhanden', /Cassis Serif/.test(f.loaded) && /Cassis Sans/.test(f.loaded) && f.serifOk && f.latoOk, f.loaded);
+    ok('Schriftrollen: Überschriften in Schreibschrift (Pinyon Script, lokal), Monat in der Serifenschrift', f.h2 === 'Cassis Script' && f.month === 'Cassis Serif', JSON.stringify(f));
+    ok('Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Cabin (lokal)', [f.body, f.nav, f.button, f.input, f.time].every((x) => x === 'Cassis Sans'), JSON.stringify(f));
+    ok('Schriften geladen, türkische und französische Zeichen vorhanden', /Cassis Serif/.test(f.loaded) && /Cassis Sans/.test(f.loaded) && /Cassis Script/.test(f.loaded) && f.serifOk && f.latoOk && f.scriptOk, f.loaded);
     await ctx.close(); }
   { const { ctx, page } = await open(browser, { vp: { width: 390, height: 844 } });
     const burger = page.locator('header button[aria-controls]').last(); const menu = page.locator('header[data-solid] nav').first();

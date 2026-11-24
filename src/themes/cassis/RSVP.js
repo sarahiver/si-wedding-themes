@@ -5,7 +5,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { useRSVP, needsHealthConsent } from '../../components/shared/RSVPCore';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SERIF, Section, Inner, Aside, Body, Title, Lead, Button, DESK, G, reveal, useReveal } from './shared';
+import { C, FONT, SERIF, HEADING, Section, Inner, Aside, Body, Title, Lead, Button, DESK, G, reveal, useReveal } from './shared';
 import { formatWeddingDate, follows, OWN_TITLE } from './helpers';
 
 // Fehlerfarbe: dunkles Rot, auf hellem Grund gut lesbar
@@ -23,7 +23,7 @@ export const Card = styled.section`
   ${DESK} { margin: 0; padding: clamp(2rem, 4.6vw, 5rem); }
   ${reveal}
 `;
-const Question = styled.h3`margin: 0; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(2.25rem, 3.4vw, 3.5rem); line-height: 1; text-align: center; overflow-wrap: anywhere;`;
+const Question = styled.h3`margin: 0; font-family: ${HEADING}; font-weight: 400; font-size: clamp(2.25rem, 3.4vw, 3.5rem); line-height: 1.2; text-align: center; overflow-wrap: anywhere;`;
 const Rule = styled.div`width: 3.5rem; height: 1px; background: ${C.ink}; opacity: 0.6; margin: 1.5rem auto 2.5rem;`;
 const Form = styled.form`display: grid; gap: 2rem;`;
 const Field = styled.label`display: grid; gap: 0.5rem; min-width: 0; overflow-wrap: anywhere; font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft}; transition: color 0.2s ease; &:focus-within { color: ${C.ink}; }`;

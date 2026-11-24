@@ -20,17 +20,19 @@ export const C = {
   line: 'rgba(51,53,63,0.2)',
   lineMist: 'rgba(51,53,63,0.34)', // Haarlinie auf Blaugrau
 };
-// Drei Schriftrollen – mehr nicht:
-// 1. Schreibschrift: ausschließlich die Original-Grafik der Namen (Startbild, Kopfzeile, Fußzeile).
-//    SCRIPT ist nur der Ersatz aus Systemschriften, solange keine Grafik hochgeladen ist.
-// 2. SERIF (Cormorant Garamond): Überschriften, Uhrzeiten, Namen, Eingaben der Antwortkarte;
-//    kursiv für kurze Begleitsätze.
-// 3. FONT (Lato): Fließtext, Navigation, Knöpfe, Beschriftungen, Hinweise.
+// Schriftrollen (freie Entsprechungen der Schriften aus der Einladung):
+// 1. SCRIPT (Mrs Saint Delafield, statt Amsterdam Handwriting): die Namen, solange keine Grafik
+//    des Schriftzugs hochgeladen ist.
+// 2. HEADING (Pinyon Script, statt Edwardian Script ITC): Bereichsüberschriften und die Frage der Antwortkarte.
+// 3. SERIF (Cormorant Garamond): Uhrzeiten, Zahlen, Zwischenüberschriften, Eingaben der Antwortkarte;
+//    kursiv für kurze Begleitsätze – Schreibschrift wäre hier schwer lesbar.
+// 4. FONT (Cabin, statt Humanst521 Lt BT): Fließtext, Navigation, Knöpfe, Beschriftungen, Hinweise.
 // Eigene Familiennamen: So greift sicher die Datei aus dem Projekt und nicht eine
 // gleichnamige Schrift, die die gemeinsame Startseite aller Themes von Google lädt.
-export const FONT = "'Cassis Sans', 'Lato', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
+export const FONT = "'Cassis Sans', 'Cabin', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
 export const SERIF = "'Cassis Serif', 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif";
-export const SCRIPT = "'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
+export const HEADING = "'Cassis Script', 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive";
+export const SCRIPT = "'Cassis Hand', 'Mrs Saint Delafield', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
 
 const tones = {
   shell: css`background:${C.shell};color:${C.ink};`,
@@ -105,10 +107,10 @@ export function Inner({ children, ...rest }) {
 export const Aside = styled.div`min-width: 0; margin-bottom: 2.5rem; ${DESK} { grid-column: 1 / 6; margin-bottom: 0; position: sticky; top: 6rem; }`;
 export const Body = styled.div`min-width: 0; ${DESK} { grid-column: 6 / 13; }`;
 export const Title = styled.h2`
-  margin: 0; font-family: ${SERIF}; font-weight: 400; font-size: clamp(3rem, 7.6vw, 8.5rem); line-height: 0.92; letter-spacing: -0.01em;
+  margin: 0; font-family: ${HEADING}; font-weight: 400; font-size: clamp(3rem, 7.6vw, 8.5rem); line-height: 1.1; letter-spacing: 0;
   overflow-wrap: anywhere; hyphens: auto;
   /* Lange Wörter (z. B. „Trauzeug:innen") bekommen in schmalen Spalten eine kleinere Stufe */
-  ${(p) => p.$small && css`font-size: clamp(2.5rem, 4.6vw, 5rem); line-height: 1;`}
+  ${(p) => p.$small && css`font-size: clamp(2.5rem, 4.6vw, 5rem); line-height: 1.15;`}
 `;
 export const Lead = styled.p`margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; ${italic} color: ${(p) => (p.$onMist ? C.ink : C.inkSoft)}; ${DESK} { max-width: 20em; }`;
 // Über die ganze Breite des Rasters
