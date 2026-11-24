@@ -2,16 +2,24 @@
 import React, { useState, useMemo } from 'react';
 import { useAdmin } from '../AdminContext';
 import { submitRSVP, updateRSVPResponse, deleteRSVPResponse } from '../../../../lib/supabase';
-import RsvpExtrasPanel, { buildExtrasRows } from './RsvpExtrasPanel';
 import { downloadXlsx, today } from '../../../../lib/xlsxExport';
 
+const LANG = { en: 'Englisch', tr: 'Türkisch', de: 'Deutsch', fr: 'Französisch' };
+
 // Hilfsfunktion: Guests-JSON parsen
-function parseGuests(r) {
-  if (r.guests && Array.isArray(r.guests)) return r.guests;
-  if (typeof r.guests === 'string') {
-    try { return JSON.parse(r.guests); } catch { return []; }
-  }
+export function parseGuests(r) {
+  if (Array.isArray(r?.guests)) return r.guests;
+  if (typeof r?.guests === 'string') { try { const g = JSON.parse(r.guests); return Array.isArray(g) ? g : []; } catch { return []; } }
   return [];
+}
+
+/** Ernährungsweise einer Person als Text; ältere Einträge haben nur freien Text. */
+export function dietLabel(g) {
+  if (!g) return '';
+  const names = { vegetarian: 'Vegetarisch', vegan: 'Vegan', other: 'Sonstiges' };
+  if (g.diet === 'none') return '';
+  if (names[g.diet]) return names[g.diet];
+  return typeof g.dietary === 'string' ? g.dietary.trim() : '';
 }
 
 // Hilfsfunktion: RSVP-Daten in flache Zeilen umwandeln (1 Zeile pro Person)
@@ -20,73 +28,87 @@ export function flattenRsvpData(rsvpData) {
 
   rsvpData.forEach(r => {
     const guests = parseGuests(r);
-
-    // Hauptperson (immer erste Zeile)
-    rows.push({
+    const first = guests[0] || {};
+    const shared = {
       _rsvpId: r.id,
+      _rawEntry: r,
+      family: r.name || '',
+      email: r.email || '',
+      attending: r.attending,
+      language: r.language || '',
+      created_at: r.created_at,
+    };
+
+    // Hauptperson (immer erste Zeile); Angaben je Person haben Vorrang vor den Angaben der Antwort
+    rows.push({
+      ...shared,
       _isMain: true,
       _groupSize: r.persons || 1,
-      _rawEntry: r,
       name: r.name || '',
-      email: r.email || '',
       persons: r.persons || 1,
-      attending: r.attending,
-      dietary: r.dietary || '',
-      allergies: r.allergies || '',
+      is_child: false,
+      age: null,
+      dietary: dietLabel(first) || r.dietary || '',
+      diet_note: first.diet_note || '',
+      allergies: first.allergies || r.allergies || '',
       custom_answer: r.custom_answer || '',
       message: r.message || '',
-      created_at: r.created_at,
     });
 
     // Begleitpersonen (aus guests Array, ab Index 1)
-    if (guests.length > 1) {
-      guests.slice(1).forEach((guest) => {
-        if (guest.name || guest.dietary || guest.allergies) {
-          rows.push({
-            _rsvpId: r.id,
-            _isMain: false,
-            _groupSize: 0,
-            _rawEntry: r,
-            name: guest.name || '',
-            email: r.email || '',
-            persons: '',
-            attending: r.attending,
-            dietary: guest.dietary || '',
-            allergies: guest.allergies || '',
-            custom_answer: '',
-            message: '',
-            created_at: r.created_at,
-          });
-        }
+    guests.slice(1).forEach((guest) => {
+      if (!guest || !(guest.name || guest.dietary || guest.diet || guest.allergies || guest.is_child)) return;
+      rows.push({
+        ...shared,
+        _isMain: false,
+        _groupSize: 0,
+        name: guest.name || '',
+        persons: '',
+        is_child: !!guest.is_child,
+        age: Number.isInteger(guest.age) ? guest.age : null,
+        dietary: dietLabel(guest),
+        diet_note: guest.diet_note || '',
+        allergies: guest.allergies || '',
+        custom_answer: '',
+        message: '',
       });
-    }
+    });
   });
 
   return rows;
 }
 
 /**
- * Tabelle der Antworten (eine Zeile je Person) für den Export.
- * asText = true liefert alles als Text (CSV); sonst bleiben Personenzahl und Datum echte Zahlen- und Datumswerte (Excel).
+ * Tabelle der Antworten (eine Zeile je Person, alle Angaben) für den Export.
+ * asText = true liefert alles als Text (CSV); sonst bleiben Personenzahl, Alter und Datum echte Zahlen- und Datumswerte (Excel).
  */
 export function buildRsvpRows(flatRows, asText = false) {
-  const headers = ['Name', 'E-Mail', 'Personen', 'Status', 'Ernährung', 'Allergien', 'Custom Antwort', 'Nachricht', 'Datum'];
+  const headers = ['Name', 'Anmeldung', 'E-Mail', 'Personen', 'Status', 'Kind', 'Alter', 'Ernährung', 'Hinweis zur Ernährung', 'Allergien', 'Custom Antwort', 'Nachricht', 'Sprache', 'Datum'];
   const date = (d) => { const v = new Date(d); if (Number.isNaN(v.getTime())) return ''; return asText ? v.toLocaleDateString('de-DE') : new Date(v.getFullYear(), v.getMonth(), v.getDate()); };
+  const num = (n) => (n === null || n === '' || n === undefined ? '' : asText ? String(n) : n);
   return [headers, ...flatRows.map((row) => [
-    row.name,
+    row.name || (row._isMain ? '' : 'Begleitung'),
+    row.family,
     row.email,
-    row._isMain ? (row.persons || 1) : '',
+    row._isMain ? num(row.persons || 1) : '',
     row.attending ? 'Zusage' : 'Absage',
+    row.is_child ? 'ja' : 'nein',
+    row.is_child ? num(row.age) : '',
     row.dietary,
+    row.diet_note,
     row.allergies,
     row._isMain ? (row.custom_answer || '') : '',
     row._isMain ? (row.message || '') : '',
-    row._isMain ? date(row.created_at) : '',
+    LANG[row.language] || row.language || '',
+    date(row.created_at),
   ])];
 }
 
+// Ernährung für die Tabelle: Auswahl und Hinweis zusammen
+const dietText = (row) => [row.dietary, row.diet_note].filter(Boolean).join(': ') || '-';
+
 function RSVPSection({ components: C }) {
-  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId, project } = useAdmin();
+  const { rsvpData, searchTerm, setSearchTerm, loadData, showFeedback, projectId } = useAdmin();
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [showAddForm, setShowAddForm] = useState(false);
@@ -124,14 +146,10 @@ function RSVPSection({ components: C }) {
     return Array.from(set).sort();
   }, [flatRows]);
 
-  // Export als Excel-Datei: ein Blatt mit einer Zeile je Person; bei Projekten mit RSVP-Regeln oder
-  // mehreren Sprachen zusätzlich das Blatt „Gäste je Person" (Kinder, Alter, Ernährung je Person, Sprache).
+  // Export als Excel-Datei: ein Blatt mit einer Zeile je Person und allen Angaben (inkl. Kind, Alter, Sprache)
   const exportExcel = async () => {
     try {
-      const sheets = [{ name: 'Antworten', rows: buildRsvpRows(flatRows) }];
-      const f = project?.features || {};
-      if (f.rsvp || (Array.isArray(f.i18n?.languages) && f.i18n.languages.length > 0)) sheets.push({ name: 'Gäste je Person', rows: buildExtrasRows(rsvpData) });
-      await downloadXlsx(`RSVP_${today()}.xlsx`, sheets);
+      await downloadXlsx(`RSVP_${today()}.xlsx`, [{ name: 'Antworten', rows: buildRsvpRows(flatRows) }]);
       showFeedback('success', 'Export erstellt');
     } catch (e) {
       showFeedback('error', 'Export fehlgeschlagen');
@@ -229,9 +247,6 @@ function RSVPSection({ components: C }) {
 
   return (
     <>
-      {/* Nur bei Projekten mit RSVP-Regeln oder Sprachen sichtbar */}
-      <RsvpExtrasPanel components={C} />
-
       {/* Stats */}
       <C.StatsGrid style={{ marginBottom: '1.5rem' }}>
         <C.StatCard $index={0}><C.StatNumber $index={0}>{stats.total}</C.StatNumber><C.StatLabel $index={0}>Anmeldungen</C.StatLabel></C.StatCard>
@@ -384,7 +399,7 @@ function RSVPSection({ components: C }) {
                             {row.attending ? 'Zusage' : 'Absage'}
                           </C.StatusBadge>
                         </C.Td>
-                        <C.Td style={{ fontSize: '0.85rem' }}>{row.dietary || '-'}</C.Td>
+                        <C.Td style={{ fontSize: '0.85rem' }}>{dietText(row)}</C.Td>
                         <C.Td style={{ fontSize: '0.85rem' }}>{row.allergies || '-'}</C.Td>
                         <C.Td></C.Td>
                         <C.Td></C.Td>
@@ -420,7 +435,7 @@ function RSVPSection({ components: C }) {
                           {row.attending ? 'Zusage' : 'Absage'}
                         </C.StatusBadge>
                       </C.Td>
-                      <C.Td>{row.dietary || '-'}</C.Td>
+                      <C.Td>{dietText(row)}</C.Td>
                       <C.Td>{row.allergies || '-'}</C.Td>
                       <C.Td style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {row.custom_answer || '-'}
