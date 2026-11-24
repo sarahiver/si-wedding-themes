@@ -445,6 +445,7 @@ export function AdminProvider({ children }) {
     confirmed: rsvpData.filter(r => r.attending).length,
     declined: rsvpData.filter(r => !r.attending).length,
     totalGuests: rsvpData.filter(r => r.attending).reduce((sum, r) => sum + (r.persons || 1), 0),
+    declinedGuests: rsvpData.filter(r => !r.attending).reduce((sum, r) => sum + (r.persons || 1), 0),
     pendingGuestbook: guestbookEntries.filter(e => !e.approved).length,
     pendingPhotos: photoUploads.filter(p => !p.approved).length,
     totalRsvp: rsvpData.length,
