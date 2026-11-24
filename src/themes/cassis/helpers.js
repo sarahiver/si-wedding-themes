@@ -9,6 +9,14 @@ export function formatWeddingDate(iso, lang) {
     .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
 }
 
+/** Restzeit als lesbarer Teil eines Satzes, z. B. „171 Tage, 5 Stunden und 12 Minuten" – Einheiten und Mehrzahl in der Sprache der Seite. */
+export function formatTimeLeft({ days, hours, minutes }, lang) {
+  const loc = LOCALES[lang] || LOCALES.en;
+  const unit = (n, u) => new Intl.NumberFormat(loc, { style: 'unit', unit: u, unitDisplay: 'long' }).format(n);
+  const parts = [unit(days, 'day'), unit(hours, 'hour'), unit(minutes, 'minute')];
+  return Intl.ListFormat ? new Intl.ListFormat(loc, { style: 'long', type: 'unit' }).format(parts) : parts.join(', ');
+}
+
 /** Link zur Routenplanung aus den Angaben der Anfahrt; leer, wenn nichts hinterlegt ist. */
 export function mapsLink(directions, location) {
   const d = directions || {};

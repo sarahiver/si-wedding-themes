@@ -6,10 +6,11 @@ import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
 import { C, FONT, SERIF, Section, DESK, G, italic, reveal, useReveal } from './shared';
-import { formatWeddingDate, OWN_TITLE } from './helpers';
+import { formatTimeLeft, OWN_TITLE } from './helpers';
 
 // Die Zahl der Tage steht als große, helle Fläche; das Kalenderblatt liegt darauf.
-// Lesbar steht die Zahl noch einmal im Satz darunter – die große Fassung ist Schmuck.
+// Lesbar steht die Restzeit mit Stunden und Minuten im Satz darunter – die große Fassung ist Schmuck.
+// Das Datum selbst zeigt das Kalenderblatt.
 const Layout = styled.div`
   ${DESK} { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end; }
 `;
@@ -102,7 +103,7 @@ function Countdown() {
   if (left) {
     if (left.past) line = t(STRINGS, 'past');
     else if (left.days === 0) { big = `${left.hours}:${String(left.minutes).padStart(2, '0')}`; line = t(STRINGS, 'today'); }
-    else { big = String(left.days); line = `${left.days} ${t(STRINGS, left.days === 1 ? 'dayLeft' : 'daysLeft')}`; }
+    else { big = String(left.days); line = t(STRINGS, 'timeLeft', { time: formatTimeLeft(left, lang) }); }
   }
 
   return (
@@ -111,7 +112,6 @@ function Countdown() {
         <Num ref={numRef} aria-hidden="true" data-clock={left && left.days === 0 && !left.past ? 'true' : undefined}>{big}</Num>
         <Label>
           <p className="count" aria-live="polite">{line}</p>
-          <p><time dateTime={date}>{formatWeddingDate(date, lang)}</time></p>
           {!(left && left.past) && <Save type="button" onClick={saveToCalendar}>{t(STRINGS, 'calendar')}</Save>}
         </Label>
         <Sheet ref={sheetRef}>

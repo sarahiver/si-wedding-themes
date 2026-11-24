@@ -1,4 +1,4 @@
-import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay } from '../helpers';
+import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, formatTimeLeft } from '../helpers';
 
 const all = () => true;
 test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
@@ -49,4 +49,10 @@ test('Anfahrt: Verkehrsmittel aus der Liste bekommen ihren Titel aus den Texten 
   expect(transportKey({ type: 'custom', title: 'Shuttle ab Marseille' })).toBeNull();
   expect(transportKey({ type: 'car', title: 'Mit dem Mietwagen' })).toBeNull();
   expect(transportKey({ title: 'Hotels' })).toBeNull();
+});
+test('Restzeit mit Tagen, Stunden und Minuten in der Sprache der Seite', () => {
+  expect(formatTimeLeft({ days: 171, hours: 5, minutes: 12 }, 'de')).toBe('171 Tage, 5 Stunden und 12 Minuten');
+  expect(formatTimeLeft({ days: 1, hours: 1, minutes: 1 }, 'de')).toBe('1 Tag, 1 Stunde und 1 Minute');
+  expect(formatTimeLeft({ days: 2, hours: 0, minutes: 30 }, 'en')).toBe('2 days, 0 hours, 30 minutes');
+  expect(formatTimeLeft({ days: 3, hours: 4, minutes: 5 }, 'tr')).toMatch(/3 gün.*4 saat.*5 dakika/);
 });
