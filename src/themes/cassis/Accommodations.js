@@ -1,29 +1,22 @@
 // src/themes/cassis/Accommodations.js – Hotels wie die Seite eines kleinen Reiseführers:
 // großer Name, Bild und Angaben in zwei ruhigen Spalten, Haarlinien dazwischen.
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { optimizedUrl } from '../../lib/cloudinary';
 import STRINGS from './strings';
 import { OWN_TITLE } from './helpers';
-import { C, SERIF, G, DESK, HEADER, italic, textLink, Section, Inner, Full, Title, Lead } from './shared';
+import { C, SERIF, G, DESK, italic, textLink, Section, Inner, Full, Title, Lead } from './shared';
 
 // Kopf über die ganze Breite: Überschrift links, Begleitsatz rechts auf der Grundlinie.
-// Die Überschrift bleibt unter der Kopfzeile stehen, bis die Hotels darunter durchgelaufen sind;
-// die deckende Fläche gehört dazu, damit die Einträge sauber dahinter verschwinden.
-// Sehr niedrige Fenster (Handy quer) haben dafür keinen Platz – dort läuft alles normal mit.
-const STICK = '@media (min-height: 30.01rem)';
-const bar = css`position: sticky; top: calc(${HEADER} - 1px); z-index: 2; background: ${C.pearl};`;
 const Head = styled.div`
   display: contents;
-  h2 { padding: 0.75rem 0 0.5rem; margin-top: -0.75rem; ${STICK} { ${bar} } }
   h2:only-child { margin-bottom: clamp(2.5rem, 5vw, 5rem); }
   p { margin: 0.75rem 0 clamp(2.5rem, 5vw, 5rem); }
   ${DESK} {
     display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end;
-    padding: 1rem 0 clamp(1.25rem, 2vw, 2rem); margin: -1rem 0 clamp(1.25rem, 3vw, 3rem);
-    ${STICK} { ${bar} }
-    h2, h2:only-child { grid-column: 1 / 8; position: static; padding: 0; margin: 0; background: none; }
+    margin: 0 0 clamp(1.25rem, 3vw, 3rem);
+    h2, h2:only-child { grid-column: 1 / 8; margin: 0; }
     p { grid-column: 8 / 13; margin: 0 0 0.35em; max-width: none; }
   }
 `;
@@ -71,7 +64,7 @@ function Accommodations() {
       <Inner>
         <Full>
           <Head>
-            <Title>{a.title || t(STRINGS, 'hotelsTitle')}</Title>
+            <Title deco={t(STRINGS, 'decoHotels')}>{a.title || t(STRINGS, 'hotelsTitle')}</Title>
             {a.description && <Lead>{a.description}</Lead>}
           </Head>
           {hotels.length > 0 && (

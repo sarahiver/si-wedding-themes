@@ -35,9 +35,10 @@ export const HEADING = "'Cassis Script', 'Pinyon Script', 'Snell Roundhand', 'Ap
 export const SCRIPT = "'Cassis Hand', 'Mrs Saint Delafield', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
 
 const tones = {
-  shell: css`background:${C.shell};color:${C.ink};`,
-  pearl: css`background:${C.pearl};color:${C.ink};`,
-  mist: css`background:${C.mist};color:${C.ink};`,
+  // --deco: Schreibschrift-Wort im Hintergrund der Überschrift (nur wenig vom Grund abgesetzt), --title: Überschrift darauf
+  shell: css`background:${C.shell};color:${C.ink};--deco:${C.haze};--title:${C.ink};`,
+  pearl: css`background:${C.pearl};color:${C.ink};--deco:${C.haze};--title:${C.ink};`,
+  mist: css`background:${C.mist};color:${C.ink};--deco:rgba(63,66,79,0.3);--title:${C.white};`,
 };
 
 // Das zwölfspaltige Raster gilt ab 700 px Breite (Tablet hochkant) – und im Querformat schon ab 640 px:
@@ -63,6 +64,8 @@ export const italic = css`font-family: ${SERIF}; font-style: italic; font-weight
 export const Section = styled.section`
   ${(p) => tones[p.$tone || 'shell']}
   position: relative; z-index: 1; scroll-margin-top: calc(${HEADER} - 2px);
+  /* Das Schreibschrift-Wort der Überschrift darf über den Rand ragen, ohne die Seite zu verbreitern */
+  overflow-x: clip;
   padding: clamp(4rem, 8vw, 9rem) ${G};
   font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem; line-height: 1.65; font-variant-numeric: lining-nums;
   ${DESK} { font-size: clamp(1.0625rem, 1.2vw, 1.375rem); }
@@ -106,13 +109,37 @@ export function Inner({ children, ...rest }) {
 // Überschrift links: bleibt auf großen Flächen stehen, während der Inhalt rechts vorbeizieht
 export const Aside = styled.div`min-width: 0; margin-bottom: 2.5rem; ${DESK} { grid-column: 1 / 6; margin-bottom: 0; position: sticky; top: 6rem; }`;
 export const Body = styled.div`min-width: 0; ${DESK} { grid-column: 6 / 13; }`;
-export const Title = styled.h2`
-  margin: 0; font-family: ${HEADING}; font-weight: 400; font-size: clamp(3rem, 7.6vw, 8.5rem); line-height: 1.1; letter-spacing: 0;
-  overflow-wrap: anywhere; hyphens: auto;
+// Überschrift: ein kurzes Wort in Schreibschrift liegt groß und farblich zurückgenommen im Hintergrund,
+// der eigentliche Titel steht in der klaren Schrift darauf und überlappt es nur im unteren Teil.
+const TitleBox = styled.h2`
+  position: relative; margin: 0; font-weight: 400;
+  .deco {
+    display: block; font-family: ${HEADING}; font-size: clamp(5rem, 24vw, 7.5rem); line-height: 1; color: var(--deco, ${C.haze});
+    white-space: nowrap; margin-left: -0.08em; user-select: none; pointer-events: none;
+    /* Ab Tablet steht die Überschrift in einer Spalte: das Wort bleibt darin */
+    ${DESK} { font-size: clamp(4.5rem, 11vw, 10rem); }
+  }
+  .main {
+    position: relative; display: block; font-family: ${FONT}; font-size: clamp(2.25rem, 5vw, 5rem); line-height: 1.05; letter-spacing: 0.005em;
+    color: var(--title, ${C.ink}); overflow-wrap: anywhere; hyphens: auto;
+  }
+  .deco + .main { margin: -0.55em 0 0 clamp(1.5rem, 8vw, 7rem); ${DESK} { margin-top: -0.9em; } }
   /* Lange Wörter (z. B. „Trauzeug:innen") bekommen in schmalen Spalten eine kleinere Stufe */
-  ${(p) => p.$small && css`font-size: clamp(2.5rem, 4.6vw, 5rem); line-height: 1.15;`}
+  ${(p) => p.$small && css`.main { font-size: clamp(2rem, 3.6vw, 3.75rem); } .deco + .main { margin-left: clamp(1rem, 4vw, 3rem); }`}
 `;
-export const Lead = styled.p`margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; ${italic} color: ${(p) => (p.$onMist ? C.ink : C.inkSoft)}; ${DESK} { max-width: 20em; }`;
+export function Title({ deco, children, ...rest }) {
+  return (
+    <TitleBox {...rest}>
+      {deco && <span className="deco" aria-hidden="true">{deco}</span>}
+      <span className="main">{children}</span>
+    </TitleBox>
+  );
+}
+export const Lead = styled.p`
+  margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; font-family: ${FONT}; font-weight: 400; font-size: 1.25rem; line-height: 1.5;
+  color: ${(p) => (p.$onMist ? 'var(--title, ' + C.ink + ')' : C.inkSoft)};
+  ${DESK} { max-width: 20em; font-size: clamp(1.25rem, 1.5vw, 1.5rem); }
+`;
 // Über die ganze Breite des Rasters
 export const Full = styled.div`min-width: 0; ${DESK} { grid-column: 1 / -1; }`;
 // Textaktion: Verweis als unterstrichener Text, kein Knopf

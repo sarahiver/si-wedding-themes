@@ -58,7 +58,7 @@ function Timeline() {
       {events.length > 0 && (
         <Section id="timeline" $tone="pearl">
           <Inner>
-            <Aside><Title>{tl.title || t(STRINGS, 'schedule')}</Title></Aside>
+            <Aside><Title deco={t(STRINGS, 'decoTimeline')}>{tl.title || t(STRINGS, 'schedule')}</Title></Aside>
             <Body>
               <List ref={listRef}>
                 {events.map((e, i) => (

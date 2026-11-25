@@ -99,7 +99,7 @@ export function RsvpHead() {
   const deadline = c.deadline ? formatWeddingDate(c.deadline, lang) : '';
   return (
     <>
-      <Title>{c.title || t(STRINGS, 'navRsvp')}</Title>
+      <Title deco={t(STRINGS, 'decoRsvp')}>{c.title || t(STRINGS, 'navRsvp')}</Title>
       {c.description && <Lead $onMist>{c.description}</Lead>}
       {deadline && <Lead $onMist>{t(STRINGS, 'rsvpDeadline', { date: deadline })}</Lead>}
     </>

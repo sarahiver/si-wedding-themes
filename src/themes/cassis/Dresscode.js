@@ -44,7 +44,7 @@ function Dresscode() {
       <Inner>
         <Full>
           <Page>
-            <Title>{d.title || t(STRINGS, 'dresscodeTitle')}</Title>
+            <Title deco={t(STRINGS, 'decoDresscode')}>{d.title || t(STRINGS, 'dresscodeTitle')}</Title>
             {d.code && <Code>{d.code}</Code>}
             {d.description && <Copy>{d.description}</Copy>}
             {colors.length > 0 && (

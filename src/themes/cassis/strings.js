@@ -7,6 +7,9 @@ const STRINGS = {
     navHotels: 'Hotels', hotelsTitle: 'Where to stay', book: 'Book', bookingCode: 'Booking code', navDresscode: 'Dress code', dresscodeTitle: 'Dress code', dos: 'Welcome', donts: 'Please avoid',
     language: 'Language', menu: 'Menu', closeMenu: 'Close menu', navTimeline: 'Schedule', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Getting there', navFaq: 'FAQ', navWitnesses: 'Witnesses', weMarry: 'We are getting married', route: 'Directions', calendar: 'Save to calendar',
     countdownTitle: 'Save the date', daysLeft: 'days to go', dayLeft: 'day to go', today: 'Today is the day', past: 'We said yes',
+    hours: 'hours', minutes: 'minutes',
+    // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
+    decoTimeline: 'The day', decoDirections: 'On the way', decoRsvp: 'Reply', decoHotels: 'Stay', decoDresscode: 'Style', decoWitnesses: 'Contact', decoFaq: 'Questions',
     hours: 'hours', minutes: 'minutes', timeLeft: '{time} to go',
     schedule: 'Schedule', directions: 'Getting there', witnesses: 'Your contacts', faq: 'Questions & answers',
     rsvpTitle: 'Will you join us?', rsvpDeadline: 'Please reply by {date}.',
@@ -28,6 +31,9 @@ const STRINGS = {
     navHotels: 'Hotels', hotelsTitle: 'Übernachten', book: 'Buchen', bookingCode: 'Buchungscode', navDresscode: 'Dresscode', dresscodeTitle: 'Dresscode', dos: 'Gern gesehen', donts: 'Bitte nicht',
     language: 'Sprache', menu: 'Menü', closeMenu: 'Menü schließen', navTimeline: 'Ablauf', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Anfahrt', navFaq: 'FAQ', navWitnesses: 'Trauzeug:innen', weMarry: 'Wir heiraten', route: 'Route', calendar: 'Im Kalender speichern',
     countdownTitle: 'Save the Date', daysLeft: 'Tage', dayLeft: 'Tag', today: 'Heute ist es so weit', past: 'Wir haben Ja gesagt',
+    hours: 'Stunden', minutes: 'Minuten',
+    // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
+    decoTimeline: 'Der Tag', decoDirections: 'Unterwegs', decoRsvp: 'Zusage', decoHotels: 'Schlafen', decoDresscode: 'Stil', decoWitnesses: 'Kontakt', decoFaq: 'Fragen',
     hours: 'Stunden', minutes: 'Minuten', timeLeft: 'Noch {time}',
     schedule: 'Ablauf', directions: 'Anfahrt', witnesses: 'Eure Ansprechpersonen', faq: 'Fragen & Antworten',
     rsvpTitle: 'Seid ihr dabei?', rsvpDeadline: 'Bitte antwortet bis zum {date}.',
@@ -49,6 +55,9 @@ const STRINGS = {
     navHotels: 'Hôtels', hotelsTitle: 'Hébergement', book: 'Réserver', bookingCode: 'Code de réservation', navDresscode: 'Tenue', dresscodeTitle: 'Tenue', dos: 'Bienvenu', donts: 'À éviter',
     language: 'Langue', menu: 'Menu', closeMenu: 'Fermer le menu', navTimeline: 'Programme', navCountdown: 'Compte à rebours', navRsvp: 'RSVP', navDirections: 'Accès', navFaq: 'FAQ', navWitnesses: 'Témoins', weMarry: 'Nous nous marions', route: 'Itinéraire', calendar: 'Ajouter au calendrier',
     countdownTitle: 'Réservez la date', daysLeft: 'jours', dayLeft: 'jour', today: 'C’est aujourd’hui', past: 'Nous nous sommes dit oui',
+    hours: 'heures', minutes: 'minutes',
+    // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
+    decoTimeline: 'Le jour', decoDirections: 'En route', decoRsvp: 'Réponse', decoHotels: 'Dormir', decoDresscode: 'Style', decoWitnesses: 'Contact', decoFaq: 'Questions',
     hours: 'heures', minutes: 'minutes', timeLeft: 'Encore {time}',
     schedule: 'Programme', directions: 'Accès', witnesses: 'Vos contacts', faq: 'Questions & réponses',
     rsvpTitle: 'Serez-vous des nôtres ?', rsvpDeadline: 'Merci de répondre avant le {date}.',
@@ -70,6 +79,9 @@ const STRINGS = {
     navHotels: 'Oteller', hotelsTitle: 'Konaklama', book: 'Rezervasyon', bookingCode: 'Rezervasyon kodu', navDresscode: 'Kıyafet', dresscodeTitle: 'Kıyafet', dos: 'Uygun', donts: 'Lütfen kaçının',
     language: 'Dil', menu: 'Menü', closeMenu: 'Menüyü kapat', navTimeline: 'Program', navCountdown: 'Geri sayım', navRsvp: 'LCV', navDirections: 'Ulaşım', navFaq: 'SSS', navWitnesses: 'Şahitler', weMarry: 'Evleniyoruz', route: 'Yol tarifi', calendar: 'Takvime ekle',
     countdownTitle: 'Tarihi not edin', daysLeft: 'gün kaldı', dayLeft: 'gün kaldı', today: 'Bugün büyük gün', past: 'Evet dedik',
+    hours: 'saat', minutes: 'dakika',
+    // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
+    decoTimeline: 'O gün', decoDirections: 'Yolda', decoRsvp: 'Yanıt', decoHotels: 'Konaklama', decoDresscode: 'Stil', decoWitnesses: 'İletişim', decoFaq: 'Sorular',
     hours: 'saat', minutes: 'dakika', timeLeft: '{time} kaldı',
     schedule: 'Program', directions: 'Ulaşım', witnesses: 'İletişim kişileri', faq: 'Sorular ve yanıtlar',
     rsvpTitle: 'Bizimle misiniz?', rsvpDeadline: 'Lütfen {date} tarihine kadar yanıtlayın.',
