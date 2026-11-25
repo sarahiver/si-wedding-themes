@@ -14,6 +14,8 @@ const Venue = styled.div`
   position: relative; z-index: 1; background: ${C.mist}; color: ${C.ink}; padding: 0 ${G} 4rem;
   font-family: ${FONT}; font-weight: 400; font-size: 1.0625rem; line-height: 1.65; font-variant-numeric: lining-nums;
   box-shadow: 0 -30px 60px -40px rgba(51,53,63,0.5);
+  /* Das Schreibschrift-Wort der Überschrift darf über den Rand ragen, ohne die Seite zu verbreitern */
+  overflow-x: clip;
   display: flex; flex-direction: column;
   ${DESK} {
     display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto 1fr; column-gap: ${G};

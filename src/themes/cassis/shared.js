@@ -21,15 +21,16 @@ export const C = {
   lineMist: 'rgba(51,53,63,0.34)', // Haarlinie auf Blaugrau
 };
 // Schriftrollen (freie Entsprechungen der Schriften aus der Einladung):
-// 1. SCRIPT (Mrs Saint Delafield, statt Amsterdam Handwriting): die Namen, solange keine Grafik
-//    des Schriftzugs hochgeladen ist.
-// 2. HEADING (Pinyon Script, statt Edwardian Script ITC): Bereichsüberschriften und die Frage der Antwortkarte.
+// 1. SCRIPT (Mrs Saint Delafield, statt Amsterdam Handwriting): das große Wort hinter den Bereichsüberschriften
+//    und die Namen, solange keine Grafik des Schriftzugs hochgeladen ist.
+// 2. HEADING (Pinyon Script, statt Edwardian Script ITC): kurze Sätze in Schreibschrift, z. B. die Frage der Antwortkarte.
 // 3. SERIF (Cormorant Garamond): Uhrzeiten, Zahlen, Zwischenüberschriften, Eingaben der Antwortkarte;
 //    kursiv für kurze Begleitsätze – Schreibschrift wäre hier schwer lesbar.
-// 4. FONT (Cabin, statt Humanst521 Lt BT): Fließtext, Navigation, Knöpfe, Beschriftungen, Hinweise.
+// 4. FONT (Lato, statt Humanst521 Lt BT): Fließtext, Navigation, Knöpfe, Beschriftungen, Hinweise;
+//    Titel und Begleitsätze im hellen Schnitt (300) wie im Entwurf.
 // Eigene Familiennamen: So greift sicher die Datei aus dem Projekt und nicht eine
 // gleichnamige Schrift, die die gemeinsame Startseite aller Themes von Google lädt.
-export const FONT = "'Cassis Sans', 'Cabin', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
+export const FONT = "'Cassis Sans', 'Lato', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
 export const SERIF = "'Cassis Serif', 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif";
 export const HEADING = "'Cassis Script', 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive";
 export const SCRIPT = "'Cassis Hand', 'Mrs Saint Delafield', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
@@ -109,36 +110,38 @@ export function Inner({ children, ...rest }) {
 // Überschrift links: bleibt auf großen Flächen stehen, während der Inhalt rechts vorbeizieht
 export const Aside = styled.div`min-width: 0; margin-bottom: 2.5rem; ${DESK} { grid-column: 1 / 6; margin-bottom: 0; position: sticky; top: 6rem; }`;
 export const Body = styled.div`min-width: 0; ${DESK} { grid-column: 6 / 13; }`;
-// Überschrift: ein kurzes Wort in Schreibschrift liegt groß und farblich zurückgenommen im Hintergrund,
-// der eigentliche Titel steht in der klaren Schrift darauf und überlappt es nur im unteren Teil.
+// Überschrift wie im Entwurf: ein kurzes Wort in Schreibschrift steht sehr groß und farblich zurückgenommen
+// im Hintergrund, der Titel in der klaren Schrift liegt deutlich darüber und überdeckt die untere Hälfte.
+// Die Größe richtet sich nach der Wortlänge (--len): Das Wort füllt etwa die Breite seiner Spalte
+// (Handy: ganze Breite, ab Tablet: knapp die Hälfte) – kurze Wörter werden dadurch sehr groß.
 const TitleBox = styled.h2`
-  position: relative; margin: 0; font-weight: 400;
+  position: relative; margin: 0; font-weight: 300;
   .deco {
-    display: block; font-family: ${HEADING}; font-size: clamp(5rem, 24vw, 7.5rem); line-height: 1; color: var(--deco, ${C.haze});
-    white-space: nowrap; margin-left: -0.08em; user-select: none; pointer-events: none;
-    /* Ab Tablet steht die Überschrift in einer Spalte: das Wort bleibt darin */
-    ${DESK} { font-size: clamp(4.5rem, 11vw, 10rem); }
+    display: block; font-family: ${SCRIPT}; font-weight: 400; line-height: 0.9; letter-spacing: 0.04em;
+    color: var(--deco, ${C.haze}); white-space: nowrap; margin: 0 0 -0.55em -0.04em; user-select: none; pointer-events: none;
+    font-size: clamp(5.5rem, calc(88vw / (var(--len, 6) * 0.4)), 13rem);
+    ${DESK} { font-size: clamp(6rem, calc(38vw / (var(--len, 6) * 0.4)), 17rem); }
   }
   .main {
-    position: relative; display: block; font-family: ${FONT}; font-size: clamp(2.25rem, 5vw, 5rem); line-height: 1.05; letter-spacing: 0.005em;
+    position: relative; display: block; font-family: ${FONT}; font-weight: 300; font-size: clamp(2.5rem, 6vw, 5.75rem); line-height: 1.02;
     color: var(--title, ${C.ink}); overflow-wrap: anywhere; hyphens: auto;
   }
-  .deco + .main { margin: -0.55em 0 0 clamp(1.5rem, 8vw, 7rem); ${DESK} { margin-top: -0.9em; } }
+  .deco + .main { margin-left: clamp(1.5rem, 16%, 9rem); }
   /* Lange Wörter (z. B. „Trauzeug:innen") bekommen in schmalen Spalten eine kleinere Stufe */
-  ${(p) => p.$small && css`.main { font-size: clamp(2rem, 3.6vw, 3.75rem); } .deco + .main { margin-left: clamp(1rem, 4vw, 3rem); }`}
+  ${(p) => p.$small && css`.main { font-size: clamp(2.25rem, 4vw, 4.25rem); } .deco + .main { margin-left: clamp(1rem, 8%, 4rem); }`}
 `;
 export function Title({ deco, children, ...rest }) {
   return (
-    <TitleBox {...rest}>
+    <TitleBox {...rest} style={deco ? { '--len': Math.max(4, String(deco).length) } : undefined}>
       {deco && <span className="deco" aria-hidden="true">{deco}</span>}
       <span className="main">{children}</span>
     </TitleBox>
   );
 }
 export const Lead = styled.p`
-  margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; font-family: ${FONT}; font-weight: 400; font-size: 1.25rem; line-height: 1.5;
+  margin: 1.25rem 0 0; white-space: pre-line; overflow-wrap: anywhere; font-family: ${FONT}; font-weight: 300; font-size: 1.375rem; line-height: 1.45;
   color: ${(p) => (p.$onMist ? 'var(--title, ' + C.ink + ')' : C.inkSoft)};
-  ${DESK} { max-width: 20em; font-size: clamp(1.25rem, 1.5vw, 1.5rem); }
+  ${DESK} { max-width: 20em; font-size: clamp(1.375rem, 1.7vw, 1.75rem); }
 `;
 // Über die ganze Breite des Rasters
 export const Full = styled.div`min-width: 0; ${DESK} { grid-column: 1 / -1; }`;
