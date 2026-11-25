@@ -1,5 +1,4 @@
-import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, formatTimeLeft } from '../helpers';
-import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, heroTone } from '../helpers';
+import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, formatTimeLeft, heroTone } from '../helpers';
 
 const all = () => true;
 test('Standardreihenfolge: Antwortkarte folgt der Anfahrt, Fragen folgen den Trauzeug:innen', () => {
@@ -57,6 +56,7 @@ test('Restzeit: Stunden, Minuten und Sekunden in der Sprache der Seite; Tage nur
   expect(formatTimeLeft({ days: 2, hours: 0, minutes: 30, seconds: 0 }, 'en')).toBe('0 hours, 30 minutes, 0 seconds');
   expect(formatTimeLeft({ days: 3, hours: 4, minutes: 5, seconds: 6 }, 'tr')).toMatch(/4 saat.*5 dakika.*6 saniye/);
   expect(formatTimeLeft({ days: 171, hours: 5, minutes: 12 }, 'de', ['days', 'hours', 'minutes'])).toBe('171 Tage, 5 Stunden und 12 Minuten');
+});
 test('Farbe des Schriftzugs: schwarz nur bei ausdrücklicher Wahl, sonst weiß', () => {
   expect(heroTone({ logo_color: 'black' })).toBe('dark');
   expect(heroTone({ logo_color: 'white' })).toBe('light');

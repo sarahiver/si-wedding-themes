@@ -36,10 +36,10 @@ export const HEADING = "'Cassis Script', 'Pinyon Script', 'Snell Roundhand', 'Ap
 export const SCRIPT = "'Cassis Hand', 'Mrs Saint Delafield', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
 
 const tones = {
-  // --deco: Schreibschrift-Wort im Hintergrund der Überschrift (nur wenig vom Grund abgesetzt), --title: Überschrift darauf
-  shell: css`background:${C.shell};color:${C.ink};--deco:${C.haze};--title:${C.ink};`,
-  pearl: css`background:${C.pearl};color:${C.ink};--deco:${C.haze};--title:${C.ink};`,
-  mist: css`background:${C.mist};color:${C.ink};--deco:rgba(63,66,79,0.3);--title:${C.white};`,
+  // --deco: Schreibschrift-Wort im Hintergrund der Überschrift (nur zart vom Grund abgesetzt), --title: Überschrift darauf
+  shell: css`background:${C.shell};color:${C.ink};--deco:#E2E0E5;--title:${C.ink};`,
+  pearl: css`background:${C.pearl};color:${C.ink};--deco:#E2E0E5;--title:${C.ink};`,
+  mist: css`background:${C.mist};color:${C.ink};--deco:rgba(63,66,79,0.15);--title:${C.white};`,
 };
 
 // Das zwölfspaltige Raster gilt ab 700 px Breite (Tablet hochkant) – und im Querformat schon ab 640 px:
@@ -126,9 +126,14 @@ const TitleBox = styled.h2`
     position: relative; display: block; font-family: ${FONT}; font-weight: 300; font-size: clamp(2.5rem, 6vw, 5.75rem); line-height: 1.02;
     color: var(--title, ${C.ink}); overflow-wrap: anywhere; hyphens: auto;
   }
-  .deco + .main { margin-left: clamp(1.5rem, 16%, 9rem); }
+  /* Der Titel beginnt etwa in der Mitte des Worts, nicht an seinem Anfang */
+  .deco + .main { margin-left: clamp(1.5rem, 18%, 9rem); ${DESK} { margin-left: clamp(4rem, 30%, 15rem); } }
   /* Lange Wörter (z. B. „Trauzeug:innen") bekommen in schmalen Spalten eine kleinere Stufe */
-  ${(p) => p.$small && css`.main { font-size: clamp(2.25rem, 4vw, 4.25rem); } .deco + .main { margin-left: clamp(1rem, 8%, 4rem); }`}
+  ${(p) => p.$small && css`
+    .main { font-size: clamp(2.25rem, 4vw, 4.25rem); }
+    .deco + .main { margin-left: clamp(1rem, 8%, 4rem); ${DESK} { margin-left: clamp(2rem, 16%, 7rem); } }
+    ${DESK} { .main { font-size: clamp(2.25rem, 3.5vw, 3.75rem); } }
+  `}
 `;
 export function Title({ deco, children, ...rest }) {
   return (
