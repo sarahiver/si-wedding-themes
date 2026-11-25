@@ -5,7 +5,7 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
-import { C, FONT, SERIF, Section, DESK, G, italic, reveal, useReveal } from './shared';
+import { C, FONT, SERIF, Section, Button, DESK, G, italic, reveal, useReveal } from './shared';
 import { formatTimeLeft, OWN_TITLE } from './helpers';
 
 // Die Zahl der Tage steht als große, helle Fläche; das Kalenderblatt liegt darauf.
@@ -31,12 +31,8 @@ const Label = styled.div`
   .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   ${DESK} { grid-column: 1 / 6; grid-row: 2; margin: 2.25rem 0 0; }
 `;
-const Save = styled.button`
-  display: inline-flex; align-items: center; min-height: 2.75rem; margin-top: 0.5rem; padding: 0; border: 0; background: none; cursor: pointer;
-  color: ${C.ink}; font-family: ${FONT}; font-size: 1rem; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.3em;
-  &:hover { text-decoration-thickness: 2px; }
-  &:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 3px; }
-`;
+// Gleicher Kasten wie „Antwort senden"
+const Save = styled(Button)`margin-top: 1.25rem;`;
 const Sheet = styled.div`
   position: relative; z-index: 2; min-width: 0; background: ${C.pearl}; padding: 1.5rem 1.25rem; margin: 0 calc(${G} * -1 + 0.75rem) -1rem ${G};
   box-shadow: 0 30px 60px -30px rgba(63,66,79,0.35);
@@ -116,7 +112,7 @@ function Countdown() {
           {spoken
             ? <p className="count"><span aria-hidden="true">{line}</span><span className="sr">{spoken}</span></p>
             : <p className="count" aria-live="polite">{line}</p>}
-          {!(left && left.past) && <Save type="button" onClick={saveToCalendar}>{t(STRINGS, 'calendar')}</Save>}
+          {!(left && left.past) && <Save as="button" type="button" $solid onClick={saveToCalendar}>{t(STRINGS, 'calendar')}</Save>}
         </Label>
         <Sheet ref={sheetRef}>
           <Month>{monthLabel}</Month>

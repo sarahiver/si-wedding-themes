@@ -89,7 +89,7 @@ const Check = styled.label`
   input[aria-invalid='true'] { outline: 2px solid ${ERR}; outline-offset: 2px; }
 `;
 const Err = styled.p`margin: 0; padding: 0.9rem 1.1rem; background: ${C.shell}; color: ${ERR}; font-size: 1.0625rem; line-height: 1.45; border-left: 3px solid ${ERR};`;
-const Send = styled.div`text-align: center; button { min-width: min(14rem, 100%); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; }`;
+const Send = styled.div`text-align: center;`;
 const Done = styled.p`margin: 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(1.75rem, 2.6vw, 2.75rem); line-height: 1.25;`;
 
 // Überschrift des Bereichs: steht neben der Karte (oder, mit der Anfahrt zusammen, über dem Château)

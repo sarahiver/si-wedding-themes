@@ -22,12 +22,13 @@ const Venue = styled.div`
     padding-bottom: clamp(5rem, 9vw, 9rem); font-size: clamp(1.0625rem, 1.2vw, 1.375rem);
   }
 `;
-// Bleibt unter der Kopfzeile stehen, solange die Fläche durchläuft
+// Bleibt unter der Kopfzeile stehen, solange die Fläche durchläuft. Die Zeichnung sitzt am linken Seitenrand
+// (über den Seitenabstand hinaus) und lässt so der Anfahrt und der Antwortkarte mehr Luft.
 const Stand = styled.div`
-  order: 2; position: sticky; top: ${HEADER}; padding: 1.5rem 0; display: flex; justify-content: center;
-  img { display: block; width: 88%; max-height: 52vh; max-height: 52svh; object-fit: contain; opacity: 0.55; }
+  order: 2; position: sticky; top: ${HEADER}; padding: 1.5rem 0; margin-left: calc(${G} * -1); display: flex; justify-content: flex-start;
+  img { display: block; width: 88%; max-height: 52vh; max-height: 52svh; object-fit: contain; object-position: left center; opacity: 0.55; }
   ${DESK} {
-    grid-column: 1 / 7; grid-row: 1 / 4; align-self: start; height: calc(100vh - ${HEADER}); box-sizing: border-box; padding: 0 0 5vh; align-items: flex-end; justify-content: flex-start;
+    grid-column: 1 / 7; grid-row: 1 / 4; margin-left: calc(${G} * -1); align-self: start; height: calc(100vh - ${HEADER}); box-sizing: border-box; padding: 0 0 5vh; align-items: flex-end; justify-content: flex-start;
     /* Über der Illustration bleibt Platz für die stehende Überschrift der Antwort */
     img { width: 100%; max-height: min(54vh, calc(100vh - 21rem - 5vh)); object-position: left bottom; }
     ${LOW} { img { max-height: 54vh; } }
@@ -100,7 +101,7 @@ function Directions() {
         <Title deco={t(STRINGS, 'decoDirections')}>{d.title || t(STRINGS, 'directions')}</Title>
         {d.address && <Place>{[project?.location, d.address].filter(Boolean).join('\n')}</Place>}
         {d.description && <Note>{d.description}</Note>}
-        {url && <Actions><Button href={url} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'route')}</Button></Actions>}
+        {url && <Actions><Button href={url} target="_blank" rel="noopener noreferrer" $solid>{t(STRINGS, 'route')}</Button></Actions>}
         {items.length > 0 && (
           <Options>
             {items.map((x, i) => (<div key={i}><Term>{x.title}</Term><Desc>{x.description}</Desc></div>))}
