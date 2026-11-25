@@ -111,14 +111,14 @@ export function Inner({ children, ...rest }) {
 export const Aside = styled.div`min-width: 0; margin-bottom: 2.5rem; ${DESK} { grid-column: 1 / 6; margin-bottom: 0; position: sticky; top: 6rem; }`;
 export const Body = styled.div`min-width: 0; ${DESK} { grid-column: 6 / 13; }`;
 // Überschrift wie im Entwurf: ein kurzes Wort in Schreibschrift steht sehr groß und farblich zurückgenommen
-// im Hintergrund, der Titel in der klaren Schrift liegt deutlich darüber und überdeckt die untere Hälfte.
+// im Hintergrund, der Titel in der klaren Schrift sitzt darunter und berührt nur die Unterlängen.
 // Die Größe richtet sich nach der Wortlänge (--len): Das Wort füllt etwa die Breite seiner Spalte
 // (Handy: ganze Breite, ab Tablet: knapp die Hälfte) – kurze Wörter werden dadurch sehr groß.
 const TitleBox = styled.h2`
   position: relative; margin: 0; font-weight: 300;
   .deco {
     display: block; font-family: ${SCRIPT}; font-weight: 400; line-height: 0.9; letter-spacing: 0.04em;
-    color: var(--deco, ${C.haze}); white-space: nowrap; margin: 0 0 -0.55em -0.04em; user-select: none; pointer-events: none;
+    color: var(--deco, ${C.haze}); white-space: nowrap; margin: 0 0 -0.3em -0.04em; user-select: none; pointer-events: none;
     font-size: clamp(5.5rem, calc(88vw / (var(--len, 6) * 0.4)), 13rem);
     ${DESK} { font-size: clamp(6rem, calc(38vw / (var(--len, 6) * 0.4)), 17rem); }
   }
