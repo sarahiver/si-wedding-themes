@@ -9,6 +9,16 @@ export function formatWeddingDate(iso, lang) {
     .format(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)));
 }
 
+/**
+ * Restzeit als lesbarer Text, z. B. „15 Stunden, 51 Minuten und 12 Sekunden" – Einheiten und Mehrzahl
+ * in der Sprache der Seite. units: welche Teile von remaining() erscheinen (Standard: Stunden, Minuten, Sekunden).
+ */
+const UNIT = { days: 'day', hours: 'hour', minutes: 'minute', seconds: 'second' };
+export function formatTimeLeft(left, lang, units = ['hours', 'minutes', 'seconds']) {
+  const loc = LOCALES[lang] || LOCALES.en;
+  const parts = units.map((u) => new Intl.NumberFormat(loc, { style: 'unit', unit: UNIT[u], unitDisplay: 'long' }).format(left[u] || 0));
+  return Intl.ListFormat ? new Intl.ListFormat(loc, { style: 'long', type: 'unit' }).format(parts) : parts.join(', ');
+}
 /** Farbe des Schriftzugs auf dem Startfoto: im Dashboard je Projekt gewählt, ohne Wahl weiß. */
 export const heroTone = (hero) => (hero?.logo_color === 'black' ? 'dark' : 'light');
 

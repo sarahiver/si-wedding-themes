@@ -1,3 +1,4 @@
+import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, formatTimeLeft } from '../helpers';
 import { follows, previous, closingTone, transportKey, DEFAULT_ORDER, formatWeddingDay, heroTone } from '../helpers';
 
 const all = () => true;
@@ -50,6 +51,12 @@ test('Anfahrt: Verkehrsmittel aus der Liste bekommen ihren Titel aus den Texten 
   expect(transportKey({ type: 'car', title: 'Mit dem Mietwagen' })).toBeNull();
   expect(transportKey({ title: 'Hotels' })).toBeNull();
 });
+test('Restzeit: Stunden, Minuten und Sekunden in der Sprache der Seite; Tage nur auf Wunsch', () => {
+  expect(formatTimeLeft({ days: 171, hours: 15, minutes: 51, seconds: 12 }, 'de')).toBe('15 Stunden, 51 Minuten und 12 Sekunden');
+  expect(formatTimeLeft({ days: 1, hours: 1, minutes: 1, seconds: 1 }, 'de')).toBe('1 Stunde, 1 Minute und 1 Sekunde');
+  expect(formatTimeLeft({ days: 2, hours: 0, minutes: 30, seconds: 0 }, 'en')).toBe('0 hours, 30 minutes, 0 seconds');
+  expect(formatTimeLeft({ days: 3, hours: 4, minutes: 5, seconds: 6 }, 'tr')).toMatch(/4 saat.*5 dakika.*6 saniye/);
+  expect(formatTimeLeft({ days: 171, hours: 5, minutes: 12 }, 'de', ['days', 'hours', 'minutes'])).toBe('171 Tage, 5 Stunden und 12 Minuten');
 test('Farbe des Schriftzugs: schwarz nur bei ausdrücklicher Wahl, sonst weiß', () => {
   expect(heroTone({ logo_color: 'black' })).toBe('dark');
   expect(heroTone({ logo_color: 'white' })).toBe('light');
