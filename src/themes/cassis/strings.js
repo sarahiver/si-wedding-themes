@@ -10,6 +10,7 @@ const STRINGS = {
     hours: 'hours', minutes: 'minutes',
     // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
     decoTimeline: 'The day', decoDirections: 'On the way', decoRsvp: 'Reply', decoHotels: 'Stay', decoDresscode: 'Style', decoWitnesses: 'Contact', decoFaq: 'Questions',
+    hours: 'hours', minutes: 'minutes', timeLeft: '{time} to go',
     schedule: 'Schedule', directions: 'Getting there', witnesses: 'Your contacts', faq: 'Questions & answers',
     rsvpTitle: 'Will you join us?', rsvpDeadline: 'Please reply by {date}.',
     yourName: 'Your name', email: 'Email', yes: 'Yes, with pleasure!', no: 'No, with regret',
@@ -33,6 +34,7 @@ const STRINGS = {
     hours: 'Stunden', minutes: 'Minuten',
     // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
     decoTimeline: 'Der Tag', decoDirections: 'Unterwegs', decoRsvp: 'Zusage', decoHotels: 'Schlafen', decoDresscode: 'Stil', decoWitnesses: 'Kontakt', decoFaq: 'Fragen',
+    hours: 'Stunden', minutes: 'Minuten', timeLeft: 'Noch {time}',
     schedule: 'Ablauf', directions: 'Anfahrt', witnesses: 'Eure Ansprechpersonen', faq: 'Fragen & Antworten',
     rsvpTitle: 'Seid ihr dabei?', rsvpDeadline: 'Bitte antwortet bis zum {date}.',
     yourName: 'Euer Name', email: 'E-Mail', yes: 'Ja, sehr gern!', no: 'Leider nein',
@@ -56,6 +58,7 @@ const STRINGS = {
     hours: 'heures', minutes: 'minutes',
     // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
     decoTimeline: 'Le jour', decoDirections: 'En route', decoRsvp: 'Réponse', decoHotels: 'Dormir', decoDresscode: 'Style', decoWitnesses: 'Contact', decoFaq: 'Questions',
+    hours: 'heures', minutes: 'minutes', timeLeft: 'Encore {time}',
     schedule: 'Programme', directions: 'Accès', witnesses: 'Vos contacts', faq: 'Questions & réponses',
     rsvpTitle: 'Serez-vous des nôtres ?', rsvpDeadline: 'Merci de répondre avant le {date}.',
     yourName: 'Votre nom', email: 'E-mail', yes: 'Oui, avec plaisir !', no: 'Non, avec regret',
@@ -79,6 +82,7 @@ const STRINGS = {
     hours: 'saat', minutes: 'dakika',
     // Kurzes Wort in Schreibschrift hinter der Überschrift des Bereichs
     decoTimeline: 'O gün', decoDirections: 'Yolda', decoRsvp: 'Yanıt', decoHotels: 'Konaklama', decoDresscode: 'Stil', decoWitnesses: 'İletişim', decoFaq: 'Sorular',
+    hours: 'saat', minutes: 'dakika', timeLeft: '{time} kaldı',
     schedule: 'Program', directions: 'Ulaşım', witnesses: 'İletişim kişileri', faq: 'Sorular ve yanıtlar',
     rsvpTitle: 'Bizimle misiniz?', rsvpDeadline: 'Lütfen {date} tarihine kadar yanıtlayın.',
     yourName: 'Adınız', email: 'E-posta', yes: 'Evet, memnuniyetle!', no: 'Maalesef hayır',

@@ -272,6 +272,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
   { const { ctx, page } = await open(browser);
     const t = await page.locator('#countdown').innerText();
     ok('Countdown: Kalenderblatt Mai 2027, 180 Tage (Gerät in New York, Ziel in Paris)', /Mai 2027/.test(t) && /\b180\b/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
+    ok('Countdown: darunter Stunden, Minuten und Sekunden, ohne zusätzliche Datumszeile', /\d+ Stunden?, \d+ Minuten? und \d+ Sekunden?/.test(t) && !/15\. Mai 2027/.test(t), t.replace(/\s+/g, ' ').slice(0, 160));
     const marked = await page.locator('#countdown [data-wedding-day]').allTextContents();
     ok('Countdown: genau der 15. ist markiert', marked.join(',').trim() === '15', marked.join(','));
     const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('button, a').filter({ hasText: 'Im Kalender speichern' }).first().click()]);
@@ -476,14 +477,13 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik', /Schriftzug/i.test(await page.locator('main').innerText()));
     await page.locator('aside button').filter({ hasText: /Countdown/ }).first().click(); await page.waitForTimeout(800);
     ok('Dashboard Cassis: Countdown-Editor bietet die Endzeit', /Ende – Uhrzeit/i.test(await page.locator('main').innerText()));
-    await page.locator('aside button').filter({ hasText: /RSVP/ }).first().click(); await page.locator('[data-testid="rsvp-extras"]').waitFor({ timeout: 8000 });
-    const ex = await page.locator('[data-testid="rsvp-extras"]').innerText();
-    ok('Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter', /Kinder/.test(ex) && /5 Jahre/.test(ex) && /0 Jahre/.test(ex) && /Türkisch 1/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 200));
-    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('[data-testid="rsvp-extras"] button').click()]);
+    await page.locator('aside button').filter({ hasText: /RSVP/ }).first().click(); await page.locator('main button').filter({ hasText: /CSV Export/ }).first().waitFor({ timeout: 8000 });
+    ok('Dashboard Cassis: keine Zusatzübersicht für Kinder mehr', await page.locator('[data-testid="rsvp-extras"]').count() === 0);
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('main button').filter({ hasText: /CSV Export/ }).first().click()]);
     const csv = fs.readFileSync(await dl.path(), 'utf8');
-    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";"ja";"5";"";"";"";"Türkisch"/.test(csv), csv.split('\n').slice(0, 4).join(' / '));
-    ok('Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person', /"Ernährung";"Hinweis zur Ernährung";"Allergien und Unverträglichkeiten"/.test(csv) && /"Eli";"nein";"";"Sonstiges";"kein Fisch";"Nüsse, Laktose";"Deutsch"/.test(csv) && /"Fee";"ja";"4";"Vegetarisch"/.test(csv), (csv.split('\n').find((l) => /Eli/.test(l)) || '').slice(0, 160));
-    ok('Dashboard Cassis: Übersicht zählt Ernährungsweisen und Allergie-Angaben', /Vegan/.test(ex) && /Vegetarisch/.test(ex) && /mit Allergie-Angabe/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 260));
+    ok('Dashboard Cassis: Export enthält alle Spalten', /"Name";"Anmeldung";"E-Mail";"Personen";"Status";"Kind";"Alter";"Ernährung";"Hinweis zur Ernährung";"Allergien";"Custom Antwort";"Nachricht";"Sprache";"Datum"/.test(csv), csv.split('\n')[0]);
+    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";[^\n]*;"ja";"5";[^\n]*"Türkisch"/.test(csv), (csv.split('\n').find((l) => /"Elif"/.test(l)) || '').slice(0, 200));
+    ok('Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person', /"Eli";[^\n]*;"nein";"";"Sonstiges";"kein Fisch";"Nüsse, Laktose";/.test(csv) && /"Fee";[^\n]*;"ja";"4";"Vegetarisch"/.test(csv), (csv.split('\n').find((l) => /"Eli"/.test(l)) || '').slice(0, 200));
     const tbl = await page.locator('main').innerText();
     ok('Dashboard Cassis: bestehende Tabelle zeigt die Angaben je Person in eigenen Zeilen', /Dana Diät/.test(tbl) && /Sonstiges: kein Fisch/.test(tbl) && /Nüsse, Laktose/.test(tbl));
     ok('Dashboard Cassis: keine Fehler', errors.length === 0, errors[0]);
