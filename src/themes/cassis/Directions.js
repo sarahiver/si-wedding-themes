@@ -95,7 +95,7 @@ function Directions() {
     <Venue>
       {d.image && <Stand aria-hidden="true"><img ref={imgRef} src={d.image} alt="" loading="lazy" /></Stand>}
       <Info id="directions" ref={infoRef} $tall={!!d.image && withRsvp}>
-        <Title>{d.title || t(STRINGS, 'directions')}</Title>
+        <Title deco={t(STRINGS, 'decoDirections')}>{d.title || t(STRINGS, 'directions')}</Title>
         {d.address && <Place>{[project?.location, d.address].filter(Boolean).join('\n')}</Place>}
         {d.description && <Note>{d.description}</Note>}
         {url && <Actions><Button href={url} target="_blank" rel="noopener noreferrer">{t(STRINGS, 'route')}</Button></Actions>}

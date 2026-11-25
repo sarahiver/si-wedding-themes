@@ -51,7 +51,7 @@ function ContactWitnesses() {
     <Section $tone={tone}>
       <Inner>
         <Block id="witnesses" $joined={withFaq}>
-          <Title $small>{w.title || t(STRINGS, 'witnesses')}</Title>
+          <Title $small deco={t(STRINGS, 'decoWitnesses')}>{w.title || t(STRINGS, 'witnesses')}</Title>
           <List $columns={!withFaq}>
             {persons.map((p, i) => (
               <Person key={i} $photo={!!p.image} $line={mist ? C.lineMist : C.line}>

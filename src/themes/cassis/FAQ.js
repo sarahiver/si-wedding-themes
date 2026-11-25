@@ -55,7 +55,7 @@ export function FaqBlock({ $joined, $mist }) {
   if (!items.length) return null;
   return (
     <Block id="faq" $joined={$joined}>
-      <Title $small>{f.title || t(STRINGS, 'faq')}</Title>
+      <Title $small deco={t(STRINGS, 'decoFaq')}>{f.title || t(STRINGS, 'faq')}</Title>
       <div>
         {items.map((q, i) => (
           <Item key={i} $line={$mist ? C.lineMist : C.line} $copy={$mist ? C.ink : C.inkSoft}>
