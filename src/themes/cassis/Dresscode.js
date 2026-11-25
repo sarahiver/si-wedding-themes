@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import STRINGS from './strings';
 import { OWN_TITLE } from './helpers';
-import { C, SERIF, DESK, Section, Inner, Full, Title } from './shared';
+import { C, SERIF, HEADING, DESK, Section, Inner, Full, Title } from './shared';
 
 const Page = styled.div`text-align: center; max-width: 62rem; margin: 0 auto;`;
-const Code = styled.p`margin: 1.25rem 0 0; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(1.75rem, 3.2vw, 3.25rem); line-height: 1.15; overflow-wrap: anywhere;`;
+const Code = styled.p`margin: 1.25rem 0 0; font-family: ${HEADING}; font-weight: 400; font-size: clamp(1.75rem, 3.2vw, 3.25rem); line-height: 1.25; overflow-wrap: anywhere;`;
 const Copy = styled.p`margin: 2rem auto 0; max-width: 34em; white-space: pre-line; overflow-wrap: anywhere;`;
 // Die Farben sind Anregung, keine Auswahl: hohe Muster wie Stoffproben, darunter der Name
 const Swatches = styled.ul`

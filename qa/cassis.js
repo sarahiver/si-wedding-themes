@@ -161,12 +161,12 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     await page.goto(BASE + '/lena-tom', { waitUntil: 'networkidle' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(1500);
     const f = await page.evaluate(async () => { await document.fonts.ready; const fam = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e).fontFamily.split(',')[0].replace(/["']/g, '') : ''; };
       return { h2: fam('#timeline h2'), month: fam('#countdown h2'), body: fam('#directions address'), nav: fam('header[data-solid] nav a'), button: fam('#rsvp button'), input: fam('#rsvp input'), time: fam('#timeline time'),
-        loaded: [...document.fonts].filter((x) => x.status === 'loaded').map((x) => x.family.replace(/["']/g, '') + ' ' + x.weight).sort().join('|'), serifOk: document.fonts.check('400 40px "Cassis Serif"', 'ığşİÇöüéèàç'), latoOk: document.fonts.check('400 16px "Cassis Sans"', 'ığşİÇöüéèàç') }; });
+        loaded: [...document.fonts].filter((x) => x.status === 'loaded').map((x) => x.family.replace(/["']/g, '') + ' ' + x.weight).sort().join('|'), serifOk: document.fonts.check('400 40px "Cassis Serif"', 'ığşİÇöüéèàç'), latoOk: document.fonts.check('400 16px "Cassis Sans"', 'ığşİÇöüéèàç'), scriptOk: document.fonts.check('400 40px "Cassis Script"', 'ığşİÇöüéèàç') }; });
     ok('Schriften: das Theme lädt keine Schriftdatei von fremden Servern', !outside.includes('fonts.gstatic.com'), [...new Set(outside)].join());
     ok('Feststellung: die gemeinsame Startseite aller Themes ruft weiterhin fonts.googleapis.com auf (nicht Teil des Themes)', outside.every((h) => h === 'fonts.googleapis.com'), [...new Set(outside)].join());
-    ok('Schriftrollen: Überschriften in der Serifenschrift (Cormorant Garamond, lokal)', f.h2 === 'Cassis Serif' && f.month === 'Cassis Serif', JSON.stringify(f));
-    ok('Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Lato (lokal)', [f.body, f.nav, f.button, f.input, f.time].every((x) => x === 'Cassis Sans'), JSON.stringify(f));
-    ok('Schriften geladen, türkische und französische Zeichen vorhanden', /Cassis Serif/.test(f.loaded) && /Cassis Sans/.test(f.loaded) && f.serifOk && f.latoOk, f.loaded);
+    ok('Schriftrollen: Überschriften in Schreibschrift (Pinyon Script, lokal), Monat in der Serifenschrift', f.h2 === 'Cassis Script' && f.month === 'Cassis Serif', JSON.stringify(f));
+    ok('Schriftrollen: Fließtext, Uhrzeiten, Navigation, Knöpfe und Felder in Cabin (lokal)', [f.body, f.nav, f.button, f.input, f.time].every((x) => x === 'Cassis Sans'), JSON.stringify(f));
+    ok('Schriften geladen, türkische und französische Zeichen vorhanden', /Cassis Serif/.test(f.loaded) && /Cassis Sans/.test(f.loaded) && /Cassis Script/.test(f.loaded) && f.serifOk && f.latoOk && f.scriptOk, f.loaded);
     await ctx.close(); }
   { const { ctx, page } = await open(browser, { vp: { width: 390, height: 844 } });
     const burger = page.locator('header button[aria-controls]').last(); const menu = page.locator('header[data-solid] nav').first();
@@ -477,14 +477,13 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Dashboard Cassis: Hero-Editor bietet den Schriftzug als Grafik', /Schriftzug/i.test(await page.locator('main').innerText()));
     await page.locator('aside button').filter({ hasText: /Countdown/ }).first().click(); await page.waitForTimeout(800);
     ok('Dashboard Cassis: Countdown-Editor bietet die Endzeit', /Ende – Uhrzeit/i.test(await page.locator('main').innerText()));
-    await page.locator('aside button').filter({ hasText: /RSVP/ }).first().click(); await page.locator('[data-testid="rsvp-extras"]').waitFor({ timeout: 8000 });
-    const ex = await page.locator('[data-testid="rsvp-extras"]').innerText();
-    ok('Dashboard Cassis: Übersicht Kinder und Sprachen mit Alter', /Kinder/.test(ex) && /5 Jahre/.test(ex) && /0 Jahre/.test(ex) && /Türkisch 1/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 200));
-    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('[data-testid="rsvp-extras"] button').click()]);
+    await page.locator('aside button').filter({ hasText: /RSVP/ }).first().click(); await page.locator('main button').filter({ hasText: /CSV Export/ }).first().waitFor({ timeout: 8000 });
+    ok('Dashboard Cassis: keine Zusatzübersicht für Kinder mehr', await page.locator('[data-testid="rsvp-extras"]').count() === 0);
+    const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('main button').filter({ hasText: /CSV Export/ }).first().click()]);
     const csv = fs.readFileSync(await dl.path(), 'utf8');
-    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";"ja";"5";"";"";"";"Türkisch"/.test(csv), csv.split('\n').slice(0, 4).join(' / '));
-    ok('Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person', /"Ernährung";"Hinweis zur Ernährung";"Allergien und Unverträglichkeiten"/.test(csv) && /"Eli";"nein";"";"Sonstiges";"kein Fisch";"Nüsse, Laktose";"Deutsch"/.test(csv) && /"Fee";"ja";"4";"Vegetarisch"/.test(csv), (csv.split('\n').find((l) => /Eli/.test(l)) || '').slice(0, 160));
-    ok('Dashboard Cassis: Übersicht zählt Ernährungsweisen und Allergie-Angaben', /Vegan/.test(ex) && /Vegetarisch/.test(ex) && /mit Allergie-Angabe/.test(ex), ex.replace(/\s+/g, ' ').slice(0, 260));
+    ok('Dashboard Cassis: Export enthält alle Spalten', /"Name";"Anmeldung";"E-Mail";"Personen";"Status";"Kind";"Alter";"Ernährung";"Hinweis zur Ernährung";"Allergien";"Custom Antwort";"Nachricht";"Sprache";"Datum"/.test(csv), csv.split('\n')[0]);
+    ok('Dashboard Cassis: Export enthält Kind, Alter und Sprache', /"Elif";[^\n]*;"ja";"5";[^\n]*"Türkisch"/.test(csv), (csv.split('\n').find((l) => /"Elif"/.test(l)) || '').slice(0, 200));
+    ok('Dashboard Cassis: Export führt Ernährung, Hinweis und Allergien je Person', /"Eli";[^\n]*;"nein";"";"Sonstiges";"kein Fisch";"Nüsse, Laktose";/.test(csv) && /"Fee";[^\n]*;"ja";"4";"Vegetarisch"/.test(csv), (csv.split('\n').find((l) => /"Eli"/.test(l)) || '').slice(0, 200));
     const tbl = await page.locator('main').innerText();
     ok('Dashboard Cassis: bestehende Tabelle zeigt die Angaben je Person in eigenen Zeilen', /Dana Diät/.test(tbl) && /Sonstiges: kein Fisch/.test(tbl) && /Nüsse, Laktose/.test(tbl));
     ok('Dashboard Cassis: keine Fehler', errors.length === 0, errors[0]);

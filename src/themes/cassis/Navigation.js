@@ -1,8 +1,7 @@
 // src/themes/cassis/Navigation.js
-// Kopfzeile. Über dem Startbild gehört sie zur Doppelseite: durchsichtig, ohne eigenen
-// Schriftzug (der große steht direkt darunter); das Menü liegt auf dem Papier, die
-// Sprachwahl auf dem Foto. Menüpunkte, die über die Kante reichen, wechseln dort die
-// Farbe – wie der Schriftzug. Erst wenn das Startbild fast durchgescrollt ist, gleitet
+// Kopfzeile. Über dem Startbild ist sie durchsichtig, ohne eigenen Schriftzug (der große steht
+// darunter), und hat dieselbe Farbe wie der Schriftzug (weiß oder schwarz, im Dashboard gewählt).
+// Erst wenn das Startbild fast durchgescrollt ist, gleitet
 // eine dezent hinterlegte, fixierte Fassung mit Schriftzug von oben herein. Beide Fassungen sind gleich hoch
 // und liegen außerhalb des Textflusses: Der Wechsel verschiebt nichts.
 // Auf dem Handy: Schriftzug, Sprachwahl (Auswahlfeld des Geräts) und ein Menü zum Aufklappen.
@@ -11,7 +10,8 @@ import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent, LANGUAGE_LABELS, LANGUAGE_NAMES } from '../../lib/i18n';
 import STRINGS from './strings';
-import { C, FONT, SCRIPT, HEADER, SPREAD_Q } from './shared';
+import { C, FONT, SCRIPT, HEADER } from './shared';
+import { heroTone } from './helpers';
 
 // Angezeigt wird nur, was auf der Seite tatsächlich steht – in der Reihenfolge der Seite
 const ITEMS = [
@@ -19,8 +19,6 @@ const ITEMS = [
   { id: 'rsvp', key: 'navRsvp' }, { id: 'accommodations', key: 'navHotels' }, { id: 'dresscode', key: 'navDresscode' },
   { id: 'witnesses', key: 'navWitnesses' }, { id: 'faq', key: 'navFaq' },
 ];
-// Anteil des Papiers an der Breite des Startbilds (siehe Hero.js, --split) und ab wann die Doppelseite gilt
-const SPLIT = 0.41;
 // In em statt px: Bei vergrößerter Schrift im Browser passt die Menüzeile nicht mehr in die Breite –
 // dann gilt schon früher das aufklappbare Menü. Bei üblicher Schriftgröße liegt die Grenze unverändert bei 1024 px.
 const WIDE = '@media (min-width: 64em)';
@@ -30,7 +28,7 @@ const Bar = styled.header`
   position: ${(p) => (p.$pinned ? 'fixed' : 'absolute')}; z-index: 50; top: 0; left: 0; right: 0; box-sizing: border-box; height: ${HEADER};
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0 clamp(1rem, 4vw, 3.5rem); font-family: ${FONT};
-  color: ${(p) => (p.$solid ? C.ink : C.white)};
+  color: ${(p) => (p.$solid || p.$tone === 'dark' ? C.ink : C.white)};
   background: ${(p) => (p.$solid ? 'rgba(240,236,237,0.94)' : 'rgba(240,236,237,0)')};
   box-shadow: ${(p) => (p.$solid ? `0 1px 0 ${C.line}` : '0 1px 0 rgba(51,53,63,0)')};
   backdrop-filter: ${(p) => (p.$solid ? 'saturate(1.1) blur(10px)' : 'none')};
@@ -44,8 +42,8 @@ const Mark = styled.a`
   display: ${(p) => (p.$solid ? 'block' : 'none')}; flex: none; color: inherit; text-decoration: none; line-height: 1;
   img {
     display: block; width: auto; height: 3rem;
-    /* Die Grafik ist weiß: über dem Foto mit Schatten, auf hellem Grund dunkel eingefärbt */
-    filter: ${(p) => (p.$solid ? 'brightness(0) opacity(0.82)' : 'drop-shadow(0 1px 8px rgba(51,53,63,0.45))')};
+    /* Die Grafik ist weiß; auf dem hellen Grund der fixierten Kopfzeile dunkel eingefärbt */
+    filter: brightness(0) opacity(0.82);
     transition: filter 0.25s ease;
   }
   span { font-family: ${SCRIPT}; font-size: 1.75rem; white-space: nowrap; }
@@ -62,15 +60,8 @@ const Menu = styled.nav`
   ${WIDE} {
     display: flex; align-items: center; gap: clamp(1rem, 2.2vw, 2.75rem); margin: ${(p) => (p.$solid ? '0 auto' : '0 auto 0 0')};
     a { ${link} min-height: 2.75rem; font-size: clamp(0.9375rem, 1.05vw, 1.0625rem); letter-spacing: 0.06em; white-space: nowrap; }
-    /* Über dem Startbild: dunkel auf dem Papier, weiß auf dem Foto. --x ist der Abstand des Menüpunkts zur Kante. */
-    ${(p) => !p.$solid && `
-      a { color: transparent; background-image: linear-gradient(90deg, ${C.ink} var(--x, 200vw), ${C.white} var(--x, 200vw)); -webkit-background-clip: text; background-clip: text; }
-      a::after { background: linear-gradient(90deg, ${C.ink} var(--x, 200vw), ${C.white} var(--x, 200vw)); }
-      a:focus-visible { outline-color: ${C.ink}; }
-      a[data-side='photo']:focus-visible { outline-color: ${C.white}; }
-      /* Auf dem Foto hält ein weicher Schatten die weiße Schrift auch vor hellen Motiven lesbar */
-      a[data-side='photo'] { filter: drop-shadow(0 0 5px rgba(51,53,63,0.6)); }
-    `}
+    /* Auf dem Foto hält ein weicher Schatten die Schrift auch vor unruhigen Motiven lesbar */
+    ${(p) => !p.$solid && `a { filter: drop-shadow(0 0 5px ${shade(p.$tone, 0.6)}); }`}
   }
   ${NARROW} {
     position: absolute; top: 100%; left: 0; right: 0; box-sizing: border-box; max-height: calc(100vh - ${HEADER}); max-height: calc(100dvh - ${HEADER}); overflow-y: auto;
@@ -84,6 +75,8 @@ const Menu = styled.nav`
     @media (orientation: landscape) and (max-height: 30rem) { grid-template-columns: 1fr 1fr; column-gap: clamp(1rem, 4vw, 3.5rem); a { min-height: 3rem; font-size: 1.25rem; } }
   }
 `;
+// Schatten über dem Foto: dunkel unter weißer, hell unter schwarzer Schrift
+const shade = (tone, a) => (tone === 'dark' ? `rgba(248,246,246,${a})` : `rgba(51,53,63,${a})`);
 const Right = styled.div`display: flex; align-items: center; gap: 0.25rem; flex: none; margin-left: auto; margin-right: -0.5rem;`;
 const LangWrap = styled.div`position: relative; display: flex; align-items: center;`;
 const iconButton = `
@@ -95,7 +88,7 @@ const iconButton = `
 // über der Anzeige „DE ⌄" – so öffnet sich die vertraute Auswahl von iOS und Android,
 // ganz ohne eigene Aufklappliste.
 const LangPick = styled.label`
-  ${iconButton} position: relative; gap: 0.35rem; text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')};
+  ${iconButton} position: relative; gap: 0.35rem; text-shadow: ${(p) => (p.$solid ? 'none' : `0 0 12px ${shade(p.$tone, 0.45)}`)};
   svg { width: 0.6rem; height: 0.6rem; }
   select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; -webkit-appearance: none; color: ${C.ink}; background: ${C.shell}; }
   &:focus-within { outline: 2px solid currentColor; outline-offset: -2px; }
@@ -109,7 +102,7 @@ const Lang = styled.button`
   ${iconButton} position: relative; opacity: ${(p) => (p.$on ? 1 : 0.74)}; transition: opacity 0.2s ease;
   &::after { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; bottom: 0.55rem; height: 1px; background: currentColor; opacity: ${(p) => (p.$on ? 1 : 0)}; }
   &:hover { opacity: 1; }
-  text-shadow: ${(p) => (p.$solid ? 'none' : '0 0 12px rgba(51,53,63,0.45)')};
+  text-shadow: ${(p) => (p.$solid ? 'none' : `0 0 12px ${shade(p.$tone, 0.45)}`)};
 `;
 const Burger = styled.button`
   ${iconButton}
@@ -117,7 +110,7 @@ const Burger = styled.button`
   span::before, span::after { content: ''; position: absolute; left: 0; right: 0; height: 1px; background: currentColor; transition: transform 0.22s ease, top 0.22s ease, bottom 0.22s ease; }
   span::before { top: ${(p) => (p.$open ? '50%' : '0')}; transform: ${(p) => (p.$open ? 'rotate(45deg)' : 'none')}; }
   span::after { bottom: ${(p) => (p.$open ? 'calc(50% - 1px)' : '0')}; transform: ${(p) => (p.$open ? 'rotate(-45deg)' : 'none')}; }
-  filter: ${(p) => (p.$solid ? 'none' : 'drop-shadow(0 0 6px rgba(51,53,63,0.5))')};
+  filter: ${(p) => (p.$solid ? 'none' : `drop-shadow(0 0 6px ${shade(p.$tone, 0.5)})`)};
   ${WIDE} { display: none; }
   @media (prefers-reduced-motion: reduce) { span::before, span::after { transition: none; } }
 `;
@@ -213,25 +206,6 @@ function Navigation() {
     return () => { mo.disconnect(); if (frame) window.cancelAnimationFrame(frame); };
   }, []);
 
-  // Über dem Startbild: für jeden Menüpunkt messen, wo die Kante zwischen Papier und Foto liegt
-  useEffect(() => {
-    const paint = () => {
-      const nav = menuRef.current; if (!nav) return;
-      const spread = window.matchMedia && window.matchMedia(SPREAD_Q).matches;
-      const edge = spread ? window.innerWidth * SPLIT : 0; // sonst liegt das Foto oben: alles weiß
-      nav.querySelectorAll('a').forEach((a) => {
-        const b = a.getBoundingClientRect();
-        a.style.setProperty('--x', `${Math.round(edge - b.left)}px`);
-        a.setAttribute('data-side', b.left + b.width / 2 > edge ? 'photo' : 'paper');
-      });
-    };
-    paint();
-    window.addEventListener('resize', paint);
-    const late = window.setTimeout(paint, 700); // Schriften können die Breiten noch ändern
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint).catch(() => {});
-    return () => { window.removeEventListener('resize', paint); window.clearTimeout(late); };
-  }, [present, lang, pinned, open]);
-
   // Escape schließt; bei offenem Menü scrollt die Seite dahinter nicht mit
   useEffect(() => {
     if (!open) return undefined;
@@ -258,6 +232,7 @@ function Navigation() {
   const names = [project?.partner1_name, project?.partner2_name].filter(Boolean);
   const label = names.length ? names.join(' ') : (coupleNames || '');
   const solid = pinned || open;
+  const tone = heroTone(hero);
   const items = present.map((id) => ITEMS.find((i) => i.id === id)).filter(Boolean);
   const multi = enabled && languages.length > 1;
 
@@ -279,13 +254,13 @@ function Navigation() {
   };
 
   return (
-    <Bar $solid={solid} $pinned={pinned} data-solid={solid ? 'true' : 'false'} data-pinned={pinned ? 'true' : 'false'}>
+    <Bar $solid={solid} $pinned={pinned} $tone={tone} data-solid={solid ? 'true' : 'false'} data-pinned={pinned ? 'true' : 'false'}>
       <Mark href="#top" aria-label={label} $solid={solid} onClick={toTop}>
         {hero.name_image ? <img src={hero.name_image} alt="" /> : <span aria-hidden="true">{label}</span>}
       </Mark>
 
       {items.length > 0 && (
-        <Menu id={menuId} ref={menuRef} aria-label={t(STRINGS, 'menu')} $open={open} $solid={solid}>
+        <Menu id={menuId} ref={menuRef} aria-label={t(STRINGS, 'menu')} $open={open} $solid={solid} $tone={tone}>
           {items.map((i) => <a key={i.id} href={`#${i.id}`} onClick={() => setOpen(false)}>{t(STRINGS, i.key)}</a>)}
         </Menu>
       )}
@@ -293,7 +268,7 @@ function Navigation() {
       <Right>
         {multi && (
           <LangWrap>
-            <LangPick $solid={solid}>
+            <LangPick $solid={solid} $tone={tone}>
               <span aria-hidden="true">{LANGUAGE_LABELS[lang]}</span>
               <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden="true"><path d="M1 3 L5 7 L9 3" /></svg>
               <select aria-label={t(STRINGS, 'language')} value={lang || ''} onChange={(e) => { setOpen(false); setLang(e.target.value); }}>
@@ -302,7 +277,7 @@ function Navigation() {
             </LangPick>
             <Langs aria-label={t(STRINGS, 'language')}>
               {languages.map((l) => (
-                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} aria-pressed={l === lang} aria-label={`${LANGUAGE_LABELS[l]} – ${LANGUAGE_NAMES[l]}`} onClick={() => setLang(l)}>
+                <Lang key={l} type="button" lang={l} $on={l === lang} $solid={solid} $tone={tone} aria-pressed={l === lang} aria-label={`${LANGUAGE_LABELS[l]} – ${LANGUAGE_NAMES[l]}`} onClick={() => setLang(l)}>
                   {LANGUAGE_LABELS[l]}
                 </Lang>
               ))}
@@ -310,7 +285,7 @@ function Navigation() {
           </LangWrap>
         )}
         {items.length > 0 && (
-          <Burger ref={burgerRef} type="button" $open={open} $solid={solid} aria-expanded={open} aria-controls={menuId}
+          <Burger ref={burgerRef} type="button" $open={open} $solid={solid} $tone={tone} aria-expanded={open} aria-controls={menuId}
             aria-label={t(STRINGS, open ? 'closeMenu' : 'menu')} onClick={toggleMenu}>
             <span aria-hidden="true" />
           </Burger>

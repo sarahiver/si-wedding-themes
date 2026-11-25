@@ -3,7 +3,7 @@ import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 import { useWedding } from '../../context/WeddingContext';
 import { AdminMobileStyles } from '../../components/admin/core/AdminMobile';
-import { C, FONT, SERIF, SCRIPT, Button } from './shared';
+import { C, FONT, HEADING, SCRIPT, Button } from './shared';
 
 const ERR = '#6E1620';
 const Page = styled.main`
@@ -22,7 +22,7 @@ const Mark = styled.div`
   img { display: block; width: min(62%, 14rem); height: auto; margin: 0 auto; filter: brightness(0) opacity(0.82); }
   span { font-family: ${SCRIPT}; font-size: clamp(2.25rem, 9vw, 3rem); line-height: 1.1; }
 `;
-const Title = styled.h1`margin: 1.75rem 0 0; text-align: center; font-family: ${SERIF}; font-style: italic; font-weight: 400; font-size: clamp(1.75rem, 5vw, 2.25rem); line-height: 1.1;`;
+const Title = styled.h1`margin: 1.75rem 0 0; text-align: center; font-family: ${HEADING}; font-weight: 400; font-size: clamp(1.75rem, 5vw, 2.25rem); line-height: 1.2;`;
 const Rule = styled.div`width: 3.5rem; height: 1px; background: ${C.ink}; opacity: 0.6; margin: 1.5rem auto 2.25rem;`;
 const Form = styled.form`display: grid; gap: 1.75rem;`;
 const Field = styled.label`display: grid; gap: 0.5rem; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: ${C.inkSoft};`;

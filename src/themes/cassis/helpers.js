@@ -19,6 +19,8 @@ export function formatTimeLeft(left, lang, units = ['hours', 'minutes', 'seconds
   const parts = units.map((u) => new Intl.NumberFormat(loc, { style: 'unit', unit: UNIT[u], unitDisplay: 'long' }).format(left[u] || 0));
   return Intl.ListFormat ? new Intl.ListFormat(loc, { style: 'long', type: 'unit' }).format(parts) : parts.join(', ');
 }
+/** Farbe des Schriftzugs auf dem Startfoto: im Dashboard je Projekt gewählt, ohne Wahl weiß. */
+export const heroTone = (hero) => (hero?.logo_color === 'black' ? 'dark' : 'light');
 
 /** Link zur Routenplanung aus den Angaben der Anfahrt; leer, wenn nichts hinterlegt ist. */
 export function mapsLink(directions, location) {
