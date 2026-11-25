@@ -20,6 +20,8 @@ async function open(browser, { vp = { width: 390, height: 844 }, locale = 'de-DE
   return { ctx, page, errors };
 }
 const text = (page) => page.evaluate(() => document.body.innerText);
+// Wortlaut ohne CSS-Versalien (Knöpfe stehen in Großbuchstaben, innerText liefert sie so)
+const words = (page) => page.evaluate(() => document.body.textContent);
 async function setLang(page, code) {
   // Handy: Auswahlfeld des Geräts; Desktop: Knöpfe
   const pick = page.locator('header[data-solid] select');
@@ -190,7 +192,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     for (const [code, labelText, phrase] of [['tr', 'TR', 'Takvime ekle'], ['fr', 'FR', 'Ajouter au calendrier'], ['en', 'ENG', 'Save to calendar'], ['de', 'DE', 'Im Kalender speichern']]) {
       await pick.selectOption(code); await page.waitForTimeout(350);
       const shown = (await page.locator('header[data-solid] label').innerText()).trim(); const t = await text(page);
-      ok(`Sprachwahl (Handy): ${code} wechselt Anzeige, Seitensprache und Texte`, shown.startsWith(labelText) && (await page.evaluate(() => document.documentElement.lang)) === code && t.includes(phrase), shown);
+      ok(`Sprachwahl (Handy): ${code} wechselt Anzeige, Seitensprache und Texte`, shown.startsWith(labelText) && (await page.evaluate(() => document.documentElement.lang)) === code && (await words(page)).includes(phrase), shown);
     }
     await burger.click(); await page.waitForTimeout(300); await pick.selectOption('fr'); await page.waitForTimeout(400);
     ok('Sprachwechsel bei offenem Menü schließt das Menü und übersetzt es', await burger.getAttribute('aria-expanded') === 'false' && (await menu.locator('a').first().textContent()) === 'Programme');
@@ -249,7 +251,7 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     const { ctx, page } = await open(browser, { locale });
     const lang = await page.evaluate(() => document.documentElement.lang); const t = await text(page);
     const pressed = await page.locator('nav button[aria-pressed="true"]').getAttribute('lang');
-    ok(`Gerätesprache ${locale} → ${want}`, lang === want && pressed === want && t.includes(phrase), `${lang}/${pressed}`);
+    ok(`Gerätesprache ${locale} → ${want}`, lang === want && pressed === want && (await words(page)).includes(phrase), `${lang}/${pressed}`);
     await ctx.close();
   }
   { const { ctx, page } = await open(browser, { locale: 'en-US' });
@@ -257,12 +259,12 @@ const send = async (page) => { await page.locator('#rsvp button[type="submit"]')
     ok('Hauptsprache: Titel des Ablaufs aus dem Inhalt', (await text(page)).includes('Timeline'));
     await setLang(page, 'de');
     let t = await text(page);
-    ok('Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt', t.includes('Im Kalender speichern') && t.includes('Ablauf') && !t.includes('Timeline') && (await page.evaluate(() => document.documentElement.lang)) === 'de');
+    ok('Umschalten auf Deutsch ohne Neuladen: feste Texte und übersetzter Inhalt', (await words(page)).includes('Im Kalender speichern') && t.includes('Ablauf') && !t.includes('Timeline') && (await page.evaluate(() => document.documentElement.lang)) === 'de');
     ok('Nicht übersetzter Inhalt fällt auf Englisch zurück', t.includes('Getting there') && t.includes('Witnesses'));
     await page.reload({ waitUntil: 'load' }); await page.locator('#rsvp').waitFor(); await page.waitForTimeout(500);
     ok('Gewählte Sprache bleibt nach dem Neuladen', (await page.evaluate(() => document.documentElement.lang)) === 'de');
     await setLang(page, 'tr'); t = await text(page);
-    ok('Türkisch: feste Texte türkisch, fehlende Übersetzung englisch', t.includes('Takvime ekle') && t.includes('Timeline') && !t.includes('Im Kalender speichern'));
+    ok('Türkisch: feste Texte türkisch, fehlende Übersetzung englisch', (await words(page)).includes('Takvime ekle') && t.includes('Timeline') && !(await words(page)).includes('Im Kalender speichern'));
     ok('Türkisch: Datum in türkischer Schreibweise', /15 Mayıs 2027/.test(t), t.slice(0, 200));
     await setLang(page, 'fr'); t = await text(page);
     ok('Französisch: übersetzter Titel und Datum', t.includes('Programme') && /15 mai 2027/.test(t));

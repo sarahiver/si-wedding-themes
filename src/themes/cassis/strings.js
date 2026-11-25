@@ -4,7 +4,7 @@
 const STRINGS = {
   en: {
     trCar: 'By car', trParking: 'Parking', trTrain: 'By train', trPublic: 'Public transport', trBus: 'By bus', trTaxi: 'Taxi & shuttle', trPlane: 'By plane', trBike: 'By bike', trWalk: 'On foot', trBoat: 'By boat',
-    navHotels: 'Hotels', hotelsTitle: 'Where to stay', book: 'Book', bookingCode: 'Booking code', navDresscode: 'Dress code', dresscodeTitle: 'Dress code', dos: 'Welcome', donts: 'Please avoid',
+    navHotels: 'Hotels', hotelsTitle: 'Where to stay', book: 'Book', prevHotel: 'Previous hotel', nextHotel: 'Next hotel', bookingCode: 'Booking code', navDresscode: 'Dress code', dresscodeTitle: 'Dress code', dos: 'Welcome', donts: 'Please avoid',
     language: 'Language', menu: 'Menu', closeMenu: 'Close menu', navTimeline: 'Schedule', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Getting there', navFaq: 'FAQ', navWitnesses: 'Witnesses', weMarry: 'We are getting married', route: 'Directions', calendar: 'Save to calendar',
     countdownTitle: 'Save the date', daysLeft: 'days to go', dayLeft: 'day to go', today: 'Today is the day', past: 'We said yes',
     hours: 'hours', minutes: 'minutes',
@@ -28,7 +28,7 @@ const STRINGS = {
   },
   de: {
     trCar: 'Mit dem Auto', trParking: 'Parken', trTrain: 'Mit der Bahn', trPublic: 'Öffentliche Verkehrsmittel', trBus: 'Mit dem Bus', trTaxi: 'Taxi & Shuttle', trPlane: 'Mit dem Flugzeug', trBike: 'Mit dem Fahrrad', trWalk: 'Zu Fuß', trBoat: 'Mit dem Boot',
-    navHotels: 'Hotels', hotelsTitle: 'Übernachten', book: 'Buchen', bookingCode: 'Buchungscode', navDresscode: 'Dresscode', dresscodeTitle: 'Dresscode', dos: 'Gern gesehen', donts: 'Bitte nicht',
+    navHotels: 'Hotels', hotelsTitle: 'Übernachten', book: 'Buchen', prevHotel: 'Vorheriges Hotel', nextHotel: 'Nächstes Hotel', bookingCode: 'Buchungscode', navDresscode: 'Dresscode', dresscodeTitle: 'Dresscode', dos: 'Gern gesehen', donts: 'Bitte nicht',
     language: 'Sprache', menu: 'Menü', closeMenu: 'Menü schließen', navTimeline: 'Ablauf', navCountdown: 'Countdown', navRsvp: 'RSVP', navDirections: 'Anfahrt', navFaq: 'FAQ', navWitnesses: 'Trauzeug:innen', weMarry: 'Wir heiraten', route: 'Route', calendar: 'Im Kalender speichern',
     countdownTitle: 'Save the Date', daysLeft: 'Tage', dayLeft: 'Tag', today: 'Heute ist es so weit', past: 'Wir haben Ja gesagt',
     hours: 'Stunden', minutes: 'Minuten',
@@ -52,7 +52,7 @@ const STRINGS = {
   },
   fr: {
     trCar: 'En voiture', trParking: 'Stationnement', trTrain: 'En train', trPublic: 'Transports en commun', trBus: 'En bus', trTaxi: 'Taxi et navette', trPlane: 'En avion', trBike: 'À vélo', trWalk: 'À pied', trBoat: 'En bateau',
-    navHotels: 'Hôtels', hotelsTitle: 'Hébergement', book: 'Réserver', bookingCode: 'Code de réservation', navDresscode: 'Tenue', dresscodeTitle: 'Tenue', dos: 'Bienvenu', donts: 'À éviter',
+    navHotels: 'Hôtels', hotelsTitle: 'Hébergement', book: 'Réserver', prevHotel: 'Hôtel précédent', nextHotel: 'Hôtel suivant', bookingCode: 'Code de réservation', navDresscode: 'Tenue', dresscodeTitle: 'Tenue', dos: 'Bienvenu', donts: 'À éviter',
     language: 'Langue', menu: 'Menu', closeMenu: 'Fermer le menu', navTimeline: 'Programme', navCountdown: 'Compte à rebours', navRsvp: 'RSVP', navDirections: 'Accès', navFaq: 'FAQ', navWitnesses: 'Témoins', weMarry: 'Nous nous marions', route: 'Itinéraire', calendar: 'Ajouter au calendrier',
     countdownTitle: 'Réservez la date', daysLeft: 'jours', dayLeft: 'jour', today: 'C’est aujourd’hui', past: 'Nous nous sommes dit oui',
     hours: 'heures', minutes: 'minutes',
@@ -76,7 +76,7 @@ const STRINGS = {
   },
   tr: {
     trCar: 'Araba ile', trParking: 'Otopark', trTrain: 'Tren ile', trPublic: 'Toplu taşıma', trBus: 'Otobüs ile', trTaxi: 'Taksi ve servis', trPlane: 'Uçak ile', trBike: 'Bisiklet ile', trWalk: 'Yürüyerek', trBoat: 'Tekne ile',
-    navHotels: 'Oteller', hotelsTitle: 'Konaklama', book: 'Rezervasyon', bookingCode: 'Rezervasyon kodu', navDresscode: 'Kıyafet', dresscodeTitle: 'Kıyafet', dos: 'Uygun', donts: 'Lütfen kaçının',
+    navHotels: 'Oteller', hotelsTitle: 'Konaklama', book: 'Rezervasyon', prevHotel: 'Önceki otel', nextHotel: 'Sonraki otel', bookingCode: 'Rezervasyon kodu', navDresscode: 'Kıyafet', dresscodeTitle: 'Kıyafet', dos: 'Uygun', donts: 'Lütfen kaçının',
     language: 'Dil', menu: 'Menü', closeMenu: 'Menüyü kapat', navTimeline: 'Program', navCountdown: 'Geri sayım', navRsvp: 'LCV', navDirections: 'Ulaşım', navFaq: 'SSS', navWitnesses: 'Şahitler', weMarry: 'Evleniyoruz', route: 'Yol tarifi', calendar: 'Takvime ekle',
     countdownTitle: 'Tarihi not edin', daysLeft: 'gün kaldı', dayLeft: 'gün kaldı', today: 'Bugün büyük gün', past: 'Evet dedik',
     hours: 'saat', minutes: 'dakika',

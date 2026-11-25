@@ -160,11 +160,13 @@ export const textLink = css`
 `;
 export const Text = styled.p`margin: 0 0 1.25rem; white-space: pre-line; overflow-wrap: anywhere;`;
 
-// Zwei Knopfarten: gefüllt (Hauptaktion) und mit Linie (Nebenaktion)
+// Zwei Knopfarten: gefüllt (Hauptaktion) und mit Linie (Nebenaktion). Beide im selben Bild wie „Antwort senden":
+// Kasten, kleine Versalien, weit gesperrt – Kalender, Route, Buchen sehen alle gleich aus.
 export const Button = styled.a`
   display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 3.5rem; padding: 0.75rem 2.25rem;
+  min-width: min(14rem, 100%);
   border: 1px solid ${(p) => (p.$solid ? C.deep : C.ink)}; border-radius: 0; cursor: pointer; text-decoration: none; text-align: center;
-  font-family: ${FONT}; font-style: normal; font-weight: 400; font-size: 1.0625rem; letter-spacing: 0.03em; line-height: 1.2;
+  font-family: ${FONT}; font-style: normal; font-weight: 400; font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; line-height: 1.4;
   background: ${(p) => (p.$solid ? C.deep : 'transparent')}; color: ${(p) => (p.$solid ? C.white : C.ink)};
   width: ${(p) => (p.$block ? '100%' : 'auto')};
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;

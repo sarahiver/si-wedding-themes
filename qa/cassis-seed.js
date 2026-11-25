@@ -14,6 +14,9 @@ const CONTENT = {
   childcare: { title: 'Childcare', description: 'Alter Inhalt, bleibt gespeichert, wird nicht mehr angezeigt.' },
   rsvp: { title: 'RSVP', description: '[Placeholder] Please let us know whether you can join us.', ask_dietary: true, ask_allergies: true },
   witnesses: { title: 'Witnesses', persons: [{ name: '[Placeholder] Name', role: 'Maid of honour', phone: '+49 000 0000000' }, { name: '[Placeholder] Name', role: 'Best man', email: 'name@example.test' }] },
+  accommodations: { title: 'Hotels', description: '[Placeholder] A few places nearby.', hotels: [1, 2, 3, 4].map((n) => ({
+    name: `[Placeholder] Hôtel ${n}`, distance: `${n * 2} km`, address: 'Rue du Port\n13260 Cassis', price_range: 'ab 120 € / Nacht', booking_code: n === 1 ? 'LENATOM27' : '',
+    image: U('ablauf.jpg'), booking_url: 'https://example.test/book', maps_url: 'https://example.test/map' })) },
   faq: { title: 'FAQ', questions: [{ question: '[Placeholder] Is there a dress code?', answer: '[Placeholder] Answer follows.' }, { question: '[Placeholder] Where can we stay?', answer: '[Placeholder] Answer follows.' }] },
 };
 const post = (p, b) => fetch(BASE + p, { method: 'POST', body: b ? JSON.stringify(b) : undefined });
@@ -23,6 +26,8 @@ async function seedCassis() {
   const p = db.projects.find((x) => x.slug === 'base-cassis');
   // 'childcare' steht absichtlich mit in der Liste: ältere Projekte haben den Bereich noch gespeichert, das Theme zeigt ihn nicht mehr.
   const ORDER = ['hero', 'timeline', 'countdown', 'rsvp', 'directions', 'faq', 'witnesses', 'childcare'];
+  // Nur für die Ansicht der Hotels (CASSIS_HOTELS=1): die Prüfungen laufen mit der gewohnten Reihenfolge
+  if (process.env.CASSIS_HOTELS) ORDER.splice(5, 0, 'accommodations');
   const mk = (n, slug, extra) => ({ ...p, id: pid(n), slug, component_order: ORDER, active_components: ORDER, couple_names: 'Lena Tom', partner1_name: 'Lena', partner2_name: 'Tom', location: 'Château de Cassis', hashtag: '', ...extra });
   await post('/__test/seed', { table: 'projects', rows: [mk(72, 'lena-tom'), mk(73, 'cassis-locked', { password_protected: true }), mk(74, 'cassis-draft', { status: 'draft' })] });
   await post('/__test/seed', { table: 'project_content', rows: Object.entries(CONTENT).map(([component, content]) => ({ project_id: PID, component, content })) });
