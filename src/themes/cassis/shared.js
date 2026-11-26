@@ -21,9 +21,10 @@ export const C = {
   lineMist: 'rgba(51,53,63,0.34)', // Haarlinie auf Blaugrau
 };
 // Schriftrollen (freie Entsprechungen der Schriften aus der Einladung):
-// 1. SCRIPT (Mrs Saint Delafield, statt Amsterdam Handwriting): das große Wort hinter den Bereichsüberschriften
+// 1. SCRIPT (WindSong, statt Amsterdam Handwriting): das große Wort hinter den Bereichsüberschriften
 //    und die Namen, solange keine Grafik des Schriftzugs hochgeladen ist.
-// 2. HEADING (Pinyon Script, statt Edwardian Script ITC): kurze Sätze in Schreibschrift, z. B. die Frage der Antwortkarte.
+// 2. HEADING (WindSong im kräftigeren Schnitt 500, damit die feine Linie klein lesbar bleibt): kurze Sätze in
+//    Schreibschrift, z. B. die Frage der Antwortkarte.
 // 3. SERIF (Cormorant Garamond): Uhrzeiten, Zahlen, Zwischenüberschriften, Eingaben der Antwortkarte;
 //    kursiv für kurze Begleitsätze – Schreibschrift wäre hier schwer lesbar.
 // 4. FONT (Lato, statt Humanst521 Lt BT): Fließtext, Navigation, Knöpfe, Beschriftungen, Hinweise;
@@ -32,8 +33,8 @@ export const C = {
 // gleichnamige Schrift, die die gemeinsame Startseite aller Themes von Google lädt.
 export const FONT = "'Cassis Sans', 'Lato', 'Gill Sans', 'Gill Sans MT', 'Segoe UI', sans-serif";
 export const SERIF = "'Cassis Serif', 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif";
-export const HEADING = "'Cassis Script', 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive";
-export const SCRIPT = "'Cassis Hand', 'Mrs Saint Delafield', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
+export const HEADING = "'Cassis Script', 'WindSong', 'Snell Roundhand', 'Apple Chancery', cursive";
+export const SCRIPT = "'Cassis Hand', 'WindSong', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', cursive";
 
 const tones = {
   // --deco: Schreibschrift-Wort im Hintergrund der Überschrift (nur zart vom Grund abgesetzt), --title: Überschrift darauf
@@ -117,10 +118,11 @@ export const Body = styled.div`min-width: 0; ${DESK} { grid-column: 6 / 13; }`;
 const TitleBox = styled.h2`
   position: relative; margin: 0; font-weight: 300;
   .deco {
-    display: block; font-family: ${SCRIPT}; font-weight: 400; line-height: 0.9; letter-spacing: 0.04em;
-    color: var(--deco, ${C.haze}); white-space: nowrap; margin: 0 0 -0.3em -0.04em; user-select: none; pointer-events: none;
-    font-size: clamp(5.5rem, calc(88vw / (var(--len, 6) * 0.4)), 13rem);
-    ${DESK} { font-size: clamp(6rem, calc(38vw / (var(--len, 6) * 0.4)), 17rem); }
+    display: block; font-family: ${SCRIPT}; font-weight: 400; line-height: 0.9;
+    color: var(--deco, ${C.haze}); white-space: nowrap; margin: 0 0 -0.2em -0.04em; user-select: none; pointer-events: none;
+    /* WindSong läuft breit: rund 0,62 em je Buchstabe */
+    font-size: clamp(3.4rem, calc(88vw / (var(--len, 6) * 0.62)), 9rem);
+    ${DESK} { font-size: clamp(3.8rem, calc(38vw / (var(--len, 6) * 0.62)), 11rem); }
   }
   .main {
     position: relative; display: block; font-family: ${FONT}; font-weight: 300; font-size: clamp(2.5rem, 6vw, 5.75rem); line-height: 1.02;
