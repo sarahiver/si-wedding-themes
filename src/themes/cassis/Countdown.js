@@ -5,20 +5,24 @@ import { useWedding } from '../../context/WeddingContext';
 import { useLanguage, useLocalizedContent } from '../../lib/i18n';
 import { zonedToUtcMs, remaining, monthGrid, eventTimes, buildIcs, downloadIcs } from '../../lib/calendar';
 import STRINGS, { LOCALES } from './strings';
-import { C, FONT, SERIF, Section, Button, DESK, G, italic, reveal, useReveal } from './shared';
+import { C, FONT, SERIF, SCRIPT, HEADING, Section, Button, DESK, G, italic, reveal, useReveal } from './shared';
 import { formatTimeLeft, OWN_TITLE } from './helpers';
 
 // Die Zahl der Tage steht als große, helle Fläche; das Kalenderblatt liegt darauf.
 // Darunter laufen Stunden, Minuten und Sekunden – die Tage stehen schon groß darüber,
-// das Datum zeigt das Kalenderblatt.
+// das Datum zeigt das Kalenderblatt. Das Wort „Tage" liegt in Schreibschrift über dem Fuß der Zahl.
 const Layout = styled.div`
   ${DESK} { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: ${G}; align-items: end; }
 `;
 const Num = styled.strong`
-  display: block; font-family: ${SERIF}; font-weight: 300; font-size: 58vw; line-height: 0.72; letter-spacing: -0.04em; color: ${C.haze}; margin-left: -0.05em;
+  position: relative; display: block; font-family: ${SERIF}; font-weight: 300; font-size: 58vw; line-height: 0.72; letter-spacing: -0.04em; color: ${C.haze}; margin-left: -0.05em;
   font-variant-numeric: lining-nums; user-select: none; white-space: nowrap;
   &[data-clock='true'] { font-size: 34vw; }
   ${DESK} { grid-column: 1 / 9; grid-row: 1; font-size: 39vw; margin-left: -0.06em; &[data-clock='true'] { font-size: 24vw; } }
+  .unit {
+    position: absolute; left: 0.42em; bottom: -0.2em; font-family: ${SCRIPT}; font-weight: 400; font-size: 0.24em; line-height: 1;
+    letter-spacing: 0; color: ${C.ink}; text-transform: capitalize;
+  }
   ${reveal}
   &[data-reveal='armed'] { transform: translateX(-3vw); }
   &[data-reveal='in'] { transition: opacity 1s ease, transform 1.1s cubic-bezier(.2,.6,.2,1); }
@@ -42,7 +46,7 @@ const Sheet = styled.div`
 `;
 const Month = styled.h2`
   margin: 0 0 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid ${C.ink};
-  font-family: ${SERIF}; font-weight: 400; font-size: clamp(2rem, 3.4vw, 3.75rem); line-height: 1; text-transform: capitalize; font-variant-numeric: lining-nums;
+  font-family: ${HEADING}; font-weight: 400; font-size: clamp(2.25rem, 3.8vw, 4.25rem); line-height: 1.15; text-transform: capitalize;
 `;
 const Grid = styled.div`display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center;`;
 const Weekday = styled.div`font-size: 0.8125rem; color: ${C.inkSoft}; padding-bottom: 0.75rem; text-transform: capitalize;`;
@@ -97,17 +101,23 @@ function Countdown() {
   };
 
   // Große Zahl (Schmuck) und derselbe Stand als lesbarer Satz
-  let big = null; let line = null; let spoken = null;
+  let big = null; let line = null; let spoken = null; let unit = null;
   if (left) {
     if (left.past) line = t(STRINGS, 'past');
     else if (left.days === 0) { big = `${left.hours}:${String(left.minutes).padStart(2, '0')}`; line = t(STRINGS, 'today'); }
-    else { big = String(left.days); line = formatTimeLeft(left, lang); spoken = t(STRINGS, 'timeLeft', { time: formatTimeLeft(left, lang, ['days', 'hours', 'minutes']) }); }
+    else {
+      big = String(left.days);
+      // „Tage", „days", „gün", „jours" – das Wort liefert der Browser passend zur Zahl
+      const loc = LOCALES[lang] || LOCALES.en;
+      unit = (new Intl.NumberFormat(loc, { style: 'unit', unit: 'day', unitDisplay: 'long' }).formatToParts(left.days).find((x) => x.type === 'unit') || {}).value || null;
+      line = formatTimeLeft(left, lang); spoken = t(STRINGS, 'timeLeft', { time: formatTimeLeft(left, lang, ['days', 'hours', 'minutes']) });
+    }
   }
 
   return (
     <Section id="countdown" $tone="shell" aria-label={cd.title || t(STRINGS, 'countdownTitle')}>
       <Layout>
-        <Num ref={numRef} aria-hidden="true" data-clock={left && left.days === 0 && !left.past ? 'true' : undefined}>{big}</Num>
+        <Num ref={numRef} aria-hidden="true" data-clock={left && left.days === 0 && !left.past ? 'true' : undefined}>{big}{unit && <span className="unit">{unit}</span>}</Num>
         <Label>
           {spoken
             ? <p className="count"><span aria-hidden="true">{line}</span><span className="sr">{spoken}</span></p>
